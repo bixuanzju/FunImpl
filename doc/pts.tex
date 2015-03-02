@@ -1,0 +1,158 @@
+% Article template
+\documentclass[oneside,a4paper]{article}
+
+% Set margins
+\usepackage[top=1in,bottom=1in,left=1.25in,right=1.25in]{geometry}
+
+% Font settings
+\usepackage{times}
+\usepackage{url}
+\urlstyle{rm}
+
+% AMS support
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+
+% Logic proof support
+\usepackage{bussproofs}
+
+% Language support
+\usepackage{csquotes}
+\usepackage[english]{babel}
+\MakeOuterQuote{"}
+\usepackage{indentfirst}
+
+% Reference settings
+\usepackage{hyperref}
+\hypersetup{
+   colorlinks,
+   citecolor=black,
+   filecolor=black,
+   linkcolor=black,
+   urlcolor=black
+}
+
+% Caption format
+\usepackage{titlesec}
+\titleformat{\section}{\normalfont\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalfont\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\usepackage[font=small,labelfont=bf]{caption}
+\DeclareCaptionLabelSeparator{colon}{.~}
+\numberwithin{equation}{section}
+
+% Line spacing
+\usepackage{setspace}
+\onehalfspacing
+
+% List support
+\usepackage{paralist}
+
+% Table support
+\usepackage{booktabs}
+{\renewcommand{\arraystretch}{2.5}
+
+% Graphics support
+\usepackage{graphicx}
+\usepackage{float}
+
+% Citation support
+\usepackage[numbers]{natbib}
+
+% Title
+\title{\bf Formalization of Pure Type System}
+\author{}
+\date{}
+
+% Text
+\begin{document}
+\maketitle
+
+\section{Definition}
+\begin{enumerate}[(i)]
+\item A \emph{pure type system} (\emph{PTS}) is a triple tuple $(\mathcal{S},\mathcal{A},\mathcal{R})$ where
+
+\begin{enumerate}
+\item $\mathcal{S}$ is a set of \emph{sorts};
+\item $\mathcal{A}\subseteq \mathcal{S} \times \mathcal{S}$ is a set of \emph{axioms};
+\item $\mathcal{R}\subseteq \mathcal{S} \times \mathcal{S} \times \mathcal{S}$ is a set of \emph{rules}.
+\end{enumerate}
+
+\item \emph{Raw expressions} $A$ and \emph{raw environments} $\Gamma$ are defined by
+\begin{align*}
+A &::= x \mid s \mid AA \mid \lambda x:A.A \mid \Pi x:A.A\\
+\Gamma &::= \varnothing \mid \Gamma,x:A
+\end{align*}
+where we use $s,t,u$, etc. to range over sorts, $x,y,z$, etc. to range over variables, and $A,B,C,a,b,c$, etc. to range over expressions.
+
+\item $\Pi$ and $\lambda$ are used to bind variables. Let $\mathrm{FV}(A)$ denote free variable set of $A$. Let $A[x:=B]$ denote the substitution of $x$ in $A$ with $B$. Standard notational conventions are applied here. Besides we also define $A \to B$ as $(\Pi x:A.B)$ when $x \not \in \mathrm{FV}(B)$.
+
+\item The relation $\to _ \beta$ on raw expressions is the compatible closure of \[ (\lambda x:A.M)N \to _ \beta M[x:=N], \]
+which can be used to define the notation $\twoheadrightarrow_\beta$ and $=_\beta$ by convention.
+
+\item Type assignment rules for $(\mathcal{S},\mathcal{A},\mathcal{R})$ are given in Figure \ref{fig:rules}.
+
+\begin{figure}[H]
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{llll}
+(Ax) &
+\RightLabel{$((s,t) \in \mathcal{A})$}
+\AxiomC{}
+\UnaryInfC{$\vdash s:t$}
+\DisplayProof &
+
+(Var) &
+\RightLabel{$(x \not \in \mathrm{dom}(\Gamma))$}
+\AxiomC{$\Gamma \vdash A:s$}
+\UnaryInfC{$\Gamma,x:A \vdash x:A$}
+\DisplayProof \\
+
+(Weak) &
+\RightLabel{$(x \not \in \mathrm{dom}(\Gamma))$}
+\AxiomC{$\Gamma \vdash b:B$}
+\AxiomC{$\Gamma \vdash A:s$}
+\BinaryInfC{$\Gamma,x:A \vdash b:B$}
+\DisplayProof &
+
+(App) &
+\AxiomC{$\Gamma \vdash f:(\Pi x:A.B)$}
+\AxiomC{$\Gamma \vdash a:A$}
+\BinaryInfC{$\Gamma \vdash fa:B[x:=a]$}
+\DisplayProof \\
+
+(Lam) &
+\AxiomC{$\Gamma,x:A \vdash b:B$}
+\AxiomC{$\Gamma \vdash (\Pi x:A.B):t$}
+\BinaryInfC{$\Gamma \vdash (\lambda x:A.b):(\Pi x:A.B)$}
+\DisplayProof &
+
+(Pi) &
+\RightLabel{$((s,t,u) \in \mathcal{R})$}
+\AxiomC{$\Gamma \vdash A:s$}
+\AxiomC{$\Gamma,x:A \vdash B:t$}
+\BinaryInfC{$\Gamma \vdash (\Pi x:A.B):u$}
+\DisplayProof \\
+
+(Conv) &
+\RightLabel{$(A=_\beta B)$}
+\AxiomC{$\Gamma \vdash a:A$}
+\AxiomC{$\Gamma \vdash B:s$}
+\BinaryInfC{$\Gamma \vdash a:B$}
+\DisplayProof
+
+\end{tabular}
+\end{table}
+\caption{Type rules for pure type system}
+\label{fig:rules}
+\end{figure}
+
+\end{enumerate}
+
+% References
+\nocite{*}
+\bibliographystyle{plainnat}
+\bibliography{pts}
+
+\end{document}
