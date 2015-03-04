@@ -96,25 +96,25 @@ which can be used to define the notation $\twoheadrightarrow_\beta$ and $=_\beta
 \begin{table}[H]
 \centering
 \small
-\begin{tabular}{llll}
+\begin{tabular}{lcl}
 (Ax) &
-\RightLabel{$((s,t) \in \mathcal{A})$}
 \AxiomC{}
 \UnaryInfC{$\vdash s:t$}
 \DisplayProof &
+$(s,t) \in \mathcal{A}$ \\
 
 (Var) &
-\RightLabel{$(x \not \in \mathrm{dom}(\Gamma))$}
 \AxiomC{$\Gamma \vdash A:s$}
 \UnaryInfC{$\Gamma,x:A \vdash x:A$}
-\DisplayProof \\
+\DisplayProof &
+$x \not \in \mathrm{dom}(\Gamma)$ \\
 
 (Weak) &
-\RightLabel{$(x \not \in \mathrm{dom}(\Gamma))$}
 \AxiomC{$\Gamma \vdash b:B$}
 \AxiomC{$\Gamma \vdash A:s$}
 \BinaryInfC{$\Gamma,x:A \vdash b:B$}
 \DisplayProof &
+$x \not \in \mathrm{dom}(\Gamma)$ \\
 
 (App) &
 \AxiomC{$\Gamma \vdash f:(\Pi x:A.B)$}
@@ -126,20 +126,20 @@ which can be used to define the notation $\twoheadrightarrow_\beta$ and $=_\beta
 \AxiomC{$\Gamma,x:A \vdash b:B$}
 \AxiomC{$\Gamma \vdash (\Pi x:A.B):t$}
 \BinaryInfC{$\Gamma \vdash (\lambda x:A.b):(\Pi x:A.B)$}
-\DisplayProof &
+\DisplayProof \\
 
 (Pi) &
-\RightLabel{$((s,t,u) \in \mathcal{R})$}
 \AxiomC{$\Gamma \vdash A:s$}
 \AxiomC{$\Gamma,x:A \vdash B:t$}
 \BinaryInfC{$\Gamma \vdash (\Pi x:A.B):u$}
-\DisplayProof \\
+\DisplayProof &
+$(s,t,u) \in \mathcal{R}$ \\
 
 (Conv) &
-\RightLabel{$(A=_\beta B)$}
 \AxiomC{$\Gamma \vdash a:A$}
 \AxiomC{$\Gamma \vdash B:s$}
-\BinaryInfC{$\Gamma \vdash a:B$}
+\AxiomC{$A=_\beta B$}
+\TrinaryInfC{$\Gamma \vdash a:B$}
 \DisplayProof
 
 \end{tabular}
@@ -150,9 +150,18 @@ which can be used to define the notation $\twoheadrightarrow_\beta$ and $=_\beta
 
 \end{enumerate}
 
+\section{Examples of PTSs}
+
+
+
 % References
 \nocite{*}
 \bibliographystyle{plainnat}
 \bibliography{pts}
 
 \end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
