@@ -85,19 +85,18 @@ A &::= x \mid s \mid AA \mid \lambda x:A.A \mid \Pi x:A.A\\
 \end{align*}
 where we use $s,t,u$, etc. to range over sorts, $x,y,z$, etc. to range over variables, and $A,B,C,a,b,c$, etc. to range over expressions.
 
-\item $\Pi$ and $\lambda$ are used to bind variables. Let $\mathrm{FV}(A)$ denote free variable set of $A$. Let $A[x:=B]$ denote the substitution of $x$ in $A$ with $B$. Standard notational conventions are applied here. Besides we also define $A \to B$ as $(\Pi x:A.B)$ when $x \not \in \mathrm{FV}(B)$.
+\item $\Pi$ and $\lambda$ are used to bind variables. Let $\mathrm{FV}(A)$ denote free variable set of $A$. Let $A[x:=B]$ denote the substitution of $x$ in $A$ with $B$. Standard notational conventions are applied here. Besides we also define $A \to B$ as $(\Pi x:A.B)$ where $x \not \in \mathrm{FV}(B)$.
 
-\item The relation $\to _ \beta$ on raw expressions is the compatible closure of \[ (\lambda x:A.M)N \to _ \beta M[x:=N], \]
+\item The relation $\to _ \beta$ is the smallest binary relation on raw expressions satisfying \[ (\lambda x:A.M)N \to _ \beta M[x:=N] \]
 which can be used to define the notation $\twoheadrightarrow_\beta$ and $=_\beta$ by convention.
 
-\item Type assignment rules for $(\mathcal{S},\mathcal{A},\mathcal{R})$ are given in Figure \ref{fig:rules}.
+\item Type assignment rules for $(\mathcal{S},\mathcal{A},\mathcal{R})$ are given in Table \ref{fig:rules}.
 
-\begin{figure}[H]
-\begin{table}[H]
+\begin{table}[h]
 \centering
 \small
 \begin{tabular}{lcl}
-(Ax) &
+(Axiom) &
 \AxiomC{}
 \UnaryInfC{$\vdash s:t$}
 \DisplayProof &
@@ -143,15 +142,40 @@ $(s,t,u) \in \mathcal{R}$ \\
 \DisplayProof
 
 \end{tabular}
-\end{table}
-\caption{Type rules for pure type system}
+\caption{Typing rules for pure type system}
 \label{fig:rules}
-\end{figure}
+\end{table}
 
 \end{enumerate}
 
 \section{Examples of PTSs}
 
+\begin{enumerate}[(i)]
+
+\item The $\lambda$-cube consists of eight PTSs, where
+
+\begin{enumerate}
+\item $\mathcal{S} = \{\star,\square\}$
+\item $\mathcal{A} = \{(\star, \square)\}$
+\item $\{(\star, \star)\} \subseteq \mathcal{R} \subseteq \{(\star, \star), (\star, \square), (\square, \star), (\square, \square)\}$
+\end{enumerate}
+
+\item An extension of $\lambda\omega$ that supports ``polymorphic identity function on types'', where
+
+\begin{enumerate}
+\item $\mathcal{S} = \{\star,\square, \square^{\prime}\}$
+\item $\mathcal{A} = \{(\star, \square), (\square, \square^{\prime})\}$
+\item $\mathcal{R} = \{(\star, \star), (\square, \star), (\square, \square), (\square^{\prime}, \square^{\prime})\}$
+\end{enumerate}
+
+in which we can have $\vdash (\lambda \kappa : \square.\lambda \alpha : \kappa. \alpha) : \Pi \kappa : \square . \kappa \rightarrow \kappa$.
+
+
+\end{enumerate}
+
+\section{Typing Derivations}
+
+Examples of typing derivations go here.
 
 
 % References
