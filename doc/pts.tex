@@ -96,7 +96,7 @@ which can be used to define the notation $\twoheadrightarrow_\beta$ and $=_\beta
 \centering
 \small
 \begin{tabular}{lcl}
-(Axiom) &
+(Ax) &
 \AxiomC{}
 \UnaryInfC{$\vdash s:t$}
 \DisplayProof &
@@ -170,14 +170,55 @@ Note that here we slightly abuse the notation of the set of rules $\mathcal{R}$,
 \item $\mathcal{R} = \{(\star, \star), (\square, \star), (\square, \square), (\square^{\prime}, \square^{\prime})\}$
 \end{enumerate}
 
-in which we can have $\vdash (\lambda \kappa : \square.\lambda \alpha : \kappa. \alpha) : \Pi \kappa : \square . \kappa \rightarrow \kappa$.
+in which we can have $\vdash (\lambda \kappa : \square.\lambda \alpha : \kappa. \alpha) : (\Pi \kappa : \square . \kappa \rightarrow \kappa)$ (justified in Section~\ref{sec:typ}).
 
 
 \end{enumerate}
 
-\section{Typing Derivations}
+\section{Typing Derivations} \label{sec:typ}
 
-Examples of typing derivations go here.
+The typing derivation of $\vdash (\lambda \kappa : \square.\lambda \alpha : \kappa. \alpha) : (\Pi \kappa : \square . \Pi \alpha : \kappa. \kappa)$ is as follows:
+
+\begin{prooftree}
+  \AxiomC{B}
+  \RightLabel{\emph{Var}}
+  \UnaryInfC{$\kappa : \square, \alpha : \kappa \vdash \alpha : \kappa$}  
+  \AxiomC{A}
+  \RightLabel{\emph{Lam}}
+  \BinaryInfC{$\kappa : \square \vdash (\lambda \alpha : \kappa. \alpha) : (\Pi \alpha : \kappa. \kappa)$}
+  \AxiomC{}
+  \RightLabel{\emph{Ax}}
+  \UnaryInfC{$\vdash \square : \square^{\prime}$}
+  \AxiomC{A}
+  \RightLabel{\emph{Pi}}
+  \BinaryInfC{$\vdash (\Pi \kappa : \square . \Pi \alpha : \kappa. \kappa) : \square$}
+  \RightLabel{\emph{Lam}}
+  \BinaryInfC{$\vdash (\lambda \kappa : \square.\lambda \alpha : \kappa. \alpha) : (\Pi \kappa : \square . \Pi \alpha : \kappa. \kappa)$}
+\end{prooftree}
+
+where
+ 
+\begin{table}[H]
+\centering
+\begin{tabular}{ll}
+$A=$ &
+\AxiomC{B}
+\AxiomC{B}
+\AxiomC{B}
+\RightLabel{\emph{Weak}}
+\BinaryInfC{$\kappa : \square , \alpha : \kappa \vdash \kappa : \square$}
+\RightLabel{\emph{Pi}}
+\BinaryInfC{$\kappa : \square \vdash (\Pi \alpha : \kappa. \kappa) : \square$} 
+\DisplayProof \\
+$B=$ & 
+\AxiomC{}
+\RightLabel{\emph{Ax}}
+\UnaryInfC{$\vdash \square : \square^{\prime}$}
+\RightLabel{\emph{Var}}
+\UnaryInfC{$\kappa : \square \vdash \kappa : \square$}
+\DisplayProof
+\end{tabular}
+\end{table}
 
 
 % References
