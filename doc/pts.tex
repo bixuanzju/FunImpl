@@ -152,7 +152,7 @@ $(s,t,u) \in \mathcal{R}$ \\
 
 \begin{enumerate}[(i)]
 
-\item The $\lambda$-cube consists of eight PTSs, where
+\item The $\lambda$-cube (Table~\ref{tab:lambda}) consists of eight PTSs, where
 
 \begin{enumerate}
 \item $\mathcal{S} = \{\star,\square\}$
@@ -160,7 +160,45 @@ $(s,t,u) \in \mathcal{R}$ \\
 \item $\{(\star, \star)\} \subseteq \mathcal{R} \subseteq \{(\star, \star), (\star, \square), (\square, \star), (\square, \square)\}$
 \end{enumerate}
 
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|llll|}
+\hline
+System & \multicolumn{4}{|c|}{Set of Rules $\mathcal{R}$} \\ \hline
+$\lambda_{\rightarrow}$ & $(\star, \star)$ & & & \\
+$\lambda2$ & $(\star, \star)$ & $(\square, \star)$ & & \\ 
+$\lambda\underbar{$\omega$}$ & $(\star, \star)$ & &  $(\square, \square)$ & \\ 
+$\lambda\omega$ & $(\star, \star)$ & $(\square, \star)$ & $(\square, \square)$ & \\ 
+$\lambda$P & $(\star, \star)$ & & & $(\star, \square)$ \\ 
+$\lambda$P2 & $(\star, \star)$ & $(\square, \star)$ & & $(\star, \square)$ \\ 
+$\lambda$P$\underbar{$\omega$}$ & $(\star, \star)$ & & $(\square, \square)$ & $(\star, \square)$ \\ 
+$\lambda$C & $(\star, \star)$ & $(\square, \star)$ & $(\square, \square)$ & $(\star, \square)$ \\ \hline
+\end{tabular}
+\caption{The systems of the $\lambda$-cube}
+\label{tab:lambda}
+\end{table}
+
+% \begin{table}[h!]
+%   \centering
+%   \begin{tabular}{|l|l|}
+
+% \hline 
+% system & Set of Rules $\mathcal{R}$ \\ \hline
+
+% $\lambda_{\rightarrow}$ & $(\star, \star)$ \\ \hline
+% $\lambda_{2}$ & $(\star, \star) \quad (\square, \star)$ \\ \hline
+% $\lambda_{\underbar{$\omega$}}$ & $(\star, \star) \quad (\square, \star)$ \\ \hline
+
+
+%   \end{tabular}
+%   \caption{The systems of the $\lambda$-cube}
+%   \label{tab:lambda}
+% \end{table}
+
+
 Note that here we slightly abuse the notation of the set of rules $\mathcal{R}$, since in PTSs, $\mathcal{R}$ is a ternary relation, while in the $\lambda$-cube, $\mathcal{R}$ is a binary relation ($\Pi x: A.B$ has the same sorts as $B$).
+
 
 \item An extension of $\lambda\omega$ that supports ``polymorphic identity function on types'', where
 
@@ -180,16 +218,16 @@ in which we can have $\vdash (\lambda \kappa : \square.\lambda \alpha : \kappa. 
 The typing derivation of $\vdash (\lambda \kappa : \square.\lambda \alpha : \kappa. \alpha) : (\Pi \kappa : \square . \Pi \alpha : \kappa. \kappa)$ is as follows:
 
 \begin{prooftree}
-  \AxiomC{B}
+  \AxiomC{$\mathcal{B}$}
   \RightLabel{\emph{Var}}
   \UnaryInfC{$\kappa : \square, \alpha : \kappa \vdash \alpha : \kappa$}  
-  \AxiomC{A}
+  \AxiomC{$\mathcal{A}$}
   \RightLabel{\emph{Lam}}
   \BinaryInfC{$\kappa : \square \vdash (\lambda \alpha : \kappa. \alpha) : (\Pi \alpha : \kappa. \kappa)$}
   \AxiomC{}
   \RightLabel{\emph{Ax}}
   \UnaryInfC{$\vdash \square : \square^{\prime}$}
-  \AxiomC{A}
+  \AxiomC{$\mathcal{A}$}
   \RightLabel{\emph{Pi}}
   \BinaryInfC{$\vdash (\Pi \kappa : \square . \Pi \alpha : \kappa. \kappa) : \square$}
   \RightLabel{\emph{Lam}}
@@ -201,16 +239,16 @@ where
 \begin{table}[H]
 \centering
 \begin{tabular}{ll}
-$A=$ &
-\AxiomC{B}
-\AxiomC{B}
-\AxiomC{B}
+$\mathcal{A}=$ &
+\AxiomC{$\mathcal{B}$}
+\AxiomC{$\mathcal{B}$}
+\AxiomC{$\mathcal{B}$}
 \RightLabel{\emph{Weak}}
 \BinaryInfC{$\kappa : \square , \alpha : \kappa \vdash \kappa : \square$}
 \RightLabel{\emph{Pi}}
 \BinaryInfC{$\kappa : \square \vdash (\Pi \alpha : \kappa. \kappa) : \square$} 
 \DisplayProof \\
-$B=$ & 
+$\mathcal{B}=$ & 
 \AxiomC{}
 \RightLabel{\emph{Ax}}
 \UnaryInfC{$\vdash \square : \square^{\prime}$}
