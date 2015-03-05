@@ -70,80 +70,96 @@
 
 \section{Definition}
 \begin{enumerate}[(i)]
-\item A \emph{pure type system} (\emph{PTS}) is a triple tuple $(\mathcal{S},\mathcal{A},\mathcal{R})$ where
+\item A \emph{pure type system} (\emph{PTS}) is a triple tuple
+  $(\mathcal{S},\mathcal{A},\mathcal{R})$ where
 
-\begin{enumerate}
-\item $\mathcal{S}$ is a set of \emph{sorts};
-\item $\mathcal{A}\subseteq \mathcal{S} \times \mathcal{S}$ is a set of \emph{axioms};
-\item $\mathcal{R}\subseteq \mathcal{S} \times \mathcal{S} \times \mathcal{S}$ is a set of \emph{rules}.
-\end{enumerate}
+  \begin{enumerate}
+  \item $\mathcal{S}$ is a set of \emph{sorts};
+  \item $\mathcal{A}\subseteq \mathcal{S} \times \mathcal{S}$ is a set
+    of \emph{axioms};
+  \item
+    $\mathcal{R}\subseteq \mathcal{S} \times \mathcal{S} \times
+    \mathcal{S}$ is a set of \emph{rules}.
+  \end{enumerate}
 
-\item \emph{Raw expressions} $A$ and \emph{raw environments} $\Gamma$ are defined by
-\begin{align*}
-A &::= x \mid s \mid AA \mid \lambda x:A.A \mid \Pi x:A.A\\
-\Gamma &::= \varnothing \mid \Gamma,x:A
-\end{align*}
-where we use $s,t,u$, etc. to range over sorts, $x,y,z$, etc. to range over variables, and $A,B,C,a,b,c$, etc. to range over expressions.
+\item \emph{Raw expressions} $A$ and \emph{raw environments} $\Gamma$
+  are defined by
+  \begin{align*}
+    A &::= x \mid s \mid AA \mid \lambda x:A.A \mid \Pi x:A.A\\
+    \Gamma &::= \varnothing \mid \Gamma,x:A
+  \end{align*}
+  where we use $s,t,u$, etc. to range over sorts, $x,y,z$, etc. to
+  range over variables, and $A,B,C,a,b,c$, etc. to range over
+  expressions.
 
-\item $\Pi$ and $\lambda$ are used to bind variables. Let $\mathrm{FV}(A)$ denote free variable set of $A$. Let $A[x:=B]$ denote the substitution of $x$ in $A$ with $B$. Standard notational conventions are applied here. Besides we also define $A \to B$ as $(\Pi x:A.B)$ where $x \not \in \mathrm{FV}(B)$.
+\item $\Pi$ and $\lambda$ are used to bind variables. Let
+  $\mathrm{FV}(A)$ denote free variable set of $A$. Let $A[x:=B]$
+  denote the substitution of $x$ in $A$ with $B$. Standard notational
+  conventions are applied here. Besides we also define $A \to B$ as
+  $(\Pi x:A.B)$ where $x \not \in \mathrm{FV}(B)$.
 
-\item The relation $\to _ \beta$ is the smallest binary relation on raw expressions satisfying \[ (\lambda x:A.M)N \to _ \beta M[x:=N] \]
-which can be used to define the notation $\twoheadrightarrow_\beta$ and $=_\beta$ by convention.
+\item The relation $\to _ \beta$ is the smallest binary relation on
+  raw expressions satisfying
+  \[ (\lambda x:A.M)N \to _ \beta M[x:=N] \]
+  which can be used to define the notation $\twoheadrightarrow_\beta$
+  and $=_\beta$ by convention.
 
-\item Type assignment rules for $(\mathcal{S},\mathcal{A},\mathcal{R})$ are given in Table \ref{fig:rules}.
+\item Type assignment rules for
+  $(\mathcal{S},\mathcal{A},\mathcal{R})$ are given in Table
+  \ref{fig:rules}.
 
 \begin{table}[h]
-\centering
-\small
-\begin{tabular}{lcl}
-(Ax) &
-\AxiomC{}
-\UnaryInfC{$\vdash s:t$}
-\DisplayProof &
-$(s,t) \in \mathcal{A}$ \\
+  \centering
+  \small
+  \begin{tabular}{lcl}
+    (Ax) &
+           \AxiomC{}
+           \UnaryInfC{$\vdash s:t$}
+           \DisplayProof &
+                           $(s,t) \in \mathcal{A}$ \\
 
-(Var) &
-\AxiomC{$\Gamma \vdash A:s$}
-\UnaryInfC{$\Gamma,x:A \vdash x:A$}
-\DisplayProof &
-$x \not \in \mathrm{dom}(\Gamma)$ \\
+    (Var) &
+            \AxiomC{$\Gamma \vdash A:s$}
+            \UnaryInfC{$\Gamma,x:A \vdash x:A$}
+            \DisplayProof &
+                            $x \not \in \mathrm{dom}(\Gamma)$ \\
 
-(Weak) &
-\AxiomC{$\Gamma \vdash b:B$}
-\AxiomC{$\Gamma \vdash A:s$}
-\BinaryInfC{$\Gamma,x:A \vdash b:B$}
-\DisplayProof &
-$x \not \in \mathrm{dom}(\Gamma)$ \\
+    (Weak) &
+             \AxiomC{$\Gamma \vdash b:B$}
+             \AxiomC{$\Gamma \vdash A:s$}
+             \BinaryInfC{$\Gamma,x:A \vdash b:B$}
+             \DisplayProof &
+                             $x \not \in \mathrm{dom}(\Gamma)$ \\
 
-(App) &
-\AxiomC{$\Gamma \vdash f:(\Pi x:A.B)$}
-\AxiomC{$\Gamma \vdash a:A$}
-\BinaryInfC{$\Gamma \vdash fa:B[x:=a]$}
-\DisplayProof \\
+    (App) &
+            \AxiomC{$\Gamma \vdash f:(\Pi x:A.B)$}
+            \AxiomC{$\Gamma \vdash a:A$}
+            \BinaryInfC{$\Gamma \vdash fa:B[x:=a]$}
+            \DisplayProof \\
 
-(Lam) &
-\AxiomC{$\Gamma,x:A \vdash b:B$}
-\AxiomC{$\Gamma \vdash (\Pi x:A.B):t$}
-\BinaryInfC{$\Gamma \vdash (\lambda x:A.b):(\Pi x:A.B)$}
-\DisplayProof \\
+    (Lam) &
+            \AxiomC{$\Gamma,x:A \vdash b:B$}
+            \AxiomC{$\Gamma \vdash (\Pi x:A.B):t$}
+            \BinaryInfC{$\Gamma \vdash (\lambda x:A.b):(\Pi x:A.B)$}
+            \DisplayProof \\
 
-(Pi) &
-\AxiomC{$\Gamma \vdash A:s$}
-\AxiomC{$\Gamma,x:A \vdash B:t$}
-\BinaryInfC{$\Gamma \vdash (\Pi x:A.B):u$}
-\DisplayProof &
-$(s,t,u) \in \mathcal{R}$ \\
+    (Pi) &
+           \AxiomC{$\Gamma \vdash A:s$}
+           \AxiomC{$\Gamma,x:A \vdash B:t$}
+           \BinaryInfC{$\Gamma \vdash (\Pi x:A.B):u$}
+           \DisplayProof &
+                           $(s,t,u) \in \mathcal{R}$ \\
 
-(Conv) &
-\AxiomC{$\Gamma \vdash a:A$}
-\AxiomC{$\Gamma \vdash B:s$}
-\AxiomC{$A=_\beta B$}
-\TrinaryInfC{$\Gamma \vdash a:B$}
-\DisplayProof
+    (Conv) &
+             \AxiomC{$\Gamma \vdash a:A$}
+             \AxiomC{$\Gamma \vdash B:s$}
+             \AxiomC{$A=_\beta B$}
+             \TrinaryInfC{$\Gamma \vdash a:B$}
+             \DisplayProof
 
-\end{tabular}
-\caption{Typing rules for pure type system}
-\label{fig:rules}
+  \end{tabular}
+  \caption{Typing rules for pure type system}
+  \label{fig:rules}
 \end{table}
 
 \end{enumerate}
@@ -152,99 +168,113 @@ $(s,t,u) \in \mathcal{R}$ \\
 
 \begin{enumerate}[(i)]
 
-\item The $\lambda$-cube (Table~\ref{tab:lambda}) consists of eight PTSs, where
+\item The $\lambda$-cube (Table~\ref{tab:lambda}) consists of eight
+  PTSs, where
 
-\begin{enumerate}
-\item $\mathcal{S} = \{\star,\square\}$
-\item $\mathcal{A} = \{(\star, \square)\}$
-\item $\{(\star, \star)\} \subseteq \mathcal{R} \subseteq \{(\star, \star), (\star, \square), (\square, \star), (\square, \square)\}$
-\end{enumerate}
+  \begin{enumerate}
+  \item $\mathcal{S} = \{\star,\square\}$
+  \item $\mathcal{A} = \{(\star, \square)\}$
+  \item
+    $\{(\star, \star)\} \subseteq \mathcal{R} \subseteq \{(\star,
+    \star), (\star, \square), (\square, \star), (\square, \square)\}$
+  \end{enumerate}
 
 
 \begin{table}[h!]
-\centering
-\begin{tabular}{|l|llll|}
-\hline
-System & \multicolumn{4}{|c|}{Set of Rules $\mathcal{R}$} \\ \hline
-$\lambda_{\rightarrow}$ & $(\star, \star)$ & & & \\
-$\lambda2$ & $(\star, \star)$ & $(\square, \star)$ & & \\ 
-$\lambda\underbar{$\omega$}$ & $(\star, \star)$ & &  $(\square, \square)$ & \\ 
-$\lambda\omega$ & $(\star, \star)$ & $(\square, \star)$ & $(\square, \square)$ & \\ 
-$\lambda$P & $(\star, \star)$ & & & $(\star, \square)$ \\ 
-$\lambda$P2 & $(\star, \star)$ & $(\square, \star)$ & & $(\star, \square)$ \\ 
-$\lambda$P$\underbar{$\omega$}$ & $(\star, \star)$ & & $(\square, \square)$ & $(\star, \square)$ \\ 
-$\lambda$C & $(\star, \star)$ & $(\square, \star)$ & $(\square, \square)$ & $(\star, \square)$ \\ \hline
-\end{tabular}
-\caption{The systems of the $\lambda$-cube}
-\label{tab:lambda}
+  \centering
+  \begin{tabular}{|l|llll|}
+    \hline
+    System & \multicolumn{4}{|c|}{Set of Rules $\mathcal{R}$} \\ \hline
+    $\lambda_{\rightarrow}$ & $(\star, \star)$ & & & \\
+    $\lambda2$ & $(\star, \star)$ & $(\square, \star)$ & & \\ 
+    $\lambda\underbar{$\omega$}$ & $(\star, \star)$ & &  $(\square, \square)$ & \\ 
+    $\lambda\omega$ & $(\star, \star)$ & $(\square, \star)$ & $(\square, \square)$ & \\ 
+    $\lambda$P & $(\star, \star)$ & & & $(\star, \square)$ \\ 
+    $\lambda$P2 & $(\star, \star)$ & $(\square, \star)$ & & $(\star, \square)$ \\ 
+    $\lambda$P$\underbar{$\omega$}$ & $(\star, \star)$ & & $(\square, \square)$ & $(\star, \square)$ \\ 
+    $\lambda$C & $(\star, \star)$ & $(\square, \star)$ & $(\square, \square)$ & $(\star, \square)$ \\ \hline
+  \end{tabular}
+  \caption{The systems of the $\lambda$-cube}
+  \label{tab:lambda}
 \end{table}
 
-Note that here we slightly abuse the notation of the set of rules $\mathcal{R}$, since in PTSs, $\mathcal{R}$ is a ternary relation, while in the $\lambda$-cube, $\mathcal{R}$ is a binary relation ($\Pi x: A.B$ has the same sorts as $B$).
+Note that here we slightly abuse the notation of the set of rules
+$\mathcal{R}$, since in PTSs, $\mathcal{R}$ is a ternary relation,
+while in the $\lambda$-cube, $\mathcal{R}$ is a binary relation
+($\Pi x: A.B$ has the same sorts as $B$).
 
 
-\item An extension of $\lambda\omega$ that supports ``polymorphic identity function on types'', where
+\item An extension of $\lambda\omega$ that supports ``polymorphic
+  identity function on types'', where
 
-\begin{enumerate}
-\item $\mathcal{S} = \{\star,\square, \square^{\prime}\}$
-\item $\mathcal{A} = \{(\star, \square), (\square, \square^{\prime})\}$
-\item $\mathcal{R} = \{(\star, \star), (\square, \star), (\square, \square), (\square^{\prime}, \square^{\prime})\}$
-\end{enumerate}
+  \begin{enumerate}
+  \item $\mathcal{S} = \{\star,\square, \square^{\prime}\}$
+  \item
+    $\mathcal{A} = \{(\star, \square), (\square, \square^{\prime})\}$
+  \item
+    $\mathcal{R} = \{(\star, \star), (\square, \star), (\square,
+    \square), (\square^{\prime}, \square^{\prime})\}$
+  \end{enumerate}
 
-in which we can have $\vdash (\lambda \kappa : \square.\lambda \alpha : \kappa. \alpha) : (\Pi \kappa : \square . \kappa \rightarrow \kappa)$ (justified in Section~\ref{sec:typ}).
+  in which we can have
+  $\vdash (\lambda \kappa : \square.\lambda \alpha : \kappa. \alpha) :
+  (\Pi \kappa : \square . \kappa \rightarrow \kappa)$
+  (justified in Section~\ref{sec:typ}).
 
 
 \end{enumerate}
 
 \section{Typing Derivations} \label{sec:typ}
 
-The typing derivation of $\vdash (\lambda \kappa : \square.\lambda \alpha : \kappa. \alpha) : (\Pi \kappa : \square . \Pi \alpha : \kappa. \kappa)$ is as follows:
+The typing derivation of
+$\vdash (\lambda \kappa : \square.\lambda \alpha : \kappa. \alpha) :
+(\Pi \kappa : \square . \Pi \alpha : \kappa. \kappa)$ is as follows:
 
 \begin{prooftree}
-  \AxiomC{$\mathcal{B}$}
-  \RightLabel{\emph{Var}}
-  \UnaryInfC{$\kappa : \square, \alpha : \kappa \vdash \alpha : \kappa$}  
-  \AxiomC{$\mathcal{A}$}
-  \RightLabel{\emph{Lam}}
-  \BinaryInfC{$\kappa : \square \vdash (\lambda \alpha : \kappa. \alpha) : (\Pi \alpha : \kappa. \kappa)$}
-  \AxiomC{}
-  \RightLabel{\emph{Ax}}
+  \AxiomC{$\mathcal{B}$} \RightLabel{\emph{Var}}
+  \UnaryInfC{$\kappa : \square, \alpha : \kappa \vdash \alpha :
+    \kappa$}
+  \AxiomC{$\mathcal{A}$} \RightLabel{\emph{Lam}}
+  \BinaryInfC{$\kappa : \square \vdash (\lambda \alpha :
+    \kappa. \alpha) : (\Pi \alpha : \kappa. \kappa)$}
+  \AxiomC{} \RightLabel{\emph{Ax}}
   \UnaryInfC{$\vdash \square : \square^{\prime}$}
-  \AxiomC{$\mathcal{A}$}
-  \RightLabel{\emph{Pi}}
-  \BinaryInfC{$\vdash (\Pi \kappa : \square . \Pi \alpha : \kappa. \kappa) : \square$}
+  \AxiomC{$\mathcal{A}$} \RightLabel{\emph{Pi}}
+  \BinaryInfC{$\vdash (\Pi \kappa : \square . \Pi \alpha :
+    \kappa. \kappa) : \square$}
   \RightLabel{\emph{Lam}}
-  \BinaryInfC{$\vdash (\lambda \kappa : \square.\lambda \alpha : \kappa. \alpha) : (\Pi \kappa : \square . \Pi \alpha : \kappa. \kappa)$}
+  \BinaryInfC{$\vdash (\lambda \kappa : \square.\lambda \alpha :
+    \kappa. \alpha) : (\Pi \kappa : \square . \Pi \alpha :
+    \kappa. \kappa)$}
 \end{prooftree}
 
 where
  
 \begin{table}[H]
-\centering
-\begin{tabular}{ll}
-$\mathcal{A}=$ &
-\AxiomC{$\mathcal{B}$}
-\AxiomC{$\mathcal{B}$}
-\AxiomC{$\mathcal{B}$}
-\RightLabel{\emph{Weak}}
-\BinaryInfC{$\kappa : \square , \alpha : \kappa \vdash \kappa : \square$}
-\RightLabel{\emph{Pi}}
-\BinaryInfC{$\kappa : \square \vdash (\Pi \alpha : \kappa. \kappa) : \square$} 
-\DisplayProof \\
-$\mathcal{B}=$ & 
-\AxiomC{}
-\RightLabel{\emph{Ax}}
-\UnaryInfC{$\vdash \square : \square^{\prime}$}
-\RightLabel{\emph{Var}}
-\UnaryInfC{$\kappa : \square \vdash \kappa : \square$}
-\DisplayProof
-\end{tabular}
+  \centering
+  \begin{tabular}{ll}
+    $\mathcal{A}=$ &
+                     \AxiomC{$\mathcal{B}$}
+                     \AxiomC{$\mathcal{B}$}
+                     \AxiomC{$\mathcal{B}$}
+                     \RightLabel{\emph{Weak}}
+                     \BinaryInfC{$\kappa : \square , \alpha : \kappa \vdash \kappa : \square$}
+                     \RightLabel{\emph{Pi}}
+                     \BinaryInfC{$\kappa : \square \vdash (\Pi \alpha : \kappa. \kappa) : \square$} 
+                     \DisplayProof \\
+    $\mathcal{B}=$ & 
+                     \AxiomC{}
+                     \RightLabel{\emph{Ax}}
+                     \UnaryInfC{$\vdash \square : \square^{\prime}$}
+                     \RightLabel{\emph{Var}}
+                     \UnaryInfC{$\kappa : \square \vdash \kappa : \square$}
+                     \DisplayProof
+  \end{tabular}
 \end{table}
 
 
 % References
-\nocite{*}
-\bibliographystyle{plainnat}
-\bibliography{pts}
+\nocite{*} \bibliographystyle{plainnat} \bibliography{pts}
 
 \end{document}
 
