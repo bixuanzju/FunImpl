@@ -50,7 +50,7 @@
 
 % Table support
 \usepackage{booktabs}
-{\renewcommand{\arraystretch}{2.5}
+\renewcommand{\arraystretch}{2.5}
 
 % Graphics support
 \usepackage{graphicx}
@@ -88,8 +88,8 @@
     A &::= x \mid s \mid AA \mid \lambda x:A.A \mid \Pi x:A.A\\
     \Gamma &::= \varnothing \mid \Gamma,x:A
   \end{align*}
-  where we use $s,t,u$, etc. to range over sorts, $x,y,z$, etc. to
-  range over variables, and $A,B,C,a,b,c$, etc. to range over
+  where we use $s,t,u$, etc., to range over sorts, $x,y,z$, etc., to
+  range over variables, and $A,B,C,a,b,c$, etc., to range over
   expressions.
 
 \item $\Pi$ and $\lambda$ are used to bind variables. Let
@@ -105,8 +105,8 @@
   and $=_\beta$ by convention.
 
 \item Type assignment rules for
-  $(\mathcal{S},\mathcal{A},\mathcal{R})$ are given in Table
-  \ref{fig:rules}.
+  $(\mathcal{S},\mathcal{A},\mathcal{R})$ are given in
+  Table~\ref{fig:rules}.
 
 \begin{table}[h]
   \centering
@@ -158,8 +158,7 @@
              \DisplayProof
 
   \end{tabular}
-  \caption{Typing rules for pure type system}
-  \label{fig:rules}
+  \caption{Typing rules for pure type system}\label{fig:rules}
 \end{table}
 
 \end{enumerate}
@@ -180,6 +179,8 @@
   \end{enumerate}
 
 
+\begingroup
+\renewcommand*{\arraystretch}{1.5}
 \begin{table}[h!]
   \centering
   \begin{tabular}{|l|llll|}
@@ -197,6 +198,7 @@
   \caption{The systems of the $\lambda$-cube}
   \label{tab:lambda}
 \end{table}
+\endgroup
 
 Note that here we slightly abuse the notation of the set of rules
 $\mathcal{R}$, since in PTSs, $\mathcal{R}$ is a ternary relation,
@@ -224,7 +226,7 @@ while in the $\lambda$-cube, $\mathcal{R}$ is a binary relation
 
 \end{enumerate}
 
-\section{Typing Derivations} \label{sec:typ}
+\section{Typing Derivations}\label{sec:typ}
 
 The typing derivation of
 $\vdash (\lambda \kappa : \square.\lambda \alpha : \kappa. \alpha) :
