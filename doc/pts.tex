@@ -220,17 +220,8 @@ while in the $\lambda$-cube, $\mathcal{R}$ is a binary relation
 
   in which we can have
   $\vdash (\lambda \kappa : \square.\lambda \alpha : \kappa. \alpha) :
-  (\Pi \kappa : \square . \kappa \rightarrow \kappa)$
-  (justified in Section~\ref{sec:typ}).
-
-
-\end{enumerate}
-
-\section{Typing Derivations}\label{sec:typ}
-
-The typing derivation of
-$\vdash (\lambda \kappa : \square.\lambda \alpha : \kappa. \alpha) :
-(\Pi \kappa : \square . \Pi \alpha : \kappa. \kappa)$ is as follows:
+  (\Pi \kappa : \square . \kappa \rightarrow \kappa)$,
+  justified as follows:
 
 \begin{prooftree}
   \AxiomC{$\mathcal{B}$} \RightLabel{\emph{Var}}
@@ -250,8 +241,6 @@ $\vdash (\lambda \kappa : \square.\lambda \alpha : \kappa. \alpha) :
     \kappa. \kappa)$}
 \end{prooftree}
 
-where
- 
 \begin{table}[H]
   \centering
   \begin{tabular}{ll}
@@ -273,6 +262,13 @@ where
                      \DisplayProof
   \end{tabular}
 \end{table}
+
+\end{enumerate}
+
+\section{Extending PTSs }
+
+Investigate how to extend PTSs to have algebraic data types, case
+expressions. Write typing rules accordingly.
 
 
 % References
