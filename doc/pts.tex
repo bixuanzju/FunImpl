@@ -322,6 +322,10 @@ A PTS with ADTs is a tuple $(P, ADTS)$ where:
   Note that the use of the dependent product ($\Pi$) makes it possible
   to let the types of the data constructor arguments depend on other
   data constructor arguments.
+\item (\textbf{Typability in a PTS with ADTS}) let
+  $\Sigma = [c : ct \mid c : ct \leftarrow ADT, ADT \leftarrow ADTS]$,
+  we say that $a : A$ can be derived from context $\Gamma$ in $(P,
+  ADTS)$ iff $\Sigma \biguplus \Gamma \vdash a : A$  
 \end{enumerate}
 
 
