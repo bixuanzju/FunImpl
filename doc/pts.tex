@@ -98,8 +98,8 @@
 \item $\Pi$ and $\lambda$ are used to bind variables. Let
   $\mathrm{FV}(A)$ denote free variable set of $A$. Let $A[x:=B]$
   denote the substitution of $x$ in $A$ with $B$. Standard notational
-  conventions are applied here. Besides we also define $A \to B$ as
-  $(\Pi x:A.\ B)$ where $x \not \in \mathrm{FV}(B)$.
+  conventions are applied here. Besides we also let $A \to B$ be an
+  abbreviation for $(\Pi \_:A.\ B)$.
 
 \item The relation $\to _ \beta$ is the smallest binary relation on
   raw expressions satisfying
@@ -110,7 +110,7 @@
 \item Type assignment rules for
   $(\mathcal{S},\mathcal{A},\mathcal{R})$ are given in
   Table~\ref{fig:rules}. Particularly, the rule \emph{(Conv)} is
-  needed to make everything works.
+  needed to make everything work.
 
 \begin{table}[h]
   \centering
@@ -297,7 +297,8 @@ $\vec{\mathbf{a}} = [a_{1}, \dots, a_{n}]$ and
 $\vec{\mathbf{A}} = [A_{1}, \dots, A_{n}]$, then
 $\Pi \vec{\mathbf{a}} : \vec{\mathbf{A}}.\ B$ denotes
 $\Pi a_{1}:A_{1} \dots \Pi a_{n}:A_{n}.\ B$. Let
-$\tau_{1},\dots,\tau_{k}$ be the types of $u_{1}, \dots, u_{k}$.
+$\tau_{1},\dots,\tau_{k}$ be the types of $u_{1}, \dots, u_{k}$,
+respectively.
 
 A PTS with ADTs is a tuple $(P, ADTS)$ where:
 
@@ -313,12 +314,14 @@ A PTS with ADTs is a tuple $(P, ADTS)$ where:
   \item
     $T^{\prime} = \Pi \vec{\mathbf{u}} : \vec{\mathbf{\tau}}.\ \star$
   \item
-    $K_{i}^{\prime} = \Pi \vec{\mathbf{u}} : \vec{\mathbf{\tau}}.\ \Pi
+    $K_{j}^{\prime} = \Pi \vec{\mathbf{u}} : \vec{\mathbf{\tau}}.\ \Pi
     \vec{\mathbf{\alpha}}: \vec{\mathbf{t_{j}}}.\ (T\
     \vec{\mathbf{u}}) $, for every $1 \leqslant j \leqslant n$
   \item $T : T^{\prime} \vdash K_{j} : K_{j}^{\prime} : \star$
   \end{itemize}
-
+  Note that the use of the dependent product ($\Pi$) makes it possible
+  to let the types of the data constructor arguments depend on other
+  data constructor arguments.
 \end{enumerate}
 
 
