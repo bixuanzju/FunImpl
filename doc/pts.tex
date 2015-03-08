@@ -109,7 +109,7 @@
 
 \item Type assignment rules for
   $(\mathcal{S},\mathcal{A},\mathcal{R})$ are given in
-  Table~\ref{fig:rules}. Particularly, the rule \emph{(Conv)} is
+  Table~\ref{tab:rules}. Particularly, the rule \emph{(Conv)} is
   needed to make everything work.
 
 \begin{table}[h]
@@ -162,7 +162,7 @@
              \DisplayProof
 
   \end{tabular}
-  \caption{Typing rules for a PTS}\label{fig:rules}
+  \caption{Typing rules for a PTS}\label{tab:rules}
 \end{table}
 
 \end{enumerate}
@@ -341,6 +341,78 @@ Let $P = \lambda C$ and
 \end{align*}
 then we can derive $\vdash_{(P, ADTS)}$ Cons Zero Bool True (Nil Bool) : Vec (Suc Zero) Bool
 
+\subsection{Case Expressions}
+
+\subsubsection{Definition}
+
+The set of expressions $E_{c}$ of a PTS extended with ADTs and case
+expressions is defined by
+\begin{align*}
+  A_{c} ::= x &\mid s \mid A_{c}A_{c} \mid \lambda x:A_{c}.\ A_{c} \mid \Pi x:A_{c}.\ A_{c}\\
+              &\mid case\ A_{c}\ of\ \{x_{1}\ x_{2} \dots \Rightarrow
+                A_{c}; \dots\}
+\end{align*}
+
+\subsubsection{Evaluation Relation}
+
+Let $(P, ATDS)$ be a PTS extended with ADTs. The evaluation relation
+$\rightarrow_{c}$ is the smallest binary relation on $A_{c}$ such that
+\begin{center}
+  case $(K_{j}$ $\vec{\mathbf{x}})$ of
+  \{$K_{j}\ \vec{\mathbf{u}}\ \vec{\mathbf{\alpha}} \Rightarrow
+  res_{j}$\}
+  $\rightarrow_{c} (\lambda \vec{\mathbf{u}}:\vec{\mathbf{\tau}},\
+  \vec{\mathbf{\alpha}}:\vec{\mathbf{t_{j}}}.\ res_{j})\ \vec{\mathbf{x}}$
+\end{center}
+and closed under usual rules.
+
+The evaluation relation $\rightarrow_{\beta c}$ is defined by
+\[
+\rightarrow_{\beta c} = \rightarrow_{\beta} \cup \rightarrow_{c}
+\]
+
+\subsubsection{Typing Relation}
+
+The extended typing relation $\vdash_{c}$ is shown below
+\begin{table}[H]
+  \centering
+  \small
+  \begin{tabular}{lc}
+    (Case) &
+             \alwaysNoLine
+             \AxiomC{$\Gamma \vdash_{c} e : T\ \vec{\mathbf{u^{\prime}}}$}
+             \UnaryInfC{$\Gamma \vdash_{c} K_{j}\
+             \vec{\mathbf{u^{\prime}}} : \Pi \vec{\mathbf{\alpha}} :
+             \vec{\mathbf{t_{j}}}.\ (T\ \vec{\mathbf{u^{\prime}}})$}
+             \UnaryInfC{$\Gamma,
+             \vec{\mathbf{\alpha}}:\vec{\mathbf{t_{j}}} \vdash_{c}
+             res_{j}[\vec{\mathbf{u}} := \vec{\mathbf{u^{\prime}}}] : t$}
+             \UnaryInfC{$\Gamma \vdash_{c} t : s$}
+             \alwaysSingleLine
+             \UnaryInfC{$\Gamma \vdash_{c}$ case $e$ of \{$K_{j}\
+             \vec{\mathbf{u}}\ \vec{\mathbf{\alpha}} \Rightarrow
+             res_{j}$\} : $t$}
+             \DisplayProof \\
+
+    (Conv) &
+             \AxiomC{$\Gamma \vdash_{c} a:A$}
+             \AxiomC{$\Gamma \vdash_{c} B:s$}
+             \AxiomC{$A=_{\beta c} B$}
+             \TrinaryInfC{$\Gamma \vdash_{c} a:B$}
+             \DisplayProof
+  \end{tabular}
+\end{table}
+the $(Conv)$ rule is extended with reduction of case expressions.
+
+In the $(Case)$ rule, the first premise binds the actual type
+constructor arguments to $\vec{\mathbf{u^{\prime}}}$. The second
+premise derives the types of the data constructor arguments
+$\vec{\mathbf{\alpha}}$ and binds them to $\vec{\mathbf{t_{j}}}$,
+using the data constructor $K_{j}$ and the actual type constructor
+arguments. The third premise checks whether the types of the right
+hand sides, instantiated to the actual type constructor arguments, are
+equal, and if so the result type is bound to $t$. Finally, the forth
+premise checks whether the derived type $t$ is well formed.
 
 
 % References
