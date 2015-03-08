@@ -63,7 +63,7 @@
 \usepackage[numbers]{natbib}
 
 % Title
-\title{\bf Formalization of Pure Type System}
+\title{\bf Formalization of Pure Type Systems}
 \author{}
 \date{}
 
@@ -162,7 +162,7 @@
              \DisplayProof
 
   \end{tabular}
-  \caption{Typing rules for pure type system}\label{fig:rules}
+  \caption{Typing rules for a PTS}\label{fig:rules}
 \end{table}
 
 \end{enumerate}
@@ -333,7 +333,7 @@ A PTS with ADTs is a tuple $(P, ADTS)$ where:
 Let $P = \lambda C$ and
 \begin{align*}
   \Sigma_{a} = [&Int : \star, Zero : Int, Suc : Int \rightarrow Int,\\
-               &Bool : \star, True : Bool, False : Bool]\\
+                &Bool : \star, True : Bool, False : Bool]\\
   \Sigma_{b} = [&Vec : (\Pi n : Int.\ \Pi \alpha : \star.\ \star),\\
                 &Nil : (\Pi \alpha : \star.\ Vec\ Zero\ \alpha),\\
                 &Cons : (\Pi n : Int.\ \Pi \alpha : \star.\ \alpha \rightarrow Vec\ n\ \alpha \rightarrow Vec\ (Suc\ n)\ \alpha)]\\
