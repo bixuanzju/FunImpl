@@ -322,13 +322,13 @@ A PTS with ADTs is a tuple $(P, ADTS)$ where:
   Note that the use of the dependent product ($\Pi$) makes it possible
   to let the types of the data constructor arguments depend on other
   data constructor arguments.
-\item (\textbf{Typability in a PTS with ADTS}) let
+\item (\textbf{Typability in a PTS with ADTs}) let
   $\Sigma = [c : ct \mid c : ct \leftarrow ADT, ADT \leftarrow ADTS]$,
   we say that $\Gamma \vdash_{(P,ADTS)} a : A$ if and only if
   $\Sigma \biguplus \Gamma \vdash a : A$
 \end{enumerate}
 
-\subsubsection{An Example of PTSs with ADTs}
+\subsubsection{An Example of a PTS with ADTs}
 
 Let $P = \lambda C$ and
 \begin{align*}
