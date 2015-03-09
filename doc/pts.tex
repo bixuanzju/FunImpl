@@ -288,9 +288,10 @@ where $T$ denotes a new \emph{type constructor} with zero or more
 constituent \emph{data constructors} $K_{1}, \dots, K_{n}$. We call
 $u_{1}, \dots, u_{k}$ the arguments of the type constructor $T$, and
 $t_{j1}, \dots, t_{jk_{j}}$ the arguments of the
-$K_{j} (1 \leqslant j \leqslant n)$ data constructor. Each $u_{i}$ is
-a variable of \emph{sort type}, each $t_{jk}$ is an expression of
-\emph{kind type} (i.e., $t_{jk} : \star$), which may contain $T$ and
+$K_{j} (1 \leqslant j \leqslant n)$ data constructor of types
+$\alpha_{j1}, \dots, \alpha_{jk_{j}}$. Each $u_{i}$ is a variable of
+\emph{sort type}, each $\alpha_{jk}$ is an expression of \emph{kind type}
+(i.e., $\alpha_{jk} : \star$), which may contain $T$ and
 $u_{1}, \dots, u_{k}$ as free variables.
 
 We use the following notation:
@@ -300,9 +301,7 @@ $\vec{\mathbf{a}} = [a_{1}, \dots, a_{n}]$ and
 $\vec{\mathbf{A}} = [A_{1}, \dots, A_{n}]$, then
 $\Pi \vec{\mathbf{a}} : \vec{\mathbf{A}}.\ B$ denotes
 $\Pi a_{1}:A_{1} \dots \Pi a_{n}:A_{n}.\ B$. Let
-$\tau_{1},\dots,\tau_{k}$ be the types of $u_{1}, \dots, u_{k}$, and
-$\alpha_{j1},\dots,\alpha_{jk_j}$ be the types of $t_{j1}, \dots, t_{jk_j}$,
-respectively.
+$\tau_{1},\dots,\tau_{k}$ be the types of $u_{1}, \dots, u_{k}$.
 
 A PTS with ADTs is a tuple $(P, ADTS)$ where:
 
