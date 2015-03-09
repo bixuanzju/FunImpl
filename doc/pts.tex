@@ -62,6 +62,9 @@
 % Citation support
 \usepackage[numbers]{natbib}
 
+% Comment block
+\usepackage{comment}
+
 % Date & time
 \usepackage[us,12hr]{date time}
 
@@ -174,6 +177,7 @@
 
 \begin{enumerate}[(i)]
 
+\begin{comment}
 \item The $\lambda$-cube (Table~\ref{tab:lambda}) consists of eight
   PTSs, where
 
@@ -211,7 +215,73 @@ Note that here we slightly abuse the notation of the set of rules
 $\mathcal{R}$, since in PTSs, $\mathcal{R}$ is a ternary relation,
 while in the $\lambda$-cube, $\mathcal{R}$ is a binary relation
 ($\Pi x: A.\ B$ has the same sorts as $B$).
+\end{comment}
 
+\item Here we present a type system called \emph{the calculus of
+    construction ($\lambda C$)}, where
+
+  \begin{enumerate}
+  \item $\mathcal{S} = \{\star,\square\}$
+  \item $\mathcal{A} = \{(\star, \square)\}$
+  \item
+    $\mathcal{R} = \{(\star, \star), (\star, \square), (\square,
+    \star), (\square, \square)\}$
+  \end{enumerate}
+
+and the typing relation is shown in Table~\ref{tab:coc}.
+
+\begin{table}[h]
+  \centering
+  \small
+  \begin{tabular}{lcl}
+    (Ax) &
+           \AxiomC{}
+           \UnaryInfC{$\vdash \star:\square$}
+           \DisplayProof \\
+
+    (Var) &
+            \AxiomC{$\Gamma \vdash A:s$}
+            \UnaryInfC{$\Gamma,x:A \vdash x:A$}
+            \DisplayProof &
+                            $x \not \in \mathrm{dom}(\Gamma)$ \\
+
+    (Weak) &
+             \AxiomC{$\Gamma \vdash b:B$}
+             \AxiomC{$\Gamma \vdash A:s$}
+             \BinaryInfC{$\Gamma,x:A \vdash b:B$}
+             \DisplayProof &
+                             $x \not \in \mathrm{dom}(\Gamma)$ \\
+
+    (App) &
+            \AxiomC{$\Gamma \vdash f:(\Pi x:A.\ B)$}
+            \AxiomC{$\Gamma \vdash a:A$}
+            \BinaryInfC{$\Gamma \vdash fa:B[x:=a]$}
+            \DisplayProof \\
+
+    (Lam) &
+            \AxiomC{$\Gamma,x:A \vdash b:B$}
+            \AxiomC{$\Gamma \vdash (\Pi x:A.\ B):t$}
+            \BinaryInfC{$\Gamma \vdash (\lambda x:A.\ b):(\Pi x:A.\ B)$}
+            \DisplayProof &
+                             $t \in \{\star, \square\}$ \\
+
+    (Pi) &
+           \AxiomC{$\Gamma \vdash A:s$}
+           \AxiomC{$\Gamma,x:A \vdash B:t$}
+           \BinaryInfC{$\Gamma \vdash (\Pi x:A.\ B):t$}
+           \DisplayProof &
+                           $(s,t) \in \mathcal{R}$ \\
+
+    (Conv) &
+             \AxiomC{$\Gamma \vdash a:A$}
+             \AxiomC{$\Gamma \vdash B:s$}
+             \AxiomC{$A=_\beta B$}
+             \TrinaryInfC{$\Gamma \vdash a:B$}
+             \DisplayProof
+
+  \end{tabular}
+  \caption{Typing rules for $\lambda C$}\label{tab:coc}
+\end{table}
 
 \item An extension of $\lambda\omega$ that supports ``polymorphic
   identity function on types'', where
