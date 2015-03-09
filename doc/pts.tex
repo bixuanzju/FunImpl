@@ -297,7 +297,8 @@ $\vec{\mathbf{a}} = [a_{1}, \dots, a_{n}]$ and
 $\vec{\mathbf{A}} = [A_{1}, \dots, A_{n}]$, then
 $\Pi \vec{\mathbf{a}} : \vec{\mathbf{A}}.\ B$ denotes
 $\Pi a_{1}:A_{1} \dots \Pi a_{n}:A_{n}.\ B$. Let
-$\tau_{1},\dots,\tau_{k}$ be the types of $u_{1}, \dots, u_{k}$,
+$\tau_{1},\dots,\tau_{k}$ be the types of $u_{1}, \dots, u_{k}$, and
+$\alpha_{j1},\dots,\alpha_{jk_j}$ be the types of $t_{j1}, \dots, t_{jk_j}$,
 respectively.
 
 A PTS with ADTs is a tuple $(P, ADTS)$ where:
@@ -315,7 +316,7 @@ A PTS with ADTs is a tuple $(P, ADTS)$ where:
     $T^{\prime} = \Pi \vec{\mathbf{u}} : \vec{\mathbf{\tau}}.\ \star$
   \item
     $K_{j}^{\prime} = \Pi \vec{\mathbf{u}} : \vec{\mathbf{\tau}}.\ \Pi
-    \vec{\mathbf{\alpha}}: \vec{\mathbf{t_{j}}}.\ (T\
+    \vec{\mathbf{t}}_j: \vec{\mathbf{\alpha}}_{j}.\ (T\
     \vec{\mathbf{u}}) $, for every $1 \leqslant j \leqslant n$
   \item $T : T^{\prime} \vdash K_{j} : K_{j}^{\prime} : \star$
   \end{itemize}
@@ -359,10 +360,10 @@ Let $(P, ATDS)$ be a PTS extended with ADTs. The evaluation relation
 $\rightarrow_{c}$ is the smallest binary relation on $A_{c}$ such that
 \begin{center}
   case $(K_{j}$ $\vec{\mathbf{x}})$ of
-  \{$K_{j}\ \vec{\mathbf{u}}\ \vec{\mathbf{\alpha}} \Rightarrow
+  \{$K_{j}\ \vec{\mathbf{u}}\ \vec{\mathbf{t}}_j \Rightarrow
   res_{j}$\}
   $\rightarrow_{c} (\lambda \vec{\mathbf{u}}:\vec{\mathbf{\tau}},\
-  \vec{\mathbf{\alpha}}:\vec{\mathbf{t_{j}}}.\ res_{j})\ \vec{\mathbf{x}}$
+  \vec{\mathbf{t}}_j:\vec{\mathbf{\alpha}}_{j}.\ res_{j})\ \vec{\mathbf{x}}$
 \end{center}
 and closed under usual rules.
 
@@ -381,16 +382,16 @@ The extended typing relation $\vdash_{c}$ is shown below
     (Case) &
              \alwaysNoLine
              \AxiomC{$\Gamma \vdash_{c} e : T\ \vec{\mathbf{u^{\prime}}}$}
-             \UnaryInfC{$\Gamma \vdash_{c} K_{j}\
-             \vec{\mathbf{u^{\prime}}} : \Pi \vec{\mathbf{\alpha}} :
-             \vec{\mathbf{t_{j}}}.\ (T\ \vec{\mathbf{u^{\prime}}})$}
-             \UnaryInfC{$\Gamma,
-             \vec{\mathbf{\alpha}}:\vec{\mathbf{t_{j}}} \vdash_{c}
+             \UnaryInfC{$\forall j.\Gamma \vdash_{c} K_{j}\
+             \vec{\mathbf{u^{\prime}}} : \Pi \vec{\mathbf{t}}_j :
+             \vec{\mathbf{\alpha}}_{j}.\ (T\ \vec{\mathbf{u^{\prime}}})$}
+             \UnaryInfC{$\forall j.\Gamma,
+             \vec{\mathbf{t}}_j:\vec{\mathbf{\alpha}}_{j} \vdash_{c}
              res_{j}[\vec{\mathbf{u}} := \vec{\mathbf{u^{\prime}}}] : t$}
              \UnaryInfC{$\Gamma \vdash_{c} t : s$}
              \alwaysSingleLine
              \UnaryInfC{$\Gamma \vdash_{c}$ case $e$ of \{$K_{j}\
-             \vec{\mathbf{u}}\ \vec{\mathbf{\alpha}} \Rightarrow
+             \vec{\mathbf{u}}\ \vec{\mathbf{t}}_j \Rightarrow
              res_{j}$\} : $t$}
              \DisplayProof \\
 
@@ -407,7 +408,7 @@ the $(Conv)$ rule is extended with reduction of case expressions.
 In the $(Case)$ rule, the first premise binds the actual type
 constructor arguments to $\vec{\mathbf{u^{\prime}}}$. The second
 premise derives the types of the data constructor arguments
-$\vec{\mathbf{\alpha}}$ and binds them to $\vec{\mathbf{t_{j}}}$,
+$\vec{\mathbf{t}}_j$ and binds them to $\vec{\mathbf{\alpha}}_{j}$,
 using the data constructor $K_{j}$ and the actual type constructor
 arguments. The third premise checks whether the types of the right
 hand sides, instantiated to the actual type constructor arguments, are
