@@ -68,6 +68,11 @@
 % Date & time
 \usepackage[us,12hr]{date time}
 
+% Custom commands
+\newcommand{\fold}[2]{\mathsf{fold}[#1]\,#2}
+\newcommand{\unfold}[2]{\mathsf{unfold}[#1]\,#2}
+\newcommand{\betaa}[1]{\mathsf{beta},#1}
+
 % Title
 \title{\bf Formalization of Pure Type Systems}
 \author{}
@@ -489,19 +494,21 @@ equal, and if so the result type is bound to $t$. Finally, the forth
 premise checks whether the derived type $t$ is well formed.
 
 \subsection{Recursive types}
+
+\subsubsection{Definition}
 We extend Calculus of Constructions ($\lambda C$, see Section
 \ref{sec:example}) with recursive types, namely $\lambda C_{\mu}$.
 The raw expressions are extended as follows:
 \begin{align*}
   A &::= x \mid \star \mid \square \\
     &\mid AA \mid \lambda x:A.A \mid \Pi x:A.A \\
-    & \mid \mu x.A \mid \mathsf{fold}[A]\,A \mid \mathsf{unfold}[A]\,A \\
+    & \mid \mu x.A \mid \fold{A}{A} \mid \unfold{A}{A} \\
     & \mid \mathsf{beta}\,A
 \end{align*}
 
 We introduce a new reduction rule for $\mathsf{unfold}$ and
 $\mathsf{fold}$:
-\[\mathsf{unfold}[A]\,(\mathsf{fold}[B]\,a) \to a\]
+\[\unfold{A}{(\fold{B}{a})} \to a\]
 
 The extended typing rules are shown in Table~\ref{tab:cocr}. Compared
 with $\lambda C$, the original \emph{Conv} rule is replaced by the new
@@ -559,25 +566,51 @@ $\beta$-reduction.
     (Fold) &
              \AxiomC{$\Gamma \vdash a:(A[x:=\mu x.A])$}
              \AxiomC{$\Gamma \vdash \mu x.A:s$}
-             \BinaryInfC{$\Gamma \vdash (\mathsf{fold}[\mu x.A]\,a):\mu x.A$}
+             \BinaryInfC{$\Gamma \vdash (\fold{\mu x.A}{a}):\mu x.A$}
              \DisplayProof \\
 
     (Unfold) &
                \AxiomC{$\Gamma \vdash a:\mu x.A$}
                \AxiomC{$\Gamma \vdash A[x:=\mu x.A]:s$}
-               \BinaryInfC{$\Gamma \vdash (\mathsf{unfold}[\mu x.A]\,a):A[x:=\mu x.A]$}
+               \BinaryInfC{$\Gamma \vdash (\unfold{\mu x.A}{a}):A[x:=\mu x.A]$}
                \DisplayProof \\
 
     (Beta) &
              \AxiomC{$\Gamma \vdash a:A$}
              \AxiomC{$\Gamma \vdash B:s$}
              \AxiomC{$A \to_\beta B$}
-             \TrinaryInfC{$\Gamma \vdash (\mathsf{beta}\,a):B$}
+             \TrinaryInfC{$\Gamma \vdash (\betaa{a}):B$}
              \DisplayProof
 
   \end{tabular}
   \caption{Typing rules for $\lambda C_{\mu}$}\label{tab:cocr}
 \end{table}
+
+\subsubsection{Examples of typable terms}
+
+By convention, we can abbreviate a product $\Pi x:A.B$ to $A \to B$
+when $x \not \in \mathrm{FV}(B)$.
+
+\begin{itemize}
+  \newcommand{\FPTypeU}{\mu\sigma . \sigma \to \alpha}
+  \newcommand{\FPTermfxx}{\lambda
+    x:(\FPTypeU).f((\unfold{\FPTypeU}{x})x)}
+  \newcommand{\FP}{\mathsf{fix}} %
+\item If given $\Gamma \vdash \sigma:\star$, a polymorphic fixed-point
+  constructor $\FP:(\Pi \alpha:\star.(\alpha \to \alpha) \to \alpha)$
+  can be defined as follows:
+\begin{align*}
+  \FP=&\lambda \alpha:\star . \lambda f:\alpha \to \alpha.\\
+      &(\FPTermfxx)\\
+      &(\fold{\FPTypeU}{(\FPTermfxx)})
+\end{align*}
+\newcommand{\HGType}{\mu\sigma. \alpha \to \sigma}%
+\item Using $\FP$, we can build recursive functions. For example,
+  given a ``hungry'' type $H=\HGType$, the ``hungry'' function $f$
+  where
+\[f=\lambda \alpha:\star.\FP\,(\alpha \to H)\,(\lambda f:\alpha \to H.\lambda
+x:\alpha.\fold{H}{f})\] can take arbitrary number of arguments.
+\end{itemize}
 
 \nocite{*} \bibliographystyle{plainnat} \bibliography{pts}
 
