@@ -173,7 +173,7 @@
 
 \end{enumerate}
 
-\section{Examples of PTSs}
+\section{Examples of PTSs}\label{sec:example}
 
 \begin{enumerate}[(i)]
 
@@ -217,8 +217,9 @@ while in the $\lambda$-cube, $\mathcal{R}$ is a binary relation
 ($\Pi x: A.\ B$ has the same sorts as $B$).
 \end{comment}
 
-\item Here we present the formal definition of a type system called
-  \emph{the calculus of construction ($\lambda C$)}, where
+\item Here we present the formal definition of a type
+  system called \emph{the calculus of construction ($\lambda C$)},
+  where
 
   \begin{enumerate}
   \item $\mathcal{S} = \{\star,\square\}$
@@ -487,8 +488,97 @@ hand sides, instantiated to the actual type constructor arguments, are
 equal, and if so the result type is bound to $t$. Finally, the forth
 premise checks whether the derived type $t$ is well formed.
 
+\subsection{Recursive types}
+We extend Calculus of Constructions ($\lambda C$, see Section
+\ref{sec:example}) with recursive types, namely $\lambda C_{\mu}$.
+The raw expressions are extended as follows:
+\begin{align*}
+  A &::= x \mid \star \mid \square \\
+    &\mid AA \mid \lambda x:A.A \mid \Pi x:A.A \\
+    & \mid \mu x.A \mid \mathsf{fold}[A]\,A \mid \mathsf{unfold}[A]\,A \\
+    & \mid \mathsf{beta}\,A
+\end{align*}
 
-% References
+We introduce a new reduction rule for $\mathsf{unfold}$ and
+$\mathsf{fold}$:
+\[\mathsf{unfold}[A]\,(\mathsf{fold}[B]\,a) \to a\]
+
+The extended typing rules are shown in Table~\ref{tab:cocr}. Compared
+with $\lambda C$, the original \emph{Conv} rule is replaced by the new
+\emph{Beta} rule where the latter only performs one step of
+$\beta$-reduction.
+
+\begin{table}[h]
+  \centering
+  \small
+  \begin{tabular}{lcl}
+    (Ax) &
+           \AxiomC{}
+           \UnaryInfC{$\vdash \star:\square$}
+           \DisplayProof \\
+
+    (Var) &
+            \AxiomC{$\Gamma \vdash A:s$}
+            \UnaryInfC{$\Gamma,x:A \vdash x:A$}
+            \DisplayProof &
+                            $x \not \in \mathrm{dom}(\Gamma)$ \\
+
+    (Weak) &
+             \AxiomC{$\Gamma \vdash b:B$}
+             \AxiomC{$\Gamma \vdash A:s$}
+             \BinaryInfC{$\Gamma,x:A \vdash b:B$}
+             \DisplayProof &
+                             $x \not \in \mathrm{dom}(\Gamma)$ \\
+
+    (App) &
+            \AxiomC{$\Gamma \vdash f:(\Pi x:A.\ B)$}
+            \AxiomC{$\Gamma \vdash a:A$}
+            \BinaryInfC{$\Gamma \vdash fa:B[x:=a]$}
+            \DisplayProof \\
+
+    (Lam) &
+            \AxiomC{$\Gamma,x:A \vdash b:B$}
+            \AxiomC{$\Gamma \vdash (\Pi x:A.\ B):t$}
+            \BinaryInfC{$\Gamma \vdash (\lambda x:A.\ b):(\Pi x:A.\ B)$}
+            \DisplayProof &
+                             $t \in \{\star, \square\}$ \\
+
+    (Pi) &
+           \AxiomC{$\Gamma \vdash A:s$}
+           \AxiomC{$\Gamma,x:A \vdash B:t$}
+           \BinaryInfC{$\Gamma \vdash (\Pi x:A.\ B):t$}
+           \DisplayProof &
+                           $(s,t) \in \mathcal{R}$ \\
+
+    (Mu) &
+           \AxiomC{$\Gamma \vdash A:s$}
+           \AxiomC{$\Gamma,x:A \vdash b:t$}
+           \BinaryInfC{$\Gamma \vdash (\mu x.b):t $}
+           \DisplayProof \\
+
+    (Fold) &
+             \AxiomC{$\Gamma \vdash a:(A[x:=\mu x.A])$}
+             \AxiomC{$\Gamma \vdash \mu x.A:s$}
+             \BinaryInfC{$\Gamma \vdash (\mathsf{fold}[\mu x.A]\,a):\mu x.A$}
+             \DisplayProof \\
+
+    (Unfold) &
+               \AxiomC{$\Gamma \vdash a:\mu x.A$}
+               \AxiomC{$\Gamma \vdash A[x:=\mu x.A]:s$}
+               \BinaryInfC{$\Gamma \vdash (\mathsf{unfold}[\mu x.A]\,a):A[x:=\mu x.A]$}
+               \DisplayProof \\
+
+    (Beta) &
+             \AxiomC{$\Gamma \vdash a:A$}
+             \AxiomC{$\Gamma \vdash B:s$}
+             \AxiomC{$A \to_\beta B$}
+             \TrinaryInfC{$\Gamma \vdash (\mathsf{beta}\,a):B$}
+             \DisplayProof
+
+  \end{tabular}
+  \caption{Typing rules for $\lambda C_{\mu}$}\label{tab:cocr}
+\end{table}
+
 \nocite{*} \bibliographystyle{plainnat} \bibliography{pts}
 
 \end{document}
