@@ -123,59 +123,6 @@
   Table~\ref{tab:rules}. Particularly, the rule \emph{(Conv)} is
   needed to make everything work.
 
-\begin{table}[h]
-  \centering
-  \small
-  \begin{tabular}{lcl}
-    (Ax) &
-           \AxiomC{}
-           \UnaryInfC{$\vdash s:t$}
-           \DisplayProof &
-                           $(s,t) \in \mathcal{A}$ \\
-
-    (Var) &
-            \AxiomC{$\Gamma \vdash A:s$}
-            \UnaryInfC{$\Gamma,x:A \vdash x:A$}
-            \DisplayProof &
-                            $x \not \in \mathrm{dom}(\Gamma)$ \\
-
-    (Weak) &
-             \AxiomC{$\Gamma \vdash b:B$}
-             \AxiomC{$\Gamma \vdash A:s$}
-             \BinaryInfC{$\Gamma,x:A \vdash b:B$}
-             \DisplayProof &
-                             $x \not \in \mathrm{dom}(\Gamma)$ \\
-
-    (App) &
-            \AxiomC{$\Gamma \vdash f:(\Pi x:A.\ B)$}
-            \AxiomC{$\Gamma \vdash a:A$}
-            \BinaryInfC{$\Gamma \vdash fa:B[x:=a]$}
-            \DisplayProof \\
-
-    (Lam) &
-            \AxiomC{$\Gamma,x:A \vdash b:B$}
-            \AxiomC{$\Gamma \vdash (\Pi x:A.\ B):t$}
-            \BinaryInfC{$\Gamma \vdash (\lambda x:A.\ b):(\Pi x:A.\ B)$}
-            \DisplayProof \\
-
-    (Pi) &
-           \AxiomC{$\Gamma \vdash A:s$}
-           \AxiomC{$\Gamma,x:A \vdash B:t$}
-           \BinaryInfC{$\Gamma \vdash (\Pi x:A.\ B):u$}
-           \DisplayProof &
-                           $(s,t,u) \in \mathcal{R}$ \\
-
-    (Conv) &
-             \AxiomC{$\Gamma \vdash a:A$}
-             \AxiomC{$\Gamma \vdash B:s$}
-             \AxiomC{$A=_\beta B$}
-             \TrinaryInfC{$\Gamma \vdash a:B$}
-             \DisplayProof
-
-  \end{tabular}
-  \caption{Typing rules for a PTS}\label{tab:rules}
-\end{table}
-
 \end{enumerate}
 
 \section{Examples of PTSs}\label{sec:example}
@@ -350,6 +297,8 @@ and the typing relation is shown in Table~\ref{tab:coc}.
 
 \section{Extending PTSs }
 
+\begin{comment}
+
 This section investigates how to extend PTSs to have algebraic
 datatypes, case expressions, etc.
 
@@ -493,6 +442,8 @@ hand sides, instantiated to the actual type constructor arguments, are
 equal, and if so the result type is bound to $t$. Finally, the forth
 premise checks whether the derived type $t$ is well formed.
 
+\end{comment}
+
 \subsection{Recursive types}
 
 \subsubsection{Definition}
@@ -613,6 +564,62 @@ when $x \not \in \mathrm{FV}(B)$.
 \end{itemize}
 
 \nocite{*} \bibliographystyle{plainnat} \bibliography{pts}
+
+\appendix
+\section{Appendix}
+
+\begin{table}[h]
+  \centering
+  \small
+  \begin{tabular}{lcl}
+    (Ax) &
+           \AxiomC{}
+           \UnaryInfC{$\vdash s:t$}
+           \DisplayProof &
+                           $(s,t) \in \mathcal{A}$ \\
+
+    (Var) &
+            \AxiomC{$\Gamma \vdash A:s$}
+            \UnaryInfC{$\Gamma,x:A \vdash x:A$}
+            \DisplayProof &
+                            $x \not \in \mathrm{dom}(\Gamma)$ \\
+
+    (Weak) &
+             \AxiomC{$\Gamma \vdash b:B$}
+             \AxiomC{$\Gamma \vdash A:s$}
+             \BinaryInfC{$\Gamma,x:A \vdash b:B$}
+             \DisplayProof &
+                             $x \not \in \mathrm{dom}(\Gamma)$ \\
+
+    (App) &
+            \AxiomC{$\Gamma \vdash f:(\Pi x:A.\ B)$}
+            \AxiomC{$\Gamma \vdash a:A$}
+            \BinaryInfC{$\Gamma \vdash fa:B[x:=a]$}
+            \DisplayProof \\
+
+    (Lam) &
+            \AxiomC{$\Gamma,x:A \vdash b:B$}
+            \AxiomC{$\Gamma \vdash (\Pi x:A.\ B):t$}
+            \BinaryInfC{$\Gamma \vdash (\lambda x:A.\ b):(\Pi x:A.\ B)$}
+            \DisplayProof \\
+
+    (Pi) &
+           \AxiomC{$\Gamma \vdash A:s$}
+           \AxiomC{$\Gamma,x:A \vdash B:t$}
+           \BinaryInfC{$\Gamma \vdash (\Pi x:A.\ B):u$}
+           \DisplayProof &
+                           $(s,t,u) \in \mathcal{R}$ \\
+
+    (Conv) &
+             \AxiomC{$\Gamma \vdash a:A$}
+             \AxiomC{$\Gamma \vdash B:s$}
+             \AxiomC{$A=_\beta B$}
+             \TrinaryInfC{$\Gamma \vdash a:B$}
+             \DisplayProof
+
+  \end{tabular}
+  \caption{Typing rules for a PTS}\label{tab:rules}
+\end{table}
 
 \end{document}
 
