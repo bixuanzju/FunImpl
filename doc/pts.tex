@@ -71,7 +71,7 @@
 % Custom commands
 \newcommand{\fold}[2]{\mathsf{fold}[#1]\,#2}
 \newcommand{\unfold}[2]{\mathsf{unfold}[#1]\,#2}
-\newcommand{\betaa}[1]{\mathsf{beta},#1}
+\newcommand{\betaa}[1]{\mathsf{beta}\,#1}
 
 % Title
 \title{\bf Formalization of Pure Type Systems}
@@ -503,7 +503,7 @@ The raw expressions are extended as follows:
   A &::= x \mid \star \mid \square \\
     &\mid AA \mid \lambda x:A.A \mid \Pi x:A.A \\
     & \mid \mu x.A \mid \fold{A}{A} \mid \unfold{A}{A} \\
-    & \mid \mathsf{beta}\,A
+    & \mid \betaa{A}
 \end{align*}
 
 We introduce a new reduction rule for $\mathsf{unfold}$ and
@@ -558,9 +558,8 @@ $\beta$-reduction.
                            $(s,t) \in \mathcal{R}$ \\
 
     (Mu) &
-           \AxiomC{$\Gamma \vdash A:s$}
-           \AxiomC{$\Gamma,x:A \vdash b:t$}
-           \BinaryInfC{$\Gamma \vdash (\mu x.b):t $}
+           \AxiomC{$\Gamma,x:s \vdash A:s$}
+           \UnaryInfC{$\Gamma \vdash (\mu x.A):s$}
            \DisplayProof \\
 
     (Fold) &
@@ -596,9 +595,9 @@ when $x \not \in \mathrm{FV}(B)$.
   \newcommand{\FPTermfxx}{\lambda
     x:(\FPTypeU).f((\unfold{\FPTypeU}{x})x)}
   \newcommand{\FP}{\mathsf{fix}} %
-\item If given $\Gamma \vdash \sigma:\star$, a polymorphic fixed-point
-  constructor $\FP:(\Pi \alpha:\star.(\alpha \to \alpha) \to \alpha)$
-  can be defined as follows:
+\item A polymorphic fixed-point constructor
+  $\FP:(\Pi \alpha:\star.(\alpha \to \alpha) \to \alpha)$ can be
+  defined as follows:
 \begin{align*}
   \FP=&\lambda \alpha:\star . \lambda f:\alpha \to \alpha.\\
       &(\FPTermfxx)\\
@@ -606,10 +605,11 @@ when $x \not \in \mathrm{FV}(B)$.
 \end{align*}
 \newcommand{\HGType}{\mu\sigma. \alpha \to \sigma}%
 \item Using $\FP$, we can build recursive functions. For example,
-  given a ``hungry'' type $H=\HGType$, the ``hungry'' function $f$
+  given a ``hungry'' type $H=\HGType$, the ``hungry'' function $h$
   where
-\[f=\lambda \alpha:\star.\FP\,(\alpha \to H)\,(\lambda f:\alpha \to H.\lambda
-x:\alpha.\fold{H}{f})\] can take arbitrary number of arguments.
+  \[h=\lambda \alpha:\star.\FP\,(\alpha \to H)\,(\lambda f:\alpha \to
+  H.\lambda x:\alpha.\fold{H}{f})\]
+  can take arbitrary number of arguments.
 \end{itemize}
 
 \nocite{*} \bibliographystyle{plainnat} \bibliography{pts}
