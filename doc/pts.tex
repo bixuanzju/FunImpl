@@ -60,6 +60,7 @@
 % Table support
 \usepackage{booktabs}
 \renewcommand{\arraystretch}{2.5}
+\usepackage{array}
 
 % Graphics support
 \usepackage{graphicx}
@@ -464,12 +465,15 @@ premise checks whether the derived type $t$ is well formed.
 We extend Calculus of Constructions ($\lambda C$, see Section
 \ref{sec:example}) with recursive types, namely $\lambda C_{\mu}$.
 The raw expressions are extended as follows:
-\begin{align*}
-  A &::= x \mid \star \mid \square \\
-    &\mid AA \mid \lambda x:A.A \mid \Pi x:A.A \\
-    & \mid \mu x.A \mid \fold{A}{A} \mid \unfold{A}{A} \\
-    & \mid \betaa{A}
-\end{align*}
+\[
+\renewcommand*{\arraystretch}{1.0}%
+\begin{array}{lcl}
+  A &::= & x \mid \star \mid \square \\
+    & \mid & AA \mid \lambda x:A.A \mid \Pi x:A.A \\
+    & \mid & \mu x.A \mid \fold{A}{A} \mid \unfold{A}{A} \\
+    & \mid & \betaa{A}
+\end{array}
+\]
 
 We introduce a new reduction rule for $\mathsf{unfold}$ and
 $\mathsf{fold}$:
