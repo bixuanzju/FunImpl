@@ -571,6 +571,9 @@ when $x \not \in \mathrm{FV}(B)$.
 \begin{itemize}
   \newcommand{\Nat}{\mathsf{Nat}}
   \newcommand{\List}{\mathsf{List}}
+  \newcommand{\zero}{\mathsf{zero}}
+  \newcommand{\suc}{\mathsf{suc}}
+  \newcommand{\plus}{\mathsf{plus}}
   \newcommand{\PlFunc}{\Nat\rightarrow\Nat\rightarrow\Nat}
 
 \item We can encode the type of natural numbers as follow:
@@ -578,22 +581,22 @@ when $x \not \in \mathrm{FV}(B)$.
   \Nat = \mu X.\ \Pi(a : \star).\ a \rightarrow (X \rightarrow a)
   \rightarrow a
   \]
-  then we can define ``zero'' and ``succ'' as follows:
+  then we can define $\zero$ and $\suc$ as follows:
   \begin{align*}
-    zero &: \Nat \\
-    zero &= \fold{\Nat}{\lambda (a : \star) (z : a) (f : \Nat
+    \zero &: \Nat \\
+    \zero &= \fold{\Nat}{\lambda (a : \star) (z : a) (f : \Nat
            \rightarrow a).\ z}\\
-    succ &: \Nat \rightarrow \Nat\\
-    succ &= \lambda (n : \Nat).\ \fold{\Nat}{\lambda (a : \star) (z : a)
+    \suc &: \Nat \rightarrow \Nat\\
+    \suc &= \lambda (n : \Nat).\ \fold{\Nat}{\lambda (a : \star) (z : a)
            (f : \Nat \rightarrow a).\ f\ n}
   \end{align*}
-  Using $\mathsf{fix}$, we can define a recursive function ``plus'' as
+  Using $\mathsf{fix}$, we can define a recursive function $\plus$ as
   follow:
   \begin{align*}
-    plus &:\,\PlFunc\\
-    plus &=\,\mathsf{fix}\,(\PlFunc)\,(\lambda(p : \PlFunc)(n :
+    \plus &:\,\PlFunc\\
+    \plus &=\,\mathsf{fix}\,(\PlFunc)\,(\lambda(p : \PlFunc)(n :
             \Nat)(m : \Nat).\\
-          &\qquad (\unfold{\Nat}{n})\,\Nat\,m\,(\lambda (n^{\prime} : \Nat).\ \mathsf{succ}\,
+          &\qquad (\unfold{\Nat}{n})\,\Nat\,m\,(\lambda (n^{\prime} : \Nat).\ \suc\,
             (p\,n^{\prime}\,m)))
   \end{align*}
 \item We can encode the type of lists of natural numbers as follows:
