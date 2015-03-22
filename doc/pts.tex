@@ -569,11 +569,11 @@ when $x \not \in \mathrm{FV}(B)$.
 \subsection{Encoding of Datatypes}
 
 \begin{itemize}
-  \newcommand{\Nat}{\mathsf{Nat}}
-  \newcommand{\List}{\mathsf{List}}
-  \newcommand{\zero}{\mathsf{zero}}
-  \newcommand{\suc}{\mathsf{suc}}
-  \newcommand{\plus}{\mathsf{plus}}
+  \newcommand{\Nat}{\mathsf{Nat}} \newcommand{\zero}{\mathsf{zero}}
+  \newcommand{\suc}{\mathsf{suc}} \newcommand{\plus}{\mathsf{plus}}
+  \newcommand{\List}{\mathsf{List}} \newcommand{\nil}{\mathsf{nil}}
+  \newcommand{\cons}{\mathsf{cons}}
+  \newcommand{\length}{\mathsf{length}}
   \newcommand{\PlFunc}{\Nat\rightarrow\Nat\rightarrow\Nat}
 
 \item We can encode the type of natural numbers as follow:
@@ -584,17 +584,17 @@ when $x \not \in \mathrm{FV}(B)$.
   then we can define $\zero$ and $\suc$ as follows:
   \begin{align*}
     \zero &: \Nat \\
-    \zero &= \fold{\Nat}{\lambda (a : \star) (z : a) (f : \Nat
-           \rightarrow a).\ z}\\
+    \zero &= \fold{\Nat}{(\lambda (a : \star) (z : a) (f : \Nat
+            \rightarrow a).\ z)}\\
     \suc &: \Nat \rightarrow \Nat\\
-    \suc &= \lambda (n : \Nat).\ \fold{\Nat}{\lambda (a : \star) (z : a)
-           (f : \Nat \rightarrow a).\ f\ n}
+    \suc &= \lambda (n : \Nat).\ \fold{\Nat}{(\lambda (a : \star) (z : a)
+           (f : \Nat \rightarrow a).\ f\ n)}
   \end{align*}
   Using $\mathsf{fix}$, we can define a recursive function $\plus$ as
   follow:
   \begin{align*}
-    \plus &:\,\PlFunc\\
-    \plus &=\,\mathsf{fix}\,(\PlFunc)\,(\lambda(p : \PlFunc)(n :
+    \plus &:\PlFunc\\
+    \plus &=\mathsf{fix}\,(\PlFunc)\,(\lambda(p : \PlFunc)(n :
             \Nat)(m : \Nat).\\
           &\qquad (\unfold{\Nat}{n})\,\Nat\,m\,(\lambda (n^{\prime} : \Nat).\ \suc\,
             (p\,n^{\prime}\,m)))
@@ -602,9 +602,27 @@ when $x \not \in \mathrm{FV}(B)$.
 \item We can encode the type of lists of natural numbers as follows:
   \[
   \List = \mu X.\ \Pi(a : \star).\ a \rightarrow (\Nat \rightarrow X
-  \rightarrow a)
-  \rightarrow a
+  \rightarrow a) \rightarrow a
   \]
+  then we can define $\nil$ and $\cons$ as follows:
+  \begin{align*}
+    \nil &: \List\\
+    \nil &= \fold{\List}{(\lambda (a : \star) (z : a) (f : \Nat
+           \rightarrow \List \rightarrow a).\ z)}\\
+    \cons &: \Nat \rightarrow \List \rightarrow \List\\
+    \cons &= \lambda(x : \Nat)(xs : \List).\ \fold{\List}{(\lambda(a :
+            \star)(z : a)(f : \Nat \rightarrow \List \rightarrow a).\ f\,x\,xs)}
+  \end{align*}
+  Using $\mathsf{fix}$, we can define a recursive function $\length$
+  as follow:
+  \begin{align*}
+    \length &: \List \rightarrow \Nat\\
+    \length &= \mathsf{fix}\,(\List \rightarrow \Nat)\,(\lambda(l : \List
+              \rightarrow \Nat)(xs : \List).\\
+            &\qquad (\unfold{\List}{xs})\,\Nat\,\zero\,(\lambda(y :
+              \Nat)(ys : \List).\,\suc\,(l\,ys)))
+  \end{align*}
+\item We can encode the type of vectors of a certain length as follows:
 \end{itemize}
 
 
