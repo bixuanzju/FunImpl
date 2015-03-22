@@ -578,40 +578,33 @@ when $x \not \in \mathrm{FV}(B)$.
 
 \item We can encode the type of natural numbers as follow:
   \[
-  \Nat = \mu X.\ \Pi(a : \star).\ a \rightarrow (X \rightarrow a)
-  \rightarrow a
+  \Nat = \mu X.\ \Pi(a : \star).\ a \rightarrow (X \rightarrow a) \rightarrow a
   \]
   then we can define $\zero$ and $\suc$ as follows:
   \begin{align*}
     \zero &: \Nat \\
-    \zero &= \fold{\Nat}{(\lambda (a : \star) (z : a) (f : \Nat
-            \rightarrow a).\ z)}\\
+    \zero &= \fold{\Nat}{(\lambda (a : \star) (z : a) (f : \Nat \rightarrow a).\,z)}\\
     \suc &: \Nat \rightarrow \Nat\\
-    \suc &= \lambda (n : \Nat).\ \fold{\Nat}{(\lambda (a : \star) (z : a)
-           (f : \Nat \rightarrow a).\ f\ n)}
+    \suc &= \lambda (n : \Nat).\,\fold{\Nat}{(\lambda (a : \star) (z : a) (f : \Nat \rightarrow a).\,f\,n)}
   \end{align*}
   Using $\mathsf{fix}$, we can define a recursive function $\plus$ as
   follow:
   \begin{align*}
     \plus &:\PlFunc\\
-    \plus &=\mathsf{fix}\,(\PlFunc)\,(\lambda(p : \PlFunc)(n :
-            \Nat)(m : \Nat).\\
-          &\qquad (\unfold{\Nat}{n})\,\Nat\,m\,(\lambda (n^{\prime} : \Nat).\ \suc\,
-            (p\,n^{\prime}\,m)))
+    \plus &=\mathsf{fix}\,(\PlFunc)\,(\lambda(p : \PlFunc)(n : \Nat)(m : \Nat).\\
+          &\qquad (\unfold{\Nat}{n})\,\Nat\,m\,(\lambda (n^{\prime} : \Nat).\,\suc\,(p\,n^{\prime}\,m)))
   \end{align*}
-\item We can encode the type of lists of natural numbers as follows:
+\item We can encode the type of lists of a certain type:
   \[
-  \List = \mu X.\ \Pi(a : \star).\ a \rightarrow (\Nat \rightarrow X
-  \rightarrow a) \rightarrow a
+  \List = \mu X.\,\Pi(a : \star).\,a \rightarrow (\Pi (b : \star).\,b \rightarrow X \rightarrow a) \rightarrow a
   \]
   then we can define $\nil$ and $\cons$ as follows:
   \begin{align*}
     \nil &: \List\\
-    \nil &= \fold{\List}{(\lambda (a : \star) (z : a) (f : \Nat
-           \rightarrow \List \rightarrow a).\ z)}\\
-    \cons &: \Nat \rightarrow \List \rightarrow \List\\
-    \cons &= \lambda(x : \Nat)(xs : \List).\ \fold{\List}{(\lambda(a :
-            \star)(z : a)(f : \Nat \rightarrow \List \rightarrow a).\ f\,x\,xs)}
+    \nil &= \fold{\List}{(\lambda (a : \star) (z : a) (f : \Pi (b : \star).\,b \rightarrow \List \rightarrow a).\ z)}\\
+    \cons &: \Pi (b : \star).\,b \rightarrow \List \rightarrow \List\\
+    \cons &= \lambda(b : \star)(x : b)(xs : \List).\\
+         &\qquad \fold{\List}{(\lambda(a : \star)(z : a)(f : \Pi (b : \star).\,b\rightarrow \List \rightarrow a).\,f\,b\,x\,xs)}
   \end{align*}
   Using $\mathsf{fix}$, we can define a recursive function $\length$
   as follow:
@@ -619,10 +612,10 @@ when $x \not \in \mathrm{FV}(B)$.
     \length &: \List \rightarrow \Nat\\
     \length &= \mathsf{fix}\,(\List \rightarrow \Nat)\,(\lambda(l : \List
               \rightarrow \Nat)(xs : \List).\\
-            &\qquad (\unfold{\List}{xs})\,\Nat\,\zero\,(\lambda(y :
-              \Nat)(ys : \List).\,\suc\,(l\,ys)))
+            &\qquad (\unfold{\List}{xs})\,\Nat\,\zero\,(\lambda(b : \star)(y : b)(ys : \List).\,\suc\,(l\,ys)))
   \end{align*}
-\item We can encode the type of vectors of a certain length as follows:
+\item The rule $(\mathsf{Mu})$ doesn't allow me to express something
+  like $(\mu x.\,A) : \Nat \rightarrow \star$
 \end{itemize}
 
 
