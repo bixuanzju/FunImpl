@@ -12,10 +12,16 @@
 % AMS support
 \usepackage{amsmath}
 \usepackage{amssymb}
-\usepackage{amsthm}
 
 % Logic proof support
 \usepackage{bussproofs}
+\usepackage{amsthm}
+\newtheoremstyle{break}
+  {\topsep}{\topsep}%
+  {\itshape}{}%
+  {\bfseries}{}%
+  {\newline}{}%
+\theoremstyle{break}
 
 % Language support
 \usepackage{csquotes}
@@ -39,7 +45,7 @@
 \titleformat{\subsection}{\normalfont\normalsize\bfseries}{\thesubsection}{0.5em}{}
 \usepackage[font=small,labelfont=bf]{caption}
 \DeclareCaptionLabelSeparator{colon}{.~}
-\numberwithin{equation}{section}
+% \numberwithin{equation}{subsection}
 
 % No indentation before paragraph
 \usepackage{parskip}
@@ -72,6 +78,11 @@
 \newcommand{\fold}[2]{\mathsf{fold}[#1]\,#2}
 \newcommand{\unfold}[2]{\mathsf{unfold}[#1]\,#2}
 \newcommand{\betaa}[1]{\mathsf{beta}\,#1}
+
+% Proof environments
+\newtheorem{thm}{Theorem}[subsection]
+\newtheorem{cor}{Corollary}[thm]
+\newtheorem{lem}[thm]{Lemma}
 
 % Title
 \title{\bf Formalization of Pure Type Systems}
@@ -618,6 +629,72 @@ when $x \not \in \mathrm{FV}(B)$.
   like $(\mu x.\,A) : \Nat \rightarrow \star$
 \end{itemize}
 
+\subsection{Proof of soundness}
+\begin{lem}[$\lambda C_{\mu}$ Substitutions]
+  Assume we have
+\begin{align}
+  \Gamma,x:A &\vdash B:C \label{equ:s1}\\
+  \Gamma &\vdash D:A, \label{equ:s2}
+\end{align}
+then \[\Gamma[x:=D] \vdash B[x:=D]:C[x:=D].\]
+\end{lem}
+\begin{proof}
+  This is trivial by induction on the typing derivation of
+  (\ref{equ:s1}). We only discuss two cases for example. Let $E^{*}$
+  denote $E[x:=D]$. Consider following cases
+\begin{itemize}
+\item The last applied rule to obtain (\ref{equ:s1}) is \emph{Var}. There
+  are 2 sub-cases:
+\begin{enumerate}
+\item It is derived by
+\begin{center}
+  \AxiomC{$\Gamma \vdash A:s$} \UnaryInfC{$\Gamma,x:A \vdash x:A$}
+  \DisplayProof,
+\end{center}
+then we have $(B:C) \equiv (x:A)$. And
+$\Gamma \vdash (x:A)^{*}\equiv (D:A)$ which holds by
+(\ref{equ:s2}).
+
+\item It is derived by
+\begin{center}
+  \AxiomC{$\Gamma,x:A \vdash E:s$} \UnaryInfC{$\Gamma,x:A,y:E \vdash y:E$}
+  \DisplayProof,
+\end{center}
+then we need to show $\Gamma^{*},y:E^{*} \vdash y:E^{*}$. And it
+directly follows the induction hypothesis, i.e.
+$\Gamma^{*} \vdash E^{*}:s$.
+\end{enumerate}
+
+\item The last applied rule to obtain (\ref{equ:s1}) is \emph{App}, i.e.
+\begin{center}
+  \AxiomC{$\Gamma,x:A \vdash B_{1}:(\Pi y:C_{1}.\ C_{2})$}
+  \AxiomC{$\Gamma,x:A \vdash B_{2}:C_{1}$}
+  \BinaryInfC{$\Gamma,x:A \vdash (B_{1}B_{2}):C_{2}[y:=B_{2}]$}
+  \DisplayProof.
+\end{center}
+By the induction hypothesis, we can obtain
+$ \Gamma^{*} \vdash B_{1}^{*}:(\Pi y:C_{1}^{*}.C_{2}^{*})$ and
+$\Gamma^{*} \vdash B_{2}^{*}:C_{1}^{*}$. Thus,
+$\Gamma^{*} \vdash (B_{1}^{*}B_{2}^{*}):(C_{2}^{*}[y:=B_{2}^{*}])$, i.e.
+$\Gamma^{*} \vdash (B_{1}B_{2})^{*}:(C_{2}[y:=B_{2}])^{*}$.
+\end{itemize}
+\end{proof}
+
+\begin{thm}[$\lambda C_{\mu}$ Subject Reduction]
+If $\Gamma \vdash A:B$ and $A \twoheadrightarrow_\beta A'$ then $\Gamma \vdash A':B$.
+\end{thm}
+
+\begin{proof}
+WIP.
+\end{proof}
+
+\begin{thm}[$\lambda C_{\mu}$ Progress]
+If $\cdot \vdash A:B$ then either $A$ is a value or $A \twoheadrightarrow_\beta A'$.
+\end{thm}
+
+\begin{proof}
+WIP.
+\end{proof}
 
 \nocite{*} \bibliographystyle{plainnat} \bibliography{pts}
 
