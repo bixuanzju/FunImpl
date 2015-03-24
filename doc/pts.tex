@@ -630,7 +630,7 @@ when $x \not \in \mathrm{FV}(B)$.
 \end{itemize}
 
 \subsection{Proof of soundness}
-\begin{lem}[$\lambda C_{\mu}$ Substitutions]
+\begin{lem}[$\lambda C_{\mu}$ Substitutions]\label{lem:subst}
   Assume we have
 \begin{align}
   \Gamma,x:A &\vdash B:C \label{equ:s1}\\
@@ -681,15 +681,86 @@ $\Gamma^{*} \vdash (B_{1}B_{2})^{*}:(C_{2}[y:=B_{2}])^{*}$.
 \end{proof}
 
 \begin{thm}[$\lambda C_{\mu}$ Subject Reduction]
-If $\Gamma \vdash A:B$ and $A \twoheadrightarrow_\beta A'$ then $\Gamma \vdash A':B$.
+  If $\Gamma \vdash A:B$ and $A \twoheadrightarrow_\beta A'$ then
+  $\Gamma \vdash A':B$.
 \end{thm}
 
 \begin{proof}
-WIP.
+  Let $\mathcal{D}$ be the derivation of $\Gamma \vdash A:B$. The
+  proof is by induction on the derivation of
+  $A \twoheadrightarrow_{\beta}A'$.
+
+\begin{description}
+\item[case \emph{App}:] $(\lambda x:A.M)N \rightarrow_{\beta} M[x:=N]$.
+
+  Derivation $\mathcal{D}$ has the following form
+\begin{center}
+  \AxiomC{$\Gamma,x:A \vdash M:A'$} \RightLabel{\emph{Lam}}
+  \UnaryInfC{$\Gamma \vdash (\lambda x:A.M):(\Pi x:A.A')$}
+  \RightLabel{\emph{App}} \AxiomC{$\Gamma \vdash N:A$}
+  \BinaryInfC{$\Gamma \vdash (\lambda x:A.M)N:A'$}
+  \DisplayProof
+\end{center}
+Thus, by Lemma \ref{lem:subst} we can obtain
+$\Gamma \vdash M[x:=N]:A'$.
+
+\item[case \emph{Lam}:] \AxiomC{$M \twoheadrightarrow_{\beta} M'$}
+  \UnaryInfC{$\lambda x:A.M \twoheadrightarrow_{\beta} \lambda
+    x:A.M'$} \DisplayProof.
+
+  Derivation $\mathcal{D}$ has the following form
+\begin{center}
+  \AxiomC{$\Gamma,x:A \vdash M:A'$} \RightLabel{\emph{Lam}}
+  \UnaryInfC{$\Gamma \vdash (\lambda x:A.M):(\Pi x:A.A')$}
+  \DisplayProof
+\end{center}
+By the induction hypothesis we have $\Gamma,x:A \vdash M':A'$. Hence,
+\begin{center}
+  \AxiomC{$\Gamma,x:A \vdash M':A'$} \RightLabel{\emph{Lam}}
+  \UnaryInfC{$\Gamma \vdash (\lambda x:A.M'):(\Pi x:A.A')$}
+  \DisplayProof
+\end{center}
+
+\item[case \emph{App (Left)}:]
+  \AxiomC{$M \twoheadrightarrow_{\beta} M'$}
+  \UnaryInfC{$MN \twoheadrightarrow_{\beta} M'N$} \DisplayProof.
+
+  Derivation $\mathcal{D}$ has the following form
+\begin{center}
+  \AxiomC{$\Gamma \vdash M:(\Pi x:A.A')$} \AxiomC{$\Gamma \vdash N:A$}
+  \RightLabel{\emph{App}} \BinaryInfC{$\Gamma \vdash MN:A'$}
+  \DisplayProof
+\end{center}
+By the induction hypothesis we have $\Gamma \vdash M':(\Pi x:A.A')$. Hence,
+\begin{center}
+  \AxiomC{$\Gamma \vdash M':(\Pi x:A.A')$} \AxiomC{$\Gamma \vdash N:A$}
+  \RightLabel{\emph{App}} \BinaryInfC{$\Gamma \vdash M'N:A'$}
+  \DisplayProof
+\end{center}
+
+\item[case \emph{App (Right)}:]
+  \AxiomC{$M \twoheadrightarrow_{\beta} M'$}
+  \UnaryInfC{$vM \twoheadrightarrow_{\beta} vM'$} \DisplayProof.
+
+  Derivation $\mathcal{D}$ has the following form
+\begin{center}
+  \AxiomC{$\Gamma \vdash v:(\Pi x:A.A')$} \AxiomC{$\Gamma \vdash M:A$}
+  \RightLabel{\emph{App}} \BinaryInfC{$\Gamma \vdash vM:A'$}
+  \DisplayProof
+\end{center}
+By the induction hypothesis we have $\Gamma \vdash M':A$. Hence,
+\begin{center}
+  \AxiomC{$\Gamma \vdash v:(\Pi x:A.A')$}
+  \AxiomC{$\Gamma \vdash M':A$} \RightLabel{\emph{App}}
+  \BinaryInfC{$\Gamma \vdash vM':A'$} \DisplayProof
+\end{center}
+
+\end{description}
 \end{proof}
 
 \begin{thm}[$\lambda C_{\mu}$ Progress]
-If $\cdot \vdash A:B$ then either $A$ is a value or $A \twoheadrightarrow_\beta A'$.
+  If $\cdot \vdash A:B$ then either $A$ is a value or
+  $A \twoheadrightarrow_\beta A'$.
 \end{thm}
 
 \begin{proof}
