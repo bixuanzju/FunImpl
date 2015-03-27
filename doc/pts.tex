@@ -759,16 +759,151 @@ By the induction hypothesis we have $\Gamma \vdash M':A$. Hence,
   \BinaryInfC{$\Gamma \vdash vM':A'$} \DisplayProof
 \end{center}
 
+\item[case \emph{Fold}:] \AxiomC{$M \twoheadrightarrow_{\beta} M'$}
+  \UnaryInfC{$\fold{N}M \twoheadrightarrow_{\beta} \fold{N}M'$}
+  \DisplayProof, where $N=\mu x.A$.
+
+  Derivation $\mathcal{D}$ has the following form
+\begin{center}
+  \AxiomC{$\Gamma \vdash M:(A[x:=\mu x.A])$} \RightLabel{\emph{Fold}}
+  \UnaryInfC{$\Gamma \vdash (\fold{\mu x.A}{M}):\mu x.A$}
+  \DisplayProof
+\end{center}
+By the induction hypothesis we have
+$\Gamma \vdash M':(A[x:=\mu x.A])$. Hence,
+\begin{center}
+  \AxiomC{$\Gamma \vdash M':(A[x:=\mu x.A])$} \RightLabel{\emph{Fold}}
+  \UnaryInfC{$\Gamma \vdash (\fold{\mu x.A}{M'}):\mu x.A$}
+  \DisplayProof
+\end{center}
+
+\item[case \emph{Unfold}:] \AxiomC{$M \twoheadrightarrow_{\beta} M'$}
+  \UnaryInfC{$\unfold{N}M \twoheadrightarrow_{\beta} \unfold{N}M'$}
+  \DisplayProof, where $N=\mu x.A$.
+
+  Derivation $\mathcal{D}$ has the following form
+\begin{center}
+  \AxiomC{$\Gamma \vdash M:\mu x.A$} \RightLabel{\emph{Unfold}}
+  \UnaryInfC{$\Gamma \vdash (\unfold{\mu x.A}{M}):A[x:=\mu x.A]$}
+  \DisplayProof
+\end{center}
+By the induction hypothesis we have
+$\Gamma \vdash M':\mu x.A$. Hence,
+\begin{center}
+  \AxiomC{$\Gamma \vdash M':\mu x.A$} \RightLabel{\emph{Unfold}}
+  \UnaryInfC{$\Gamma \vdash (\unfold{\mu x.A}{M'}):A[x:=\mu x.A]$}
+  \DisplayProof
+\end{center}
+
+\item[case \emph{Unfold-Fold}:]
+  $\unfold{N}{(\fold{N}{M})} \rightarrow M$, where $N=\mu x.A$.
+
+  Derivation $\mathcal{D}$ has the following form
+\begin{center}
+  \AxiomC{$\Gamma \vdash M:(A[x:=\mu x.A])$} \RightLabel{\emph{Fold}}
+  \UnaryInfC{$\Gamma \vdash (\fold{N}{M}):\mu x.A$}
+  \RightLabel{\emph{Unfold}}
+  \UnaryInfC{$\Gamma \vdash \unfold{N}{(\fold{N}{M})}:(A[x:=\mu
+    x.A])$} \DisplayProof
+\end{center}
+which immediately proves the statement.
+
+\item[case \emph{Beta}:] \AxiomC{$M \twoheadrightarrow_{\beta} M'$}
+  \UnaryInfC{$\betaa{M} \twoheadrightarrow_{\beta} \betaa{M'}$}
+  \DisplayProof.
+
+Derivation $\mathcal{D}$ has the following form
+\begin{center}
+  \AxiomC{$\Gamma \vdash M:A$} \AxiomC{$A \to_{\beta} B$}
+  \RightLabel{\emph{Beta}}
+  \BinaryInfC{$\Gamma \vdash (\betaa{M}):B$}
+  \DisplayProof
+\end{center}
+By the induction hypothesis we have
+$\Gamma \vdash M':A$. Hence,
+\begin{center}
+  \AxiomC{$\Gamma \vdash M':A$} \AxiomC{$A \to_{\beta} B$}
+  \RightLabel{\emph{Beta}}
+  \BinaryInfC{$\Gamma \vdash (\betaa{M'}):B$}
+  \DisplayProof
+\end{center}
+
+
 \end{description}
 \end{proof}
 
 \begin{thm}[$\lambda C_{\mu}$ Progress]
-  If $\cdot \vdash A:B$ then either $A$ is a value or
+  If $\cdot \vdash A:B$ then either $A$ is a value $v$ or
   $A \twoheadrightarrow_\beta A'$.
 \end{thm}
 
 \begin{proof}
-WIP.
+  Note that expressions with following forms can be \emph{values} if
+  not able to be reduced any more.
+\[
+\renewcommand*{\arraystretch}{1.0}%
+\begin{array}{lcl}
+  v &::= & x \mid \star \mid \lambda x:A.A \mid \betaa{A} \\
+    & \mid & \fold{A}{A} \mid \unfold{A}{A}
+\end{array}
+\]
+
+We can give the proof by induction on the derivation of
+$\cdot \vdash A:B$ as follows
+
+\begin{description}
+\item[case \emph{Var}:] \AxiomC{} \UnaryInfC{$\cdot,x:A \vdash x:A$}
+  \DisplayProof.
+
+  The proof is given by contraction. If $x$ is not a value and there
+  exists no $x'$ such that $x \twoheadrightarrow_{\beta} x'$, then $x$ is in normal
+  form, which belongs to one of the value forms listed above. This
+  contradicts that $x$ is not a value. Thus, the original statement
+  holds.
+
+\item[case \emph{Weak}:] \AxiomC{$\cdot \vdash b:B$}
+  \UnaryInfC{$\cdot,x:A \vdash b:B$} \DisplayProof.
+
+  The result is trivial by induction hypothesis.
+
+\item[case \emph{App}:] \AxiomC{$\cdot \vdash M:(\Pi x:A.B)$}
+  \AxiomC{$\cdot \vdash N:A$} \BinaryInfC{$\cdot \vdash MN:B$}
+  \DisplayProof.
+
+  By induction hypothesis on $\cdot \vdash M:(\Pi x:A.B)$, there are
+  two possible cases.
+  \begin{enumerate}
+  \item $M=v$ is a value. Hence $v=\lambda x:A.M'$ where
+    $\cdot \vdash M':B$. Then $MN=vN=(\lambda x:A.M')N=M'[x:=N]$. By
+    the substitution lemma, $\cdot \vdash (M'[x:=N]):B$ which is just
+    $\cdot \vdash MN:B$.
+  \item $M \twoheadrightarrow_{\beta} M'$. The result is obvious by
+    the operational semantic
+    \AxiomC{$M \twoheadrightarrow_{\beta} M'$} \RightLabel{\emph{App
+        -Left}} \UnaryInfC{$MN \twoheadrightarrow_{\beta} M'N$}
+    \DisplayProof.
+  \end{enumerate}
+\item[case \emph{Lam}:] \AxiomC{$\dots$}
+  \UnaryInfC{$\cdot \vdash (\lambda x:A.M):(\Pi x:A.B)$} \DisplayProof. 
+
+  The result is trivial if let $v=\lambda x:A.M$.
+\item[case \emph{Fold}:] \AxiomC{$\dots$}
+  \UnaryInfC{$\cdot \vdash (\fold{\mu x.A}{M}):\mu x.A$}
+  \DisplayProof.
+
+  The result is trivial if let $v=\fold{\mu x.A}{M}$.
+\item[case \emph{Unfold}:] \AxiomC{$\dots$}
+  \UnaryInfC{$\cdot \vdash (\unfold{\mu x.A}{M}):A[x:=\mu x.A]$}
+  \DisplayProof.
+
+  The result is trivial if let $v=\unfold{\mu x.A}{M}$.
+\item[case \emph{Beta}:] \AxiomC{$\dots$}
+  \UnaryInfC{$\cdot \vdash (\betaa{M}):B$}
+  \DisplayProof.
+
+  The result is trivial if let $v=\betaa{M}$.
+\end{description}
+
 \end{proof}
 
 \nocite{*} \bibliographystyle{plainnat} \bibliography{pts}
