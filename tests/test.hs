@@ -10,17 +10,19 @@ zero =
   Lam "a"
       (Kind Star)
       (Lam "s"
-           (Pi "_"
+           (Pi ""
                (Var "a")
                (Var "a"))
-           (Lam "z" (Var "a") (Var "z")))
+           (Lam "z"
+                (Var "a")
+                (Var "z")))
 
 one :: Expr
 one =
   Lam "a"
       (Kind Star)
       (Lam "f"
-           (Pi "_"
+           (Pi ""
                (Var "a")
                (Var "a"))
            (Lam "z"
@@ -33,7 +35,7 @@ two =
   Lam "a"
       (Kind Star)
       (Lam "f"
-           (Pi "_"
+           (Pi ""
                (Var "a")
                (Var "a"))
            (Lam "z"
@@ -47,7 +49,7 @@ three =
   Lam "a"
       (Kind Star)
       (Lam "f"
-           (Pi "_"
+           (Pi ""
                (Var "a")
                (Var "a"))
            (Lam "z"
@@ -62,7 +64,7 @@ natType =
   Pi "a"
      (Kind Star)
      (Pi "s"
-         (Pi "_"
+         (Pi ""
              (Var "a")
              (Var "a"))
          (Pi "z"
@@ -78,7 +80,7 @@ plus =
            (Lam "a"
                 (Kind Star)
                 (Lam "f"
-                     (Pi "_"
+                     (Pi ""
                          (Var "a")
                          (Var "a"))
                      (Lam "z"
@@ -99,7 +101,38 @@ env1 :: Env
 env1 = extend "a" (Kind Star) initalEnv
 
 env2 :: Env
-env2 = extend "d" (Pi "_" natType (Kind Star)) env1
+env2 = extend "d" (Pi "" natType (Kind Star)) env1
+
+fixT :: Expr
+fixT = Mu "m" (Pi "" (Var "m") (Var "a"))
+
+fix :: Expr
+fix =
+  Lam "a" (Kind Star) $
+  Lam "f"
+      (Pi ""
+          (Var "a")
+          (Var "a")) $
+  App (Lam "x" fixT $
+       App (Var "f")
+           (App (U fixT (Var "x"))
+                (Var "x")))
+      (F fixT
+         (Lam "x" fixT $
+          App (Var "f")
+              (App (U fixT (Var "x"))
+                   (Var "x"))))
+
+hT :: Expr
+hT = Mu "m" (Pi "" (Var "a") (Var "m"))
+
+hungry :: Expr
+hungry =
+  Lam "a" (Kind Star) $
+  App (App fix (Pi "" (Var "a") hT))
+      (Lam "f" (Pi "" (Var "a") hT) $
+       Lam "x" (Var "a") $
+       F hT (Var "f"))
 
 main :: IO ()
 main = defaultMain tests
@@ -113,7 +146,7 @@ tcheckTest =
   testGroup "Type check"
             [testCase "type depend on term" $
              tcheck env1
-                    (Pi "_"
+                    (Pi ""
                         (Var "a")
                         (Kind Star)) @?=
              Right (Kind Box)
@@ -127,7 +160,25 @@ tcheckTest =
                        (Kind Star))
             ,testCase "Apply a dependent type" $
              tcheck env2 (App (Var "d") zero) @?=
-             Right (Kind Star)]
+             Right (Kind Star)
+            ,testCase "Fix combinator" $
+             tcheck initalEnv fix @?=
+             Right (Pi "a"
+                       (Kind Star)
+                       (Pi "f"
+                           (Pi ""
+                               (Var "a")
+                               (Var "a"))
+                           (Var "a")))
+            ,testCase "Hungry function takes two arguments" $
+             tcheck (extend "x"
+                            (Var "a")
+                            (extend "a" (Kind Star) initalEnv))
+                    (App (U hT
+                            (App (App hungry (Var "a"))
+                                 (Var "x")))
+                         (Var "x")) @?=
+             Right hT]
 
 substTest :: TestTree
 substTest =
