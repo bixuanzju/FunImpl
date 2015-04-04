@@ -96,27 +96,26 @@ findVar (Env r) s =
    Nothing -> Left $ "Cannot find variable " ++ s
 
 tcheck :: Env -> Expr -> TC Type
-tcheck env (Var s) = findVar env s -- (Var)
-tcheck env (App f a) =          -- (App)
+tcheck env (Var s) = findVar env s       -- (Var)
+tcheck env (App f a) =                   -- (App)
   do tf <- tcheck env f
      case tf of
        Pi x at rt ->
          do ta <- tcheck env a
-            unless (betaEq ta at) $ -- where magic happens!
+            unless (betaEq ta at) $      -- where magic happens!
               Left "Bad function argument type"
             return $ subst x a rt
        _ -> Left "Non-function in application"
-tcheck env (Lam s t e) =        -- (Lam)
-  do tcheck env t
-     let env' = extend s t env
+tcheck env (Lam s t e) =                 -- (Lam)
+  do let env' = extend s t env
      te <- tcheck env' e
      let lt = Pi s t te
      tcheck env lt
      return lt
-tcheck _ (Kind Star) = return $ Kind Box
+tcheck _ (Kind Star) = return $ Kind Box -- (Ax)
 tcheck _ (Kind Box) = Left "Found a Box"
-tcheck env (Pi x a b) =         -- (Pi)
-  do s <- tcheckT env a         -- evaluate after type check
+tcheck env (Pi x a b) =                  -- (Pi)
+  do s <- tcheckT env a                  -- evaluate after type check
      let env' = extend x a env
      t <- tcheckT env' b
      when ((s,t) `notElem` allowedKinds) $ Left "Bad abstraction"
@@ -133,6 +132,7 @@ tcheckT :: Env -> Expr -> TC Type
 tcheckT env e = liftM nf (tcheck env e)
 
 typeCheck :: Expr -> Type
-typeCheck e = case tcheck initalEnv e of
-               Left msg -> error ("Type error:\n" ++ msg)
-               Right t -> t
+typeCheck e =
+  case tcheck initalEnv e of
+    Left msg -> error ("Type error:\n" ++ msg)
+    Right t -> t

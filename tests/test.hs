@@ -95,12 +95,39 @@ plus =
 idd :: Expr
 idd = Lam "a" (Kind Star) (Lam "x" (Var "a") (Var "x"))
 
+env1 :: Env
+env1 = extend "a" (Kind Star) initalEnv
+
+env2 :: Env
+env2 = extend "d" (Pi "_" natType (Kind Star)) env1
 
 main :: IO ()
 main = defaultMain tests
 
 tests :: TestTree
-tests = testGroup "Tests" [substTest,natTest]
+tests = testGroup "Tests" [substTest,natTest,tcheckTest]
+
+
+tcheckTest :: TestTree
+tcheckTest =
+  testGroup "Type check"
+            [testCase "type depend on term" $
+             tcheck env1
+                    (Pi "_"
+                        (Var "a")
+                        (Kind Star)) @?=
+             Right (Kind Box)
+            ,testCase "A simple term with a type that depends on a term" $
+             tcheck env1
+                    (Lam "x"
+                         (Var "a")
+                         (Var "a")) @?=
+             Right (Pi "x"
+                       (Var "a")
+                       (Kind Star))
+            ,testCase "Apply a dependent type" $
+             tcheck env2 (App (Var "d") zero) @?=
+             Right (Kind Star)]
 
 substTest :: TestTree
 substTest =
@@ -130,5 +157,5 @@ natTest :: TestTree
 natTest =
   testGroup "Natural number"
             [testCase "one plus two equal three" $
-             (betaEq (App (App plus one) two) three) @?=
+             betaEq (App (App plus one) two) three @?=
              True]
