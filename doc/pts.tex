@@ -572,6 +572,9 @@ when $x \not \in \mathrm{FV}(B)$.
       &(\FPTermfxx)\\
       &(\fold{\FPTypeU}{(\FPTermfxx)})
 \end{align*}
+Note that this is the so called call-by-name fixed point
+combinator. It is useless in a call-by-value setting, since the
+expression $\FP\,\alpha\,g$ diverges for any $g$.
 \newcommand{\HGType}{\mu\sigma. \alpha \to \sigma}%
 \item Using $\FP$, we can build recursive functions. For example,
   given a ``hungry'' type $H=\HGType$, the ``hungry'' function $h$
