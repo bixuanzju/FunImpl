@@ -17,6 +17,9 @@ one = parseExpr "lam a : * . lam s : (a -> a) . lam z : a . s z"
 two :: Expr
 two = parseExpr "lam a : * . lam s : (a -> a) . lam z : a . s (s z)"
 
+three :: Expr
+three = parseExpr "lam a : * . lam s : (a -> a) . lam z : a . s (s (s z))"
+
 plus :: Expr
 plus = parseExpr "lam m : (pi a : * . pi s : (a -> a) . pi z : a . a) . lam n : (pi a : * . pi s : (a -> a) . pi z : a . a) . lam a : * . lam f : (a -> a) . lam z : a . (m a f) (n a f z)"
 
@@ -120,5 +123,5 @@ natTest :: TestTree
 natTest =
   testGroup "Natural number"
             [testCase "one plus two" $
-             alphaEq (typeCheck (whnf (App (App plus one) two))) natType @?=
+             equate (whnf (App (App plus one) two)) three @?=
              True]

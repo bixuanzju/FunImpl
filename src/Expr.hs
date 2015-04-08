@@ -77,58 +77,26 @@ whnf ee = spine ee []
   where spine (App f a) as = spine f (a:as)
         spine (Lam s _ e) (a:as) = spine (subst s a e) as
         spine (U _) (App (F _) e:as) = spine e as
-        -- spine (U t) as = spine e as
-        -- spine (F t) as = spine e as
+        -- spine (F t) (a:as) = spine (F t) (whnf a:as)
+        -- spine (U t) (a:as) = spine (U t) (whnf a:as)
         spine f as = foldl App f as
 
--- betaEq :: Expr -> Expr -> Bool
--- betaEq e1 e2 = alphaEq (nf e1) (nf e2)
-
--- nat :: Expr
--- nat = Mu "x" $ Pi "a" (Kind Star) $ Var "a" `arr` (Var "x" `arr` Var "a" `arr` Var "a")
-
--- zero =
---   App (F nat)
---       (Lam "a" (Kind Star) $
---        Lam "z" (Var "a") $
---        Lam "f"
---            (nat `arr`
---             Var "a")
---            (Var "z"))
-
--- suc =
---   Lam "n" nat $
---   App (F nat)
---       (Lam "a" (Kind Star) $
---        Lam "z" (Var "a") $
---        Lam "f"
---            (nat `arr`
---             (Var "a")) $
---        App (Var "f")
---            (Var "n"))
-
--- one = App suc zero
-
--- two = App suc one
-
--- three = App suc two
-
--- plus =
---   App (App fix
---            (nat `arr`
---             (nat `arr` nat)))
---       (Lam "p"
---            (nat `arr`
---             (nat `arr` nat)) $
---        Lam "n" nat $
---        Lam "m" nat $
---        App (App (App (App (U nat)
---                           (Var "n"))
---                      nat)
---                 (Var "m"))
---            (Lam "n1" nat $
---             App suc
---                 (App (App (Var "p")
---                           (Var "n1"))
---                      (Var "m"))))
-
+-- | Definitional equality because we use weak head normal form
+equate :: Expr -> Expr -> Bool
+equate e1 e2 =
+  let e1' = whnf e1
+      e2' = whnf e2
+  in case (e1',e2') of
+       (App a1 b1,App a2 b2) ->
+         equate a1 a2 &&
+         equate b1 b2
+       (Lam n _ a,Lam n1 _ a1) ->
+         equate a (substVar n1 n a1)
+       (Pi n _ a,Pi n1 _ a1) ->
+         equate a (substVar n1 n a1)
+       (Mu n t,Mu n1 t1) ->
+         equate t (substVar n1 n t1)
+       (F t,F t1) -> equate t t1
+       (U t,U t1) -> equate t t1
+       (Var n1,Var n2) -> n1 == n2
+       (_,_) -> False
