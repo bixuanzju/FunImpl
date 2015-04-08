@@ -1,6 +1,10 @@
 srcdir=src
 parsers=Parser.hs
 
+.PHONY : repl
+repl :
+	cabal install && ./.cabal-sandbox/bin/lambdapi
+
 .PHONY : test
 test : parsers
 	cabal test

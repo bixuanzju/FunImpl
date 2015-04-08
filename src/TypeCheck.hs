@@ -72,11 +72,11 @@ allowedKinds =
 -- tcheckT :: Env -> Expr -> TC Type
 -- tcheckT env e = liftM nf (tcheck env e)
 
-typeCheck :: Expr -> Type
-typeCheck e =
-  case tcheck initalEnv e of
-    Left msg -> error ("Type error:\n" ++ msg)
-    Right t -> t
+-- typeCheck :: Expr -> Either String Type
+-- typeCheck e =
+--   case tcheck initalEnv e of
+--     Left msg -> Left ("Type error:\n" ++ msg)
+--     Right t -> Right t
 
 arr :: Expr -> Expr -> Expr
 arr = Pi ""
