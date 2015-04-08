@@ -10,3 +10,5 @@ cabal-dev
 cabal.sandbox.config
 cabal.config
 .hdevtools.sock
+/src/Parser.hs
+/src/Parser.info

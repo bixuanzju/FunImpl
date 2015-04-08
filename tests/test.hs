@@ -2,100 +2,26 @@ import Test.Tasty
 import Test.Tasty.HUnit
 
 import Expr
+import Parser
+import Syntax
+import TypeCheck
 
 -- Examples
 
 zero :: Expr
-zero =
-  Lam "a"
-      (Kind Star)
-      (Lam "s"
-           (Pi ""
-               (Var "a")
-               (Var "a"))
-           (Lam "z"
-                (Var "a")
-                (Var "z")))
+zero = parseExpr "lam a : * . lam s : (a -> a) . lam z : a . z"
 
 one :: Expr
-one =
-  Lam "a"
-      (Kind Star)
-      (Lam "f"
-           (Pi ""
-               (Var "a")
-               (Var "a"))
-           (Lam "z"
-                (Var "a")
-                (App (Var "f")
-                     (Var "z"))))
+one = parseExpr "lam a : * . lam s : (a -> a) . lam z : a . s z"
 
 two :: Expr
-two =
-  Lam "a"
-      (Kind Star)
-      (Lam "f"
-           (Pi ""
-               (Var "a")
-               (Var "a"))
-           (Lam "z"
-                (Var "a")
-                (App (Var "f")
-                     (App (Var "f")
-                          (Var "z")))))
-
-three :: Expr
-three =
-  Lam "a"
-      (Kind Star)
-      (Lam "f"
-           (Pi ""
-               (Var "a")
-               (Var "a"))
-           (Lam "z"
-                (Var "a")
-                (App (Var "f")
-                     (App (Var "f")
-                          (App (Var "f")
-                               (Var "z"))))))
-
-natType :: Expr
-natType =
-  Pi "a"
-     (Kind Star)
-     (Pi "s"
-         (Pi ""
-             (Var "a")
-             (Var "a"))
-         (Pi "z"
-             (Var "a")
-             (Var "a")))
+two = parseExpr "lam a : * . lam s : (a -> a) . lam z : a . s (s z)"
 
 plus :: Expr
-plus =
-  Lam "m"
-      natType
-      (Lam "n"
-           natType
-           (Lam "a"
-                (Kind Star)
-                (Lam "f"
-                     (Pi ""
-                         (Var "a")
-                         (Var "a"))
-                     (Lam "z"
-                          (Var "a")
-                          (App (App (App (Var "m")
-                                         (Var "a"))
-                                    (Var "f"))
-                               (App (App (App (Var "n")
-                                              (Var "a"))
-                                         (Var "f"))
-                                    (Var "z")))))))
+plus = parseExpr "lam m : (pi a : * . pi s : (a -> a) . pi z : a . a) . lam n : (pi a : * . pi s : (a -> a) . pi z : a . a) . lam a : * . lam f : (a -> a) . lam z : a . (m a f) (n a f z)"
 
-
-idd :: Expr
-idd = Lam "a" (Kind Star) (Lam "x" (Var "a") (Var "x"))
+natType :: Expr
+natType = parseExpr "pi a : * . pi s : (a -> a) . pi z : a . a"
 
 env1 :: Env
 env1 = extend "a" (Kind Star) initalEnv
@@ -103,26 +29,9 @@ env1 = extend "a" (Kind Star) initalEnv
 env2 :: Env
 env2 = extend "d" (Pi "" natType (Kind Star)) env1
 
-fixT :: Expr
-fixT = Mu "m" (Var "m" `arr` Var "a")
-
 fix :: Expr
 fix =
-  Lam "a" (Kind Star) $
-  Lam "f"
-      (Var "a" `arr`
-       Var "a") $
-  App (Lam "x" fixT $
-       App (Var "f")
-           (App (App (U fixT)
-                     (Var "x"))
-                (Var "x")))
-      (App (F fixT)
-           (Lam "x" fixT $
-            App (Var "f")
-                (App (App (U fixT)
-                          (Var "x"))
-                     (Var "x"))))
+  parseExpr "lam a : * . lam f : (a -> a) . (lam x : (mu m . (m -> a)) . f ((unfold [mu m . (m -> a)] x) x)) (fold [mu m . (m -> a)] (lam x : (mu m . (m -> a)) .  f ((unfold [mu m . (m -> a)] x) x)))"
 
 hT :: Expr
 hT = Mu "m" (Pi "" (Var "a") (Var "m"))
@@ -140,7 +49,7 @@ main :: IO ()
 main = defaultMain tests
 
 tests :: TestTree
-tests = testGroup "Tests" [substTest,tcheckTest]
+tests = testGroup "Tests" [natTest, substTest,tcheckTest]
 
 
 tcheckTest :: TestTree
@@ -207,9 +116,9 @@ substTest =
                  (App (Var "y$")
                       (Var "y"))]
 
--- natTest :: TestTree
--- natTest =
---   testGroup "Natural number"
---             [testCase "one plus two equal three" $
---              betaEq (App (App plus one) two) three @?=
---              True]
+natTest :: TestTree
+natTest =
+  testGroup "Natural number"
+            [testCase "one plus two" $
+             alphaEq (typeCheck (whnf (App (App plus one) two))) natType @?=
+             True]
