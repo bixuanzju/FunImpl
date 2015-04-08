@@ -3,7 +3,7 @@ parsers=Parser.hs
 
 .PHONY : repl
 repl :
-	cabal install && ./.cabal-sandbox/bin/lambdapi
+	cabal run
 
 .PHONY : test
 test : parsers
