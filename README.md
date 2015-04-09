@@ -1,15 +1,28 @@
-# lambdapi
+# PTS
 
 ## Summary
 
-## Contributing
-
-Yes, please do! See [CONTRIBUTING][] for guidelines.
-
-## License
-
-See [COPYING][]. Copyright (c) 2015 Jeremy Bi.
+A Haskell implementation of the Pure Type System
 
 
-[CONTRIBUTING]: ./CONTRIBUTING.md
-[COPYING]: ./COPYING
+## Installation ##
+
+Run the following commands at the top:
+
+```
+cabal sandbox init
+cabal install --only-dependencies --enable-tests
+```
+
+## REPL
+
+```
+make repl
+```
+
+
+## Run Tests
+
+```
+make test
+```
