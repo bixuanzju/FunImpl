@@ -3,7 +3,7 @@ parsers=Parser.hs
 
 .PHONY: all
 all: parsers
-	cabal install --only-dependencies --enable-tests
+	cabal install  --enable-tests
 
 .PHONY : repl
 repl :
