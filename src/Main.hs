@@ -23,7 +23,7 @@ main = runInputT defaultSettings (loop initalBEnv initalEnv)
             ":add":name:typ ->
               do outputStrLn "Added!"
                  let Progm [expr] = parseExpr . unwords $ typ
-                 loop benv (extend name expr env)
+                 loop benv (extend name (repFreeVar benv expr) env)
             ":let":name:e ->
               do outputStrLn "Added new term!"
                  let Progm [expr] = parseExpr . unwords $ e
