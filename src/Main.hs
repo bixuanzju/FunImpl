@@ -24,11 +24,17 @@ main = runInputT defaultSettings (loop initalBEnv initalEnv)
               do outputStrLn "Added!"
                  let Progm [expr] = parseExpr . unwords $ typ
                  loop benv (extend name expr env)
+            ":let":name:e ->
+              do outputStrLn "Added new term!"
+                 let Progm [expr] = parseExpr . unwords $ e
+                 let newEnv = (name, repFreeVar benv expr):benv
+                 loop newEnv env
             ":clr":_ ->
               do outputStrLn "Environment cleaned up!"
                  loop initalBEnv initalEnv
             ":env":_ ->
-              do outputStrLn (show env)
+              do outputStrLn $ "Typing environment: " ++ show env
+                 outputStrLn $ "Binding environment: " ++ show (map fst benv)
                  loop benv env
             ":e":expr ->
               do let Progm xs = parseExpr . unwords $ expr
