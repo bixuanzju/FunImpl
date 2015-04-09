@@ -43,7 +43,7 @@ main = runInputT defaultSettings (loop initalBEnv initalEnv)
             ":t":expr ->
               let Progm xs = parseExpr . unwords $ expr
               in if length xs == 1
-                 then case tcheck env . head $ xs of
+                 then case tcheck env . repFreeVar benv .  head $ xs of
                        Left err ->
                          do outputStrLn err
                             loop benv env
