@@ -34,8 +34,9 @@ main = runInputT defaultSettings (loop initalEnv)
                  outputStrLn . show . whnf $ e
                  loop env
             ":eq":exprs ->
-              do let Progm [e1, e2] = parseExpr . unwords $ exprs
-                 outputStrLn . show $ equate (whnf e1) (whnf e2)
+              do let Progm xs = parseExpr . unwords $ exprs
+                 if length xs == 2 then outputStrLn . show $ equate (whnf (head xs)) (whnf (xs !! 1))
+                   else outputStrLn "Parser error: need two expressions!"
                  loop env
             ":t":expr ->
               let Progm [e] = parseExpr . unwords $ expr
