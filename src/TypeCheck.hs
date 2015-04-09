@@ -61,6 +61,11 @@ tcheck env (U mu@(Mu i t)) =             -- (Unfold)
   do tcheck env mu
      let rt = subst i mu t
      return (mu `arr` rt)
+tcheck env (Beta e) =                    -- (Beta)
+  do te <- tcheck env e
+     let tb = whnf te
+     tcheck env tb
+     return tb
 
 allowedKinds :: [(Type, Type)]
 allowedKinds =

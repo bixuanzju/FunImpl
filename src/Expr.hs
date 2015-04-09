@@ -18,6 +18,7 @@ subst v x = sub
           | otherwise = Mu i (sub t)
         sub (F t) = F (sub t)
         sub (U t) = U (sub t)
+        sub (Beta t) = Beta (sub t)
         sub (Kind k) = Kind k
         abstr con i t e
           | v == i = con i (sub t) e -- type is also expression, need substitution
@@ -45,6 +46,7 @@ freeVars (Pi i k t) = freeVars k `union` (freeVars t \\ [i])
 freeVars (Mu i t) = freeVars t \\ [i]
 freeVars (F t) = freeVars t
 freeVars (U t) = freeVars t
+freeVars (Beta t) = freeVars t
 freeVars (Kind _) = []
 
 alphaEq :: Expr -> Expr -> Bool
@@ -55,6 +57,7 @@ alphaEq (Pi s t e) (Pi s' t' e') = alphaEq e (substVar s' s e') && alphaEq t t'
 alphaEq (Mu i t) (Mu i' t') = alphaEq t (substVar i' i t')
 alphaEq (F t) (F t') = alphaEq t t'
 alphaEq (U t) (U t') = alphaEq t t'
+alphaEq (Beta t) (Beta t') = alphaEq t t'
 alphaEq (Kind k) (Kind k') = k == k'
 alphaEq _ _ = False
 
@@ -98,5 +101,6 @@ equate e1 e2 =
          equate t (substVar n1 n t1)
        (F t,F t1) -> equate t t1
        (U t,U t1) -> equate t t1
+       (Beta t,Beta t1) -> equate t t1
        (Var n1,Var n2) -> n1 == n2
        (_,_) -> False
