@@ -1,6 +1,10 @@
 srcdir=src
 parsers=Parser.hs
 
+.PHONY: all
+all: parsers
+	cabal install --only-dependencies --enable-tests
+
 .PHONY : repl
 repl :
 	cabal run

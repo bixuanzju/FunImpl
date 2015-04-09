@@ -11,7 +11,7 @@ Run the following commands at the top:
 
 ```
 cabal sandbox init
-cabal install --only-dependencies --enable-tests
+make
 ```
 
 ## REPL
