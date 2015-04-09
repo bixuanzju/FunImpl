@@ -4,7 +4,7 @@ import System.Console.Haskeline
 
 import Expr
 import TypeCheck
--- import Syntax
+import Syntax
 import Parser
 
 main :: IO ()
@@ -21,7 +21,8 @@ main = runInputT defaultSettings (loop initalEnv)
           case words cmds of
             ":add":name:typ ->
               do outputStrLn "Added!"
-                 loop (extend name (parseExpr . unwords $ typ) env)
+                 let Progm [expr] = parseExpr . unwords $ typ
+                 loop (extend name expr env)
             ":clr":_ ->
               do outputStrLn "Environment cleaned up!"
                  loop initalEnv
@@ -29,14 +30,20 @@ main = runInputT defaultSettings (loop initalEnv)
               do outputStrLn (show env)
                  loop env
             ":e":expr ->
-              do outputStrLn . show . whnf . parseExpr $ unwords expr
+              do let Progm [e] = parseExpr . unwords $ expr
+                 outputStrLn . show . whnf $ e
+                 loop env
+            ":eq":exprs ->
+              do let Progm [e1, e2] = parseExpr . unwords $ exprs
+                 outputStrLn . show $ equate (whnf e1) (whnf e2)
                  loop env
             ":t":expr ->
-              case tcheck env . parseExpr $ unwords expr of
-                Left err ->
-                  do outputStrLn err
-                     loop env
-                Right typ ->
-                  do outputStrLn . show $ typ
-                     loop env
+              let Progm [e] = parseExpr . unwords $ expr
+              in case tcheck env e of
+                  Left err ->
+                    do outputStrLn err
+                       loop env
+                  Right typ ->
+                    do outputStrLn . show $ typ
+                       loop env
             _ -> loop env

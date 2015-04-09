@@ -2,6 +2,9 @@ module Syntax where
 
 type Sym = String
 
+
+data Program = Progm [Expr]
+
 data Expr = Var Sym
           | App Expr Expr
           | Lam Sym Type Expr

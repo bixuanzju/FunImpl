@@ -27,10 +27,16 @@ import Syntax
     '('       { TokenSymbol "(" }
     ')'       { TokenSymbol ")" }
     '*'       { TokenSymbol "*" }
+    ';'       { TokenSymbol ";" }
 
 %right '->'
 
 %%
+
+Progms : Exprs        { Progm $1 }
+
+Exprs : Expr    { [$1] }
+      | Exprs ';' Expr    {$1 ++ [$3]}
 
 Expr : lam id ':' Expr '.' Expr  { Lam $2 $4 $6 }
      | pi id ':' Expr '.' Expr    { Pi $2 $4 $6 }
@@ -83,7 +89,7 @@ lexer symbols keywords = lexer'
                             Nothing -> lexSym cs ss
         lexSym cs [] = error $ "Cannot tokenize " ++ cs
 
-symbols = [".", "(", ")", ":", "\\", "*", "->", "[", "]"]
+symbols = [".", "(", ")", ":", "\\", "*", "->", "[", "]", ";"]
 keywords = ["fold", "unfold", "pi", "mu", "lam", "beta"]
 
 parseExpr = parser . lexer symbols keywords
