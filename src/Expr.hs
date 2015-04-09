@@ -81,7 +81,7 @@ whnf ee = spine ee []
         spine (Lam s _ e) (a:as) = spine (subst s a e) as
         spine (U _) (App (F _) e:as) = spine e as
         -- spine (F t) (a:as) = spine (F t) (whnf a:as)
-        -- spine (U t) (a:as) = spine (U t) (whnf a:as)
+        spine (U t) (a:as) = spine (U t) (whnf a:as)
         spine f as = foldl App f as
 
 -- | Definitional equality because we use weak head normal form
