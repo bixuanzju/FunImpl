@@ -3,7 +3,7 @@ module Syntax where
 type Sym = String
 
 
-data Program = Progm [Expr]
+data Program = Progm [Expr] deriving Show
 
 data Expr = Var Sym
           | App Expr Expr

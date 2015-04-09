@@ -5,20 +5,17 @@ import Control.Monad (unless, when)
 import Syntax
 import Expr
 
-newtype Env = Env [(Sym, Type)] deriving (Show)
-
-initalEnv :: Env
-initalEnv = Env []
+type Env = [(Sym, Type)]
 
 extend :: Sym -> Type -> Env -> Env
-extend s t (Env r) = Env ((s,t):r)
+extend s t r =(s,t):r
 
 type ErrorMsg = String
 
 type TC a = Either ErrorMsg a
 
 findVar :: Env -> Sym -> TC Type
-findVar (Env r) s =
+findVar r s =
   case lookup s r of
    Just t -> return t
    Nothing -> Left $ "Cannot find variable " ++ s
@@ -63,7 +60,7 @@ tcheck env (U mu@(Mu i t)) =             -- (Unfold)
      return (mu `arr` rt)
 tcheck env (Beta e) =                    -- (Beta)
   do te <- tcheck env e
-     let tb = whnf te
+     let tb = whnf []  te
      tcheck env tb
      return tb
 

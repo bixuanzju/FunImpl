@@ -1,0 +1,72 @@
+module Predef where
+
+import Data.Maybe (fromMaybe)
+
+import Expr
+import Parser
+import Syntax
+import TypeCheck
+
+initenv :: BEnv
+initenv = [ ("nat", nat)
+          , ("fix", fix)
+          , ("zero", zero)
+          , ("suc", suc)
+          , ("one", one)
+          , ("two", two)
+          , ("plus", plus)
+          , ("three", three)
+          ]
+
+initalBEnv :: BEnv
+initalBEnv = foldl (\ env (n, e) -> (n, repFreeVar env e):env) [] initenv
+
+
+initalEnv :: Env
+initalEnv = []
+
+parse :: String -> Expr
+parse str = let (Progm [expr]) = parseExpr str
+            in expr
+
+fix :: Expr
+fix =
+  parse
+    "lam a : * . lam f : a -> a . (lam x : (mu m . m -> a) . f ((unfold [mu m . m -> a] x) x)) (fold [mu m . m -> a] (lam x : (mu m . m -> a) .  f ((unfold [mu m . m -> a] x) x)))"
+
+nat :: Expr
+nat = parse "mu x . pi a : * . a -> (x -> a) -> a"
+
+zero :: Expr
+zero = parse "fold[nat] (lam a : * . lam z : a . lam f : (nat -> a) . z)"
+
+suc :: Expr
+suc = parse "lam n : nat . fold[nat] (lam a : * . lam z : a . lam f : (nat -> a) . f n)"
+
+one :: Expr
+one = App suc zero
+
+two :: Expr
+two = App suc one
+
+three :: Expr
+three = App suc two
+
+plus :: Expr
+plus = parse "fix (nat -> nat -> nat) (lam p : (nat -> nat -> nat) . lam n : nat . lam m : nat . (unfold[nat] n) nat m (lam l : nat . suc (p l m)))"
+
+repFreeVar :: BEnv -> Expr -> Expr
+repFreeVar env = repl
+  where
+    repl :: Expr -> Expr
+    repl (App f a) = App (repl f) (repl a)
+    repl (Lam n t e) = Lam n (repl t) (repl e)
+    repl (Pi n t e) = Pi n (repl t) (repl e)
+    repl (Mu n t) = Mu n (repl t)
+    repl (F t) = F (repl t)
+    repl (U t) = U (repl t)
+    repl (Beta e) = Beta (repl e)
+    repl (Kind Star) = Kind Star
+    repl (Kind Box) = Kind Box
+    repl (Var n) = fromMaybe (Var n) (lookup n env)
+

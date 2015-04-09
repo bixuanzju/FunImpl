@@ -74,33 +74,38 @@ alphaEq _ _ = False
 --         spine f as = app f as
 --         app f as = foldl App f (map nf as)
 
--- TODO: Need thoughts
-whnf :: Expr -> Expr
-whnf ee = spine ee []
-  where spine (App f a) as = spine f (a:as)
-        spine (Lam s _ e) (a:as) = spine (subst s a e) as
-        spine (U _) (App (F _) e:as) = spine e as
-        -- spine (F t) (a:as) = spine (F t) (whnf a:as)
-        spine (U t) (a:as) = spine (U t) (whnf a:as)
-        spine f as = foldl App f as
+type BEnv = [(Sym, Expr)]
+
+whnf :: BEnv -> Expr -> Expr
+whnf benv ee = spine ee []
+  where
+    spine (App f a) as = spine f (a : as)
+    spine (Lam s _ e) (a:as) = spine (subst s a e) as
+    spine (U _) (App (F _) e:as) = spine e as
+    spine (U t) (a:as) = spine (U t) (whnf benv a : as)
+    spine (Var n) as =
+      case lookup n benv of
+        Nothing -> foldl App (Var n) as
+        Just e  -> spine e as
+    spine f as = foldl App f as
 
 -- | Definitional equality because we use weak head normal form
-equate :: Expr -> Expr -> Bool
-equate e1 e2 =
-  let e1' = whnf e1
-      e2' = whnf e2
+equate :: BEnv -> Expr -> Expr -> Bool
+equate benv e1 e2 =
+  let e1' = whnf benv e1
+      e2' = whnf benv e2
   in case (e1',e2') of
        (App a1 b1,App a2 b2) ->
-         equate a1 a2 &&
-         equate b1 b2
+         equate benv a1 a2 &&
+         equate benv b1 b2
        (Lam n _ a,Lam n1 _ a1) ->
-         equate a (substVar n1 n a1)
+         equate benv a (substVar n1 n a1)
        (Pi n _ a,Pi n1 _ a1) ->
-         equate a (substVar n1 n a1)
+         equate benv a (substVar n1 n a1)
        (Mu n t,Mu n1 t1) ->
-         equate t (substVar n1 n t1)
-       (F t,F t1) -> equate t t1
-       (U t,U t1) -> equate t t1
-       (Beta t,Beta t1) -> equate t t1
+         equate benv t (substVar n1 n t1)
+       (F t,F t1) -> equate benv t t1
+       (U t,U t1) -> equate benv t t1
+       (Beta t,Beta t1) -> equate benv t t1
        (Var n1,Var n2) -> n1 == n2
        (_,_) -> False
