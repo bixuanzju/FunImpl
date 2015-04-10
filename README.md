@@ -37,6 +37,9 @@ Following commands are available:
 + `zero`
 + `suc n`: successor of `n`
 + `plus n m`: sum of `n` and `m`
++ `bool`: the type of Boolean (Scott encoding)
++ `true`
++ `false`
 + `fix`: fixed point combinator
 + `vec : * -> nat -> *`
 + `nil : Π(a : ⋆) . vec a zero`
