@@ -31,34 +31,14 @@ main = runInputT defaultSettings (loop initalBEnv initalEnv)
           outputStrLn $ "Typing environment: " ++ show env
           outputStrLn $ "Binding environment: " ++ show (map fst benv)
           loop benv env
-        ":add" ->
-          if length progm >= 2
-            then let (name:typ) = progm
-                 in processCMD typ $
-                   \xs -> if length xs == 1
-                            then do
-                              outputStrLn "Added!"
-                              loop benv (extend name (repFreeVar env (head xs)) env)
-                            else do
-                              outputStrLn "Command parser error - need one expression!"
-                              loop benv env
-            else do
-              outputStrLn "Command parse error - :add name type"
-              loop benv env
-        ":let" ->
-          if length progm >= 2
-            then let (name:expr) = progm
-                 in processCMD expr $
-                   \xs -> if length xs == 1
-                            then do
-                              outputStrLn "Added new term!"
-                              loop ((name, repFreeVar benv (head xs)) : benv) env
-                            else do
-                              outputStrLn "Command parser error - need one expression!"
-                              loop benv env
-            else do
-              outputStrLn "Command parse error - :let name expr"
-              loop benv env
+        ":add" -> delegate progm "Command parse error - :add name type" $
+          \name xs -> do
+            outputStrLn "Added!"
+            loop benv (extend name (repFreeVar env (head xs)) env)
+        ":let" -> delegate progm "Command parse error - :let name expr" $
+          \name xs -> do
+            outputStrLn "Added new term!"
+            loop ((name, repFreeVar benv (head xs)) : benv) env
         ":e" -> processCMD progm $
           \xs -> do
             if length xs == 1
@@ -90,3 +70,15 @@ main = runInputT defaultSettings (loop initalBEnv initalEnv)
               outputStrLn err
               loop benv env
             Right (Progm xs) -> func xs
+        delegate progm errMsg func =
+          if length progm >= 2
+            then let (name:typ) = progm
+                 in processCMD typ $
+                   \xs -> if length xs == 1
+                            then func name xs
+                            else do
+                              outputStrLn "Command parser error - need one expression!"
+                              loop benv env
+            else do
+              outputStrLn errMsg
+              loop benv env
