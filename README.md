@@ -31,6 +31,17 @@ Following commands are available:
 + `:let name expr`: Bind `expr` to `name` so that it can used later on
 + `:q`: quit gracefully
 
+## Built-in Types and Terms ##
+
++ `nat`: the type of natural numbers (Scott encoding)
++ `zero`
++ `suc n`: successor of `n`
++ `plus n m`: sum of `n` and `m`
++ `fix`: fixed point combinator
++ `vec : * -> nat -> *`
++ `nil : vec nat zero`
++ `cons : Π(a : ⋆) . Π(b : a) . Π(n : nat) -> vec nat n -> vec nat (suc n)`
+
 
 ## Run Tests
 
