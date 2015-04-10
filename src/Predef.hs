@@ -22,14 +22,15 @@ initenv = [ ("nat", nat)
           ]
 
 initalBEnv :: BEnv
-initalBEnv = foldl (\ env (n, e) -> (n, repFreeVar env e):env) [] initenv
+initalBEnv = foldl (\env (n, e) -> (n, repFreeVar env e) : env) [] initenv
 
 initalEnv :: Env
 initalEnv = [("vec", vec), ("cons", cons), ("nil", nil)]
 
 parse :: String -> Expr
-parse str = let (Progm [expr]) = parseExpr str
-            in expr
+parse str =
+  let Right (Progm [expr]) = parseExpr str
+  in expr
 
 cons :: Expr
 cons = repFreeVar initalBEnv (parse "pi a : * . pi b : a . pi n : nat . vec a n -> vec a (suc n)")

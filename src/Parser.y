@@ -35,6 +35,8 @@ import Syntax
 %right ']'
 %left BETA
 
+%monad { Either String }
+
 %%
 
 Progms : Exprs                  { Progm $1 }
@@ -61,8 +63,7 @@ Term : id                       { Var $1 }
 
 {
 
-parseError :: [Token] -> a
-parseError _ = error "Parse error"
+parseError _ = Left "Parse error!"
 
 data Token
       = TokenInt Int

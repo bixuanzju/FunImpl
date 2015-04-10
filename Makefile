@@ -1,22 +1,21 @@
 srcdir=src
-parsers=Parser.hs
+parsefile=Parser.y
 
 .PHONY: all
-all: parsers
+all: parser
 	cabal install  --enable-tests
 
 .PHONY : repl
-repl :
+repl : parser
 	cabal run
 
 .PHONY : test
-test : parsers
+test : parser
 	cabal test
 
-.PHONY : parsers
-parsers :
-	cd $(srcdir) && happy Parser.y
+parser : $(srcdir)/$(parsefile)
+	cd $(srcdir) && happy $(parsefile)
 
 .PHONY : clean
 clean :
-	rm $(srcdir)/$(parsers)
+	rm $(srcdir)/Parser.hs
