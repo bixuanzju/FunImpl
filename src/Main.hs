@@ -20,6 +20,7 @@ main = runInputT defaultSettings (loop initalBEnv initalEnv)
         dispatch :: BEnv -> Env -> String -> InputT IO ()
         dispatch benv env cmds =
           case words cmds of
+            [] -> loop benv env
             ":add":name:typ ->
               do outputStrLn "Added!"
                  let Progm [expr] = parseExpr . unwords $ typ
@@ -57,7 +58,8 @@ main = runInputT defaultSettings (loop initalBEnv initalEnv)
                          do outputStrLn . show $ typ
                             loop benv env
                  else outputStrLn "Parser error: need one expressions!"
-            _ -> loop benv env
+            expr -> do outputStrLn . show . parse . unwords $ expr
+                       loop benv env
 
 -- fix :: Expr
 -- fix =

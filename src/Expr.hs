@@ -83,7 +83,7 @@ whnf benv ee = spine ee []
     spine (Lam s _ e) (a:as) = spine (subst s a e) as
     spine (U _) (App (F _) e:as) = spine e as
     spine (U t) (a:as) = spine (U t) (whnf benv a : as)
-    spine (Var n) as =
+    spine (Var n) as =          -- fill in pre-defined terms
       case lookup n benv of
         Nothing -> foldl App (Var n) as
         Just e  -> spine e as

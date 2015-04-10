@@ -21,13 +21,21 @@ initenv = [ ("nat", nat)
 initalBEnv :: BEnv
 initalBEnv = foldl (\ env (n, e) -> (n, repFreeVar env e):env) [] initenv
 
-
 initalEnv :: Env
-initalEnv = []
+initalEnv = [("vec", vec), ("cons", cons), ("nil", nil)]
 
 parse :: String -> Expr
 parse str = let (Progm [expr]) = parseExpr str
             in expr
+
+cons :: Expr
+cons = repFreeVar initalBEnv (parse "pi a : * . pi b : a . pi n : nat . vec nat n -> vec nat (suc n)")
+
+nil :: Expr
+nil = repFreeVar initalBEnv (parse "vec nat zero")
+
+vec :: Expr
+vec = repFreeVar initalBEnv (parse "* -> nat -> *")
 
 fix :: Expr
 fix =
@@ -66,7 +74,6 @@ repFreeVar env = repl
     repl (F t) = F (repl t)
     repl (U t) = U (repl t)
     repl (Beta e) = Beta (repl e)
-    repl (Kind Star) = Kind Star
-    repl (Kind Box) = Kind Box
+    repl (Kind s) = Kind s
     repl (Var n) = fromMaybe (Var n) (lookup n env)
 

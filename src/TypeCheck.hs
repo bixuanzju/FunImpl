@@ -60,7 +60,7 @@ tcheck env (U mu@(Mu i t)) =             -- (Unfold)
      return (mu `arr` rt)
 tcheck env (Beta e) =                    -- (Beta)
   do te <- tcheck env e
-     let tb = whnf []  te
+     let tb = whnf [] te
      tcheck env tb
      return tb
 
