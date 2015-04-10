@@ -16,6 +16,9 @@ initenv = [ ("nat", nat)
           , ("two", two)
           , ("plus", plus)
           , ("three", three)
+          , ("bool", bool)
+          , ("true", true)
+          , ("false", false)
           ]
 
 initalBEnv :: BEnv
@@ -29,13 +32,22 @@ parse str = let (Progm [expr]) = parseExpr str
             in expr
 
 cons :: Expr
-cons = repFreeVar initalBEnv (parse "pi a : * . pi b : a . pi n : nat . vec nat n -> vec nat (suc n)")
+cons = repFreeVar initalBEnv (parse "pi a : * . pi b : a . pi n : nat . vec a n -> vec a (suc n)")
 
 nil :: Expr
-nil = repFreeVar initalBEnv (parse "vec nat zero")
+nil = repFreeVar initalBEnv (parse "pi a : * . vec a zero")
 
 vec :: Expr
 vec = repFreeVar initalBEnv (parse "* -> nat -> *")
+
+bool :: Expr
+bool = parse "mu x . pi a : * . a -> a -> a"
+
+true :: Expr
+true = parse "fold[bool] (lam a : * . lam t : a . lam f : a . t)"
+
+false :: Expr
+false = parse "fold[bool] (lam a : * . lam t : a . lam f : a . f)"
 
 fix :: Expr
 fix =

@@ -39,8 +39,8 @@ Following commands are available:
 + `plus n m`: sum of `n` and `m`
 + `fix`: fixed point combinator
 + `vec : * -> nat -> *`
-+ `nil : vec nat zero`
-+ `cons : Π(a : ⋆) . Π(b : a) . Π(n : nat) -> vec nat n -> vec nat (suc n)`
++ `nil : Π(a : ⋆) . vec a zero`
++ `cons : Π(a : ⋆) . Π(b : a) . Π(n : nat) -> vec a n -> vec a (suc n)`
 
 
 ## Run Tests
