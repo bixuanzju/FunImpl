@@ -58,11 +58,11 @@ tcheck env (U mu@(Mu i t)) =             -- (Unfold)
   do tcheck env mu
      let rt = subst i mu t
      return (mu `arr` rt)
-tcheck env (Beta e) =                    -- (Beta)
-  do te <- tcheck env e
-     let tb = whnf [] te
-     tcheck env tb
-     return tb
+-- tcheck env (Beta e) =                    -- (Beta) TODO: need thoughts
+--   do te <- tcheck env e
+--      let tb = betaReduct te
+--      tcheck env tb
+--      return tb
 
 allowedKinds :: [(Type, Type)]
 allowedKinds =
@@ -70,6 +70,17 @@ allowedKinds =
   ,(Kind Star,Kind Box)
   ,(Kind Box,Kind Star)
   ,(Kind Box,Kind Box)]
+
+
+-- betaReduct :: Expr -> Expr
+-- betaReduct ee =
+--   case ee of
+--    Var n -> Var n
+--    App (U _) (App (F _) e) -> e
+--    App (F t) e -> App (F t) (betaReduct e)
+--    App (U t) e -> App (U t) (betaReduct e)
+--    App (Lam s _ e) a -> subst s a e
+--    App s e -> App (betaReduct s) (betaReduct e)
 
 -- tcheckT :: Env -> Expr -> TC Type
 -- tcheckT env e = liftM nf (tcheck env e)
