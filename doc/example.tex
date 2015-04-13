@@ -1,0 +1,24 @@
+\begin{itemize}
+  \newcommand{\FPTypeU}{\mu\sigma . \sigma \to \alpha}
+  \newcommand{\FPTermfxx}{\lambda
+    x:(\FPTypeU).f((\unfold{x})x)}
+  \newcommand{\FP}{\mathsf{fix}} %
+\item A polymorphic fixed-point constructor
+  $\FP:(\Pi \alpha:\star.(\alpha \to \alpha) \to \alpha)$ can be
+  defined as follows:
+\begin{align*}
+  \FP=&\lambda \alpha:\star . \lambda f:\alpha \to \alpha.\\
+      &(\FPTermfxx)\\
+      &(\fold{\FPTypeU}{(\FPTermfxx)})
+\end{align*}
+Note that this is the so called call-by-name fixed point
+combinator. It is useless in a call-by-value setting, since the
+expression $\FP\,\alpha\,g$ diverges for any $g$.
+\newcommand{\HGType}{\mu\sigma. \alpha \to \sigma}%
+\item Using $\FP$, we can build recursive functions. For example,
+  given a ``hungry'' type $H=\HGType$, the ``hungry'' function $h$
+  where
+  \[h=\lambda \alpha:\star.\FP\,(\alpha \to H)\,(\lambda f:\alpha \to
+  H.\lambda x:\alpha.\fold{H}{f})\]
+  can take arbitrary number of arguments.
+\end{itemize}

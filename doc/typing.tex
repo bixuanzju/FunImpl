@@ -1,0 +1,37 @@
+The extended typing rules are shown in Figure~\ref{fig:mutype}. Compared
+with $\lambda C$, the original \emph{Conv} rule is replaced by the new
+\emph{Beta} rule where the latter only performs one step of reduction defined in Fig.\ref{fig:mueval}.
+
+\begin{figure}[ht]
+  \centering
+  \small
+  \begin{tabular}{lcl}
+    (Ax) & \ruleI{}{\ctxz{\star:\square}} \\
+
+    (Var) & \ruleI{\ctx{A:s}}{\ctxw{x:A}{x:A}}
+          & $x \not \in \mathrm{dom}(\Gamma)$ \\
+
+    (Weak) & \ruleII{\ctx{b:B}}{\ctx{A:s}}{\ctxw{x:A}{b:B}}
+           & $x \not \in \mathrm{dom}(\Gamma)$ \\
+
+    (App) & \ruleII{\ctx{f:(\pai{x}{A}{B})}}{\ctx{a:A}}{\ctx{fa:B[x:=a]}} \\
+
+    (Lam) & \ruleII{\ctxw{x:A}{b:B}}{\ctx{(\pai{x}{A}{B}):t}}
+                   {\ctx{(\lam{x}{A}{b}}):(\pai{x}{A}{B})}
+          & $t \in \{\star, \square\}$ \\
+
+    (Pi) & \ruleII{\ctx{A:s}}{\ctxw{x:A}{B:t}}{\ctx{(\pai{x}{A}{B}):t}}
+         & $(s,t) \in \mathcal{R}$ \\
+
+    (Mu) & \ruleI{\ctxw{x:s}{A:s}}{\ctx{(\miu{x}{A}):s}} \\
+
+    (Fold) & \ruleII{\ctx{a:(A[x:=\miu{x}{A}])}}{\ctx{\miu{x}{A}:s}}%
+                    {\ctx{(\fold{\miu{x}{A}}{a}):\miu{x}{A}}} \\
+
+    (Unfold) & \ruleII{\ctx{a:\miu{x}{A}}}{\ctx{A[x:=\miu{x}{A}]:s}}%
+                      {\ctx{(\unfold{a}):A[x:=\miu{x}{A}]}} \\
+
+    (Beta) & \ruleIII{\ctx{a:A}}{\ctx{B:s}}{A \tolong B}{\ctx{(\bet{a}):B}}
+  \end{tabular}
+  \caption{Typing rules for $\lambda C_\mu$}\label{fig:mutype}
+\end{figure}

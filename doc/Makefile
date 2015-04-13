@@ -12,6 +12,6 @@ clean:
 	rm -f $(MAIN).aux $(MAIN).log $(MAIN).out $(MAIN).synctex.gz $(MAIN).blg texput.log
 
 distclean: clean
-	rm -f $(MAIN).pdf $(MAIN).bbl
+	rm -f $(MAIN).pdf $(MAIN).bbl *.aux *.out *.synctex.gz *.log *.fdb_latexmk *.blg
 
 .PHONY: all clean distclean

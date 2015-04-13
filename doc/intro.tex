@@ -1,0 +1,90 @@
+Our language is based on the \emph{Calculus of Constructions}, a special case of the \emph{Pure Type System}. We give the definition as follows:
+
+\begin{enumerate}[(i)]
+\item A \emph{Calculus of Constructions} ($\lambda C$) is a triple tuple
+  $(\mathcal{S},\mathcal{A},\mathcal{R})$ where
+
+  \begin{enumerate}
+  \item $\mathcal{S} = \{\star,\square\}$ is a set of \emph{sorts};
+  \item $\mathcal{A} = \{(\star, \square)\} \subseteq \mathcal{S} \times \mathcal{S}$ is a set
+    of \emph{axioms};
+  \item
+    $\mathcal{R} = \{(\star, \star), (\star, \square), (\square,
+    \star), (\square, \square)\}\subseteq \mathcal{S} \times \mathcal{S}$ is a set of \emph{rules}.
+  \end{enumerate}
+
+\item \emph{Raw expressions} $A$ and \emph{raw environments} $\Gamma$
+  are defined in Figure~\ref{fig:cocsyn}.
+
+\begin{figure}[ht]
+\small
+\begin{syntax}
+  A &::= & x & \ptext{variable} \\
+    & \mid & \star & \ptext{star} \\
+    & \mid & \square & \ptext{square} \\
+    & \mid & A \ A & \ptext{application} \\
+    & \mid & \lam{x}{A}{A} & \ptext{abstraction} \\
+    & \mid & \pai{x}{A}{A} & \ptext{product} \\
+  \Gamma &::= &\varnothing & \ptext{empty} \\
+         & \mid & \Gamma,x:A & \ptext{variable binding}
+\end{syntax}
+\caption{Syntax of $\lambda C$}\label{fig:cocsyn}
+\end{figure}
+  We use $s,t$ to range over \emph{sorts}, $x,y,z$ to
+  range over \emph{variables}, and $A,B,C,a,b,c$ to range over
+  \emph{expressions}.
+
+\item $\Pi$ and $\lambda$ are used to bind variables. Let
+  $\mathrm{FV}(A)$ denote free variable set of $A$. Let $A[x:=B]$
+  denote the substitution of $x$ in $A$ with $B$. We use $A \to B$ as a syntactic sugar
+  for $(\Pi \_:A.\ B)$.
+
+\item The $\beta$-reduction ($\to _ \beta$) is the smallest binary relation on
+  raw expressions satisfying
+  \[ (\lam{x}{A}{M})N \tobeta M[x:=N] \]
+  which can be used to define the notation $\twoheadrightarrow_\beta$
+  and $=_\beta$ by convention. Reduction rules are given in Figure~\ref{fig:coceval}. Highlighted premises and rules are only for call-by-value evaluation.
+
+\begin{figure}[ht]
+  \centering
+  \small
+  \begin{tabular}{lcl}
+    \textbf{Values}: $v ::= $ & $\lam{x}{A}{B}$ \\
+    (R-Beta) & \ruleI{\hlmath{N \in \textit{Value}}}{(\lam{x}{A}{M})N \tolong M[x:=N]} \\
+    (R-AppL) & \ruleI{M \tolong M'}{MN \tolong M'N} \\
+    (R-AppR) & \hl{\ruleII{v \in \textit{Value}}{M \tolong M'}{vM \tolong vM'}} \\
+  \end{tabular}
+\caption{Reduction rules for $\lambda C$}\label{fig:coceval}
+\end{figure}
+
+\item Type assignment rules for
+  $(\mathcal{S},\mathcal{A},\mathcal{R})$ are given in
+  Figure~\ref{fig:coctype}.
+
+\begin{figure}[ht]
+  \centering
+  \small
+  \begin{tabular}{lcl}
+    (Ax) & \ruleI{}{\ctxz{\star:\square}} \\
+
+    (Var) & \ruleI{\ctx{A:s}}{\ctxw{x:A}{x:A}}
+          & $x \not \in \mathrm{dom}(\Gamma)$ \\
+
+    (Weak) & \ruleII{\ctx{b:B}}{\ctx{A:s}}{\ctxw{x:A}{b:B}}
+           & $x \not \in \mathrm{dom}(\Gamma)$ \\
+
+    (App) & \ruleII{\ctx{f:(\pai{x}{A}{B})}}{\ctx{a:A}}{\ctx{fa:B[x:=a]}} \\
+
+    (Lam) & \ruleII{\ctxw{x:A}{b:B}}{\ctx{(\pai{x}{A}{B}):t}}
+                   {\ctx{(\lam{x}{A}{b}}):(\pai{x}{A}{B})}
+          & $t \in \{\star, \square\}$ \\
+
+    (Pi) & \ruleII{\ctx{A:s}}{\ctxw{x:A}{B:t}}{\ctx{(\pai{x}{A}{B}):t}}
+         & $(s,t) \in \mathcal{R}$ \\
+
+    (Conv) & \ruleIII{\ctx{a:A}}{\ctx{B:s}}{A=_\beta B}{\ctx{a:B}}
+  \end{tabular}
+  \caption{Typing rules for $\lambda C$}\label{fig:coctype}
+\end{figure}
+
+\end{enumerate}

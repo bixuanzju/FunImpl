@@ -1,0 +1,20 @@
+We extend Calculus of Constructions ($\lambda C$) with recursive types, namely $\lambda C_{\mu}$. Differences with $\lambda C$ are highlighted. Figure~\ref{fig:musyn} shows the extended syntax.
+
+\begin{figure}[ht]
+\small
+\begin{syntax}
+  A &::= & x & \ptext{variable} \\
+    & \mid & \star & \ptext{star} \\
+    & \mid & \square & \ptext{square} \\
+    & \mid & A \ A & \ptext{application} \\
+    & \mid & \lam{x}{A}{A} & \ptext{abstraction} \\
+    & \mid & \pai{x}{A}{A} & \ptext{product} \\
+    & \mid & \hlmath{\miu{x}{A}} & \ptext{recursive type} \\
+    & \mid & \hlmath{\fold{\miu{x}{A}}{A}} & \ptext{roll} \\
+    & \mid & \hlmath{\unfold{A}} & \ptext{unroll} \\
+    & \mid & \hlmath{\bet{A}} & \ptext{type reduction} \\
+  \Gamma &::= &\varnothing & \ptext{empty} \\
+         & \mid & \Gamma,x:A & \ptext{variable binding}
+\end{syntax}
+\caption{Syntax of $\lambda C_\mu$}\label{fig:musyn}
+\end{figure}
