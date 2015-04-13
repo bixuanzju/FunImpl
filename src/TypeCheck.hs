@@ -54,10 +54,12 @@ tcheck env (F mu@(Mu i t)) =             -- (Fold)
   do tcheck env mu
      let rt = subst i mu t
      return (rt `arr` mu)
-tcheck env (U mu@(Mu i t)) =             -- (Unfold)
-  do tcheck env mu
-     let rt = subst i mu t
-     return (mu `arr` rt)
+tcheck env (U e) =                       -- (Unfold)
+  do mu <- tcheck env e
+     case mu of
+      Mu i t -> return (subst i mu t)
+      _ -> Left "Bad unfold expression"
+
 -- tcheck env (Beta e) =                    -- (Beta) TODO: need thoughts
 --   do te <- tcheck env e
 --      let tb = betaReduct te

@@ -11,7 +11,7 @@ data Expr = Var Sym
           | Pi Sym Type Type
           | Mu Sym Type
           | F Type
-          | U Type
+          | U Expr
           | Beta Expr
           | Kind Kinds
           deriving (Eq, Read)
@@ -47,7 +47,7 @@ showExp _ (Pi n t e) =
     else "Π(" ++ n ++ " : " ++ showExp True t ++ ") . " ++ showExp True e
 showExp _ (Mu n t) = "μ" ++ n ++ " . " ++ showExp True t
 showExp _ (F t) = "fold[" ++ showExp True t ++ "]"
-showExp _ (U t) = "unfold[" ++ showExp True t ++ "]"
+showExp _ (U e) = "unfold" ++ paren (showExp True e)
 showExp _ (Kind k) = show k
 showExp _ (Beta e) = "beta " ++ paren (showExp True e)
 

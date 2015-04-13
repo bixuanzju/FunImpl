@@ -47,10 +47,10 @@ tcheckTest =
     testCase "Fix combinator" $
       tcheck initalEnv fix @?=
       Right (Pi "a" (Kind Star) (Pi "f" (Pi "" (Var "a") (Var "a")) (Var "a")))
-    , testCase "Hungry function takes two arguments" $
-      tcheck (extend "x" (Var "a") (extend "a" (Kind Star) initalEnv))
-        (App (App (U hT) (App (App hungry (Var "a")) (Var "x"))) (Var "x")) @?=
-      Right hT
+    -- , testCase "Hungry function takes two arguments" $
+    --   tcheck (extend "x" (Var "a") (extend "a" (Kind Star) initalEnv))
+    --     (App (App (U hT) (App (App hungry (Var "a")) (Var "x"))) (Var "x")) @?=
+    --   Right hT
     ]
 
 substTest :: TestTree

@@ -53,7 +53,7 @@ false = parse "fold[bool] (lam a : * . lam t : a . lam f : a . f)"
 fix :: Expr
 fix =
   parse
-    "lam a : * . lam f : a -> a . (lam x : (mu m . m -> a) . f ((unfold [mu m . m -> a] x) x)) (fold [mu m . m -> a] (lam x : (mu m . m -> a) .  f ((unfold [mu m . m -> a] x) x)))"
+    "lam a : * . lam f : a -> a . (lam x : (mu m . m -> a) . f ((unfold x) x)) (fold [mu m . m -> a] (lam x : (mu m . m -> a) .  f ((unfold x) x)))"
 
 nat :: Expr
 nat = parse "mu x . pi a : * . a -> (x -> a) -> a"
@@ -74,7 +74,7 @@ three :: Expr
 three = App suc two
 
 plus :: Expr
-plus = parse "fix (nat -> nat -> nat) (lam p : (nat -> nat -> nat) . lam n : nat . lam m : nat . (unfold[nat] n) nat m (lam l : nat . suc (p l m)))"
+plus = parse "fix (nat -> nat -> nat) (lam p : (nat -> nat -> nat) . lam n : nat . lam m : nat . (unfold n) nat m (lam l : nat . suc (p l m)))"
 
 repFreeVar :: BEnv -> Expr -> Expr
 repFreeVar env = repl

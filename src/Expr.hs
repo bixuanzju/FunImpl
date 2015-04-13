@@ -17,7 +17,7 @@ subst v x = sub
                            in Mu i' (sub t')
           | otherwise = Mu i (sub t)
         sub (F t) = F (sub t)
-        sub (U t) = U (sub t)
+        sub (U e) = U (sub e)
         sub (Beta t) = Beta (sub t)
         sub (Kind k) = Kind k
         abstr con i t e
@@ -45,7 +45,7 @@ freeVars (Lam i _ e) = freeVars e \\ [i]
 freeVars (Pi i k t) = freeVars k `union` (freeVars t \\ [i])
 freeVars (Mu i t) = freeVars t \\ [i]
 freeVars (F t) = freeVars t
-freeVars (U t) = freeVars t
+freeVars (U e) = freeVars e
 freeVars (Beta t) = freeVars t
 freeVars (Kind _) = []
 
@@ -81,8 +81,8 @@ whnf benv ee = spine ee []
   where
     spine (App f a) as = spine f (a : as)
     spine (Lam s _ e) (a:as) = spine (subst s a e) as
-    spine (U _) (App (F _) e:as) = spine e as
-    spine (U t) (a:as) = spine (U t) (whnf benv a : as)
+    spine (U (App (F _) e)) as = spine e as
+    spine (U e) as = spine (U (whnf benv e)) as
     spine (Var n) as =          -- fill in pre-defined terms
       case lookup n benv of
         Nothing -> foldl App (Var n) as
