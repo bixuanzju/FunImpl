@@ -12,22 +12,22 @@ import Syntax
 
 
 %token
-    fold     { TokenKeyword "fold" }
-    unfold   { TokenKeyword "unfold" }
-    pi       { TokenKeyword "pi" }
-    mu       { TokenKeyword "mu" }
-    beta       { TokenKeyword "beta" }
-    lam       { TokenKeyword "lam" }
-    id       { TokenIdent $$ }
-    ':'       { TokenSymbol ":" }
-    '.'       { TokenSymbol "." }
-    '['       { TokenSymbol "[" }
-    ']'       { TokenSymbol "]" }
-    '->'       { TokenSymbol "->" }
-    '('       { TokenSymbol "(" }
-    ')'       { TokenSymbol ")" }
-    '*'       { TokenSymbol "*" }
-    ';'       { TokenSymbol ";" }
+    fold   { TokenKeyword "fold" }
+    unfold { TokenKeyword "unfold" }
+    pi     { TokenKeyword "pi" }
+    mu     { TokenKeyword "mu" }
+    beta   { TokenKeyword "beta" }
+    lam    { TokenKeyword "lam" }
+    id     { TokenIdent $$ }
+    ':'    { TokenSymbol ":" }
+    '.'    { TokenSymbol "." }
+    '['    { TokenSymbol "[" }
+    ']'    { TokenSymbol "]" }
+    '->'   { TokenSymbol "->" }
+    '('    { TokenSymbol "(" }
+    ')'    { TokenSymbol ")" }
+    '*'    { TokenSymbol "*" }
+    ';'    { TokenSymbol ";" }
 
 
 %right '.'
@@ -39,7 +39,7 @@ import Syntax
 
 %%
 
-Progms : Exprs                  { Progm $1 }
+Progm : Exprs                   { Progm $1 }
 
 Exprs : Expr                    { [$1] }
       | Exprs ';' Expr          {$1 ++ [$3]}
