@@ -51,3 +51,9 @@ Following commands are available:
 ```
 make test
 ```
+
+## Build documentation
+
+```
+make doc
+```

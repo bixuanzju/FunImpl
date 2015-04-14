@@ -9,7 +9,7 @@ Since recursive types are introduced and due to the practical concern, we use th
     & \mid & \hlmath{\fold{\miu{x}{A}}{B}} & \ptext{roll}
 \end{syntax}
   \begin{tabular}{lcl}
-    (R-LamApp) & \ruleI{}{(\lam{x}{A}{M})N \tolong M[x:=N]} \\
+    (R-AppLam) & \ruleI{}{(\lam{x}{A}{M})N \tolong M[x:=N]} \\
     (R-AppL) & \ruleI{M \tolong M'}{MN \tolong M'N} \\
     (R-Unfold) & \hl{\ruleI{M \tolong M'}{\unfold{M} \tolong \unfold{M'}}} \\
     (R-Unfold-Fold) & \hl{\ruleI{}{\unfold{(\fold{\miu{x}{A}}{M})} \tolong M}} \\
