@@ -1,0 +1,10 @@
+*.DS_Store
+*.aux
+*.log
+*.bbl
+*.out
+*.blg
+*.synctex.gz
+/auto/
+/_region_.tex
+*.fdb_latexmk

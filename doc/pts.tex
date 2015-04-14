@@ -1,0 +1,155 @@
+% Article template
+\documentclass[oneside,a4paper]{article}
+
+% Set margins
+\usepackage[top=1in,bottom=1in,left=1.25in,right=1.25in]{geometry}
+
+% Font settings
+\usepackage{times}
+\usepackage{url}
+\urlstyle{rm}
+
+% AMS support
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% Logic proof support
+\usepackage{bussproofs}
+\usepackage{amsthm}
+\newtheoremstyle{break}
+  {\topsep}{\topsep}%
+  {\itshape}{}%
+  {\bfseries}{}%
+  {\newline}{}%
+\theoremstyle{break}
+
+% Language support
+\usepackage{csquotes}
+\usepackage[english]{babel}
+\MakeOuterQuote{"}
+\usepackage{indentfirst}
+
+% Reference settings
+\usepackage{hyperref}
+\hypersetup{
+   colorlinks,
+   citecolor=black,
+   filecolor=black,
+   linkcolor=black,
+   urlcolor=black
+}
+
+% Caption format
+\usepackage{titlesec}
+\titleformat{\section}{\normalfont\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalfont\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\usepackage[font=small,labelfont=bf]{caption}
+\DeclareCaptionLabelSeparator{colon}{.~}
+% \numberwithin{equation}{subsection}
+
+% No indentation before paragraph
+\usepackage{parskip}
+
+% Line spacing
+\usepackage{setspace}
+\onehalfspacing
+
+% List support
+\usepackage{paralist}
+
+% Table support
+\usepackage{booktabs}
+\renewcommand{\arraystretch}{2.5}
+\usepackage{array}
+
+% Graphics support
+\usepackage{graphicx}
+\usepackage{float}
+
+% Citation support
+\usepackage[numbers]{natbib}
+
+% Comment block
+\usepackage{comment}
+
+% Date & time
+\usepackage[us,12hr]{date time}
+
+% Text highlighting
+\usepackage{xcolor}
+\newcommand{\hl}[2][gray!20]{\colorbox{#1}{#2}}
+\newcommand{\hlmath}[2][gray!20]{%
+  \colorbox{#1}{$\displaystyle#2$}}
+
+% Custom commands
+\newcommand{\fold}[2]{\mathsf{fold}[#1]\,#2}
+\newcommand{\unfold}[2][dummy]{\mathsf{unfold}\,#2}
+\newcommand{\bet}[1]{\mathsf{beta}\,#1}
+\newcommand{\lam}[3]{\lambda #1:#2.#3}
+\newcommand{\pai}[3]{\Pi #1:#2.#3}
+\newcommand{\miu}[2]{\mu #1.#2}
+\newcommand{\ptext}[1]{\text{(#1)}}
+\newcommand{\ctx}[2][\Gamma]{#1 \vdash #2}
+\newcommand{\ctxz}[1]{\ctx[\varnothing]{#1}}
+\newcommand{\ctxw}[3][\Gamma]{#1,#2 \vdash #3}
+\newcommand{\ruleLabel}[1]{\RightLabel{#1}}
+\newcommand{\ruleI}[2]{\AxiomC{$#1$}\UnaryInfC{$#2$}\DisplayProof}
+\newcommand{\ruleII}[3]{\AxiomC{$#1$}\AxiomC{$#2$}\BinaryInfC{$#3$}\DisplayProof}
+\newcommand{\ruleIII}[4]{\AxiomC{$#1$}\AxiomC{$#2$}\AxiomC{$#3$}\TrinaryInfC{$#4$}\DisplayProof}
+\newcommand{\tobeta}{\rightarrow_\beta}
+\newcommand{\tobetam}{\twoheadrightarrow_\beta}
+\newcommand{\tolong}{\longrightarrow}
+
+% Custom environments
+\usepackage{environ}
+\NewEnviron{syntax}{%
+\[
+\renewcommand*{\arraystretch}{1.0}%
+\begin{array}{lcll}
+    \BODY
+\end{array}
+\]
+}
+
+% Title
+\title{\bf Calculus of Constructions with Recursive Types}
+\author{}
+\date{\small \it Last modified: \today\ at \currenttime}
+
+% Text
+\begin{document}
+\maketitle
+
+\section{Calculus of Constructions}
+\input{intro} % Introduction
+
+\section{Extend with recursive types}
+\subsection{Core language}
+\input{syntax} % Syntax
+\input{reduct} % Dynamic semantics
+\input{typing} % Static typing rules
+
+\subsection{Soundness of core language}
+\input{sound} % Soundness
+
+\subsection{Examples of typable terms}
+\input{example} % Typable examples
+
+\section{Extend with data types}
+\subsection{Encoding of data types}
+\input{datatype} % Extension with data types
+
+% References
+\nocite{*} \bibliographystyle{plainnat} \bibliography{pts}
+
+% Appendix
+\appendix
+\section{Appendix}
+\input{appendix}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
