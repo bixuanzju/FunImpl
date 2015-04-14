@@ -21,6 +21,7 @@ doc/*.bbl
 doc/*.out
 doc/*.blg
 doc/*.synctex.gz
+doc/*.fls
 doc/auto/
 doc/_region_.tex
 doc/*.fdb_latexmk

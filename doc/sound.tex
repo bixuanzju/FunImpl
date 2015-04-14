@@ -58,7 +58,7 @@ $\Gamma^{*} \vdash (B_{1}B_{2})^{*}:(C_{2}[y:=B_{2}])^{*}$.
 
 \begin{thm}[Subject Reduction]
   If $\Gamma \vdash A:B$ and $A \tolong A'$ then
-  $\Gamma \vdash A':B$.
+  $\Gamma \vdash A':B'$ for some $B'$ such that either $B' \equiv B$ or $B' \tolong B$.
 \end{thm}
 
 \begin{proof}
@@ -66,7 +66,7 @@ $\Gamma^{*} \vdash (B_{1}B_{2})^{*}:(C_{2}[y:=B_{2}])^{*}$.
   proof is by induction on dynamic semantics shown in Fig.\ref{fig:mueval}.
 
 \begin{description}
-\item[case \emph{R-Beta}:] \ruleI{}{(\lam{x}{A}{M})N \tolong M[x:=N]}.
+\item[case \emph{R-AppLam}:] \ruleI{}{(\lam{x}{A}{M})N \tolong M[x:=N]}.
 
   Derivation $\mathcal{D}$ has the following form
 \begin{center}
@@ -122,7 +122,27 @@ $\Gamma \vdash M':\mu x.A$. Hence,
   \UnaryInfC{$\Gamma \vdash \unfold[N]{(\fold{\miu{x}{A}}{M})}:(A[x:=\mu
     x.A])$} \DisplayProof
 \end{center}
-which immediately proves the statement.
+
+\item[case \emph{R-Mu}:] \ruleI{}{\miu{x}{M} \tolong M[x:=\miu{x}{M}]}.
+
+  Derivation $\mathcal{D}$ has the following form
+\begin{center}
+  \ruleLabel{\emph{Mu}}\ruleI{\ctxw{x:s}{M:s}}{\ctx{(\miu{x}{M}):s}}
+\end{center}
+Hence, by Lemma \ref{lem:subst} we have \ruleII{\ctxw{x:s}{M:s}}{\ctx{\miu{x}{M}:s}}{\ctx{(M[x:=\miu{x}{M}]):s}}.
+
+\item[case \emph{R-Beta}:] \ruleI{}{\bet{M} \tolong M}.
+
+  Derivation $\mathcal{D}$ has the following form
+\begin{center}
+  \ruleLabel{\it Beta}\ruleIII{\ctx{M:A}}{\ctx{B:s}}{A \tolong B}{\ctx{(\bet{M}):B}}
+\end{center}
+By the induction hypothesis we have
+$\ctx{M':A}$ and $A \tolong B$. Hence,
+\begin{center}
+  \ruleLabel{\it Beta}\ruleIII{\ctx{M':A}}{\ctx{B:s}}{A \tolong B}{\ctx{(\bet{M'}):B}}
+\end{center}
+
 \end{description}
 \end{proof}
 
@@ -170,7 +190,7 @@ $\cdot \vdash A:B$ by typing rules in Fig.\ref{fig:mutype}:
 
 \item[case \emph{Mu}:] \ruleI{\dots}{\dotctx{(\miu{x}{A}):s}}.
 
-  The result is trivial if let $v=\miu{x}{A}$.
+  The result is trivial since we always have such reduction $\miu x A \tolong A[x:=\miu x A]$.
 
 \item[case \emph{Fold}:] \AxiomC{$\dots$}
   \UnaryInfC{$\cdot \vdash (\fold{\mu x.A}{M}):\mu x.A$}
@@ -191,7 +211,7 @@ $\cdot \vdash A:B$ by typing rules in Fig.\ref{fig:mutype}:
 \item[case \emph{Beta}:] 
     \ruleI{\cdots}{\dotctx{(\bet{a}):B}}.
 
-  The result is trivial if let $v=\bet{a}$.
+  The result is trivial since we always have such reduction $\bet{a} \tolong a$.
 \end{description}
 
 \end{proof}

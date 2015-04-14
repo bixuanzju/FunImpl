@@ -2,7 +2,7 @@ MAIN = pts
 
 all: $(MAIN).pdf
 
-%.pdf: %.tex %.bib
+$(MAIN).pdf: $(wildcard *.tex) $(MAIN).bib
 	pdflatex $(@:.pdf=.tex)
 	bibtex $(@:.pdf=)
 	pdflatex $(@:.pdf=.tex)
