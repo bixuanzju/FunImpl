@@ -6,7 +6,8 @@
 \newcommand{\PlFunc}{\Nat\rightarrow\Nat\rightarrow\Nat}
 \newcommand{\case}{\mathbf{case}} \newcommand{\of}{\mathbf{of}}
 \newcommand{\data}{\mathbf{data}} \newcommand{\where}{\mathbf{where}}
-\newcommand{\letb}{\mathbf{let}} \newcommand{\inb}{\mathbf{in}}
+\newcommand{\letb}[3]{\mathbf{let}\,#1 = #2\,\inb\,#3}
+\newcommand{\letbb}{\mathbf{let}} \newcommand{\inb}{\mathbf{in}}
 
 \subsection{Extended Language}
 
@@ -30,7 +31,7 @@ highlighted in Figure~\ref{fig:datasyn}.
     & \mid & \fold{\miu{x}{A}}{A} & \ptext{Roll} \\
     & \mid & \unfold{A} & \ptext{Unroll} \\
     & \mid & \bet{A} & \ptext{Type reduction} \\
-    & \mid & \hlmath{\letb\,x : A = A\,\inb\,A} & \ptext{Let binding} \\
+    & \mid & \hlmath{\letb{x}{A}{A}} & \ptext{Let binding} \\
     & \mid & \hlmath{\case\,A\,\of\,\overline{p \Rightarrow A}} & \ptext{Case analysis} \\
     p &::= & \hlmath{K\,\overline{x : A}} & \ptext{Pattern} \\
     \Gamma &::= &\varnothing & \ptext{Empty} \\
@@ -46,12 +47,12 @@ save space, we only show the new typing rules.
   \centering \small
   \begin{tabular}{lcl}
     \framebox{$\Gamma \vdash pgm : A$} \\
-    (Pgm) & \ruleIII{\overline{\Gamma \vdash decl : \Gamma_{d}}}{\Gamma = \Gamma_{0}, \overline{\Gamma_{d}}}{\ctx{e:A}}{\Gamma_{0} \vdash \overline{decl}; e : A} \\
+    (Pgm) & \ruleIII{\overline{\Gamma_{0} \vdash decl : \Gamma_{d}}}{\Gamma = \Gamma_{0}, \overline{\Gamma_{d}}}{\ctx{e:A}}{\Gamma_{0} \vdash \overline{decl}; e : A} \\
     \framebox{$\Gamma \vdash decl : \Gamma^{\prime}$} \\
     (Data) & \ruleI{\overline{\Gamma, T:\star \vdash \overline{A} \rightarrow T:\star}}{\ctx{(\data\,T\,\overline{\mid K\,\overline{A}}): (T:\star, \overline{K:\overline{A} \rightarrow T})}} \\
     \framebox{$\Gamma \vdash e : A$} \\
     (Case) & \ruleII{\ctx{e:T}}{\overline{\Gamma\vdash_{p} p \Rightarrow e:T \rightarrow B}}{\Gamma\vdash\case\,e\,\of\,\overline{p \Rightarrow e}:B} \\
-    (Let) & \ruleII{\ctx{e_{1}:A}}{\ctxw{x:A}{e_{2}:B}}{\letb\,x:A = e_{1}\,\inb\,e_{2}:B} \\
+    (Let) & \ruleII{\ctx{e_{1}:A}}{\ctxw{x:A}{e_{2}:B}}{\letb{x}{e_{1}}{e_{2}}:B} \\
     \framebox{$\Gamma \vdash_{p} p \Rightarrow e : T \rightarrow B$} \\
     (Alt) & \ruleII{K : \overline{A} \rightarrow T \in \Gamma}{\Gamma, \overline{x:A} \vdash e : B}{\Gamma \vdash_{p} K\,\overline{x:A} \Rightarrow e : T \rightarrow B}
   \end{tabular}
@@ -67,7 +68,52 @@ form:
 \]
 
 It states that $\lambda C_{\mu}$ expression $\hat{e}$ is the
-translation of $\lambda C_{\mu c}$ expression $e$.
+translation of $\lambda C_{\mu c}$ expression
+$e$. Figure~\ref{fig:datatrans} shows the translation rules, which are
+the typing rules of the previous section extended with the resulting
+$\hat{e}$ expression.
+
+\begin{figure}[ht]
+  \centering \small
+  \begin{tabular}{lcl}
+    \framebox{$\Gamma \vdash e : A \rightsquigarrow \hat{e}$} \\
+    (Ax) & \ruleI{}{\ctxz{\star:\square \rightsquigarrow \star}} \\
+
+    (Var) & \ruleI{x:A \in \Gamma}{\ctx{x:A \rightsquigarrow x}} \\
+
+    (App) & \ruleII{\ctx{f:(\pai{x}{A}{B}) \rightsquigarrow \hat{f}}}{\ctx{a:A \rightsquigarrow \hat{a}}}{\ctx{fa:B[x:=a] \rightsquigarrow \hat{f}\hat{a}}} \\
+
+    (Lam) & \ruleII{\ctxw{x:A}{b:B \rightsquigarrow \hat{b}}}{\ctx{(\pai{x}{A}{B}):t}}
+            {\ctx{(\lam{x}{A}{b}}):(\pai{x}{A}{B}) \rightsquigarrow \lam{x}{A}{\hat{b}}}
+          & $t \in \{\star, \square\}$ \\
+
+    (Pi) & \ruleII{\ctx{A:s}}{\ctxw{x:A}{B:t}}{\ctx{(\pai{x}{A}{B}):t \rightsquigarrow \pai{x}{A}{B}}}
+          & $(s,t) \in \mathcal{R}$ \\
+
+    (Mu) & \ruleI{\ctxw{x:s}{A:s}}{\ctx{(\miu{x}{A}):s \rightsquigarrow \miu{x}{A}}} \\
+
+    (Fold) & \ruleII{\ctx{a:(A[x:=\miu{x}{A}]) \rightsquigarrow \hat{a}}}{\ctx{\miu{x}{A}:s}}%
+             {\ctx{(\fold{\miu{x}{A}}{a}):\miu{x}{A} \rightsquigarrow \fold{\miu{x}{A}}{\hat{a}}}} \\
+
+    (Unfold) & \ruleII{\ctx{a:\miu{x}{A} \rightsquigarrow \hat{a}}}{\ctx{A[x:=\miu{x}{A}]:s}}%
+               {\ctx{(\unfold{a}):A[x:=\miu{x}{A}] \rightsquigarrow \unfold{\hat{a}}}} \\
+
+    (Beta) & \ruleIII{\ctx{a:A \rightsquigarrow \hat{a}}}{\ctx{B:s}}{A \tolong B}{\ctx{(\bet{a}):B \rightsquigarrow \bet{\hat{a}}}} \\
+    (Let) & \ruleII{\ctx{e_{1}:A \rightsquigarrow \hat{e_{1}}}}{\ctxw{x:A}{e_{2}:B \rightsquigarrow \hat{e_{2}}}}{\letb{x}{e_{1}}{e_{2}}:B \rightsquigarrow (\lam{x}{A}{\hat{e_{2}}})\,\hat{e_{1}}} \\
+    (Case) & \ruleII{\ctx{e:T \rightsquigarrow \hat{e}}}{\overline{\Gamma\vdash_{p} p \Rightarrow e:T \rightarrow B \rightsquigarrow E_{1}}}{\Gamma\vdash\case\,e\,\of\,\overline{p \Rightarrow e}:B \rightsquigarrow (\unfold{\hat{e}})\,B\,\overline{E_{1}}}\\
+    % & $E ::= (\unfold{\hat{e}})\,B\,\overline{E_{1}}$ \\
+    \framebox{$\Gamma \vdash_{p} p \Rightarrow e : T \rightarrow B \rightsquigarrow \hat{e}$} \\
+    (Alt) & \ruleII{K : \overline{A} \rightarrow T \in \Gamma}{\Gamma, \overline{x:A} \vdash e : B \rightsquigarrow \hat{e}}{\Gamma \vdash_{p} K\,\overline{x:A} \Rightarrow e : T \rightarrow B \rightsquigarrow \lambda \overline{(x : A)}.\hat{e}} \\
+    \framebox{$\Gamma \vdash decl : \Gamma^{\prime} \rightsquigarrow \hat{e}$} \\
+    (Data) & \ruleI{\overline{\Gamma, T:\star \vdash \overline{A} \rightarrow T:\star}}{\ctx{(\data\,T\,\overline{\mid K\,\overline{A}}): (T:\star, \overline{K:\overline{A} \rightarrow T}) \rightsquigarrow E}} \\
+         & \begingroup \renewcommand*{\arraystretch}{1.0} $\begin{array} {lll} E & ::= & \letbb\,T = \miu{\beta}{\pai{\alpha}{\star}{\overline{(\overline{A[T:=\beta]} \rightarrow \alpha)}}}\,\inb \\ & & \letbb\,K_{i}^{i \in 1..n} = \lambda\overline{(x : A_{i})}.\\
+                                                                                 & & \quad \fold{T}{(\lambda (\alpha : \star)\overline{(c : \overline{A} \rightarrow \alpha)} . c_{i}\,\overline{x})}\,\inb \end{array}$ \endgroup \\
+    \framebox{$\Gamma \vdash pgm : A \rightsquigarrow \hat{e}$} \\
+    (Pgm) & \alwaysNoLine \AxiomC{$\overline{\Gamma_{0} \vdash decl : \Gamma_{d} \rightsquigarrow E_{1}}$} \UnaryInfC{$\ctx{e:A \rightsquigarrow \hat{e}}$} \AxiomC{$\Gamma = \Gamma_{0}, \overline{\Gamma_{d}}$} \UnaryInfC{$\Gamma_{0} \vdash E_{1} \oplus \hat{e}:A \rightsquigarrow E$} \alwaysSingleLine \BinaryInfC{$\Gamma_{0} \vdash \overline{decl}; e : A \rightsquigarrow E$} \DisplayProof
+  \end{tabular}
+  \caption{Type-directed translation from $\lambda C_\mu c$ to
+    $\lambda C_\mu$}\label{fig:datatrans}
+\end{figure}
 
 
 % \subsubsection{Examples of Simple Datatypes}
