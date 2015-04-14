@@ -49,7 +49,7 @@ Our language is based on the \emph{Calculus of Constructions}, a special case of
   \centering
   \small
   \begin{tabular}{lcl}
-    \textbf{Values}: $v ::= $ & $\lam{x}{A}{B}$ \\
+    \textbf{Values}: $v ::= $ & $\lam{x}{A}{B} \mid \pai{x}{A}{B}$ \\
     (R-Beta) & \ruleI{\hlmath{N \in \textit{Value}}}{(\lam{x}{A}{M})N \tolong M[x:=N]} \\
     (R-AppL) & \ruleI{M \tolong M'}{MN \tolong M'N} \\
     (R-AppR) & \hl{\ruleII{v \in \textit{Value}}{M \tolong M'}{vM \tolong vM'}} \\

@@ -5,6 +5,7 @@ Since recursive types are introduced and due to the practical concern, we use th
   \small
   \begin{syntax}
   \textbf{values:}\quad v &::= & \lam{x}{A}{B} & \ptext{abstraction} \\
+    & \mid & \pai{x}{A}{B} & \ptext{product} \\
     & \mid & \hlmath{\miu{x}{A}} & \ptext{recursive type} \\
     & \mid & \hlmath{\fold{\miu{x}{A}}{B}} & \ptext{roll} \\
     & \mid & \hlmath{\bet{A}} & \ptext{type reduction} \\

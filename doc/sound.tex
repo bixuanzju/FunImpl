@@ -166,7 +166,7 @@ $\cdot \vdash A:B$ by typing rules in Fig.\ref{fig:mutype}:
   The result is trivial if let $v=\lambda x:A.M$.
 \item[case \emph{Pi}:] \ruleII{\dotctx{A:s}}{\dotctxw{x:A}{B:t}}{\dotctx{(\pai{x}{A}{B}):t}}. 
 
-  This case cannot be reached. Proof is by contradiction. If we have $\dotctx{(\pai{x}{A}{B}):t}$, then we can assign type $t$ from a context "$\cdot$" that doesn't have $t$, which is not possible.
+  The result is trivial if let $v=\pai{x}{A}{B}$.
 
 \item[case \emph{Mu}:] \ruleI{\dots}{\dotctx{(\miu{x}{A}):s}}.
 
