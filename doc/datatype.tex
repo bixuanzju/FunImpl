@@ -19,7 +19,7 @@ highlighted in Figure~\ref{fig:datasyn}.
   \small
   \begin{syntax}
     pgm &::= & \hlmath{\overline{decl}; A} & \ptext{Declarations} \\
-    decl &::= & \hlmath{\data\,T\,\overline{\mid K\,\overline{A}}} & \ptext{Datatype} \\
+    decl &::= & \hlmath{\data\,T = \overline{K\,\overline{A}}} & \ptext{Datatype} \\
     u &::= & \hlmath{x \mid K} & \ptext{Variables and data constructors} \\
     A &::= & \hlmath{u} & \ptext{Term atoms} \\
     & \mid & \star & \ptext{Star} \\
@@ -49,7 +49,7 @@ save space, we only show the new typing rules.
     \framebox{$\Gamma \vdash pgm : A$} \\
     (Pgm) & \ruleIII{\overline{\Gamma_{0} \vdash decl : \Gamma_{d}}}{\Gamma = \Gamma_{0}, \overline{\Gamma_{d}}}{\ctx{e:A}}{\Gamma_{0} \vdash \overline{decl}; e : A} \\
     \framebox{$\Gamma \vdash decl : \Gamma^{\prime}$} \\
-    (Data) & \ruleI{\overline{\Gamma, T:\star \vdash \overline{A} \rightarrow T:\star}}{\ctx{(\data\,T\,\overline{\mid K\,\overline{A}}): (T:\star, \overline{K:\overline{A} \rightarrow T})}} \\
+    (Data) & \ruleI{\overline{\Gamma, T:\star \vdash \overline{A} \rightarrow T:\star}}{\ctx{(\data\,T = \overline{K\,\overline{A}}): (T:\star, \overline{K:\overline{A} \rightarrow T})}} \\
     \framebox{$\Gamma \vdash e : A$} \\
     (Case) & \ruleII{\ctx{e:T}}{\overline{\Gamma\vdash_{p} p \Rightarrow e:T \rightarrow B}}{\Gamma\vdash\case\,e\,\of\,\overline{p \Rightarrow e}:B} \\
     (Let) & \ruleII{\ctx{e_{1}:A}}{\ctxw{x:A}{e_{2}:B}}{\letb{x}{e_{1}}{e_{2}}:B} \\
@@ -105,8 +105,8 @@ $\hat{e}$ expression.
     \framebox{$\Gamma \vdash_{p} p \Rightarrow e : T \rightarrow B \rightsquigarrow \hat{e}$} \\
     (Alt) & \ruleII{K : \overline{A} \rightarrow T \in \Gamma}{\Gamma, \overline{x:A} \vdash e : B \rightsquigarrow \hat{e}}{\Gamma \vdash_{p} K\,\overline{x:A} \Rightarrow e : T \rightarrow B \rightsquigarrow \lambda \overline{(x : A)}.\hat{e}} \\
     \framebox{$\Gamma \vdash decl : \Gamma^{\prime} \rightsquigarrow \hat{e}$} \\
-    (Data) & \ruleI{\overline{\Gamma, T:\star \vdash \overline{A} \rightarrow T:\star}}{\ctx{(\data\,T\,\overline{\mid K\,\overline{A}}): (T:\star, \overline{K:\overline{A} \rightarrow T}) \rightsquigarrow E}} \\
-         & \begingroup \renewcommand*{\arraystretch}{1.0} $\begin{array} {lll} E & ::= & \letbb\,T = \miu{\beta}{\pai{\alpha}{\star}{\overline{(\overline{A[T:=\beta]} \rightarrow \alpha)}}}\,\inb \\ & & \letbb\,K_{i}^{i \in 1..n} = \lambda\overline{(x : A_{i})}.\\
+    (Data) & \ruleI{\overline{\Gamma, T:\star \vdash \overline{A} \rightarrow T:\star}}{\ctx{(\data\,T = \overline{K\,\overline{A}}): (T:\star, \overline{K:\overline{A} \rightarrow T}) \rightsquigarrow E}} \\ \\
+         & \begingroup \renewcommand*{\arraystretch}{1.0} $\begin{array} {lll} E & ::= & \letbb\,T = \miu{\beta}{\pai{\alpha}{\star}{\overline{(\overline{A[T:=\beta]} \rightarrow \alpha)}} \rightarrow \alpha}\,\inb \\ & & \letbb\,K_{i}^{i \in 1..n} = \lambda\overline{(x : A_{i})}.\\
                                                                                  & & \quad \fold{T}{(\lambda (\alpha : \star)\overline{(c : \overline{A} \rightarrow \alpha)} . c_{i}\,\overline{x})}\,\inb \end{array}$ \endgroup \\
     \framebox{$\Gamma \vdash pgm : A \rightsquigarrow \hat{e}$} \\
     (Pgm) & \alwaysNoLine \AxiomC{$\overline{\Gamma_{0} \vdash decl : \Gamma_{d} \rightsquigarrow E_{1}}$} \UnaryInfC{$\ctx{e:A \rightsquigarrow \hat{e}}$} \AxiomC{$\Gamma = \Gamma_{0}, \overline{\Gamma_{d}}$} \UnaryInfC{$\Gamma_{0} \vdash E_{1} \oplus \hat{e}:A \rightsquigarrow E$} \alwaysSingleLine \BinaryInfC{$\Gamma_{0} \vdash \overline{decl}; e : A \rightsquigarrow E$} \DisplayProof
@@ -114,6 +114,7 @@ $\hat{e}$ expression.
   \caption{Type-directed translation from $\lambda C_\mu c$ to
     $\lambda C_\mu$}\label{fig:datatrans}
 \end{figure}
+
 
 
 % \subsubsection{Examples of Simple Datatypes}
