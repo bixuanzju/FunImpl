@@ -15,12 +15,12 @@ namely $\lambda C_{\mu c}$. Differences with $\lambda C_{\mu}$ are
 highlighted in Figure~\ref{fig:datasyn}.
 
 \begin{figure}[ht]
-\small
-\begin{syntax}
-  pgm &::= & \hlmath{\overline{decl}; A} & \ptext{Declarations} \\
-  decl &::= & \hlmath{\data\,T\,\where\,\overline{K : A \rightarrow T}} & \ptext{Datatype} \\
-  u &::= & \hlmath{x \mid K} & \ptext{Variables and data constructors} \\
-  A &::= & \hlmath{u} & \ptext{Term atoms} \\
+  \small
+  \begin{syntax}
+    pgm &::= & \hlmath{\overline{decl}; A} & \ptext{Declarations} \\
+    decl &::= & \hlmath{\data\,T\,\where\,\overline{K : A \rightarrow T}} & \ptext{Datatype} \\
+    u &::= & \hlmath{x \mid K} & \ptext{Variables and data constructors} \\
+    A &::= & \hlmath{u} & \ptext{Term atoms} \\
     & \mid & \star & \ptext{Star} \\
     & \mid & \square & \ptext{Square} \\
     & \mid & A \ A & \ptext{Application} \\
@@ -32,12 +32,30 @@ highlighted in Figure~\ref{fig:datasyn}.
     & \mid & \bet{A} & \ptext{Type reduction} \\
     & \mid & \hlmath{\letb\,x : A = A\,\inb\,A} & \ptext{Let binding} \\
     & \mid & \hlmath{\case\,A\,\of\,\overline{p \Rightarrow A}} & \ptext{Case analysis} \\
-  p &::= & \hlmath{K\,\overline{x : A}} & \ptext{Pattern} \\
-  \Gamma &::= &\varnothing & \ptext{Empty} \\
-         & \mid & \Gamma,x:A & \ptext{Variable binding}
-\end{syntax}
-\caption{Syntax of $\lambda C_{\mu c}$}\label{fig:datasyn}
+    p &::= & \hlmath{K\,\overline{x : A}} & \ptext{Pattern} \\
+    \Gamma &::= &\varnothing & \ptext{Empty} \\
+    & \mid & \hlmath{\Gamma,u:A} & \ptext{Variable binding}
+  \end{syntax}
+  \caption{Syntax of $\lambda C_{\mu c}$}\label{fig:datasyn}
 \end{figure}
+
+The extended typing rules are shown in Figure~\ref{fig:datatype}. To
+save space, we only show the new typing rules.
+
+\begin{figure}[ht]
+  \centering \small
+  \begin{tabular}{lcl}
+    \framebox{$\Gamma \vdash decl : \Gamma^{\prime}$} \\
+    (Data) & \ruleI{\overline{\Gamma, T:\star \vdash A:\star}}{\ctx{(\data\,T\,\where\,\overline{K:A}): (T:\star, \overline{K:A})}} \\
+    \framebox{$\Gamma \vdash e : A$} \\
+    (Case) & \ruleII{\ctx{e:T}}{\overline{\Gamma\vdash_{p} p \Rightarrow e:T \rightarrow B}}{\Gamma\vdash\case\,e\,\of\,\overline{p \Rightarrow e}:B} \\
+    (Let) & \ruleII{\ctx{e_{1}:A}}{\ctxw{x:A}{e_{2}:B}}{\letb\,x:A = e_{1}\,\inb\,e_{2}:B} \\
+    \framebox{$\Gamma \vdash_{p} p \Rightarrow e : T \rightarrow B$} \\
+    (Alt) & \ruleII{K : \overline{A} \rightarrow T \in \Gamma}{\Gamma, \overline{x:A} \vdash e : B}{\Gamma \vdash_{p} K\,\overline{x:A} \Rightarrow e : T \rightarrow B}
+  \end{tabular}
+  \caption{Typing rules for $\lambda C_\mu c$}\label{fig:datatype}
+\end{figure}
+
 
 % \subsubsection{Examples of Simple Datatypes}
 
@@ -45,11 +63,11 @@ highlighted in Figure~\ref{fig:datasyn}.
 
 % \item We can encode the type of natural numbers as follow:
 %   \[
-%   \Nat = \mu X.\ \Pi(a : \star).\ a \rightarrow (X \rightarrow a)
-%   \rightarrow a
-% \]
-% then we can define $\zero$ and $\suc$ as follows:
-% \begin{align*}
+%     \Nat = \mu X.\ \Pi(a : \star).\ a \rightarrow (X \rightarrow a)
+%     \rightarrow a
+%   \]
+%   then we can define $\zero$ and $\suc$ as follows:
+%   \begin{align*}
 %   \zero &: \Nat \\
 %   \zero &= \fold{\Nat}{(\lambda (a : \star) (z : a) (f : \Nat \rightarrow a).\,z)}\\
 %   \suc &: \Nat \rightarrow \Nat\\
@@ -64,26 +82,27 @@ highlighted in Figure~\ref{fig:datasyn}.
 % \end{align*}
 % \item We can encode the type of lists of a certain type:
 %   \[
-%   \List = \mu X.\,\Pi(a : \star).\,a \rightarrow (\Pi (b : \star).\,b
-%   \rightarrow X \rightarrow a) \rightarrow a
-% \]
-% then we can define $\nil$ and $\cons$ as follows:
-% \begin{align*}
+%     \List = \mu X.\,\Pi(a : \star).\,a \rightarrow (\Pi (b :
+%     \star).\,b \rightarrow X \rightarrow a) \rightarrow a
+%   \]
+%   then we can define $\nil$ and $\cons$ as follows:
+%   \begin{align*}
 %   \nil &: \List\\
 %   \nil &= \fold{\List}{(\lambda (a : \star) (z : a) (f : \Pi (b : \star).\,b \rightarrow \List \rightarrow a).\ z)}\\
 %   \cons &: \Pi (b : \star).\,b \rightarrow \List \rightarrow \List\\
 %   \cons &= \lambda(b : \star)(x : b)(xs : \List).\\
 %        &\qquad \fold{\List}{(\lambda(a : \star)(z : a)(f : \Pi (b : \star).\,b\rightarrow \List \rightarrow a).\,f\,b\,x\,xs)}
 % \end{align*}
-% Using $\mathsf{fix}$, we can define a recursive function $\length$ as
-% follow:
+% Using $\mathsf{fix}$, we can define a recursive function $\length$
+% as follow:
 % \begin{align*}
 %   \length &: \List \rightarrow \Nat\\
 %   \length &= \mathsf{fix}\,(\List \rightarrow \Nat)\,(\lambda(l : \List
 %             \rightarrow \Nat)(xs : \List).\\
 %           &\qquad (\unfold[\List]{xs})\,\Nat\,\zero\,(\lambda(b : \star)(y : b)(ys : \List).\,\suc\,(l\,ys)))
 % \end{align*}
-% % \item The rule $(\mathsf{Mu})$ doesn't allow me to express something
+% % \item The rule $(\mathsf{Mu})$ doesn't allow me to express
+% %   something
 % %   like $(\mu x.\,A) : \Nat \rightarrow \star$
 % \end{itemize}
 
@@ -93,13 +112,13 @@ highlighted in Figure~\ref{fig:datasyn}.
 % datatypes~\cite{geuvers2014church}:
 % \[
 %   \mathbf{data} \quad D = K_{1}\,T_{1}^{1}(D) \dots
-%   T_{\mathsf{ar}(1)}^{1}(D) \mid \cdots \mid K_{n}\,T_{1}^{n}(D) \dots
-%   T_{\mathsf{ar}(n)}^{n}(D)
+%   T_{\mathsf{ar}(1)}^{1}(D) \mid \cdots \mid K_{n}\,T_{1}^{n}(D)
+%   \dots T_{\mathsf{ar}(n)}^{n}(D)
 % \]
 % where each of the $T_{i}^{j}(X)$ is either $X$ or a type expression
-% that does not contain $X$. This defines an algebraic datatype $D$ with
-% $n$ constructors. Each constructor $K_{i}$ has arity $\mathsf{ar}(i)$,
-% which can be zero.
+% that does not contain $X$. This defines an algebraic datatype $D$
+% with $n$ constructors. Each constructor $K_{i}$ has arity
+% $\mathsf{ar}(i)$, which can be zero.
 
 % We adopt the following convention: we write $T^{1}(X)$ for
 % $T_{1}^{1}(X) \dots T_{\mathsf{ar}(1)}^{1}(X)$ etc. So each data
