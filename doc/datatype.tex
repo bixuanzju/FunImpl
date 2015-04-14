@@ -45,6 +45,8 @@ save space, we only show the new typing rules.
 \begin{figure}[ht]
   \centering \small
   \begin{tabular}{lcl}
+    \framebox{$\Gamma \vdash pgm : A$} \\
+    (Pgm) & \ruleIII{\overline{\Gamma \vdash decl : \Gamma_{d}}}{\Gamma = \Gamma_{0}, \overline{\Gamma_{d}}}{\ctx{e:A}}{\Gamma_{0} \vdash \overline{decl}; e : A} \\
     \framebox{$\Gamma \vdash decl : \Gamma^{\prime}$} \\
     (Data) & \ruleI{\overline{\Gamma, T:\star \vdash A:\star}}{\ctx{(\data\,T\,\where\,\overline{K:A}): (T:\star, \overline{K:A})}} \\
     \framebox{$\Gamma \vdash e : A$} \\
@@ -55,6 +57,17 @@ save space, we only show the new typing rules.
   \end{tabular}
   \caption{Typing rules for $\lambda C_\mu c$}\label{fig:datatype}
 \end{figure}
+
+\subsection{Translation Overview}
+
+We use a type-directed translation. The typing relations have the
+form:
+\[
+  \Gamma \vdash e : A \rightsquigarrow \hat{e}
+\]
+
+It states that $\lambda C_{\mu}$ expression $\hat{e}$ is the
+translation of $\lambda C_{\mu c}$ expression $e$.
 
 
 % \subsubsection{Examples of Simple Datatypes}
