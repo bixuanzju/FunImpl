@@ -16,6 +16,16 @@ test : parser
 parser : $(srcdir)/$(parsefile)
 	cd $(srcdir) && happy $(parsefile)
 
+.PHONY : doc
+doc:
+	make -C doc
+
 .PHONY : clean
 clean :
-	rm $(srcdir)/Parser.hs
+	rm -f $(srcdir)/Parser.hs
+	make -C doc clean
+
+.PHONY : distclean
+distclean : clean
+	cabal clean
+	make -C doc distclean

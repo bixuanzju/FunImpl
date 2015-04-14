@@ -13,3 +13,14 @@ cabal.config
 /src/Parser.hs
 /src/Parser.info
 /demo.org
+
+*.DS_Store
+doc/*.aux
+doc/*.log
+doc/*.bbl
+doc/*.out
+doc/*.blg
+doc/*.synctex.gz
+doc/auto/
+doc/_region_.tex
+doc/*.fdb_latexmk
