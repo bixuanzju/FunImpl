@@ -18,7 +18,7 @@ highlighted in Figure~\ref{fig:datasyn}.
   \small
   \begin{syntax}
     pgm &::= & \hlmath{\overline{decl}; A} & \ptext{Declarations} \\
-    decl &::= & \hlmath{\data\,T\,\where\,\overline{K : A \rightarrow T}} & \ptext{Datatype} \\
+    decl &::= & \hlmath{\data\,T\,\overline{\mid K\,\overline{A}}} & \ptext{Datatype} \\
     u &::= & \hlmath{x \mid K} & \ptext{Variables and data constructors} \\
     A &::= & \hlmath{u} & \ptext{Term atoms} \\
     & \mid & \star & \ptext{Star} \\
@@ -48,7 +48,7 @@ save space, we only show the new typing rules.
     \framebox{$\Gamma \vdash pgm : A$} \\
     (Pgm) & \ruleIII{\overline{\Gamma \vdash decl : \Gamma_{d}}}{\Gamma = \Gamma_{0}, \overline{\Gamma_{d}}}{\ctx{e:A}}{\Gamma_{0} \vdash \overline{decl}; e : A} \\
     \framebox{$\Gamma \vdash decl : \Gamma^{\prime}$} \\
-    (Data) & \ruleI{\overline{\Gamma, T:\star \vdash A:\star}}{\ctx{(\data\,T\,\where\,\overline{K:A}): (T:\star, \overline{K:A})}} \\
+    (Data) & \ruleI{\overline{\Gamma, T:\star \vdash \overline{A} \rightarrow T:\star}}{\ctx{(\data\,T\,\overline{\mid K\,\overline{A}}): (T:\star, \overline{K:\overline{A} \rightarrow T})}} \\
     \framebox{$\Gamma \vdash e : A$} \\
     (Case) & \ruleII{\ctx{e:T}}{\overline{\Gamma\vdash_{p} p \Rightarrow e:T \rightarrow B}}{\Gamma\vdash\case\,e\,\of\,\overline{p \Rightarrow e}:B} \\
     (Let) & \ruleII{\ctx{e_{1}:A}}{\ctxw{x:A}{e_{2}:B}}{\letb\,x:A = e_{1}\,\inb\,e_{2}:B} \\
