@@ -139,7 +139,7 @@ $\hat{e}$ expression.
   \end{align*}
 \item We can encode the type of lists of natural numbers:
   \begin{align*}
-    \data\,\List &= \nil \mid \suc\,\Nat\,\List \\
+    \data\,\List &= \nil \mid \cons\,\Nat\,\List \\
     \List &::= \mu X.\,\Pi(a : \star).\,a \rightarrow (\Nat \rightarrow X \rightarrow a) \rightarrow a    
   \end{align*}
   $\nil$ and $\cons$ are encoded as follows:
