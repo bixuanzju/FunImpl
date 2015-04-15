@@ -3,18 +3,27 @@ We extend Calculus of Constructions ($\lambda C$) with recursive types, namely $
 \begin{figure}[H]
 \small
 \begin{syntax}
-  A &::= & x & \ptext{variable} \\
+  \textbf{Terms} \\
+  E,T &::= & x & \ptext{variable} \\
     & \mid & \star & \ptext{star} \\
     & \mid & \square & \ptext{square} \\
-    & \mid & A \ A & \ptext{application} \\
-    & \mid & \lam{x}{A}{A} & \ptext{abstraction} \\
-    & \mid & \pai{x}{A}{A} & \ptext{product} \\
-    & \mid & \hlmath{\miu{x}{A}} & \ptext{recursive type} \\
-    & \mid & \hlmath{\fold{\miu{x}{A}}{A}} & \ptext{roll} \\
-    & \mid & \hlmath{\unfold{A}} & \ptext{unroll} \\
-    & \mid & \hlmath{\bet{A}} & \ptext{type reduction} \\
+    & \mid & E \ E & \ptext{application} \\
+    & \mid & \lam{x}{T}{E} & \ptext{abstraction} \\
+    & \mid & \pai{x}{T}{T} & \ptext{product} \\
+    & \mid & \hlmath{\miu{x}{T}} & \ptext{recursive type} \\
+    & \mid & \hlmath{\fold{\miu{x}{T}}{E}} & \ptext{roll} \\
+    & \mid & \hlmath{\unfold{E}} & \ptext{unroll} \\
+    & \mid & \hlmath{\bet{E}} & \ptext{type reduction} \\
+  \textbf{Environments} \\
   \Gamma &::= &\varnothing & \ptext{empty} \\
-         & \mid & \Gamma,x:A & \ptext{variable binding}
+         & \mid & \Gamma,x:T & \ptext{variable binding} \\
+  \textbf{Syntactic sugar} \\
+  \letb{x}{T}{E_{1}}{E_{2}} &::= & (\lam{x}{T}{E_{2}}) \ E_{1}
 \end{syntax}
 \caption{Syntax of $\lambda C_\mu$}\label{fig:musyn}
 \end{figure}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "pts"
+%%% End:

@@ -1,6 +1,6 @@
 The extended typing rules are shown in Figure~\ref{fig:mutype}. Compared
 with $\lambda C$, the original \emph{Conv} rule is replaced by the new
-\emph{Beta} rule where the latter only performs one step of reduction defined in Fig.\ref{fig:mueval}.
+\emph{Beta} rule where the latter only performs one step of reduction defined in Figure~\ref{fig:mueval}.
 
 \begin{figure}[ht]
   \centering
@@ -8,30 +8,35 @@ with $\lambda C$, the original \emph{Conv} rule is replaced by the new
   \begin{tabular}{lcl}
     (Ax) & \ruleI{}{\ctxz{\star:\square}} \\
 
-    (Var) & \ruleI{\ctx{A:s}}{\ctxw{x:A}{x:A}}
+    (Var) & \ruleI{\ctx{T:s}}{\ctxw{x:T}{x:T}}
           & $x \not \in \mathrm{dom}(\Gamma)$ \\
 
-    (Weak) & \ruleII{\ctx{b:B}}{\ctx{A:s}}{\ctxw{x:A}{b:B}}
+    (Weak) & \ruleII{\ctx{E:T_{2}}}{\ctx{T_{1}:s}}{\ctxw{x:T_{1}}{E:T_{2}}}
            & $x \not \in \mathrm{dom}(\Gamma)$ \\
 
-    (App) & \ruleII{\ctx{f:(\pai{x}{A}{B})}}{\ctx{a:A}}{\ctx{fa:B[x:=a]}} \\
+    (App) & \ruleII{\ctx{E_{1}:(\pai{x}{T_{2}}{T_{1}})}}{\ctx{E_{2}:T_{2}}}{\ctx{E_{1}E_{2}:T_{1}[x:=E_{2}]}} \\
 
-    (Lam) & \ruleII{\ctxw{x:A}{b:B}}{\ctx{(\pai{x}{A}{B}):t}}
-                   {\ctx{(\lam{x}{A}{b}}):(\pai{x}{A}{B})}
+    (Lam) & \ruleII{\ctxw{x:T_{1}}{E:T_{2}}}{\ctx{(\pai{x}{T_{1}}{T_{2}}):t}}
+                   {\ctx{(\lam{x}{T_{1}}{E}}):(\pai{x}{T_{1}}{T_{2}})}
           & $t \in \{\star, \square\}$ \\
 
-    (Pi) & \ruleII{\ctx{A:s}}{\ctxw{x:A}{B:t}}{\ctx{(\pai{x}{A}{B}):t}}
+    (Pi) & \ruleII{\ctx{T_{1}:s}}{\ctxw{x:T_{1}}{T_{2}:t}}{\ctx{(\pai{x}{T_{1}}{T_{2}}):t}}
          & $(s,t) \in \mathcal{R}$ \\
 
-    (Mu) & \ruleI{\ctxw{x:s}{A:s}}{\ctx{(\miu{x}{A}):s}} \\
+    (Mu) & \ruleI{\ctxw{x:s}{T:s}}{\ctx{(\miu{x}{T}):s}} \\
 
-    (Fold) & \ruleII{\ctx{a:(A[x:=\miu{x}{A}])}}{\ctx{\miu{x}{A}:s}}%
-                    {\ctx{(\fold{\miu{x}{A}}{a}):\miu{x}{A}}} \\
+    (Fold) & \ruleII{\ctx{E:(T[x:=\miu{x}{T}])}}{\ctx{\miu{x}{T}:s}}%
+                    {\ctx{(\fold{\miu{x}{T}}{E}):\miu{x}{T}}} \\
 
-    (Unfold) & \ruleII{\ctx{a:\miu{x}{A}}}{\ctx{A[x:=\miu{x}{A}]:s}}%
-                      {\ctx{(\unfold{a}):A[x:=\miu{x}{A}]}} \\
+    (Unfold) & \ruleII{\ctx{E:\miu{x}{T}}}{\ctx{T[x:=\miu{x}{T}]:s}}%
+                      {\ctx{(\unfold{E}):T[x:=\miu{x}{T}]}} \\
 
-    (Beta) & \ruleIII{\ctx{a:A}}{\ctx{B:s}}{A \tolong B}{\ctx{(\bet{a}):B}}
+    (Beta) & \ruleIII{\ctx{E:T_{1}}}{\ctx{T_{2}:s}}{T_{1} \tolong T_{2}}{\ctx{(\bet{E}):T_{2}}}
   \end{tabular}
   \caption{Typing rules for $\lambda C_\mu$}\label{fig:mutype}
 \end{figure}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "pts"
+%%% End:

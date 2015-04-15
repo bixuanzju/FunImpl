@@ -4,17 +4,22 @@ Since recursive types are introduced and due to the practical concern, we use th
   \centering
   \small
   \begin{syntax}
-  \textbf{values:}\quad v &::= & \lam{x}{A}{B} & \ptext{abstraction} \\
-    & \mid & \pai{x}{A}{B} & \ptext{product} \\
-    & \mid & \hlmath{\fold{\miu{x}{A}}{B}} & \ptext{roll}
+  \textbf{values:}\quad v &::= & \lam{x}{T}{E} & \ptext{abstraction} \\
+    & \mid & \pai{x}{T_{1}}{T_{2}} & \ptext{product} \\
+    & \mid & \hlmath{\fold{\miu{x}{T}}{E}} & \ptext{roll}
 \end{syntax}
   \begin{tabular}{lcl}
-    (R-AppLam) & \ruleI{}{(\lam{x}{A}{M})N \tolong M[x:=N]} \\
-    (R-AppL) & \ruleI{M \tolong M'}{MN \tolong M'N} \\
-    (R-Unfold) & \hl{\ruleI{M \tolong M'}{\unfold{M} \tolong \unfold{M'}}} \\
-    (R-Unfold-Fold) & \hl{\ruleI{}{\unfold{(\fold{\miu{x}{A}}{M})} \tolong M}} \\
-    (R-Mu) & \hl{\ruleI{}{\miu{x}{M} \tolong M[x:=\miu{x}{M}]}} \\
-    (R-Beta) & \hl{\ruleI{}{\bet{M} \tolong M}}
+    (R-AppLam) & \ruleI{}{(\lam{x}{T}{E_{1}})E_{2} \tolong E_{1}[x:=E_{2}]} \\
+    (R-AppL) & \ruleI{E_{1} \tolong E_{1}'}{E_{1}E_{2} \tolong E_{1}'E_{2}} \\
+    (R-Unfold) & \hl{\ruleI{E \tolong E'}{\unfold{E} \tolong \unfold{E'}}} \\
+    (R-Unfold-Fold) & \hl{\ruleI{}{\unfold{(\fold{\miu{x}{T}}{E})} \tolong E}} \\
+    (R-Mu) & \hl{\ruleI{}{\miu{x}{T} \tolong T[x:=\miu{x}{T}]}} \\
+    (R-Beta) & \hl{\ruleI{}{\bet{E} \tolong E}}
   \end{tabular}
 \caption{Reduction rules for $\lambda C$}\label{fig:mueval}
 \end{figure}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "pts"
+%%% End:
