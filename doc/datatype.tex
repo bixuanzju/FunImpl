@@ -14,27 +14,29 @@ We extend $\lambda C_{\mu}$ with simple datatypes and case analysis,
 namely $\lambda C_{\mu c}$. Differences with $\lambda C_{\mu}$ are
 highlighted in Figure~\ref{fig:datasyn}.
 
-\begin{figure}[ht]
+\begin{figure}[H]
   \small
   \begin{syntax}
-    pgm &::= & \hlmath{\overline{decl}; A} & \ptext{Declarations} \\
-    decl &::= & \hlmath{\data\,T = \overline{K\,\overline{A}}} & \ptext{Datatype} \\
+    \textbf{Declarations} \\
+    pgm &::= & \hlmath{\overline{decl}; e} & \ptext{Declarations} \\
+    decl &::= & \hlmath{\data\,D = \overline{K \ \overline{\tau}}} & \ptext{Datatype} \\ \\
+    \textbf{Terms} \\
     u &::= & \hlmath{x \mid K} & \ptext{Variables and data constructors} \\
-    A &::= & \hlmath{u} & \ptext{Term atoms} \\
+    e,\tau &::= & \hlmath{u} & \ptext{Term atoms} \\
     & \mid & \star & \ptext{Star} \\
     & \mid & \square & \ptext{Square} \\
-    & \mid & A \ A & \ptext{Application} \\
-    & \mid & \lam{x}{A}{A} & \ptext{Abstraction} \\
-    & \mid & \pai{x}{A}{A} & \ptext{Product} \\
-    & \mid & \miu{x}{A} & \ptext{Recursive type} \\
-    & \mid & \fold{\miu{x}{A}}{A} & \ptext{Roll} \\
-    & \mid & \unfold{A} & \ptext{Unroll} \\
-    & \mid & \bet{A} & \ptext{Type reduction} \\
-    & \mid & \hlmath{\letb{x}{A}{A}} & \ptext{Let binding} \\
-    & \mid & \hlmath{\case\,A\,\of\,\overline{p \Rightarrow A}} & \ptext{Case analysis} \\
-    p &::= & \hlmath{K\,\overline{x : A}} & \ptext{Pattern} \\
+    & \mid & e \ e & \ptext{Application} \\
+    & \mid & \lam{x}{\tau}{e} & \ptext{Abstraction} \\
+    & \mid & \pai{x}{\tau}{\tau} & \ptext{Product} \\
+    & \mid & \miu{x}{\tau} & \ptext{Recursive type} \\
+    & \mid & \fold{\miu{x}{\tau}}{e} & \ptext{Roll} \\
+    & \mid & \unfold{e} & \ptext{Unroll} \\
+    & \mid & \bet{e} & \ptext{Type reduction} \\
+    & \mid & \hlmath{\case\,e\,\of\,\overline{p \Rightarrow e}} & \ptext{Case analysis} \\
+    p &::= & \hlmath{K\,\overline{x : \tau}} & \ptext{Pattern} \\ \\
+    \textbf{Environments} \\
     \Gamma &::= &\varnothing & \ptext{Empty} \\
-    & \mid & \hlmath{\Gamma,u:A} & \ptext{Variable binding}
+    & \mid & \hlmath{\Gamma,u:\tau} & \ptext{Variable binding}
   \end{syntax}
   \caption{Syntax of $\lambda C_{\mu c}$}\label{fig:datasyn}
 \end{figure}
@@ -45,15 +47,14 @@ save space, we only show the new typing rules.
 \begin{figure}[ht]
   \centering \small
   \begin{tabular}{lcl}
-    \framebox{$\Gamma \vdash pgm : A$} \\
-    (Pgm) & \ruleIII{\overline{\Gamma_{0} \vdash decl : \Gamma_{d}}}{\Gamma = \Gamma_{0}, \overline{\Gamma_{d}}}{\ctx{e:A}}{\Gamma_{0} \vdash \overline{decl}; e : A} \\
+    \framebox{$\Gamma \vdash pgm : \tau$} \\
+    (Pgm) & \ruleIII{\overline{\Gamma_{0} \vdash decl : \Gamma_{d}}}{\Gamma = \Gamma_{0}, \overline{\Gamma_{d}}}{\ctx{e:\tau}}{\Gamma_{0} \vdash \overline{decl}; e : \tau} \\
     \framebox{$\Gamma \vdash decl : \Gamma^{\prime}$} \\
-    (Data) & \ruleI{\overline{\Gamma, T:\star \vdash \overline{A} \rightarrow T:\star}}{\ctx{(\data\,T = \overline{K\,\overline{A}}): (T:\star, \overline{K:\overline{A} \rightarrow T})}} \\
-    \framebox{$\Gamma \vdash e : A$} \\
-    (Case) & \ruleII{\ctx{e:T}}{\overline{\Gamma\vdash_{p} p \Rightarrow e:T \rightarrow B}}{\Gamma\vdash\case\,e\,\of\,\overline{p \Rightarrow e}:B} \\
-    (Let) & \ruleII{\ctx{e_{1}:A}}{\ctxw{x:A}{e_{2}:B}}{\letb{x}{e_{1}}{e_{2}}:B} \\
-    \framebox{$\Gamma \vdash_{p} p \Rightarrow e : T \rightarrow B$} \\
-    (Alt) & \ruleII{K : \overline{A} \rightarrow T \in \Gamma}{\Gamma, \overline{x:A} \vdash e : B}{\Gamma \vdash_{p} K\,\overline{x:A} \Rightarrow e : T \rightarrow B}
+    (Data) & \ruleI{\overline{\Gamma, D:\star \vdash \overline{\tau} \rightarrow D:\star}}{\ctx{(\data\,D = \overline{K\,\overline{\tau}}): (D:\star, \overline{K:\overline{\tau} \rightarrow D})}} \\
+    \framebox{$\Gamma \vdash e : \tau$} \\
+    (Case) & \ruleII{\ctx{e:D}}{\overline{\Gamma\vdash_{p} p \Rightarrow e:D \rightarrow \tau}}{\Gamma\vdash\case\,e\,\of\,\overline{p \Rightarrow e}:\tau} \\
+    \framebox{$\Gamma \vdash_{p} p \Rightarrow e : D \rightarrow \tau$} \\
+    (Alt) & \ruleII{K : \overline{\tau} \rightarrow D \in \Gamma}{\Gamma, \overline{x:\tau} \vdash e : \tau'}{\Gamma \vdash_{p} K\,\overline{x:\tau} \Rightarrow e : D \rightarrow \tau'}
   \end{tabular}
   \caption{Typing rules for $\lambda C_\mu c$}\label{fig:datatype}
 \end{figure}
@@ -63,52 +64,51 @@ save space, we only show the new typing rules.
 We use a type-directed translation. The typing relations have the
 form:
 \[
-  \Gamma \vdash e : A \rightsquigarrow \hat{e}
+  \Gamma \vdash e : \tau \rightsquigarrow E
 \]
 
-It states that $\lambda C_{\mu}$ expression $\hat{e}$ is the
-translation of $\lambda C_{\mu c}$ expression
-$e$. Figure~\ref{fig:datatrans} shows the translation rules, which are
-the typing rules of the previous section extended with the resulting
-$\hat{e}$ expression.
+It states that $\lambda C_{\mu}$ expression $E$ is the translation of
+$\lambda C_{\mu c}$ expression $e$ of type
+$\tau$. Figure~\ref{fig:datatrans} shows the translation rules, which
+are the typing rules of the previous section extended with the
+resulting expression $E$.
 
-\begin{figure}[ht]
+\begin{figure}[ht!]
   \centering \small
   \begin{tabular}{lcl}
-    \framebox{$\Gamma \vdash e : A \rightsquigarrow \hat{e}$} \\
+    \framebox{$\Gamma \vdash e : \tau \rightsquigarrow E$} \\
     (Ax) & \ruleI{}{\ctxz{\star:\square \rightsquigarrow \star}} \\
 
-    (Var) & \ruleI{x:A \in \Gamma}{\ctx{x:A \rightsquigarrow x}} \\
+    (Var) & \ruleI{x:\tau \in \Gamma}{\ctx{x:\tau \rightsquigarrow x}} \\
 
-    (App) & \ruleII{\ctx{f:(\pai{x}{A}{B}) \rightsquigarrow \hat{f}}}{\ctx{a:A \rightsquigarrow \hat{a}}}{\ctx{fa:B[x:=a] \rightsquigarrow \hat{f}\hat{a}}} \\
+    (App) & \ruleII{\ctx{e_{1}:(\pai{x}{\tau_{2}}{\tau_{1}}) \rightsquigarrow E_{1}}}{\ctx{e_{2}:\tau_{2} \rightsquigarrow E_{2}}}{\ctx{e_{1}e_{2}:\tau_{1}[x:=e_{2}] \rightsquigarrow E_{1}E_{2}}} \\
 
-    (Lam) & \ruleII{\ctxw{x:A}{b:B \rightsquigarrow \hat{b}}}{\ctx{(\pai{x}{A}{B}):t}}
-            {\ctx{(\lam{x}{A}{b}}):(\pai{x}{A}{B}) \rightsquigarrow \lam{x}{A}{\hat{b}}}
+    (Lam) & \ruleII{\ctxw{x:\tau_{1}}{e:\tau_{2} \rightsquigarrow E}}{\ctx{(\pai{x}{\tau_{1}}{\tau_{2}}):t}}
+            {\ctx{(\lam{x}{\tau_{1}}{e}}):(\pai{x}{\tau_{1}}{\tau_{2}}) \rightsquigarrow \lam{x}{\tau_{1}}{E}}
           & $t \in \{\star, \square\}$ \\
 
-    (Pi) & \ruleII{\ctx{A:s}}{\ctxw{x:A}{B:t}}{\ctx{(\pai{x}{A}{B}):t \rightsquigarrow \pai{x}{A}{B}}}
+    (Pi) & \ruleII{\ctx{\tau_{1}:s}}{\ctxw{x:\tau_{1}}{\tau_{2}:t}}{\ctx{(\pai{x}{\tau_{1}}{\tau_{2}}):t \rightsquigarrow \pai{x}{\tau_{1}}{\tau_{2}}}}
           & $(s,t) \in \mathcal{R}$ \\
 
-    (Mu) & \ruleI{\ctxw{x:s}{A:s}}{\ctx{(\miu{x}{A}):s \rightsquigarrow \miu{x}{A}}} \\
+    (Mu) & \ruleI{\ctxw{x:s}{\tau:s}}{\ctx{(\miu{x}{\tau}):s \rightsquigarrow \miu{x}{\tau}}} \\
 
-    (Fold) & \ruleII{\ctx{a:(A[x:=\miu{x}{A}]) \rightsquigarrow \hat{a}}}{\ctx{\miu{x}{A}:s}}%
-             {\ctx{(\fold{\miu{x}{A}}{a}):\miu{x}{A} \rightsquigarrow \fold{\miu{x}{A}}{\hat{a}}}} \\
+    (Fold) & \ruleII{\ctx{e:(\tau[x:=\miu{x}{\tau}]) \rightsquigarrow E}}{\ctx{\miu{x}{\tau}:s}}%
+             {\ctx{(\fold{\miu{x}{\tau}}{e}):\miu{x}{\tau} \rightsquigarrow \fold{\miu{x}{\tau}}{E}}} \\
 
-    (Unfold) & \ruleII{\ctx{a:\miu{x}{A} \rightsquigarrow \hat{a}}}{\ctx{A[x:=\miu{x}{A}]:s}}%
-               {\ctx{(\unfold{a}):A[x:=\miu{x}{A}] \rightsquigarrow \unfold{\hat{a}}}} \\
+    (Unfold) & \ruleII{\ctx{e:\miu{x}{\tau} \rightsquigarrow E}}{\ctx{\tau[x:=\miu{x}{\tau}]:s}}%
+               {\ctx{(\unfold{e}):\tau[x:=\miu{x}{\tau}] \rightsquigarrow \unfold{E}}} \\
 
-    (Beta) & \ruleIII{\ctx{a:A \rightsquigarrow \hat{a}}}{\ctx{B:s}}{A \tolong B}{\ctx{(\bet{a}):B \rightsquigarrow \bet{\hat{a}}}} \\
-    (Let) & \ruleII{\ctx{e_{1}:A \rightsquigarrow \hat{e_{1}}}}{\ctxw{x:A}{e_{2}:B \rightsquigarrow \hat{e_{2}}}}{\letb{x}{e_{1}}{e_{2}}:B \rightsquigarrow (\lam{x}{A}{\hat{e_{2}}})\,\hat{e_{1}}} \\
-    (Case) & \ruleII{\ctx{e:T \rightsquigarrow \hat{e}}}{\overline{\Gamma\vdash_{p} p \Rightarrow e:T \rightarrow B \rightsquigarrow E_{1}}}{\Gamma\vdash\case\,e\,\of\,\overline{p \Rightarrow e}:B \rightsquigarrow (\unfold{\hat{e}})\,B\,\overline{E_{1}}}\\
+    (Beta) & \ruleIII{\ctx{e:\tau_{1} \rightsquigarrow E}}{\ctx{\tau_{2}:s}}{\tau_{1} \tolong \tau_{2}}{\ctx{(\bet{e}):\tau_2 \rightsquigarrow \bet{E}}} \\
+    (Case) & \ruleII{\ctx{e:D \rightsquigarrow E}}{\overline{\Gamma\vdash_{p} p \Rightarrow e:D \rightarrow \tau \rightsquigarrow E_{1}}}{\Gamma\vdash\case\,e\,\of\,\overline{p \Rightarrow e}:\tau \rightsquigarrow (\unfold{E})\,\tau\,\overline{E_{1}}}\\
     % & $E ::= (\unfold{\hat{e}})\,B\,\overline{E_{1}}$ \\
-    \framebox{$\Gamma \vdash_{p} p \Rightarrow e : T \rightarrow B \rightsquigarrow \hat{e}$} \\
-    (Alt) & \ruleII{K : \overline{A} \rightarrow T \in \Gamma}{\Gamma, \overline{x:A} \vdash e : B \rightsquigarrow \hat{e}}{\Gamma \vdash_{p} K\,\overline{x:A} \Rightarrow e : T \rightarrow B \rightsquigarrow \lambda \overline{(x : A)}.\hat{e}} \\
-    \framebox{$\Gamma \vdash decl : \Gamma^{\prime} \rightsquigarrow \hat{e}$} \\
-    (Data) & \ruleI{\overline{\Gamma, T:\star \vdash \overline{A} \rightarrow T:\star}}{\ctx{(\data\,T = \overline{K\,\overline{A}}): (T:\star, \overline{K:\overline{A} \rightarrow T}) \rightsquigarrow E}} \\ \\
-         & \begingroup \renewcommand*{\arraystretch}{1.0} $\begin{array} {lll} E & ::= & \letbb\,T = \miu{\beta}{\pai{\alpha}{\star}{\overline{(\overline{A[T:=\beta]} \rightarrow \alpha)}} \rightarrow \alpha}\,\inb \\ & & \letbb\,K_{i}^{i \in 1..n} = \lambda\overline{(x : A_{i})}.\\
-                                                                                 & & \quad \fold{T}{(\lambda (\alpha : \star)\overline{(c : \overline{A} \rightarrow \alpha)} . c_{i}\,\overline{x})}\,\inb \end{array}$ \endgroup \\
-    \framebox{$\Gamma \vdash pgm : A \rightsquigarrow \hat{e}$} \\
-    (Pgm) & \alwaysNoLine \AxiomC{$\overline{\Gamma_{0} \vdash decl : \Gamma_{d} \rightsquigarrow E_{1}}$} \UnaryInfC{$\ctx{e:A \rightsquigarrow \hat{e}}$} \AxiomC{$\Gamma = \Gamma_{0}, \overline{\Gamma_{d}}$} \UnaryInfC{$\Gamma_{0} \vdash E_{1} \oplus \hat{e}:A \rightsquigarrow E$} \alwaysSingleLine \BinaryInfC{$\Gamma_{0} \vdash \overline{decl}; e : A \rightsquigarrow E$} \DisplayProof
+    \framebox{$\Gamma \vdash_{p} p \Rightarrow e : D \rightarrow \tau \rightsquigarrow E$} \\
+    (Alt) & \ruleII{K : \overline{\tau} \rightarrow D \in \Gamma}{\Gamma, \overline{x:\tau} \vdash e : \tau' \rightsquigarrow E}{\Gamma \vdash_{p} K\,\overline{x:\tau} \Rightarrow e : D \rightarrow \tau' \rightsquigarrow \lambda \overline{(x : \tau)}.E} \\
+    \framebox{$\Gamma \vdash decl : \Gamma^{\prime} \rightsquigarrow E$} \\
+    (Data) & \ruleI{\overline{\Gamma, D:\star \vdash \overline{\tau} \rightarrow D:\star}}{\ctx{(\data\,D = \overline{K\,\overline{\tau}}): (D:\star, \overline{K:\overline{\tau} \rightarrow D}) \rightsquigarrow E}} \\ \\
+         & \begingroup \renewcommand*{\arraystretch}{1.0} $\begin{array} {lll} E & ::= & \letbb\,D : \star = \miu{\beta}{\pai{\alpha}{\star}{\overline{(\overline{\tau[D:=\beta]} \rightarrow \alpha)}} \rightarrow \alpha}\,\inb \\ & & \letbb\,K_{i}^{i \in 1..n} : \overline{\tau_{i}} \rightarrow D = \lambda\overline{(x : \tau_{i})}.\\ 
+                                                                                 & & \quad \fold{D}{(\lambda (\alpha : \star)\overline{(c : \overline{\tau} \rightarrow \alpha)} . c_{i}\,\overline{x})}\,\inb \end{array}$ \endgroup \\
+    \framebox{$\Gamma \vdash pgm : \tau \rightsquigarrow E$} \\
+    (Pgm) & \ruleIII{\overline{\Gamma_{0} \vdash decl : \Gamma_{d} \rightsquigarrow E_{1}}}{\Gamma = \Gamma_{0}, \overline{\Gamma_{d}}}{\ctx{e:\tau \rightsquigarrow E}}{\Gamma_{0} \vdash \overline{decl}; e : A \rightsquigarrow \overline{E_{1}} \oplus E}
   \end{tabular}
   \caption{Type-directed translation from $\lambda C_\mu c$ to
     $\lambda C_\mu$}\label{fig:datatrans}
