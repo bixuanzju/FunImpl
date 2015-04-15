@@ -3,6 +3,8 @@
   \newcommand{\FPTermfxx}{\lambda
     x:(\FPTypeU).f((\unfold{x})x)}
   \newcommand{\FP}{\mathsf{fix}} %
+\item Polymorphic identity function: if $\ctx{e:\tau}$, we have
+$(\lam \alpha \star {\lam x {((\lam y \star y) \alpha)} x})~\tau~(\bet e)=e.$
 \item A polymorphic fixed-point constructor
   $\FP:(\Pi \alpha:\star.(\alpha \to \alpha) \to \alpha)$ can be
   defined as follows:

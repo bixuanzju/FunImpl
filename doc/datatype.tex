@@ -98,7 +98,7 @@ resulting expression $E$.
     (Unfold) & \ruleII{\ctx{e:\miu{x}{\tau} \rightsquigarrow E}}{\ctx{\tau[x:=\miu{x}{\tau}]:s}}%
                {\ctx{(\unfold{e}):\tau[x:=\miu{x}{\tau}] \rightsquigarrow \unfold{E}}} \\
 
-    (Beta) & \ruleIII{\ctx{e:\tau_{1} \rightsquigarrow E}}{\ctx{\tau_{2}:s}}{\tau_{1} \tolong \tau_{2}}{\ctx{(\bet{e}):\tau_2 \rightsquigarrow \bet{E}}} \\
+    (Beta) & \ruleIII{\ctx{e:\tau_{1} \rightsquigarrow E}}{\ctx{\tau_{2}:s}}{\tau_{2} \tolong \tau_{1}}{\ctx{(\bet{e}):\tau_2 \rightsquigarrow \bet{E}}} \\
     (Case) & \ruleII{\ctx{e:D \rightsquigarrow E}}{\overline{\Gamma\vdash_{p} p \Rightarrow e:D \rightarrow \tau \rightsquigarrow E_{1}}}{\Gamma\vdash\case\,e\,\of\,\overline{p \Rightarrow e}:\tau \rightsquigarrow (\unfold{E})\,\tau\,\overline{E_{1}}}\\
     % & $E ::= (\unfold{\hat{e}})\,B\,\overline{E_{1}}$ \\
     \framebox{$\Gamma \vdash_{p} p \Rightarrow e : D \rightarrow \tau \rightsquigarrow E$} \\

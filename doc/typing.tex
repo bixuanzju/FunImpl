@@ -31,7 +31,7 @@ with $\lambda C$, the original \emph{Conv} rule is replaced by the new
     (Unfold) & \ruleII{\ctx{E:\miu{x}{T}}}{\ctx{T[x:=\miu{x}{T}]:s}}%
                       {\ctx{(\unfold{E}):T[x:=\miu{x}{T}]}} \\
 
-    (Beta) & \ruleIII{\ctx{E:T_{1}}}{\ctx{T_{2}:s}}{T_{1} \tolong T_{2}}{\ctx{(\bet{E}):T_{2}}}
+    (Beta) & \ruleIII{\ctx{E:T_{1}}}{\ctx{T_{2}:s}}{T_{2} \tolong T_{1}}{\ctx{(\bet{E}):T_{2}}}
   \end{tabular}
   \caption{Typing rules for $\lambda C_\mu$}\label{fig:mutype}
 \end{figure}

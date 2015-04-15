@@ -135,12 +135,12 @@ Hence, by Lemma \ref{lem:subst} we have \ruleII{\ctxw{x:s}{M:s}}{\ctx{\miu{x}{M}
 
   Derivation $\mathcal{D}$ has the following form
 \begin{center}
-  \ruleLabel{\it Beta}\ruleIII{\ctx{M:A}}{\ctx{B:s}}{A \tolong B}{\ctx{(\bet{M}):B}}
+  \ruleLabel{\it Beta}\ruleIII{\ctx{M:A}}{\ctx{B:s}}{B \tolong A}{\ctx{(\bet{M}):B}}
 \end{center}
 By the induction hypothesis we have
-$\ctx{M':A}$ and $A \tolong B$. Hence,
+$\ctx{M':A}$ and $B \tolong A$. Hence,
 \begin{center}
-  \ruleLabel{\it Beta}\ruleIII{\ctx{M':A}}{\ctx{B:s}}{A \tolong B}{\ctx{(\bet{M'}):B}}
+  \ruleLabel{\it Beta}\ruleIII{\ctx{M':A}}{\ctx{B:s}}{B \tolong A}{\ctx{(\bet{M'}):B}}
 \end{center}
 
 \end{description}
