@@ -1,0 +1,226 @@
+\begin{lem}[Substitutions]\label{lem:subst}
+  Assume we have
+\begin{align}
+  \Gamma,x:A &\vdash B:C \label{equ:s1}\\
+  \Gamma &\vdash D:A, \label{equ:s2}
+\end{align}
+then \[\Gamma[x:=D] \vdash B[x:=D]:C[x:=D].\]
+\end{lem}
+\begin{proof}\label{prf:subst}
+  This is trivial by induction on the typing derivation of
+  (\ref{equ:s1}) by typing rules in Fig.\ref{fig:mutype}. We only
+  discuss two cases for example. Let $E^{*}$ denote
+  $E[x:=D]$. Consider following cases
+\begin{itemize}
+\item The last applied rule to obtain (\ref{equ:s1}) is
+  \emph{Var}. There are 2 sub-cases:
+\begin{enumerate}
+\item It is derived by
+\begin{center}
+  \AxiomC{$\Gamma \vdash A:s$} \UnaryInfC{$\Gamma,x:A \vdash x:A$}
+  \DisplayProof,
+\end{center}
+then we have $(B:C) \equiv (x:A)$. And
+$\Gamma \vdash (x:A)^{*}\equiv (D:A)$ which holds by
+(\ref{equ:s2}).
+
+\item It is derived by
+\begin{center}
+  \AxiomC{$\Gamma,x:A \vdash E:s$}
+  \UnaryInfC{$\Gamma,x:A,y:E \vdash y:E$} \DisplayProof,
+\end{center}
+then we need to show $\Gamma^{*},y:E^{*} \vdash y:E^{*}$. And it
+directly follows the induction hypothesis, i.e.
+$\Gamma^{*} \vdash E^{*}:s$.
+\end{enumerate}
+
+\item The last applied rule to obtain (\ref{equ:s1}) is \emph{App},
+  i.e.
+\begin{center}
+  \AxiomC{$\Gamma,x:A \vdash B_{1}:(\Pi y:C_{1}.\ C_{2})$}
+  \AxiomC{$\Gamma,x:A \vdash B_{2}:C_{1}$}
+  \BinaryInfC{$\Gamma,x:A \vdash (B_{1}B_{2}):C_{2}[y:=B_{2}]$}
+  \DisplayProof.
+\end{center}
+By the induction hypothesis, we can obtain
+$ \Gamma^{*} \vdash B_{1}^{*}:(\Pi y:C_{1}^{*}.C_{2}^{*})$ and
+$\Gamma^{*} \vdash B_{2}^{*}:C_{1}^{*}$. Thus,
+$\Gamma^{*} \vdash (B_{1}^{*}B_{2}^{*}):(C_{2}^{*}[y:=B_{2}^{*}])$,
+i.e.  $\Gamma^{*} \vdash (B_{1}B_{2})^{*}:(C_{2}[y:=B_{2}])^{*}$.
+\end{itemize}
+\end{proof}
+
+\begin{thm}[Subject Reduction]
+  If $\Gamma \vdash A:B$ and $A \tolong A'$ then $\Gamma \vdash A':B'$
+  for some $B'$ such that either $B \equiv B'$ or $B \tolong B'$.
+\end{thm}
+
+\begin{proof}\label{prf:subre}
+  Let $\mathcal{D}$ be the derivation of $\Gamma \vdash A:B$. The
+  proof is by induction on dynamic semantics shown in
+  Fig.\ref{fig:mueval}.
+
+\begin{description}
+\item[case \emph{R-AppLam}:] \ruleI{}{(\lam{x}{A}{M})N \tolong
+    M[x:=N]}.
+
+  Derivation $\mathcal{D}$ has the following form
+\begin{center}
+  \AxiomC{$\Gamma,x:A \vdash M:A'$} \RightLabel{\emph{Lam}}
+  \UnaryInfC{$\Gamma \vdash (\lambda x:A.M):(\Pi x:A.A')$}
+  \RightLabel{\emph{App}} \AxiomC{$\Gamma \vdash N:A$}
+  \BinaryInfC{$\Gamma \vdash (\lambda x:A.M)N:A'$} \DisplayProof
+\end{center}
+Thus, by Lemma \ref{lem:subst} we can obtain
+$\Gamma \vdash M[x:=N]:A'$.
+
+\item[case \emph{R-AppL}:] \ruleI{M \tolong M'}{MN \tolong M'N}.
+
+  Derivation $\mathcal{D}$ has the following form
+\begin{center}
+  \AxiomC{$\Gamma \vdash M:(\Pi x:A.A')$} \AxiomC{$\Gamma \vdash N:A$}
+  \RightLabel{\emph{App}} \BinaryInfC{$\Gamma \vdash MN:A'$}
+  \DisplayProof
+\end{center}
+By the induction hypothesis we have $\Gamma \vdash M':(\Pi
+x:A.A')$. Hence,
+\begin{center}
+  \AxiomC{$\Gamma \vdash M':(\Pi x:A.A')$}
+  \AxiomC{$\Gamma \vdash N:A$} \RightLabel{\emph{App}}
+  \BinaryInfC{$\Gamma \vdash M'N:A'$} \DisplayProof
+\end{center}
+
+\item[case \emph{R-Unfold}:] \ruleI{M \tolong M'}{\unfold{M} \tolong
+    \unfold{M'}}.
+
+  Derivation $\mathcal{D}$ has the following form
+\begin{center}
+  \AxiomC{$\Gamma \vdash M:\mu x.A$} \RightLabel{\emph{Unfold}}
+  \UnaryInfC{$\Gamma \vdash (\unfold[\mu x.A]{M}):A[x:=\mu x.A]$}
+  \DisplayProof
+\end{center}
+By the induction hypothesis we have
+$\Gamma \vdash M':\mu x.A$. Hence,
+\begin{center}
+  \AxiomC{$\Gamma \vdash M':\mu x.A$} \RightLabel{\emph{Unfold}}
+  \UnaryInfC{$\Gamma \vdash (\unfold[\mu x.A]{M'}):A[x:=\mu x.A]$}
+  \DisplayProof
+\end{center}
+
+\item[case \emph{R-Unfold-Fold}:]
+  \ruleI{}{\unfold{(\fold{\miu{x}{A}}{M})} \tolong M}.
+
+  Derivation $\mathcal{D}$ has the following form
+\begin{center}
+  \AxiomC{$\Gamma \vdash M:(A[x:=\mu x.A])$} \RightLabel{\emph{Fold}}
+  \UnaryInfC{$\Gamma \vdash (\fold{\miu{x}{A}}{M}):\mu x.A$}
+  \RightLabel{\emph{Unfold}}
+  \UnaryInfC{$\Gamma \vdash
+    \unfold[N]{(\fold{\miu{x}{A}}{M})}:(A[x:=\mu x.A])$} \DisplayProof
+\end{center}
+
+\item[case \emph{R-Mu}:] \ruleI{}{\miu{x}{M} \tolong
+    M[x:=\miu{x}{M}]}.
+
+  Derivation $\mathcal{D}$ has the following form
+\begin{center}
+  \ruleLabel{\emph{Mu}}\ruleI{\ctxw{x:s}{M:s}}{\ctx{(\miu{x}{M}):s}}
+\end{center}
+Hence, by Lemma \ref{lem:subst} we have
+\ruleII{\ctxw{x:s}{M:s}}{\ctx{\miu{x}{M}:s}}{\ctx{(M[x:=\miu{x}{M}]):s}}.
+
+\item[case \emph{R-Beta}:] \ruleI{}{\bet{M} \tolong M}.
+
+  Derivation $\mathcal{D}$ has the following form
+\begin{center}
+  \ruleLabel{\it Beta}\ruleIII{\ctx{M:A}}{\ctx{B:s}}{B \tolong
+    A}{\ctx{(\bet{M}):B}}
+\end{center}
+By the induction hypothesis we have $\ctx{M':A}$ and $B \tolong
+A$. Hence,
+\begin{center}
+  \ruleLabel{\it Beta}\ruleIII{\ctx{M':A}}{\ctx{B:s}}{B \tolong
+    A}{\ctx{(\bet{M'}):B}}
+\end{center}
+
+\end{description}
+\end{proof}
+
+\begin{thm}[Progress]
+  If $\cdot \vdash A:B$ then either $A$ is a value $v$ or there exists
+  $A'$ such that $A \tolong A'$.
+\end{thm}
+
+\begin{proof}\label{prf:prog}
+  We can give the proof by induction on the derivation of
+  $\cdot \vdash A:B$ by typing rules in Fig.\ref{fig:mutype}:
+
+\begin{description}
+\item[case \emph{Var}:] \ruleI{\dotctx{A:s}}{\dotctxw{x:A}{x:A}}.
+
+  This case cannot be reached. Proof is by contradiction. If we have
+  $\dotctx{x:A}$ then $x$ is assigned with type $A$ from a context
+  "$\cdot$" without $A$, which is not possible.
+
+\item[case \emph{Weak}:]
+  \ruleII{\dotctx{b:B}}{\dotctx{A:s}}{\dotctxw{x:A}{b:B}}.
+
+  The result is trivial by induction hypothesis.
+
+\item[case \emph{App}:] \AxiomC{$\cdot \vdash M:(\Pi x:A.B)$}
+  \AxiomC{$\cdot \vdash N:A$} \BinaryInfC{$\cdot \vdash MN:B$}
+  \DisplayProof.
+
+  By induction hypothesis on $\cdot \vdash M:(\Pi x:A.B)$, there are
+  two possible cases.
+  \begin{enumerate}
+  \item $M=v$ is a value. Hence $v=\lambda x:A.M'$ where
+    $\cdot \vdash M':B$. Then $MN=vN=(\lambda x:A.M')N=M'[x:=N]$. By
+    the substitution lemma, $\cdot \vdash (M'[x:=N]):B$ which is just
+    $\cdot \vdash MN:B$.
+  \item $M \tolong M'$. The result is obvious by the operational
+    semantic \AxiomC{$M \tolong M'$} \RightLabel{\emph{R-AppL}}
+    \UnaryInfC{$MN \tolong M'N$} \DisplayProof.
+  \end{enumerate}
+\item[case \emph{Lam}:] \AxiomC{$\dots$}
+  \UnaryInfC{$\cdot \vdash (\lambda x:A.M):(\Pi x:A.B)$}
+  \DisplayProof.
+
+  The result is trivial if let $v=\lambda x:A.M$.
+\item[case \emph{Pi}:]
+  \ruleII{\dotctx{A:s}}{\dotctxw{x:A}{B:t}}{\dotctx{(\pai{x}{A}{B}):t}}.
+
+  The result is trivial if let $v=\pai{x}{A}{B}$.
+
+\item[case \emph{Mu}:] \ruleI{\dots}{\dotctx{(\miu{x}{A}):s}}.
+
+  The result is trivial since we always have such reduction
+  $\miu x A \tolong A[x:=\miu x A]$.
+
+\item[case \emph{Fold}:] \AxiomC{$\dots$}
+  \UnaryInfC{$\cdot \vdash (\fold{\mu x.A}{M}):\mu x.A$}
+  \DisplayProof.
+
+  The result is trivial if let $v=\fold{\mu x.A}{M}$.
+\item[case \emph{Unfold}:]
+  \ruleII{\dotctx{a:\miu{x}{A}}}{\dotctx{A[x:=\miu{x}{A}]:s}}%
+  {\dotctx{(\unfold{a}):A[x:=\miu{x}{A}]}}.
+
+  By induction hypothesis on $\dotctx{a:\miu{x}{A}}$, there are two
+  possible cases.
+  \begin{enumerate}
+  \item $a=v$ is a value. Hence $a=\fold{\miu{x}{A}}{b}$ where
+    $\dotctx{b:(A[x:=\miu{x}{A}])}$. Then by the \emph{R-Unfold-Fold}
+    rule, $\unfold{a}=\unfold{(\fold{\miu{x}{A}}{b})} = b$. Thus
+    $\dotctx{(\unfold{a}):A[x:=\miu{x}{A}]}$.
+  \item $a \tolong a'$. The result is obvious by the reduction rule
+    \ruleLabel{\emph{R-Unfold}} \ruleI{M \tolong M'}{\unfold{M}
+      \tolong \unfold{M'}}.
+  \end{enumerate}
+\item[case \emph{Beta}:] \ruleI{\cdots}{\dotctx{(\bet{a}):B}}.
+
+  The result is trivial since we always have such reduction
+  $\bet{a} \tolong a$.
+\end{description}
+
+\end{proof}

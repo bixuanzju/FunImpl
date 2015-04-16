@@ -1,10 +1,12 @@
-We extend Calculus of Constructions ($\lambda C$) with recursive types, namely $\lambda C_{\mu}$. Differences with $\lambda C$ are highlighted. Figure~\ref{fig:musyn} shows the extended syntax.
+We extend Calculus of Constructions ($\lambda C$) with recursive
+types, namely $\lambda C_{\mu}$. Differences with $\lambda C$ are
+highlighted. Figure~\ref{fig:musyn} shows the extended syntax.
 
 \begin{figure}[H]
-\small
-\begin{syntax}
-  \textbf{Terms} \\
-  E,T &::= & x & \ptext{variable} \\
+  \small
+  \begin{syntax}
+    \textbf{Terms} \\
+    E,T &::= & x & \ptext{variable} \\
     & \mid & \star & \ptext{star} \\
     & \mid & \square & \ptext{square} \\
     & \mid & E \ E & \ptext{application} \\
@@ -14,13 +16,13 @@ We extend Calculus of Constructions ($\lambda C$) with recursive types, namely $
     & \mid & \hlmath{\fold{\miu{x}{T}}{E}} & \ptext{roll} \\
     & \mid & \hlmath{\unfold{E}} & \ptext{unroll} \\
     & \mid & \hlmath{\bet{E}} & \ptext{type reduction} \\
-  \textbf{Environments} \\
-  \Gamma &::= &\varnothing & \ptext{empty} \\
-         & \mid & \Gamma,x:T & \ptext{variable binding} \\
-  \textbf{Syntactic sugar} \\
-  \letb{x}{T}{E_{1}}{E_{2}} &::= & (\lam{x}{T}{E_{2}}) \ E_{1}
-\end{syntax}
-\caption{Syntax of $\lambda C_\mu$}\label{fig:musyn}
+    \textbf{Environments} \\
+    \Gamma &::= &\varnothing & \ptext{empty} \\
+    & \mid & \Gamma,x:T & \ptext{variable binding} \\
+    \textbf{Syntactic sugar} \\
+    \letb{x}{T}{E_{1}}{E_{2}} &::= & (\lam{x}{T}{E_{2}}) \ E_{1}
+  \end{syntax}
+  \caption{Syntax of $\lambda C_\mu$}\label{fig:musyn}
 \end{figure}
 
 %%% Local Variables:
