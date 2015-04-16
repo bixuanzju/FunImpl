@@ -61,6 +61,18 @@ alphaEq (Beta t) (Beta t') = alphaEq t t'
 alphaEq (Kind k) (Kind k') = k == k'
 alphaEq _ _ = False
 
+desugar :: Expr -> Expr
+desugar (Var n) = Var n
+desugar (App e1 e2) = App (desugar e1) (desugar e2)
+desugar (Lam n t e) = Lam n (desugar t) (desugar e)
+desugar (Pi n t e) = Pi n (desugar t) (desugar e)
+desugar (Mu n t) = Mu n (desugar t)
+desugar (F t) = F (desugar t)
+desugar (U t) = U (desugar t)
+desugar (Beta e) = Beta (desugar e)
+desugar e@(Kind _) = e
+desugar (Let n t e1 e2) = App (Lam n t (desugar e2)) (desugar e1)
+
 -- nf :: Expr -> Expr
 -- nf ee = spine ee []
 --   where spine (App f a) as = spine f (a:as)
@@ -92,8 +104,8 @@ whnf benv ee = spine ee []
 -- | Definitional equality because we use weak head normal form
 equate :: BEnv -> Expr -> Expr -> Bool
 equate benv e1 e2 =
-  let e1' = whnf benv e1
-      e2' = whnf benv e2
+  let e1' = whnf benv . desugar $ e1
+      e2' = whnf benv . desugar $ e2
   in case (e1',e2') of
        (App a1 b1,App a2 b2) ->
          equate benv a1 a2 &&

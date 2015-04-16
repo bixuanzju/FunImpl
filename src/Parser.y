@@ -15,11 +15,14 @@ import Syntax
     fold   { TokenKeyword "fold" }
     unfold { TokenKeyword "unfold" }
     pi     { TokenKeyword "pi" }
+    let     { TokenKeyword "let" }
+    in     { TokenKeyword "in" }
     mu     { TokenKeyword "mu" }
     beta   { TokenKeyword "beta" }
     lam    { TokenKeyword "lam" }
     id     { TokenIdent $$ }
     ':'    { TokenSymbol ":" }
+    '='    { TokenSymbol "=" }
     '.'    { TokenSymbol "." }
     '['    { TokenSymbol "[" }
     ']'    { TokenSymbol "]" }
@@ -33,6 +36,7 @@ import Syntax
 %right '.'
 %right '->'
 %right ']'
+%right in
 %left BETA
 %left UNFOLD
 
@@ -53,6 +57,7 @@ Expr : lam id ':' Expr '.' Expr { Lam $2 $4 $6 }
      | unfold Expr %prec UNFOLD { U $2 }
      | Expr '->' Expr           { Pi "" $1 $3 }
      | beta Expr %prec BETA     { Beta $2 }
+     | let id ':' Expr '=' Expr in Expr  {Let $2 $4 $6 $8}
      | Exp                      { $1 }
 
 Exp : Exp Term                  { App $1 $2 }
@@ -96,8 +101,8 @@ lexer symbols keywords = lexer'
                             Nothing -> lexSym cs ss
         lexSym cs [] = error $ "Cannot tokenize " ++ cs
 
-symbols = [".", "(", ")", ":", "\\", "*", "->", "[", "]", ";"]
-keywords = ["fold", "unfold", "pi", "mu", "lam", "beta"]
+symbols = [".", "(", ")", ":", "\\", "*", "->", "[", "]", ";" , "="]
+keywords = ["fold", "unfold", "pi", "mu", "lam", "beta", "let", "in"]
 
 parseExpr = parser . lexer symbols keywords
 

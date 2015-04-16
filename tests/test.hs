@@ -28,8 +28,16 @@ main :: IO ()
 main = defaultMain tests
 
 tests :: TestTree
-tests = testGroup "Tests" [natTest, substTest,tcheckTest]
+tests = testGroup "Tests" [natTest, substTest,tcheckTest, letTest]
 
+
+letTest :: TestTree
+letTest =
+  testGroup "Let check"
+    [ testCase "nested let in" $
+      equate initalBEnv (parse "let a : nat = one in let b : nat = two in plus a b")
+        (parse "plus two one") @?= True
+    ]
 
 tcheckTest :: TestTree
 tcheckTest =

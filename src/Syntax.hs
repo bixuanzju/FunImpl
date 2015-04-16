@@ -14,6 +14,7 @@ data Expr = Var Sym
           | U Expr
           | Beta Expr
           | Kind Kinds
+          | Let Sym Type Expr Expr -- | Syntax sugar
           deriving (Eq, Read)
 
 type Type = Expr
@@ -50,6 +51,7 @@ showExp _ (F t) = "fold[" ++ showExp True t ++ "]"
 showExp _ (U e) = "unfold" ++ paren (showExp True e)
 showExp _ (Kind k) = show k
 showExp _ (Beta e) = "beta " ++ paren (showExp True e)
+showExp _ (Let n t e1 e2) = "let " ++ n ++ " : " ++ showExp True t ++ " = " ++ showExp True e1 ++ " in " ++ (paren $ showExp True e2)
 
 paren :: String -> String
 paren x = "(" ++ x ++ ")"
