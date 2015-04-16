@@ -45,27 +45,27 @@ import Syntax
 
 %%
 
-Progm : Exprs                   { Progm $1 }
+Progm : Exprs                           { Progm $1 }
 
-Exprs : Expr                    { [$1] }
-      | Exprs ';' Expr          {$1 ++ [$3]}
+Exprs : Expr                            { [$1] }
+      | Exprs ';' Expr                  {$1 ++ [$3]}
 
-Expr : lam id ':' Expr '.' Expr { Lam $2 $4 $6 }
-     | pi id ':' Expr '.' Expr  { Pi $2 $4 $6 }
-     | mu id '.' Expr           { Mu $2 $4 }
-     | fold '[' Expr ']' Expr   { App (F $3) $5 }
-     | unfold Expr %prec UNFOLD { U $2 }
-     | Expr '->' Expr           { Pi "" $1 $3 }
-     | beta Expr %prec BETA     { Beta $2 }
-     | let id ':' Expr '=' Expr in Expr  {Let $2 $4 $6 $8}
-     | Exp                      { $1 }
+Expr : lam id ':' Expr '.' Expr         { Lam $2 $4 $6 }
+     | pi id ':' Expr '.' Expr          { Pi $2 $4 $6 }
+     | mu id '.' Expr                   { Mu $2 $4 }
+     | fold '[' Expr ']' Expr           { App (F $3) $5 }
+     | unfold Expr %prec UNFOLD         { U $2 }
+     | Expr '->' Expr                   { Pi "" $1 $3 }
+     | beta Expr %prec BETA             { Beta $2 }
+     | let id ':' Expr '=' Expr in Expr {Let $2 $4 $6 $8}
+     | Exp                              { $1 }
 
-Exp : Exp Term                  { App $1 $2 }
-    | Term                      { $1 }
+Exp : Exp Term                          { App $1 $2 }
+    | Term                              { $1 }
 
-Term : id                       { Var $1 }
-    | '*'                       { Kind Star }
-    | '(' Expr ')'              { $2 }
+Term : id                               { Var $1 }
+    | '*'                               { Kind Star }
+    | '(' Expr ')'                      { $2 }
 
 
 {
