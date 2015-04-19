@@ -50,26 +50,17 @@ tcheck env (Mu i t) =                    -- (Mu) TODO: Is star enough?
      s <- tcheck env' t
      when (s /= Kind Star) $ Left "Bad recursive type"
      return s
-tcheck env (F mu@(Mu i t) e) =           -- (Fold)
-  do tcheck env mu
-     te <- tcheck env e
-     let rt = subst i mu t
-     unless (alphaEq te rt) $ Left "Bad fold expression"
-     return mu
+tcheck env (F t1 e) =                    -- (Fold)
+  do t2 <- tcheck env e
+     tcheck env t1
+     let t2' = reduct t1
+     unless (alphaEq t2 t2') $ Left "Bad fold expression"
+     return t1
 tcheck env (U e) =                       -- (Unfold)
-  do mu <- tcheck env e
-     case mu of
-      Mu i t -> do
-        let rt = (subst i mu t)
-        tcheck env rt
-        return rt
-      _ -> Left "Bad unfold expression"
-
--- tcheck env (Beta e) =                    -- (Beta) TODO: need thoughts
---   do te <- tcheck env e
---      let tb = betaReduct te
---      tcheck env tb
---      return tb
+  do t1 <- tcheck env e
+     let t2 = reduct t1
+     tcheck env t2
+     return t2
 
 allowedKinds :: [(Type, Type)]
 allowedKinds =

@@ -86,7 +86,6 @@ repFreeVar env = repl
     repl (Mu n t) = Mu n (repl t)
     repl (F t e) = F (repl t) (repl e)
     repl (U t) = U (repl t)
-    repl (Beta e) = Beta (repl e)
     repl (Kind s) = Kind s
     repl (Var n) = fromMaybe (Var n) (lookup n env)
 

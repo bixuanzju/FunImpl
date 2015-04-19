@@ -12,7 +12,6 @@ data Expr = Var Sym
           | Mu Sym Type
           | F Type Expr
           | U Expr
-          | Beta Expr
           | Kind Kinds
           | Let Sym Type Expr Expr -- | Syntax sugar
           deriving (Eq, Read)
@@ -21,6 +20,7 @@ isVal :: Expr -> Bool
 isVal (Lam _ _ _) = True
 isVal (Pi _ _ _) = True
 isVal (F _ _) = True
+isVal _ = False
 
 type Type = Expr
 
@@ -55,7 +55,6 @@ showExp _ (Mu n t) = "μ" ++ n ++ " . " ++ showExp True t
 showExp _ (F t e) = "fold[" ++ showExp True t ++ "]" ++ showExp True e
 showExp _ (U e) = "unfold" ++ paren (showExp True e)
 showExp _ (Kind k) = show k
-showExp _ (Beta e) = "beta " ++ paren (showExp True e)
 showExp _ (Let n t e1 e2) = "let " ++ n ++ " : " ++ showExp True t ++ " = " ++ showExp True e1 ++ " in " ++ showExp True e2
 
 paren :: String -> String

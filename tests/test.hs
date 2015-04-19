@@ -28,16 +28,16 @@ main :: IO ()
 main = defaultMain tests
 
 tests :: TestTree
-tests = testGroup "Tests" [natTest, substTest,tcheckTest, letTest]
+tests = testGroup "Tests" [substTest,tcheckTest]
 
 
-letTest :: TestTree
-letTest =
-  testGroup "Let check"
-    [ testCase "nested let in" $
-      equate initalBEnv (parse "let a : nat = one in let b : nat = two in plus a b")
-        (parse "plus two one") @?= True
-    ]
+-- letTest :: TestTree
+-- letTest =
+--   testGroup "Let check"
+--     [ testCase "nested let in" $
+--       equate initalBEnv (parse "let a : nat = one in let b : nat = two in plus a b")
+--         (parse "plus two one") @?= True
+--     ]
 
 tcheckTest :: TestTree
 tcheckTest =
@@ -70,9 +70,9 @@ substTest =
                                        subst "x" (Var "y") (Lam "y" (Kind Star) (App (Var "y") (Var "x"))) @?=
                                        Lam "y$" (Kind Star) (App (Var "y$") (Var "y"))]
 
-natTest :: TestTree
-natTest =
-  testGroup "Natural number"
-    [testCase "one plus two" $
-      equate initalBEnv (App (App plus one) two) three @?=
-      True]
+-- natTest :: TestTree
+-- natTest =
+--   testGroup "Natural number"
+--     [testCase "one plus two" $
+--       equate initalBEnv (App (App plus one) two) three @?=
+--       True]
