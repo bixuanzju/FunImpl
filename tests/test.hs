@@ -13,16 +13,16 @@ env1 = extend "a" (Kind Star) initalEnv
 -- env2 :: Env
 -- env2 = extend "d" (Pi "" nat (Kind Star)) env1
 
-hT :: Expr
-hT = Mu "m" (Pi "" (Var "a") (Var "m"))
+-- hT :: Expr
+-- hT = Mu "m" (Pi "" (Var "a") (Var "m"))
 
-hungry :: Expr
-hungry =
-  Lam "a" (Kind Star) $
-    App (App fix (Pi "" (Var "a") hT))
-      (Lam "f" (Pi "" (Var "a") hT) $
-         Lam "x" (Var "a") $
-           App (F hT) (Var "f"))
+-- hungry :: Expr
+-- hungry =
+--   Lam "a" (Kind Star) $
+--     App (App fix (Pi "" (Var "a") hT))
+--       (Lam "f" (Pi "" (Var "a") hT) $
+--          Lam "x" (Var "a") $
+--            App (F hT) (Var "f"))
 
 main :: IO ()
 main = defaultMain tests

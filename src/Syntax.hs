@@ -10,12 +10,17 @@ data Expr = Var Sym
           | Lam Sym Type Expr
           | Pi Sym Type Type
           | Mu Sym Type
-          | F Type
+          | F Type Expr
           | U Expr
           | Beta Expr
           | Kind Kinds
           | Let Sym Type Expr Expr -- | Syntax sugar
           deriving (Eq, Read)
+
+isVal :: Expr -> Bool
+isVal (Lam _ _ _) = True
+isVal (Pi _ _ _) = True
+isVal (F _ _) = True
 
 type Type = Expr
 
@@ -47,7 +52,7 @@ showExp _ (Pi n t e) =
     then paren (showExp True t ++ " → " ++ showExp True e)
     else "Π(" ++ n ++ " : " ++ showExp True t ++ ") . " ++ showExp True e
 showExp _ (Mu n t) = "μ" ++ n ++ " . " ++ showExp True t
-showExp _ (F t) = "fold[" ++ showExp True t ++ "]"
+showExp _ (F t e) = "fold[" ++ showExp True t ++ "]" ++ showExp True e
 showExp _ (U e) = "unfold" ++ paren (showExp True e)
 showExp _ (Kind k) = show k
 showExp _ (Beta e) = "beta " ++ paren (showExp True e)

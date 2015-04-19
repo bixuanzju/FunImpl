@@ -13,7 +13,7 @@ subst v x = sub
         sub (Mu i t) = -- evil code in order to reuse `abstr`
           case abstr Lam i t t of
            Lam i' t' _ -> Mu i' t'
-        sub (F t) = F (sub t)
+        sub (F t e) = F (sub t) (sub e)
         sub (U e) = U (sub e)
         sub (Beta t) = Beta (sub t)
         sub (Kind k) = Kind k
@@ -41,7 +41,7 @@ freeVars (App f a) = freeVars f `union` freeVars a
 freeVars (Lam i _ e) = freeVars e \\ [i]
 freeVars (Pi i k t) = freeVars k `union` (freeVars t \\ [i])
 freeVars (Mu i t) = freeVars t \\ [i]
-freeVars (F t) = freeVars t
+freeVars (F t e) = freeVars t `union` freeVars e
 freeVars (U e) = freeVars e
 freeVars (Beta t) = freeVars t
 freeVars (Kind _) = []
@@ -52,7 +52,7 @@ alphaEq (App f a) (App f' a') = alphaEq f f' && alphaEq a a'
 alphaEq (Lam s t e) (Lam s' t' e') = alphaEq e (substVar s' s e') && alphaEq t t'
 alphaEq (Pi s t e) (Pi s' t' e') = alphaEq e (substVar s' s e') && alphaEq t t'
 alphaEq (Mu i t) (Mu i' t') = alphaEq t (substVar i' i t')
-alphaEq (F t) (F t') = alphaEq t t'
+alphaEq (F t e) (F t' e') = alphaEq t t' && alphaEq e e'
 alphaEq (U t) (U t') = alphaEq t t'
 alphaEq (Beta t) (Beta t') = alphaEq t t'
 alphaEq (Kind k) (Kind k') = k == k'
@@ -65,7 +65,7 @@ desugar (App e1 e2) = App (desugar e1) (desugar e2)
 desugar (Lam n t e) = Lam n (desugar t) (desugar e)
 desugar (Pi n t e) = Pi n (desugar t) (desugar e)
 desugar (Mu n t) = Mu n (desugar t)
-desugar (F t) = F (desugar t)
+desugar (F t e) = F (desugar t) (desugar e)
 desugar (U t) = U (desugar t)
 desugar (Beta e) = Beta (desugar e)
 desugar e@(Kind _) = e
@@ -78,7 +78,7 @@ whnf benv ee = spine ee []
   where
     spine (App f a) as = spine f (a : as)             -- (R-AppL)
     spine (Lam s _ e) (a:as) = spine (subst s a e) as -- (R-AppLam)
-    spine (U (App (F _) e)) as = spine e as           -- (R-Unfold-Fold)
+    spine (U (F _ e)) as = spine e as                 -- (R-Unfold-Fold)
     spine (U e) as = spine (U (whnf benv e)) as       -- (R-unfold)
     spine m@(Mu i e) as = spine (subst i m e) as      -- (R-Mu)
     spine (Beta e) as = spine e as                    -- (R-Beta)
@@ -103,7 +103,7 @@ equate benv e1 e2 =
          equate benv a (substVar n1 n a1)
        (Mu n t,Mu n1 t1) ->
          equate benv t (substVar n1 n t1)
-       (F t,F t1) -> equate benv t t1
+       (F t a,F t1 a1) -> equate benv t t1 && equate benv a a1
        (U t,U t1) -> equate benv t t1
        (Beta t,Beta t1) -> equate benv t t1
        (Var n1,Var n2) -> n1 == n2
