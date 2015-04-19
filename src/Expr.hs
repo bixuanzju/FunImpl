@@ -10,12 +10,9 @@ subst v x = sub
         sub (App f a) = App (sub f) (sub a)
         sub (Lam i t e) = abstr Lam i t e
         sub (Pi i t e) = abstr Pi i t e
-        sub (Mu i t)
-          | v == i = Mu i t
-          | i `elem` fvx = let i' = cloneSym t i
-                               t' = substVar i i' t
-                           in Mu i' (sub t')
-          | otherwise = Mu i (sub t)
+        sub (Mu i t) = -- evil code in order to reuse `abstr`
+          case abstr Lam i t t of
+           Lam i' t' _ -> Mu i' t'
         sub (F t) = F (sub t)
         sub (U e) = U (sub e)
         sub (Beta t) = Beta (sub t)
