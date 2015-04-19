@@ -13,9 +13,8 @@ highlighted. Figure~\ref{fig:musyn} shows the extended syntax.
     & \mid & \lam{x}{T}{E} & \ptext{abstraction} \\
     & \mid & \pai{x}{T}{T} & \ptext{product} \\
     & \mid & \hlmath{\miu{x}{T}} & \ptext{recursive type} \\
-    & \mid & \hlmath{\fold{\miu{x}{T}}{E}} & \ptext{roll} \\
-    & \mid & \hlmath{\unfold{E}} & \ptext{unroll} \\
-    & \mid & \hlmath{\bet{E}} & \ptext{type reduction} \\
+    & \mid & \hlmath{\fold{T}{E}} & \ptext{generalized roll} \\
+    & \mid & \hlmath{\unfold{E}} & \ptext{generalized unroll} \\
     \textbf{Environments} \\
     \Gamma &::= &\varnothing & \ptext{empty} \\
     & \mid & \Gamma,x:T & \ptext{variable binding} \\

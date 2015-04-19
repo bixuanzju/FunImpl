@@ -27,13 +27,11 @@ Figure~\ref{fig:mueval}.
 
     (Mu) & \ruleI{\ctxw{x:s}{T:s}}{\ctx{(\miu{x}{T}):s}} \\
 
-    (Fold) & \ruleII{\ctx{E:(T[x:=\miu{x}{T}])}}{\ctx{\miu{x}{T}:s}}%
-                    {\ctx{(\fold{\miu{x}{T}}{E}):\miu{x}{T}}} \\
+    (Fold) & \ruleIII{\ctx{E:T_{2}}}{\ctx{T_{1}:s}}{T_{1} \tolong T_{2}}%
+             {\ctx{(\fold{T_{1}}{E}):T_{1}}} \\
 
-    (Unfold) & \ruleII{\ctx{E:\miu{x}{T}}}{\ctx{T[x:=\miu{x}{T}]:s}}%
-                      {\ctx{(\unfold{E}):T[x:=\miu{x}{T}]}} \\
-
-    (Beta) & \ruleIII{\ctx{E:T_{1}}}{\ctx{T_{2}:s}}{T_{2} \tolong T_{1}}{\ctx{(\bet{E}):T_{2}}}
+    (Unfold) & \ruleIII{\ctx{E:T_{1}}}{\ctx{T_{2}:s}}{T_{1} \tolong T_{2}}%
+               {\ctx{(\unfold{E}):T_{2}}}
   \end{tabular}
   \caption{Typing rules for $\lambda C_\mu$}\label{fig:mutype}
 \end{figure}
