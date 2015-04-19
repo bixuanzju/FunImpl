@@ -21,7 +21,7 @@ findVar r s =
    Nothing -> Left $ "Cannot find variable " ++ s
 
 tcheck :: Env -> Expr -> TC Type
-tcheck env (Var s) = findVar env s       -- (Var)
+tcheck env (Var s) = findVar env s       -- (Var and Weak)
 tcheck env (App f a) =                   -- (App)
   do tf <- tcheck env f
      case tf of

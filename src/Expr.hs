@@ -58,6 +58,7 @@ alphaEq (Beta t) (Beta t') = alphaEq t t'
 alphaEq (Kind k) (Kind k') = k == k'
 alphaEq _ _ = False
 
+-- TODO: Generalize
 desugar :: Expr -> Expr
 desugar (Var n) = Var n
 desugar (App e1 e2) = App (desugar e1) (desugar e2)
@@ -70,29 +71,18 @@ desugar (Beta e) = Beta (desugar e)
 desugar e@(Kind _) = e
 desugar (Let n t e1 e2) = App (Lam n t (desugar e2)) (desugar e1)
 
--- nf :: Expr -> Expr
--- nf ee = spine ee []
---   where spine (App f a) as = spine f (a:as)
---         spine (Lam s t e) [] = Lam s (nf t) (nf e)
---         spine (Lam s _ e) (a:as) = spine (subst s a e) as
---         spine (Pi s k t) as = app (Pi s (nf k) (nf t)) as
---         spine (Mu i t) as = app (Mu i (nf t)) as
---         spine (U _) (App (F _) e:as) = app (nf e) as
---         spine (U t) (a:as) = spine (U t) (nf a:as)
---         spine (F t) (a:as) = spine (F t) (nf a:as)
---         spine f as = app f as
---         app f as = foldl App f (map nf as)
-
 type BEnv = [(Sym, Expr)]
 
 whnf :: BEnv -> Expr -> Expr
 whnf benv ee = spine ee []
   where
-    spine (App f a) as = spine f (a : as)
-    spine (Lam s _ e) (a:as) = spine (subst s a e) as
-    spine (U (App (F _) e)) as = spine e as
-    spine (U e) as = spine (U (whnf benv e)) as
-    spine (Var n) as =          -- fill in pre-defined terms
+    spine (App f a) as = spine f (a : as)             -- (R-AppL)
+    spine (Lam s _ e) (a:as) = spine (subst s a e) as -- (R-AppLam)
+    spine (U (App (F _) e)) as = spine e as           -- (R-Unfold-Fold)
+    spine (U e) as = spine (U (whnf benv e)) as       -- (R-unfold)
+    spine m@(Mu i e) as = spine (subst i m e) as      -- (R-Mu)
+    spine (Beta e) as = spine e as                    -- (R-Beta)
+    spine (Var n) as =                                -- fill in pre-defined terms
       case lookup n benv of
         Nothing -> foldl App (Var n) as
         Just e  -> spine e as
