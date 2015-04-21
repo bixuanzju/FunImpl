@@ -19,11 +19,11 @@ highlighted in Figure~\ref{fig:datasyn}.
   \begin{syntax}
     \textbf{Declarations} \\
     pgm &::= & \hlmath{\overline{decl}; e} & \ptext{Declarations} \\
-    decl &::= & \hlmath{\data\,D : \overline{\kappa} \rightarrow \star\,\where} \\
-    & & \quad \hlmath{K : \Pi\overline{x : \kappa}.\Pi\overline{y : \iota}.\overline{\tau} \rightarrow D\,\overline{x}} & \ptext{Datatype} \\ \\
+    decl &::= & \hlmath{\data\,D : \overline{\kappa} \rightarrow \star\,\where} & \ptext{Datatype} \\
+    & & \quad \hlmath{K : \Pi\overline{x : \kappa}.\Pi\overline{y : \iota}.\overline{\tau} \rightarrow D\,\overline{x}} \\ \\
     \textbf{Terms} \\
     u &::= & \hlmath{x \mid K} & \ptext{Variables and data constructors} \\
-    e,\tau,\kappa,\iota &::= & \hlmath{u} & \ptext{Term atoms} \\
+    e,\tau,\sigma,\kappa,\iota &::= & \hlmath{u} & \ptext{Term atoms} \\
     & \mid & \star & \ptext{Star} \\
     & \mid & \square & \ptext{Square} \\
     & \mid & e \ e & \ptext{Application} \\
@@ -33,13 +33,12 @@ highlighted in Figure~\ref{fig:datasyn}.
     & \mid & \fold{\tau}{e} & \ptext{Generalized roll} \\
     & \mid & \unfold{e} & \ptext{Generalized unroll} \\
     & \mid & \hlmath{\case\,e\,\of\,\overline{p \Rightarrow e}} & \ptext{Case analysis} \\
-    p &::= & \hlmath{K\,\overline{y : \kappa}\,\overline{x : \tau}} & \ptext{Pattern} \\ \\
+    p &::= & \hlmath{K\,\overline{y : \iota}\,\overline{x : \tau}} & \ptext{Pattern} \\ \\
     \textbf{Environments} \\
     \Gamma &::= &\varnothing & \ptext{Empty} \\
     & \mid & \hlmath{\Gamma,u:\tau} & \ptext{Variable binding}
   \end{syntax}
-  \caption{Syntax of $\lambda C_{\mu c}$ ($e$ for terms, $\tau$ for
-    types, $\kappa, \iota$ for kinds)}\label{fig:datasyn}
+  \caption{Syntax of $\lambda C_{\mu c}$ ($e$ for terms; $\tau,\sigma$ for types; $\kappa, \iota$ for kinds)}\label{fig:datasyn}
 \end{figure}
 
 An \emph{algebraic data type} $D$ is introduced as a top-level
@@ -64,11 +63,11 @@ save space, we only show the new typing rules.
     \framebox{$\Gamma \vdash pgm : \tau$} \\
     (Pgm) & \ruleIII{\overline{\Gamma_{0} \vdash decl : \Gamma_{d}}}{\Gamma = \Gamma_{0}, \overline{\Gamma_{d}}}{\ctx{e:\tau}}{\Gamma_{0} \vdash \overline{decl}; e : \tau} \\
     \framebox{$\Gamma \vdash decl : \Gamma^{\prime}$} \\
-    (Data) & \ruleI{\overline{\Gamma, D:\star \vdash \overline{\tau} \rightarrow D:\star}}{\ctx{(\data\,D = \overline{K\,\overline{\tau}}): (D:\star, \overline{K:\overline{\tau} \rightarrow D})}} \\
+    (Data) & \ruleII{\Gamma \vdash \kappa : \square}{\overline{\Gamma, D:\kappa \vdash \tau:\star}}{\ctx{(\data\,D:\kappa\,\where\,\overline{K:\tau}): (D:\kappa, \overline{K:\tau})}} \\
     \framebox{$\Gamma \vdash e : \tau$} \\
-    (Case) & \ruleII{\ctx{e:D}}{\overline{\Gamma\vdash_{p} p \Rightarrow e:D \rightarrow \tau}}{\Gamma\vdash\case\,e\,\of\,\overline{p \Rightarrow e}:\tau} \\
+    (Case) & \ruleII{\ctx{e:\sigma}}{\overline{\Gamma\vdash_{p} p \Rightarrow e:\sigma \rightarrow \tau}}{\Gamma\vdash\case\,e\,\of\,\overline{p \Rightarrow e}:\tau} \\
     \framebox{$\Gamma \vdash_{p} p \Rightarrow e : D \rightarrow \tau$} \\
-    (Alt) & \ruleII{K : \overline{\tau} \rightarrow D \in \Gamma}{\Gamma, \overline{x:\tau} \vdash e : \tau'}{\Gamma \vdash_{p} K\,\overline{x:\tau} \Rightarrow e : D \rightarrow \tau'}
+    (Alt) & \ruleII{K:\Pi\overline{a:\kappa}.\Pi\overline{y:\iota}.\overline{\sigma} \rightarrow D\,\overline{a} \in \Gamma}{\Gamma, \overline{y:\iota},\overline{x:\sigma} \vdash e:\tau}{\Gamma \vdash_{p} K\,\overline{y:\iota}\,\overline{x:\sigma} \Rightarrow e : D\,\overline{a} \rightarrow \tau}
   \end{tabular}
   \caption{Typing rules for $\lambda C_\mu c$}\label{fig:datatype}
 \end{figure}
