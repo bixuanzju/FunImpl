@@ -19,10 +19,11 @@ highlighted in Figure~\ref{fig:datasyn}.
   \begin{syntax}
     \textbf{Declarations} \\
     pgm &::= & \hlmath{\overline{decl}; e} & \ptext{Declarations} \\
-    decl &::= & \hlmath{\data\,D = \overline{K \ \overline{\tau}}} & \ptext{Datatype} \\ \\
+    decl &::= & \hlmath{\data\,D : \overline{\kappa} \rightarrow \star\,\where} \\
+    & & \quad \hlmath{K : \Pi\overline{x : \kappa}.\Pi\overline{y : \iota}.\overline{\tau} \rightarrow D\,\overline{x}} & \ptext{Datatype} \\ \\
     \textbf{Terms} \\
     u &::= & \hlmath{x \mid K} & \ptext{Variables and data constructors} \\
-    e,\tau &::= & \hlmath{u} & \ptext{Term atoms} \\
+    e,\tau,\kappa,\iota &::= & \hlmath{u} & \ptext{Term atoms} \\
     & \mid & \star & \ptext{Star} \\
     & \mid & \square & \ptext{Square} \\
     & \mid & e \ e & \ptext{Application} \\
@@ -32,13 +33,27 @@ highlighted in Figure~\ref{fig:datasyn}.
     & \mid & \fold{\tau}{e} & \ptext{Generalized roll} \\
     & \mid & \unfold{e} & \ptext{Generalized unroll} \\
     & \mid & \hlmath{\case\,e\,\of\,\overline{p \Rightarrow e}} & \ptext{Case analysis} \\
-    p &::= & \hlmath{K\,\overline{x : \tau}} & \ptext{Pattern} \\ \\
+    p &::= & \hlmath{K\,\overline{y : \kappa}\,\overline{x : \tau}} & \ptext{Pattern} \\ \\
     \textbf{Environments} \\
     \Gamma &::= &\varnothing & \ptext{Empty} \\
     & \mid & \hlmath{\Gamma,u:\tau} & \ptext{Variable binding}
   \end{syntax}
-  \caption{Syntax of $\lambda C_{\mu c}$}\label{fig:datasyn}
+  \caption{Syntax of $\lambda C_{\mu c}$ ($e$ for terms, $\tau$ for
+    types, $\kappa, \iota$ for kinds)}\label{fig:datasyn}
 \end{figure}
+
+An \emph{algebraic data type} $D$ is introduced as a top-level
+\textbf{data} declaration with its \emph{data constructors}. The type
+of a data constructor $K$ has the form:
+\[
+  K : \Pi\overline{x : \kappa}^{n}.\Pi\overline{y : \iota}.\overline{\tau} \rightarrow D\,\overline{x}^{n}
+\]
+The first $n$ quantified type variables $\overline{x}$ appear in the
+same order in the return type $D\,\overline{x}$, and $\overline{y}$
+stands for existentially quantified type variables. There is a $\case$
+expression to take apart values built with data constructors. The
+patterns of a case expression are flat (no nested patterns), and bind
+existential type variables.
 
 The extended typing rules are shown in Figure~\ref{fig:datatype}. To
 save space, we only show the new typing rules.
