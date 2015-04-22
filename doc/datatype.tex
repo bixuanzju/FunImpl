@@ -38,14 +38,16 @@ highlighted in Figure~\ref{fig:datasyn}.
     \Gamma &::= &\varnothing & \ptext{Empty} \\
     & \mid & \hlmath{\Gamma,u:\tau} & \ptext{Variable binding}
   \end{syntax}
-  \caption{Syntax of $\lambda C_{\mu c}$ ($e$ for terms; $\tau,\sigma$ for types; $\kappa, \iota$ for kinds)}\label{fig:datasyn}
+  \caption{Syntax of $\lambda C_{\mu c}$ ($e$ for terms; $\tau,\sigma$
+    for types; $\kappa, \iota$ for kinds)}\label{fig:datasyn}
 \end{figure}
 
 An \emph{algebraic data type} $D$ is introduced as a top-level
 \textbf{data} declaration with its \emph{data constructors}. The type
 of a data constructor $K$ has the form:
 \[
-  K : \Pi\overline{x : \kappa}^{n}.\Pi\overline{y : \iota}.\overline{\tau} \rightarrow D\,\overline{x}^{n}
+  K : \Pi\overline{x : \kappa}^{n}.\Pi\overline{y :
+    \iota}.\overline{\tau} \rightarrow D\,\overline{x}^{n}
 \]
 The first $n$ quantified type variables $\overline{x}$ appear in the
 same order in the return type $D\,\overline{x}$, and $\overline{y}$
@@ -65,9 +67,9 @@ save space, we only show the new typing rules.
     \framebox{$\Gamma \vdash decl : \Gamma^{\prime}$} \\
     (Data) & \ruleII{\Gamma \vdash \kappa : \square}{\overline{\Gamma, D:\kappa \vdash \tau:\star}}{\ctx{(\data\,D:\kappa\,\where\,\overline{K:\tau}): (D:\kappa, \overline{K:\tau})}} \\
     \framebox{$\Gamma \vdash e : \tau$} \\
-    (Case) & \ruleII{\ctx{e:\sigma}}{\overline{\Gamma\vdash_{p} p \Rightarrow e:\sigma \rightarrow \tau}}{\Gamma\vdash\case\,e\,\of\,\overline{p \Rightarrow e}:\tau} \\
+    (Case) & \ruleII{\ctx{e_{1}:\sigma}}{\overline{\Gamma\vdash_{p} p \Rightarrow e_{2}:\sigma \rightarrow \tau}}{\Gamma\vdash\case\,e_{1}\,\of\,\overline{p \Rightarrow e_{2}}:\tau} \\
     \framebox{$\Gamma \vdash_{p} p \Rightarrow e : D \rightarrow \tau$} \\
-    (Alt) & \ruleII{K:\Pi\overline{a:\kappa}.\Pi\overline{y:\iota}.\overline{\sigma} \rightarrow D\,\overline{a} \in \Gamma}{\Gamma, \overline{y:\iota},\overline{x:\sigma} \vdash e:\tau}{\Gamma \vdash_{p} K\,\overline{y:\iota}\,\overline{x:\sigma} \Rightarrow e : D\,\overline{a} \rightarrow \tau}
+    (Alt) & \ruleIII{K:\Pi\overline{a:\kappa}.\Pi\overline{y:\iota}.\overline{\sigma} \rightarrow D\,\overline{a} \in \Gamma}{\theta=[\overline{\upsilon/a}]}{\Gamma, \overline{y:\theta(\iota)},\overline{x:\theta(\sigma)} \vdash e:\tau}{\Gamma \vdash_{p} K\,\overline{y:\theta(\iota)}\,\overline{x:\theta(\sigma)} \Rightarrow e : D\,\overline{\upsilon} \rightarrow \tau}
   \end{tabular}
   \caption{Typing rules for $\lambda C_\mu c$}\label{fig:datatype}
 \end{figure}
@@ -84,7 +86,8 @@ It states that $\lambda C_{\mu}$ expression $E$ is the translation of
 $\lambda C_{\mu c}$ expression $e$ of type
 $\tau$. Figure~\ref{fig:datatrans} shows the translation rules, which
 are the typing rules of the previous section extended with the
-resulting expression $E$.
+resulting expression $E$. In the translation, \emph{We require that
+  applications of type functions $D$ to be saturated}.
 
 \begin{figure}[ht!]
   \centering \small
@@ -111,8 +114,7 @@ resulting expression $E$.
     (Unfold) & \ruleIII{\ctx{e:\tau_{1} \rightsquigarrow E}}{\ctx{\tau_{2}:s}}{\tau_{1} \tolong \tau_{2}}%
                {\ctx{(\unfold{e}):\tau_{2} \rightsquigarrow \unfold{E}}} \\
 
-    (Case) & \ruleII{\ctx{e:D \rightsquigarrow E}}{\overline{\Gamma\vdash_{p} p \Rightarrow e:D \rightarrow \tau \rightsquigarrow E_{1}}}{\Gamma\vdash\case\,e\,\of\,\overline{p \Rightarrow e}:\tau \rightsquigarrow (\unfold{E})\,\tau\,\overline{E_{1}}}\\
-    % & $E ::= (\unfold{\hat{e}})\,B\,\overline{E_{1}}$ \\
+    (Case) & \ruleII{\ctx{e_{1}:\sigma \rightsquigarrow E_{1}}}{\overline{\Gamma\vdash_{p} p \Rightarrow e_{2}:\sigma \rightarrow \tau \rightsquigarrow E_{2}}}{\Gamma\vdash\case\,e_{1}\,\of\,\overline{p \Rightarrow e_{2}}:\tau \rightsquigarrow (\unfold{E})\,\tau\,\overline{E_{2}}}\\
     \framebox{$\Gamma \vdash_{p} p \Rightarrow e : D \rightarrow \tau \rightsquigarrow E$} \\
     (Alt) & \ruleII{K : \overline{\tau} \rightarrow D \in \Gamma}{\Gamma, \overline{x:\tau} \vdash e : \tau' \rightsquigarrow E}{\Gamma \vdash_{p} K\,\overline{x:\tau} \Rightarrow e : D \rightarrow \tau' \rightsquigarrow \lambda \overline{(x : \tau)}.E} \\
     \framebox{$\Gamma \vdash decl : \Gamma^{\prime} \rightsquigarrow E$} \\
