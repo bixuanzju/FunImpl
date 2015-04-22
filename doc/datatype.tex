@@ -20,7 +20,7 @@ highlighted in Figure~\ref{fig:datasyn}.
     \textbf{Declarations} \\
     pgm &::= & \hlmath{\overline{decl}; e} & \ptext{Declarations} \\
     decl &::= & \hlmath{\data\,D : \overline{\kappa} \rightarrow \star\,\where} & \ptext{Datatype} \\
-    & & \quad \hlmath{K : \Pi\overline{x : \kappa}.\Pi\overline{y : \iota}.\overline{\tau} \rightarrow D\,\overline{x}} \\ \\
+    & & \quad \hlmath{\overline{K : \Pi\overline{x : \kappa}.\Pi\overline{y : \iota}.\overline{\tau} \rightarrow D\,\overline{x}}} \\ \\
     \textbf{Terms} \\
     u &::= & \hlmath{x \mid K} & \ptext{Variables and data constructors} \\
     e,\tau,\sigma,\kappa,\iota &::= & \hlmath{u} & \ptext{Term atoms} \\
@@ -69,7 +69,7 @@ save space, we only show the new typing rules.
     \framebox{$\Gamma \vdash e : \tau$} \\
     (Case) & \ruleII{\ctx{e_{1}:\sigma}}{\overline{\Gamma\vdash_{p} p \Rightarrow e_{2}:\sigma \rightarrow \tau}}{\Gamma\vdash\case\,e_{1}\,\of\,\overline{p \Rightarrow e_{2}}:\tau} \\
     \framebox{$\Gamma \vdash_{p} p \Rightarrow e : D \rightarrow \tau$} \\
-    (Alt) & \ruleIII{K:\Pi\overline{a:\kappa}.\Pi\overline{y:\iota}.\overline{\sigma} \rightarrow D\,\overline{a} \in \Gamma}{\theta=[\overline{\upsilon/a}]}{\Gamma, \overline{y:\theta(\iota)},\overline{x:\theta(\sigma)} \vdash e:\tau}{\Gamma \vdash_{p} K\,\overline{y:\theta(\iota)}\,\overline{x:\theta(\sigma)} \Rightarrow e : D\,\overline{\upsilon} \rightarrow \tau}
+    (Alt) & \ruleIII{K:\Pi\overline{a:\kappa}.\Pi\overline{y:\iota}.\overline{\sigma} \rightarrow D\,\overline{a} \in \Gamma}{\theta=[\overline{a := \upsilon}]}{\Gamma, \overline{y:\theta(\iota)},\overline{x:\theta(\sigma)} \vdash e:\tau}{\Gamma \vdash_{p} K\,\overline{y:\theta(\iota)}\,\overline{x:\theta(\sigma)} \Rightarrow e : D\,\overline{\upsilon} \rightarrow \tau}
   \end{tabular}
   \caption{Typing rules for $\lambda C_\mu c$}\label{fig:datatype}
 \end{figure}
@@ -114,13 +114,16 @@ resulting expression $E$. In the translation, \emph{We require that
     (Unfold) & \ruleIII{\ctx{e:\tau_{1} \rightsquigarrow E}}{\ctx{\tau_{2}:s}}{\tau_{1} \tolong \tau_{2}}%
                {\ctx{(\unfold{e}):\tau_{2} \rightsquigarrow \unfold{E}}} \\
 
-    (Case) & \ruleII{\ctx{e_{1}:\sigma \rightsquigarrow E_{1}}}{\overline{\Gamma\vdash_{p} p \Rightarrow e_{2}:\sigma \rightarrow \tau \rightsquigarrow E_{2}}}{\Gamma\vdash\case\,e_{1}\,\of\,\overline{p \Rightarrow e_{2}}:\tau \rightsquigarrow (\unfold{E})\,\tau\,\overline{E_{2}}}\\
+    (Case) & \ruleII{\ctx{e_{1}:\sigma \rightsquigarrow E_{1}}}{\overline{\Gamma\vdash_{p} p \Rightarrow e_{2}:\sigma \rightarrow \tau \rightsquigarrow E_{2}}}{\Gamma\vdash\case\,e_{1}\,\of\,\overline{p \Rightarrow e_{2}}:\tau \rightsquigarrow (\unfold{E_{1}})\,\tau\,\overline{E_{2}}}\\
     \framebox{$\Gamma \vdash_{p} p \Rightarrow e : D \rightarrow \tau \rightsquigarrow E$} \\
-    (Alt) & \ruleII{K : \overline{\tau} \rightarrow D \in \Gamma}{\Gamma, \overline{x:\tau} \vdash e : \tau' \rightsquigarrow E}{\Gamma \vdash_{p} K\,\overline{x:\tau} \Rightarrow e : D \rightarrow \tau' \rightsquigarrow \lambda \overline{(x : \tau)}.E} \\
-    \framebox{$\Gamma \vdash decl : \Gamma^{\prime} \rightsquigarrow E$} \\
-    (Data) & \ruleI{\overline{\Gamma, D:\star \vdash \overline{\tau} \rightarrow D:\star}}{\ctx{(\data\,D = \overline{K\,\overline{\tau}}): (D:\star, \overline{K:\overline{\tau} \rightarrow D}) \rightsquigarrow E}} \\ \\
-         & \begingroup \renewcommand*{\arraystretch}{1.0} $\begin{array} {lll} E & ::= & \letbb\,D : \star = \miu{\beta}{\pai{\alpha}{\star}{\overline{(\overline{\tau[D:=\beta]} \rightarrow \alpha)}} \rightarrow \alpha}\,\inb \\ & & \letbb\,K_{i}^{i \in 1..n} : \overline{\tau_{i}} \rightarrow D = \lambda\overline{(x : \tau_{i})}.\\ 
-                                                                                 & & \quad \fold{D}{(\lambda (\alpha : \star)\overline{(c : \overline{\tau} \rightarrow \alpha)} . c_{i}\,\overline{x})}\,\inb \end{array}$ \endgroup \\
+    (Alt) & \AxiomC{$K:\Pi\overline{a:\kappa}.\Pi\overline{y:\iota}.\overline{\sigma} \rightarrow D\,\overline{a} \in \Gamma$} \alwaysNoLine \AxiomC{$\theta=[\overline{a := \upsilon}]$} \UnaryInfC{$\Gamma, \overline{y:\theta(\iota)},\overline{x:\theta(\sigma)} \vdash e:\tau \rightsquigarrow E$} \alwaysSingleLine \BinaryInfC{$\Gamma \vdash_{p} K\,\overline{y:\theta(\iota)}\,\overline{x:\theta(\sigma)} \Rightarrow e : D\,\overline{\upsilon} \rightarrow \tau \rightsquigarrow \lambda(\overline{y:\theta(\iota)})(\overline{x:\theta(\sigma)}).E$} \DisplayProof \\
+    \framebox{$\Gamma \vdash decl : \Gamma' \rightsquigarrow E$} \\
+    (Data) & \ruleII{\Gamma \vdash \overline{\kappa} \rightarrow \star : \square}{\overline{\Gamma, D:\overline{\kappa} \rightarrow \star \vdash \sigma:\star}}{\ctx{(\data\,D:\overline{\kappa} \rightarrow \star\,\where\,\overline{K:\sigma}): (D:\overline{\kappa} \rightarrow \star, \overline{K:\sigma})} \rightsquigarrow E} \\
+         & \begingroup \renewcommand*{\arraystretch}{1.0} $\begin{array} {lll}
+                                                             \\ \sigma & ::= & \Pi\overline{a:\kappa}.\Pi\overline{y:\iota}.\overline{\tau} \rightarrow D\,\overline{a} \\
+                                                             E & ::= & \letbb\,D : \overline{\kappa} \rightarrow \star =\Pi\overline{a : \kappa}. \mu X. \Pi b:\star. \\
+& & \quad \overline{(\Pi\overline{y:\iota}.\tau[D\,\overline{a}:=X] \rightarrow b)} \rightarrow b\,\inb \\ & & \letbb\,K_{i}^{i \in 1..n} : \sigma = \lambda \overline{(a : \kappa)}.\lambda\overline{(y : \iota)}.\lambda\overline{(x : \tau)}.\\
+                                                                    & & \quad \fold{D\,\overline{a}}{(\lambda (b : \star)\overline{(c : \Pi\overline{y:\iota}.\overline{\tau} \rightarrow b)} . c_{i}\,\overline{y}\,\overline{x})}\,\inb \end{array}$ \endgroup \\
     \framebox{$\Gamma \vdash pgm : \tau \rightsquigarrow E$} \\
     (Pgm) & \ruleIII{\overline{\Gamma_{0} \vdash decl : \Gamma_{d} \rightsquigarrow E_{1}}}{\Gamma = \Gamma_{0}, \overline{\Gamma_{d}}}{\ctx{e:\tau \rightsquigarrow E}}{\Gamma_{0} \vdash \overline{decl}; e : A \rightsquigarrow \overline{E_{1}} \oplus E}
   \end{tabular}
