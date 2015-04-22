@@ -136,44 +136,51 @@ resulting expression $E$. In the translation, \emph{We require that
 
 \begin{itemize}
 
-\item We can encode the type of natural numbers as follows:
+\item Encoding of natural numbers
   \begin{align*}
-    \data\,\Nat &= \zero \mid \suc\,\Nat \\
-    \Nat &::= \mu X.\ \Pi(a : \star).\ a \rightarrow (X \rightarrow a) \rightarrow a    
+    \data\,&\Nat : \star\,\where \\
+           &\zero : \Nat \\
+           &\suc : \Nat \rightarrow \Nat
   \end{align*}
-  $\zero$ and $\suc$ are encoded as follows:
+  $\Nat,\zero$ and $\suc$ are encoded as follows:
   \begin{align*}
-    \zero &::= \fold{\Nat}{(\lambda (a : \star) (z : a) (f : \Nat \rightarrow a).\,z)}\\
-    \suc &::= \lambda (n : \Nat).\,\fold{\Nat}{(\lambda (a : \star) (z : a) (f : \Nat \rightarrow a).\,f\,n)}
+    \letbb\,&\Nat : \star = \miu{X}{\pai{b}{\star}{b \rightarrow (X \rightarrow b) \rightarrow b}}\,\inb \\
+    \letbb\,&\zero : \Nat = \fold{\Nat}{(\lambda (b : \star) (z : b) (f : \Nat \rightarrow b).\,z)}\,\inb \\
+    \letbb\,&\suc : \Nat \rightarrow \Nat = \lambda (n : \Nat).\,\fold{\Nat}{(\lambda (b : \star) (z : b) (f : \Nat \rightarrow b).\,f\,n)}\,\inb \\
   \end{align*}
-  Using $\mathsf{fix}$, we can define a recursive function $\plus$ as
-  follow:
+\item Encoding of polymorphic lists
   \begin{align*}
-    \plus &:\PlFunc\\
-    \plus &=\mathsf{fix}\,(\PlFunc)\,(\lambda(p : \PlFunc)(n : \Nat)(m : \Nat).\\
-          &\qquad (\unfold[\Nat]{n})\,\Nat\,m\,(\lambda (n^{\prime} : \Nat).\,\suc\,(p\,n^{\prime}\,m)))
+    \data\,&\List : \star \rightarrow \star\,\where \\
+           &\nil : \pai{a}{\star}{\List\,a} \\
+           &\cons : \pai{a}{\star}{a \rightarrow \List\,a \rightarrow \List\,a}
   \end{align*}
-\item We can encode the type of lists of natural numbers:
+  $\List,\nil$ and $\cons$ are encoded as follows:
   \begin{align*}
-    \data\,\List &= \nil \mid \cons\,\Nat\,\List \\
-    \List &::= \mu X.\,\Pi(a : \star).\,a \rightarrow (\Nat \rightarrow X \rightarrow a) \rightarrow a    
-  \end{align*}
-  $\nil$ and $\cons$ are encoded as follows:
-  \begin{align*}
-    \nil &::= \fold{\List}{(\lambda (a : \star) (z : a) (f : \Nat \rightarrow \List \rightarrow a).\ z)}\\
-    \cons &::= \lambda(x : \Nat)(xs : \List).\\
-         &\qquad \fold{\List}{(\lambda(a : \star)(z : a)(f : \Nat\rightarrow \List \rightarrow a).\,f\,x\,xs)}
+    \letbb\,&\List : \star \rightarrow \star = \pai{a}{\star}{\miu{X}{\pai{b}{\star}{b \rightarrow (a \rightarrow X \rightarrow b) \rightarrow b}}}\,\inb \\
+    \letbb\,&\nil : \pai{a}{\star}{\List\,a} = \lambda a : \star.\\
+            &\fold{\List\,a}{(\lambda (b : \star) (z : b) (f : a \rightarrow \List\,a \rightarrow b).\ z)}\,\inb \\
+    \letbb\,&\cons : \pai{a}{\star}{a \rightarrow \List\,a \rightarrow \List\,a} = \lambda(a:\star)(x : a)(xs : \List\,a).\\
+            &\qquad \fold{\List\,a}{(\lambda(b : \star)(z : b)(f : a \rightarrow \List\,a \rightarrow b).\,f\,x\,xs)}\,\inb
   \end{align*}
   Using $\mathsf{fix}$, we can define a recursive function $\length$
   as follows:
   \begin{align*}
-    \length &: \List \rightarrow \Nat\\
-    \length &= \mathsf{fix}\,(\List \rightarrow \Nat)\,(\lambda(l : \List
-              \rightarrow \Nat)(xs : \List).\\
-            &\qquad (\unfold[\List]{xs})\,\Nat\,\zero\,(\lambda(y : \Nat)(ys : \List).\,\suc\,(l\,ys)))
+    \length &: \pai{a}{\star}{\List\,a \rightarrow \Nat} \\
+    \length &= \mathsf{fix}\,(\pai{a}{\star}{\List\,a \rightarrow \Nat})\,(\lambda(f : \pai{a}{\star}{\List\,a \rightarrow \Nat})(a:\star)(l : \List\,a).\\
+            &(\unfold[\List\,a]{l})\,\Nat\,\zero\,(\lambda(x : a)(xs : \List\,a).\,\suc\,(f\,a\,xs)))
   \end{align*}
-  % \item The rule $(\mathsf{Mu})$ doesn't allow me to express
-  %   something like $(\mu x.\,A) : \Nat \rightarrow \star$
+\item Encoding of a datatype with existential types
+  \begin{align*}
+    \data\,&D : \star \rightarrow \star\,\where \\
+           &K : \pai{a}{\star}{\pai{b}{\star}{a \rightarrow b \rightarrow (b \rightarrow \Nat)} \rightarrow D\,a}
+  \end{align*}
+  $D$ and $K$ are encoded as follows:
+  \begin{align*}
+    \letbb\,&D:\star \rightarrow \star = \pai{a}{\star}\miu{X}{\pai{\beta}{\star}{(\pai{b}{\star}{a \rightarrow b \rightarrow (b \rightarrow \Nat) \rightarrow \beta}) \rightarrow \beta}}\,\inb \\
+    \letbb\,&K:\pai{a}{\star}{\pai{b}{\star}{a \rightarrow b \rightarrow (b \rightarrow \Nat)} \rightarrow D\,a} = \\
+            &\lambda (a:\star)(b:\star)(x:a)(y:b)(f:b \rightarrow \Nat).\\
+            &\fold{D\,a}{(\lambda (\beta : \star)(g: \pai{b}{\star}{a \rightarrow b \rightarrow (b \rightarrow \Nat) \rightarrow \beta}).g\,b\,x\,y\,f)}\,\inb
+  \end{align*}
 \end{itemize}
 
 % \subsubsection{Elaboration of Datatypes}
