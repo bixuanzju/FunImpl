@@ -15,7 +15,7 @@ analysis~\cite{sulzmann2007system}, namely $\lambda C_{\mu c}$.
 Differences with $\lambda C_{\mu}$ are highlighted in
 Figure~\ref{fig:datasyn}.
 
-\begin{figure}[H]
+\begin{figure*}[ht]
   \small
   \begin{syntax}
     \textbf{Declarations} \\
@@ -41,7 +41,7 @@ Figure~\ref{fig:datasyn}.
   \end{syntax}
   \caption{Syntax of $\lambda C_{\mu c}$ ($e$ for terms; $\tau,\sigma$
     for types; $\kappa, \iota$ for kinds)}\label{fig:datasyn}
-\end{figure}
+\end{figure*}
 
 An \emph{algebraic data type} $D$ is introduced as a top-level
 \textbf{data} declaration with its \emph{data constructors}. The type
@@ -60,7 +60,7 @@ existential type variables.
 The extended typing rules are shown in Figure~\ref{fig:datatype}. To
 save space, we only show the new typing rules.
 
-\begin{figure}[ht]
+\begin{figure*}[ht]
   \centering \small
   \begin{tabular}{lcl}
     \framebox{$\Gamma \vdash pgm : \tau$} \\
@@ -73,7 +73,7 @@ save space, we only show the new typing rules.
     (Alt) & \ruleIII{K:\Pi\overline{a:\kappa}.\Pi\overline{y:\iota}.\overline{\sigma} \rightarrow D\,\overline{a} \in \Gamma}{\theta=[\overline{a := \upsilon}]}{\Gamma, \overline{y:\theta(\iota)},\overline{x:\theta(\sigma)} \vdash e:\tau}{\Gamma \vdash_{p} K\,\overline{y:\theta(\iota)}\,\overline{x:\theta(\sigma)} \Rightarrow e : D\,\overline{\upsilon} \rightarrow \tau}
   \end{tabular}
   \caption{Typing rules for $\lambda C_\mu c$}\label{fig:datatype}
-\end{figure}
+\end{figure*}
 
 \subsection{Translation Overview}
 
@@ -90,7 +90,7 @@ are the typing rules of the previous section extended with the
 resulting expression $E$. In the translation, \emph{We require that
   applications of type functions $D$ to be saturated}.
 
-\begin{figure}[ht!]
+\begin{figure*}[ht!]
   \centering \small
   \begin{tabular}{lcl}
     \framebox{$\Gamma \vdash e : \tau \rightsquigarrow E$} \\
@@ -130,7 +130,7 @@ resulting expression $E$. In the translation, \emph{We require that
   \end{tabular}
   \caption{Type-directed translation from $\lambda C_\mu c$ to
     $\lambda C_\mu$}\label{fig:datatrans}
-\end{figure}
+\end{figure*}
 
 
 \subsection{Examples of Simple Datatypes}
@@ -147,7 +147,7 @@ resulting expression $E$. In the translation, \emph{We require that
   \begin{align*}
     \letbb\,&\Nat : \star = \miu{X}{\pai{b}{\star}{b \rightarrow (X \rightarrow b) \rightarrow b}}\,\inb \\
     \letbb\,&\zero : \Nat = \fold{\Nat}{(\lambda (b : \star) (z : b) (f : \Nat \rightarrow b).\,z)}\,\inb \\
-    \letbb\,&\suc : \Nat \rightarrow \Nat = \lambda (n : \Nat).\,\fold{\Nat}{(\lambda (b : \star) (z : b) (f : \Nat \rightarrow b).\,f\,n)}\,\inb \\
+    \letbb\,&\suc : \Nat \rightarrow \Nat = \lambda (n : \Nat).\,\fold{\Nat}{(\lambda (b : \star) (z : b)\\ &(f : \Nat \rightarrow b).\,f\,n)}\,\inb
   \end{align*}
 \item Encoding of polymorphic lists
   \begin{align*}
@@ -167,8 +167,8 @@ resulting expression $E$. In the translation, \emph{We require that
   as follows:
   \begin{align*}
     \length &: \pai{a}{\star}{\List\,a \rightarrow \Nat} \\
-    \length &= \mathsf{fix}\,(\pai{a}{\star}{\List\,a \rightarrow \Nat})\,(\lambda(f : \pai{a}{\star}{\List\,a \rightarrow \Nat})(a:\star)(l : \List\,a).\\
-            &(\unfold[\List\,a]{l})\,\Nat\,\zero\,(\lambda(x : a)(xs : \List\,a).\,\suc\,(f\,a\,xs)))
+    \length &= \mathsf{fix}\,(\pai{a}{\star}{\List\,a \rightarrow \Nat})\,(\lambda(f : \pai{a}{\star}{\List\,a \rightarrow \Nat})\\&(a:\star)(l : \List\,a).
+            (\unfold[\List\,a]{l})\,\Nat\,\zero\,\\&(\lambda(x : a)(xs : \List\,a).\,\suc\,(f\,a\,xs)))
   \end{align*}
 \item Encoding of a datatype with existential types
   \begin{align*}

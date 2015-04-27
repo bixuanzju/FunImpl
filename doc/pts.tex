@@ -1,19 +1,10 @@
 % Article template
-\documentclass[oneside,a4paper]{article}
+\documentclass[preprint]{sigplanconf}
 
-% Set margins
-\usepackage[top=1in,bottom=1in,left=1.25in,right=1.25in]{geometry}
-
-% Font settings
-\usepackage{times}
+% AMS Support
 \usepackage{url}
-\urlstyle{rm}
-
-% AMS support
 \usepackage{amsmath}
 \usepackage{amssymb}
-
-% Logic proof support
 \usepackage{bussproofs}
 \usepackage{amsthm}
 \newtheoremstyle{break}
@@ -39,21 +30,6 @@
    urlcolor=black
 }
 
-% Caption format
-\usepackage{titlesec}
-\titleformat{\section}{\normalfont\large\bfseries}{\thesection.}{0.5em}{}
-\titleformat{\subsection}{\normalfont\normalsize\bfseries}{\thesubsection}{0.5em}{}
-\usepackage[font=small,labelfont=bf]{caption}
-\DeclareCaptionLabelSeparator{colon}{.~}
-% \numberwithin{equation}{subsection}
-
-% No indentation before paragraph
-\usepackage{parskip}
-
-% Line spacing
-\usepackage{setspace}
-\onehalfspacing
-
 % List support
 \usepackage{paralist}
 
@@ -71,9 +47,6 @@
 
 % Comment block
 \usepackage{comment}
-
-% Date & time
-\usepackage[us,12hr]{date time}
 
 % Text highlighting
 \usepackage{xcolor}
@@ -112,15 +85,53 @@
 \]
 }
 
-% Title
-\title{\bf Calculus of Constructions with Recursive Types}
-\author{}
-\date{\small \it Branch: \emph{Generalized fold and unfold} \\ 
-                 Last modified: \today\ at \currenttime}
-
 % Text
 \begin{document}
+
+\special{papersize=8.5in,11in}
+\setlength{\pdfpageheight}{\paperheight}
+\setlength{\pdfpagewidth}{\paperwidth}
+
+\conferenceinfo{CONF '15}{Month d--d, 2015, City, ST, Country} 
+\copyrightyear{2015}
+\copyrightdata{978-1-nnnn-nnnn-n/15/mm} 
+\doi{nnnnnnn.nnnnnnn}
+
+% Uncomment one of the following two, if you are not going for the 
+% traditional copyright transfer agreement.
+
+%\exclusivelicense                % ACM gets exclusive license to publish, 
+                                  % you retain copyright
+
+%\permissiontopublish             % ACM gets nonexclusive license to publish
+                                  % (paid open-access papers, 
+                                  % short abstracts)
+
+\titlebanner{Draft}        % These are ignored unless
+\preprintfooter{}   % 'preprint' option specified.
+
+\title{Calculus of Recursive Constructions}
+\subtitle{}
+
+\authorinfo{Name1 \and Name2 \and Name3}
+           {Affiliation1}
+           {Email1}
+
 \maketitle
+
+\begin{abstract}
+Place holder for abstract.
+\end{abstract}
+
+\category{D.3.1}{Programming Languages}{Formal Definitions and Theory}
+
+% general terms are not compulsory anymore, 
+% you may leave them out
+% \terms
+% term1, term2
+
+\keywords
+Dependent types, Calculus of Constructions
 
 \section{Calculus of Constructions}
 \input{intro} % Introduction
@@ -140,8 +151,11 @@
 \section{Formal Elaboration of Datatypes and Case Analysis}
 \input{datatype} % Extension with data types
 
+\acks
+Acknowledgments, if needed.
+
 % References
-\nocite{*} \bibliographystyle{plainnat} \bibliography{pts}
+\nocite{*} \bibliographystyle{abbrvnat} \bibliography{pts}
 
 % Appendix
 \appendix
