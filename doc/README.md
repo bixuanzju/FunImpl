@@ -17,7 +17,7 @@ Week | Linus | Jeremy
 ---: | :--- | :---
 1 | a. __skeleton__ of paper in _SIGPLAN format_: section titles, motivation, basic literature review; b. consider __removing fold from values__ | __first-class equality__: syntax, statics & dynamics, encoding GADT
 2 | _Exam week_ | _Exam week_
-3 | _section 2 & 3_ about the core lang w/o equality; needed to illustrate __necessity__ of generalized fold/unfold | continue on __first-class equality__
+3 | _section 2 & 3_ about the core lang w/o equality; needed to illustrate __necessity__ of generalized fold/unfold | continue on __first-class equality__, investigating the translation of __newtype__ (do we need to introduce __axiom__?)
 4 | __proofs of soundness__ for all sections related to core lang | writing _section 4 & 5_ about the core lang w/ equality and the __source language__
 5 | continue on writing proofs; consider __using coq__ to check | continue writing __section 4 & 5__ as well as implementation
 6 | examples for type-level computation | _same as left_ and consider implementation
