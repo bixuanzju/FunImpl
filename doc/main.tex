@@ -1,0 +1,159 @@
+% SIGPLAN template
+\documentclass[preprint]{sigplanconf}
+
+%% -- Packages Imports --
+
+% AMS stuff
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+
+% Language
+\usepackage{csquotes}
+\usepackage[english]{babel}
+\MakeOuterQuote{"}
+
+% Hyper links
+\usepackage{hyperref}
+\hypersetup{
+   colorlinks,
+   citecolor=black,
+   filecolor=black,
+   linkcolor=black,
+   urlcolor=black
+}
+
+% Compact list
+\usepackage{paralist}
+
+% Figure import
+\usepackage{graphicx}
+\usepackage{float}
+
+%% -- Packages Imports --
+
+% Main
+\begin{document}
+
+% Page size - US Letter
+\special{papersize=8.5in,11in}
+\setlength{\pdfpageheight}{\paperheight}
+\setlength{\pdfpagewidth}{\paperwidth}
+
+% Conference info
+\conferenceinfo{CONF 'yy}{Month d--d, 20yy, City, ST, Country}
+\copyrightyear{20yy}
+\copyrightdata{978-1-nnnn-nnnn-n/yy/mm}
+\doi{nnnnnnn.nnnnnnn}
+
+% Title
+\titlebanner{DRAFT} % Only for preprint
+\preprintfooter{} % Only for preprint
+
+\title{A Dependently-typed Intermediate Language with General Recursion}
+\subtitle{}
+
+\authorinfo{Foo \and Bar \and Baz}
+           {The University of Foo}
+           {\{foo,bar,baz\}@foo.edu}
+
+\maketitle
+
+% Abstract
+\begin{abstract}
+\emph{This is gonna to be written later.}
+\end{abstract}
+
+% Category, terms & keywords
+\category{D.3.1}{Programming Languages}{Formal Definitions and Theory}
+\terms Languages, Design
+\keywords Dependent types, Intermediate langauge
+
+%% -- Starting Point -- 
+
+\section{Introduction}
+\emph{These are definitely drafts and only some main points are listed in each section.}
+
+\begin{enumerate}[a)]
+\item Motivations:
+
+\begin{itemize}
+\item Because of the reluctance to introduce dependent types\footnote{This might be changed in the near future. See \url{https://ghc.haskell.org/trac/ghc/wiki/DependentHaskell/Phase1}.}, the current intermediate language of Haskell, namely System $F_C$ \cite{fc}, separates expressions as terms, types and kinds, which brings complexity to the implementation as well as further extensions \cite{fc:pro,fc:kind}.
+
+\item Popular full-spectrum dependently typed languages, like Agda, Coq, Idris, have to ensure the termination of functions for the decidability of proofs. No general recursion and the limitation of enforcing termination checking make such languages impractical for general-purpose programming.
+
+\item We would like to introduce a simple and compiler-friendly dependently typed core language with only one hierarchy, which supports general recursion at the same time.
+\end{itemize}
+
+\item Contribution:
+\begin{itemize}
+\item A core language based on Calculus of Constructions (CoC) that collapses terms, types and kinds into the same hierarchy.
+\item General recursion by introducing recursive types for both terms and types by the same $\mu$ primitive.
+\item Decidable type checking and managed type-level computation by replacing implicit conversion rule of CoC with generalized \textsf{fold}/\textsf{unfold} semantics.
+\item First-class equality by coercion, which is used for encoding GADTs or newtypes without runtime overhead.
+\item Surface language that supports datatypes, pattern matching and other language extensions for Haskell, and can be encoded into the core language.
+\end{itemize}
+
+\item Related work:
+
+\begin{itemize}
+\item Henk \cite{pts:henk} and one of its implementation \cite{pts:fp} show the simplicity of the Pure Type System (PTS). \cite{pts:rec} also tries to combine recursion with PTS.
+
+\item \textsf{Zombie} \cite{zombie:popl14, zombie:thesis} is a language with two fragments supporting logics with non-termination. It limits the $\beta$-reduction for congruence closure \cite{zombie:popl15}.
+
+\item $\Pi\Sigma$ \cite{dep:pisigma} is a simple, dependently-typed core language for expressing high-level constructions\footnote{But the paper didn't give any meta-theories about the langauge.}. UHC compiler \cite{fc:uhc} tries to use a simplified core language with coercion to encode GADTs.
+
+\item System $F_C$ \cite{fc} has been extended with type promotion \cite{fc:pro} and kind equality \cite{fc:kind}. The latter one introduces a limited form of dependent types into the system\footnote{Richard A. Eisenberg is going to implement kind equality \cite{fc:kind} into GHC. The implementation is proposed at \url{https://phabricator.haskell.org/D808} and related paper is at \url{http://www.cis.upenn.edu/~eir/papers/2015/equalities/equalities-extended.pdf}.}, which mixes up types and kinds.
+\end{itemize}
+
+\end{enumerate}
+
+\section{Overview with examples}
+\begin{itemize}
+\item Give a brief of overview of the surface language and its capability.
+\item Explain why this method has decidable type checking.
+\item Use examples to show the necessity of generalized \textsf{fold} and \textsf{unfold}.
+\end{itemize}
+
+\section{The core langauge}
+\begin{itemize}
+\item Give an overview of the core language and its syntax.
+\item Show the typing rules and operational semantics.
+\item The original formalization is suggested to rewrite using \textsf{ott}\footnote{\url{http://www.cl.cam.ac.uk/~pes20/ott/}} which is a standard in academia. For example, the formalization of GHC \url{https://github.com/ghc/ghc/tree/master/docs/core-spec}.
+\end{itemize}
+
+\section{Metatheory}
+\begin{itemize}
+\item Give formal proof of the soundness of the core language.
+\item Subject reduction and progress theorems will be proved.
+\end{itemize}
+
+\section{Surface language}
+\begin{itemize}
+\item Expand the core language with datatypes and pattern matching by encoding.
+\item Give translation rules.
+\item Encode GADTs and maybe other Haskell extensions.
+\end{itemize}
+
+\section{Related work}
+
+\section{Future work}
+
+%% -- References --
+
+\acks
+Thanks to Blah. This work is supported by Blah.
+
+\bibliographystyle{abbrvnat}
+\nocite{*}
+\bibliography{main}
+
+%% -- Appendix --
+
+\appendix
+\section{Appendix Title}
+Additional proof goes here.
+
+%% -- The end --
+
+\end{document}
