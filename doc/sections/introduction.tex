@@ -1,0 +1,36 @@
+\section{Introduction}
+\emph{These are definitely drafts and only some main points are listed in each section.}
+
+\begin{enumerate}[a)]
+\item Motivations:
+
+\begin{itemize}
+\item Because of the reluctance to introduce dependent types\footnote{This might be changed in the near future. See \url{https://ghc.haskell.org/trac/ghc/wiki/DependentHaskell/Phase1}.}, the current intermediate language of Haskell, namely System $F_C$ \cite{fc}, separates expressions as terms, types and kinds, which brings complexity to the implementation as well as further extensions \cite{fc:pro,fc:kind}.
+
+\item Popular full-spectrum dependently typed languages, like Agda, Coq, Idris, have to ensure the termination of functions for the decidability of proofs. No general recursion and the limitation of enforcing termination checking make such languages impractical for general-purpose programming.
+
+\item We would like to introduce a simple and compiler-friendly dependently typed core language with only one hierarchy, which supports general recursion at the same time.
+\end{itemize}
+
+\item Contribution:
+\begin{itemize}
+\item A core language based on Calculus of Constructions (CoC) that collapses terms, types and kinds into the same hierarchy.
+\item General recursion by introducing recursive types for both terms and types by the same $\mu$ primitive.
+\item Decidable type checking and managed type-level computation by replacing implicit conversion rule of CoC with generalized \textsf{fold}/\textsf{unfold} semantics.
+\item First-class equality by coercion, which is used for encoding GADTs or newtypes without runtime overhead.
+\item Surface language that supports datatypes, pattern matching and other language extensions for Haskell, and can be encoded into the core language.
+\end{itemize}
+
+\item Related work:
+
+\begin{itemize}
+\item Henk \cite{pts:henk} and one of its implementation \cite{pts:fp} show the simplicity of the Pure Type System (PTS). \cite{pts:rec} also tries to combine recursion with PTS.
+
+\item \textsf{Zombie} \cite{zombie:popl14, zombie:thesis} is a language with two fragments supporting logics with non-termination. It limits the $\beta$-reduction for congruence closure \cite{zombie:popl15}.
+
+\item $\Pi\Sigma$ \cite{dep:pisigma} is a simple, dependently-typed core language for expressing high-level constructions\footnote{But the paper didn't give any meta-theories about the langauge.}. UHC compiler \cite{fc:uhc} tries to use a simplified core language with coercion to encode GADTs.
+
+\item System $F_C$ \cite{fc} has been extended with type promotion \cite{fc:pro} and kind equality \cite{fc:kind}. The latter one introduces a limited form of dependent types into the system\footnote{Richard A. Eisenberg is going to implement kind equality \cite{fc:kind} into GHC. The implementation is proposed at \url{https://phabricator.haskell.org/D808} and related paper is at \url{http://www.cis.upenn.edu/~eir/papers/2015/equalities/equalities-extended.pdf}.}, which mixes up types and kinds.
+\end{itemize}
+
+\end{enumerate}
