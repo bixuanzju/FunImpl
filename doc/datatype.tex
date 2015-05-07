@@ -10,8 +10,10 @@
 
 \subsection{Extended Language}
 
-We extend $\lambda C_{\mu}$ with simple datatypes and case
-analysis~\cite{sulzmann2007system}, namely $\lambda C_{\mu c}$.
+We extend $\lambda C_{\mu}$ with simple datatypes (polymorphic and
+recursive\footnote{Polymorphic recursion is not supported yet, since
+  we have difficulty generalizing $\mu$ to have higher kind.}) and
+case analysis~\cite{sulzmann2007system}, namely $\lambda C_{\mu c}$.
 Differences with $\lambda C_{\mu}$ are highlighted in
 Figure~\ref{fig:datasyn}.
 
@@ -25,14 +27,7 @@ Figure~\ref{fig:datasyn}.
     \textbf{Terms} \\
     u &::= & \hlmath{x \mid K} & \ptext{Variables and data constructors} \\
     e,\tau,\sigma,\kappa,\iota &::= & \hlmath{u} & \ptext{Term atoms} \\
-    & \mid & \star & \ptext{Star} \\
-    & \mid & \square & \ptext{Square} \\
-    & \mid & e \ e & \ptext{Application} \\
-    & \mid & \lam{x}{\tau}{e} & \ptext{Abstraction} \\
-    & \mid & \pai{x}{\tau}{\tau} & \ptext{Product} \\
-    & \mid & \miu{x}{\tau} & \ptext{Recursive type} \\
-    & \mid & \fold{\tau}{e} & \ptext{Generalized roll} \\
-    & \mid & \unfold{e} & \ptext{Generalized unroll} \\
+    & & \dots \\
     & \mid & \hlmath{\case\,e\,\of\,\overline{p \Rightarrow e}} & \ptext{Case analysis} \\
     p &::= & \hlmath{K\,\overline{y : \iota}\,\overline{x : \tau}} & \ptext{Pattern} \\ \\
     \textbf{Environments} \\
@@ -70,7 +65,7 @@ save space, we only show the new typing rules.
     \framebox{$\Gamma \vdash e : \tau$} \\
     (Case) & \ruleII{\ctx{e_{1}:\sigma}}{\overline{\Gamma\vdash_{p} p \Rightarrow e_{2}:\sigma \rightarrow \tau}}{\Gamma\vdash\case\,e_{1}\,\of\,\overline{p \Rightarrow e_{2}}:\tau} \\
     \framebox{$\Gamma \vdash_{p} p \Rightarrow e : D \rightarrow \tau$} \\
-    (Alt) & \ruleIII{K:\Pi\overline{a:\kappa}.\Pi\overline{y:\iota}.\overline{\sigma} \rightarrow D\,\overline{a} \in \Gamma}{\theta=[\overline{a := \upsilon}]}{\Gamma, \overline{y:\theta(\iota)},\overline{x:\theta(\sigma)} \vdash e:\tau}{\Gamma \vdash_{p} K\,\overline{y:\theta(\iota)}\,\overline{x:\theta(\sigma)} \Rightarrow e : D\,\overline{\upsilon} \rightarrow \tau}
+    (Alt) & \ruleIII{K:\Pi\overline{a:\kappa}.\Pi\overline{y:\iota}.\overline{\sigma} \rightarrow D\,\overline{a} \in \Gamma}{\theta=[\overline{a := \upsilon}]}{\Gamma, \overline{y:\iota},\overline{x:\theta(\sigma)} \vdash e:\tau}{\Gamma \vdash_{p} K\,\overline{y:\iota}\,\overline{x:\theta(\sigma)} \Rightarrow e : D\,\overline{\upsilon} \rightarrow \tau}
   \end{tabular}
   \caption{Typing rules for $\lambda C_\mu c$}\label{fig:datatype}
 \end{figure*}
@@ -107,7 +102,7 @@ resulting expression $E$. In the translation, \emph{We require that
     (Pi) & \ruleII{\ctx{\tau_{1}:s}}{\ctxw{x:\tau_{1}}{\tau_{2}:t}}{\ctx{(\pai{x}{\tau_{1}}{\tau_{2}}):t \rightsquigarrow \pai{x}{\tau_{1}}{\tau_{2}}}}
           & $(s,t) \in \mathcal{R}$ \\
 
-    (Mu) & \ruleI{\ctxw{x:s}{\tau:s}}{\ctx{(\miu{x}{\tau}):s \rightsquigarrow \miu{x}{\tau}}} \\
+    (Mu) & \ruleII{\ctxw{x:\tau}{e:\tau} \rightsquigarrow E}{\ctx{\tau:s}}{\ctx{(\miu{x}{\tau}{e}):\tau} \rightsquigarrow \miu{x}{\tau}{E}} & $s \in \{\star, \square\}$ \\
 
     (Fold) & \ruleIII{\ctx{e:\tau_{2} \rightsquigarrow E}}{\ctx{\tau_{1}:s}}{\tau_{1} \tolong \tau_{2}}%
              {\ctx{(\fold{{\tau_{1}}}{e}):{\tau_{1}} \rightsquigarrow \fold{\tau_{1}}{E}}} \\
@@ -117,12 +112,12 @@ resulting expression $E$. In the translation, \emph{We require that
 
     (Case) & \ruleII{\ctx{e_{1}:\sigma \rightsquigarrow E_{1}}}{\overline{\Gamma\vdash_{p} p \Rightarrow e_{2}:\sigma \rightarrow \tau \rightsquigarrow E_{2}}}{\Gamma\vdash\case\,e_{1}\,\of\,\overline{p \Rightarrow e_{2}}:\tau \rightsquigarrow (\unfold{E_{1}})\,\tau\,\overline{E_{2}}}\\
     \framebox{$\Gamma \vdash_{p} p \Rightarrow e : D \rightarrow \tau \rightsquigarrow E$} \\
-    (Alt) & \AxiomC{$K:\Pi\overline{a:\kappa}.\Pi\overline{y:\iota}.\overline{\sigma} \rightarrow D\,\overline{a} \in \Gamma$} \alwaysNoLine \AxiomC{$\theta=[\overline{a := \upsilon}]$} \UnaryInfC{$\Gamma, \overline{y:\theta(\iota)},\overline{x:\theta(\sigma)} \vdash e:\tau \rightsquigarrow E$} \alwaysSingleLine \BinaryInfC{$\Gamma \vdash_{p} K\,\overline{y:\theta(\iota)}\,\overline{x:\theta(\sigma)} \Rightarrow e : D\,\overline{\upsilon} \rightarrow \tau \rightsquigarrow \lambda(\overline{y:\theta(\iota)})(\overline{x:\theta(\sigma)}).E$} \DisplayProof \\
+    (Alt) & \AxiomC{$K:\Pi\overline{a:\kappa}.\Pi\overline{y:\iota}.\overline{\sigma} \rightarrow D\,\overline{a} \in \Gamma$} \alwaysNoLine \AxiomC{$\theta=[\overline{a := \upsilon}]$} \UnaryInfC{$\Gamma, \overline{y:\iota},\overline{x:\theta(\sigma)} \vdash e:\tau \rightsquigarrow E$} \alwaysSingleLine \BinaryInfC{$\Gamma \vdash_{p} K\,\overline{y:\iota}\,\overline{x:\theta(\sigma)} \Rightarrow e : D\,\overline{\upsilon} \rightarrow \tau \rightsquigarrow \lambda(\overline{y:\iota})(\overline{x:\theta(\sigma)}).E$} \DisplayProof \\
     \framebox{$\Gamma \vdash decl : \Gamma' \rightsquigarrow E$} \\
     (Data) & \ruleII{\Gamma \vdash \overline{\kappa} \rightarrow \star : \square}{\overline{\Gamma, D:\overline{\kappa} \rightarrow \star \vdash \sigma:\star}}{\ctx{(\data\,D:\overline{\kappa} \rightarrow \star\,\where\,\overline{K:\sigma}): (D:\overline{\kappa} \rightarrow \star, \overline{K:\sigma})} \rightsquigarrow E} \\
          & \begingroup \renewcommand*{\arraystretch}{1.0} $\begin{array} {lll}
                                                              \\ \sigma & ::= & \Pi\overline{a:\kappa}.\Pi\overline{y:\iota}.\overline{\tau} \rightarrow D\,\overline{a} \\
-                                                             E & ::= & \letbb\,D : \overline{\kappa} \rightarrow \star =\Pi\overline{a : \kappa}. \mu X. \Pi b:\star. \\
+                                                             E & ::= & \letbb\,D : \overline{\kappa} \rightarrow \star =\lambda\overline{a : \kappa}. \mu X. \Pi b:\star. \\
 & & \quad \overline{(\Pi\overline{y:\iota}.\tau[D\,\overline{a}:=X] \rightarrow b)} \rightarrow b\,\inb \\ & & \letbb\,K_{i}^{i \in 1..n} : \sigma = \lambda \overline{(a : \kappa)}.\lambda\overline{(y : \iota)}.\lambda\overline{(x : \tau)}.\\
                                                                     & & \quad \fold{D\,\overline{a}}{(\lambda (b : \star)\overline{(c : \Pi\overline{y:\iota}.\overline{\tau} \rightarrow b)} . c_{i}\,\overline{y}\,\overline{x})}\,\inb \end{array}$ \endgroup \\
     \framebox{$\Gamma \vdash pgm : \tau \rightsquigarrow E$} \\
@@ -145,7 +140,7 @@ resulting expression $E$. In the translation, \emph{We require that
   \end{align*}
   $\Nat,\zero$ and $\suc$ are encoded as follows:
   \begin{align*}
-    \letbb\,&\Nat : \star = \miu{X}{\pai{b}{\star}{b \rightarrow (X \rightarrow b) \rightarrow b}}\,\inb \\
+    \letbb\,&\Nat : \star = \miu{X}{\star}{\pai{b}{\star}{b \rightarrow (X \rightarrow b) \rightarrow b}}\,\inb \\
     \letbb\,&\zero : \Nat = \fold{\Nat}{(\lambda (b : \star) (z : b) (f : \Nat \rightarrow b).\,z)}\,\inb \\
     \letbb\,&\suc : \Nat \rightarrow \Nat = \lambda (n : \Nat).\,\fold{\Nat}{(\lambda (b : \star) (z : b)\\ &(f : \Nat \rightarrow b).\,f\,n)}\,\inb
   \end{align*}
@@ -157,11 +152,11 @@ resulting expression $E$. In the translation, \emph{We require that
   \end{align*}
   $\List,\nil$ and $\cons$ are encoded as follows:
   \begin{align*}
-    \letbb\,&\List : \star \rightarrow \star = \pai{a}{\star}{\miu{X}{\pai{b}{\star}{b \rightarrow (a \rightarrow X \rightarrow b) \rightarrow b}}}\,\inb \\
+    \letbb\,&\List : \star \rightarrow \star = \lam{a}{\star}{\miu{X}{\star}{\pai{b}{\star}{b \rightarrow (a \rightarrow X \rightarrow b) \rightarrow b}}}\,\inb \\
     \letbb\,&\nil : \pai{a}{\star}{\List\,a} = \lambda a : \star.\\
             &\fold{\List\,a}{(\lambda (b : \star) (z : b) (f : a \rightarrow \List\,a \rightarrow b).\ z)}\,\inb \\
     \letbb\,&\cons : \pai{a}{\star}{a \rightarrow \List\,a \rightarrow \List\,a} = \lambda(a:\star)(x : a)(xs : \List\,a).\\
-            &\qquad \fold{\List\,a}{(\lambda(b : \star)(z : b)(f : a \rightarrow \List\,a \rightarrow b).\,f\,x\,xs)}\,\inb
+            &\fold{\List\,a}{(\lambda(b : \star)(z : b)(f : a \rightarrow \List\,a \rightarrow b).\,f\,x\,xs)}\,\inb
   \end{align*}
   Using $\mathsf{fix}$, we can define a recursive function $\length$
   as follows:
@@ -175,13 +170,13 @@ resulting expression $E$. In the translation, \emph{We require that
     \data\,&D : \star \rightarrow \star\,\where \\
            &K : \pai{a}{\star}{\pai{b}{\star}{a \rightarrow b \rightarrow (b \rightarrow \Nat)} \rightarrow D\,a}
   \end{align*}
-  $D$ and $K$ are encoded as follows:
-  \begin{align*}
-    \letbb\,&D:\star \rightarrow \star = \pai{a}{\star}\miu{X}{\pai{\beta}{\star}{(\pai{b}{\star}{a \rightarrow b \rightarrow (b \rightarrow \Nat) \rightarrow \beta}) \rightarrow \beta}}\,\inb \\
-    \letbb\,&K:\pai{a}{\star}{\pai{b}{\star}{a \rightarrow b \rightarrow (b \rightarrow \Nat)} \rightarrow D\,a} = \\
-            &\lambda (a:\star)(b:\star)(x:a)(y:b)(f:b \rightarrow \Nat).\\
-            &\fold{D\,a}{(\lambda (\beta : \star)(g: \pai{b}{\star}{a \rightarrow b \rightarrow (b \rightarrow \Nat) \rightarrow \beta}).g\,b\,x\,y\,f)}\,\inb
-  \end{align*}
+  % $D$ and $K$ are encoded as follows:
+  % \begin{align*}
+  %   \letbb\,&D:\star \rightarrow \star = \lam{a}{\star}\miu{X}{\star}{\pai{\beta}{\star}{(\pai{b}{\star}{a \rightarrow b \rightarrow (b \rightarrow \Nat) \rightarrow \beta}) \rightarrow \beta}}\,\inb \\
+  %   \letbb\,&K:\pai{a}{\star}{\pai{b}{\star}{a \rightarrow b \rightarrow (b \rightarrow \Nat)} \rightarrow D\,a} = \\
+  %           &\lambda (a:\star)(b:\star)(x:a)(y:b)(f:b \rightarrow \Nat).\\
+  %           &\fold{D\,a}{(\lambda (\beta : \star)(g: \pai{b}{\star}{a \rightarrow b \rightarrow (b \rightarrow \Nat) \rightarrow \beta}).g\,b\,x\,y\,f)}\,\inb
+  % \end{align*}
 \end{itemize}
 
 % \subsubsection{Elaboration of Datatypes}

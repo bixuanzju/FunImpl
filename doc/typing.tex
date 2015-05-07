@@ -25,7 +25,7 @@ Figure~\ref{fig:mueval}.
     (Pi) & \ruleII{\ctx{T_{1}:s}}{\ctxw{x:T_{1}}{T_{2}:t}}{\ctx{(\pai{x}{T_{1}}{T_{2}}):t}}
          & $(s,t) \in \mathcal{R}$ \\
 
-    (Mu) & \ruleI{\ctxw{x:s}{T:s}}{\ctx{(\miu{x}{T}):s}} \\
+    (Mu) & \ruleII{\ctxw{x:T}{E:T}}{\ctx{T:s}}{\ctx{(\miu{x}{T}{E}):T}} & $s \in \{\star, \square\}$ \\
 
     (Fold) & \ruleIII{\ctx{E:T_{2}}}{\ctx{T_{1}:s}}{T_{1} \tolong T_{2}}%
              {\ctx{(\fold{T_{1}}{E}):T_{1}}} \\
