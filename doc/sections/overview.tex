@@ -2,22 +2,42 @@
 
 \bruno{Jeremy: can you give this section a go and start writing it up? I think this section should be your priority for now.}
 
+We begin this section with an informal introduction to the main features of \name.
+
 \subsection{Explicit Reduction Rules}
 
-Contrast our calculus with the calculus of constructions. Explain fold/unfold. 
+\bruno{Contrast our calculus with the calculus of constructions. Explain fold/unfold.}
+
+\name is based on the \emph{Calculus of Constructions} (\coc)~\cite{coc}. In contrast to the implicit reduction rules of \coc, \name makes it explicit as to when and where to apply reduction rules.
+
+\begin{figure}[ht]
+	\centering
+	\small
+	\begin{tabular}{lc}
+		(Conv) & \ruleIII{\ctx{a:A}}{\ctx{B:s}}{A=_\beta B}{\ctx{a:B}}
+	\end{tabular}
+\end{figure}
+
+The above is the so-called \emph{conversion} rule of \coc, which allows one to drive $x : A$ from the derivation of $x : B$ and the beta-equality of $A$ and $B$. Note that in \coc, the use of this rule is implicit in that it is automatically applied during type checking to all non-normal form terms. \name however differs in the following respects: 1) it eliminates the need to have the conversion rule; 2) it makes type conversion explicit by introducing two operations: \castup and \castdn.
+
+In order to have a better intuition of the explicit reduction rules, let us consider a simple example. Suppose we have a built-in base type $\mathsf{Int}$ and $f \equiv \lam{x}{(\lam{y}{\star}{y})\,\mathsf{Int}}{x}$. Without the conversion rule, $f$ cannot be applied to, say, $3$ in \coc. Given that $f$ is actually $\beta$-convertible to $\lam{x}{\mathsf{Int}}{x}$, the conversion rule would allow the application of $f$ to $3$. However in \name, $f\,3$ is intended as an ill-typed application. Instead one would like to write the application as $ f\,(\fold{\lam{y}{\star}{y})\,\mathsf{Int}}{3}) $. The intuition is that, \castup is actually doing type conversion since the type of $ 3 $ is $ \mathsf{Int} $ and $ (\lam{y}{\star}{y})\,\mathsf{Int} $ can be reduced to $ \mathsf{Int} $.
+
+The dual operation of \castup is \castdn. The use of \castdn is better explained by another similar example. Suppose that $ g \equiv \lam{x}{\mathsf{Int}}{x} $ and $ z : (\lam{y}{\star}{y})\,\mathsf{Int} $, $ g\,z $ is again an ill-typed application, while $ g\,(\unfold{z}) $ is type correct because \castdn reduces the type of $ z $ to $ \mathsf{Int} $.
 
 \subsection{Decidability and Strong Normalization}
 
-Informally explain that with explicit fold/unfold rules the decidability of the 
-type system does not depend on strong normalization.
+\bruno{Informally explain that with explicit fold/unfold rules the decidability of the 
+type system does not depend on strong normalization.}
+
+The decidability of the type system of \coc depends on the normalization property for all constructed terms~\cite{coc:decidability}.
 
 \subsection{Unifying Recursive Types and Recursion}
 
-Show how in \name recursion and recursive types are unified. 
+\bruno{Show how in \name recursion and recursive types are unified. 
 Discuss that due to this unification the sensible choice for the 
-evaluation strategy is call-by-name. 
+evaluation strategy is call-by-name. }
 
 \subsection{Encoding Datatypes}
 
-Informally explain how to encode recursive datatypes and recursive functions 
-using datatypes.
+\bruno{Informally explain how to encode recursive datatypes and recursive functions 
+using datatypes.}
