@@ -11,11 +11,10 @@ We begin this section with an informal introduction to the main features of \nam
 \name is based on the \emph{Calculus of Constructions} (\coc)~\cite{coc}. In contrast to the implicit reduction rules of \coc, \name makes it explicit as to when and where to apply reduction rules.
 
 \begin{figure}[ht]
-	\centering
-	\small
-	\begin{tabular}{lc}
-		(Conv) & \ruleIII{\ctx{a:A}}{\ctx{B:s}}{A=_\beta B}{\ctx{a:B}}
-	\end{tabular}
+  \centering \small
+  \begin{tabular}{lc}
+    (Conv) & \ruleIII{\ctx{a:A}}{\ctx{B:s}}{A=_\beta B}{\ctx{a:B}}
+  \end{tabular}
 \end{figure}
 
 The above is the so-called \emph{conversion} rule of \coc, which allows one to drive $x : A$ from the derivation of $x : B$ and the beta-equality of $A$ and $B$. Note that in \coc, the use of this rule is implicit in that it is automatically applied during type checking to all non-normal form terms. \name however differs in the following respects: 1) it eliminates the need to have the conversion rule; 2) it makes type conversion explicit by introducing two operations: \castup and \castdn.
@@ -41,3 +40,8 @@ evaluation strategy is call-by-name. }
 
 \bruno{Informally explain how to encode recursive datatypes and recursive functions 
 using datatypes.}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../main"
+%%% End:
