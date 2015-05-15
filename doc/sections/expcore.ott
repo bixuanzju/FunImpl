@@ -1,0 +1,128 @@
+% Formalization of Explicit CoC
+
+embed {{ tex-preamble
+  \newcommand{\labeledjudge}[1]{\vdash_{\!\!\mathsf{#1} } }
+}}
+
+%%% Metavariables
+metavar x ::= {{ com Variable names }}
+
+%%% Syntax
+grammar
+
+%% Expressions
+e, t {{ tex \tau }}     :: 'e_' ::=           {{ com Expressions    }}
+  | x                   ::  :: Var                   {{ com Variable }}
+  | s                   ::  :: Sort                  {{ com Sort }}
+  | e e'                ::  :: App                   {{ com Application }}
+  | \ x : t . e         ::  :: Lam                   {{ com Abstraction }}
+  | Pi x : t . t'       ::  :: Pi                    {{ com Product }}
+  | fold [ t ] e        ::  :: Fold                  {{ com Generalized fold }}
+  | unfold e            ::  :: Unfold                {{ com Generalized unfold }}
+  | e' [ x |-> e ]      :: M:: Sub                   {{ com Substitution }}
+  | ( e )               :: M:: Parens                {{ com Parenthesized expression }}
+  | let x : t = e in e' :: S:: LetBinding            {{ com Let binding }}
+
+%% Sorts
+s, r {{ tex t }} :: 's_' ::= {{ com Sorts }}
+  | star                ::  :: Star                  {{ com Star }}
+  | square              ::  :: Square                {{ com Square }}
+
+%% Contexts
+G {{ tex \Gamma }} :: 'G_' ::= {{ com Contexts }}
+  | empty          ::  :: Empty       {{ com Empty }}
+  | G , x : t      ::  :: Binding     {{ com Variable binding }}
+
+%% Values
+v :: 'v_' ::=                               {{ com Values   }}
+  | \ x : t . e      ::  :: Lam                   {{ com Abstraction  }}
+  | Pi x : t . t'    ::  :: Pi                    {{ com Product }}
+  | fold [ t ] e     ::  :: Fild                  {{ com Generalized fold }}
+
+%%% Terminals
+terminals :: 'terminals_' ::=
+  | \            ::  :: lambda    {{ tex \lambda }}
+  | Pi           ::  :: pi        {{ tex \Pi }}
+  | star         ::  :: star      {{ tex \star }}
+  | square       ::  :: square    {{ tex \Box }}
+  | empty        ::  :: empty     {{ tex \varnothing }}
+  | -->          ::  :: steps     {{ tex \longrightarrow }}
+  | |->          ::  :: mapsto    {{ tex \mapsto }}
+  | fold         ::  :: fold      {{ tex \mathsf{fold} }}
+  | |-           ::  :: turnstile {{ tex \vdash }}
+  | unfold       ::  :: unfold    {{ tex \mathsf{unfold} }}
+  | let          ::  :: let       {{ tex \mathbf{let} }}
+  | in           ::  :: key_in    {{ tex \mathbf{in} }}
+  | elt          ::  :: elt       {{ tex \in }}
+
+%%% Subrule
+subrules
+  v <:: e
+
+%%% Typing rules
+defns
+Lint :: '' ::=
+
+defn G  |- e : t ::  :: expr :: 'T_' {{ com Expression typing }}
+by
+
+---------------------- :: Ax
+empty |- star : square
+
+G |- t : s
+----------------- :: Var
+G, x : t |- x : t
+
+G |- e : t'
+G |- t : s
+------------------ :: Weak
+G, x : t |- e : t'
+
+G |- e : (Pi x:t'.t)
+G |- e' : t'
+----------------------- :: App
+G |- e e' : t[x |-> e']
+
+G, x : t |- e : t'
+G |- (Pi x:t.t') : s
+------------------------- :: Lam
+G |- (\x:t.e):(Pi x:t.t')
+
+G |- t : s
+G, x:t |- t':r
+------------------ :: Pi
+G |- (Pi x:t.t'):r
+
+G |- e : t'
+G |- t : s
+t --> t'
+------------------ :: Fold
+G |- (fold[t] e):t
+
+G |- e : t
+G |- t' : s
+t --> t'
+-------------------- :: Unfold
+G |- (unfold e) : t'
+
+%%% Dynamic semantics
+defns
+OpSem :: '' ::=
+
+defn e --> e' ::  :: step :: 'S_' {{ com Single step semantics }}
+by
+
+----------------------------  :: Beta
+(\x:t.e1) e2 --> e1 [x|->e2]
+
+e1 --> e1'
+-------------- :: App
+e1 e --> e1' e
+
+e --> e'
+---------------------- :: Unfold
+unfold e --> unfold e'
+
+------------------------ :: Unfold_Fold
+unfold (fold[t] e) --> e
+
