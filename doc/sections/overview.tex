@@ -12,8 +12,8 @@ We begin this section with an informal introduction to the main features of \nam
 
 \begin{figure}[ht]
   \centering \small
-  \begin{tabular}{lc}
-    (Conv) & \ruleIII{\ctx{a:A}}{\ctx{B:s}}{A=_\beta B}{\ctx{a:B}}
+  \begin{tabular}{c}
+    \ruleIII{\ctx{a:A}}{\ctx{B:s}}{A=_\beta B}{\ctx{a:B}}
   \end{tabular}
   \caption{The conversion rule of \coc}\label{fig:conv}
 \end{figure}
@@ -35,13 +35,13 @@ With explicit reduction rules, however, the decidability of the type system no l
 
 This is not the case for \name: 1) it has no such conversion rule, therefore the type checker would do syntactic comparison between the two terms instead of $\beta$-equality in the above example; 2) one would need to write infinitely \castup/\castdn to make the type checker loop forever (e.g., $(\lam{x}{d\,3}{x})\,(\unfold{\unfold{\dots}}z) $). Apparently this is impossible in reality.
 
-In summary, \name approaches the decidability of the type system by explicitly controlling type-level computation, which is independent of the normalization property, while supporting general recursion at the same type.
+In summary, \name approaches the decidability of the type system by explicitly controlling type-level computation, which is independent of the normalization property, while supporting general recursion at the same time.
 
 \subsection{Unifying Recursive Types and Recursion}
 
 \bruno{Show how in \name recursion and recursive types are unified. 
 Discuss that due to this unification the sensible choice for the 
-evaluation strategy is call-by-name. } hello
+evaluation strategy is call-by-name. }
 
 \subsection{Encoding Datatypes}
 
