@@ -2,7 +2,7 @@
 
 \bruno{Jeremy: can you give this section a go and start writing it up? I think this section should be your priority for now.}
 
-We begin this section with an informal introduction to the main features of \name.
+We begin this section with an informal introduction to the main features of \name. We show how it can serve as a simple and compiler-friendly core language with general recursion and decidable type system. The formal details are presented in Section~\ref{sec:formal}.
 
 \subsection{Explicit Reduction Rules}
 
@@ -15,26 +15,33 @@ We begin this section with an informal introduction to the main features of \nam
   \begin{tabular}{lc}
     (Conv) & \ruleIII{\ctx{a:A}}{\ctx{B:s}}{A=_\beta B}{\ctx{a:B}}
   \end{tabular}
+  \caption{The conversion rule of \coc}\label{fig:conv}
 \end{figure}
 
-The above is the so-called \emph{conversion} rule of \coc, which allows one to drive $x : A$ from the derivation of $x : B$ and the beta-equality of $A$ and $B$. Note that in \coc, the use of this rule is implicit in that it is automatically applied during type checking to all non-normal form terms. \name however differs in the following respects: 1) it eliminates the need to have the conversion rule; 2) it makes type conversion explicit by introducing two operations: \castup and \castdn.
+Figure~\ref{fig:conv} is the so-called \emph{conversion} rule of \coc, which allows one to drive $x : A$ from the derivation of $x : B$ and the beta-equality of $A$ and $B$. Note that in \coc, the use of this rule is implicit in that it is automatically applied during type checking to all non-normal form terms. \name however differs in the following respects: 1) it eliminates the need to have the conversion rule; 2) it makes type conversion explicit by introducing two operations: \castup and \castdn.
 
-In order to have a better intuition of the explicit reduction rules, let us consider a simple example. Suppose we have a built-in base type $\mathsf{Int}$ and $f \equiv \lam{x}{(\lam{y}{\star}{y})\,\mathsf{Int}}{x}$. Without the conversion rule, $f$ cannot be applied to, say, $3$ in \coc. Given that $f$ is actually $\beta$-convertible to $\lam{x}{\mathsf{Int}}{x}$, the conversion rule would allow the application of $f$ to $3$. However in \name, $f\,3$ is intended as an ill-typed application. Instead one would like to write the application as $ f\,(\fold{\lam{y}{\star}{y})\,\mathsf{Int}}{3}) $. The intuition is that, \castup is actually doing type conversion since the type of $ 3 $ is $ \mathsf{Int} $ and $ (\lam{y}{\star}{y})\,\mathsf{Int} $ can be reduced to $ \mathsf{Int} $.
+In order to have a better intuition of the explicit reduction rules, let us consider a simple example. Suppose we have a built-in base type $\mathsf{Int}$ and \[f \equiv \lam{x}{(\lam{y}{\star}{y})\,\mathsf{Int}}{x}\] Without the conversion rule, $f$ cannot be applied to, say $3$ in \coc. Given that $f$ is actually $\beta$-convertible to $\lam{x}{\mathsf{Int}}{x}$, the conversion rule would allow the application of $f$ to $3$. However in \name, $f\,3$ is intended as an ill-typed application. Instead one would like to write the application as \[ f\,(\fold{(\lam{y}{\star}{y})\,\mathsf{Int}}{3}) \] The intuition is that, \castup is actually doing type conversion since the type of $ 3 $ is $ \mathsf{Int} $ and $ (\lam{y}{\star}{y})\,\mathsf{Int} $ can be reduced to $ \mathsf{Int} $.
 
-The dual operation of \castup is \castdn. The use of \castdn is better explained by another similar example. Suppose that $ g \equiv \lam{x}{\mathsf{Int}}{x} $ and $ z : (\lam{y}{\star}{y})\,\mathsf{Int} $, $ g\,z $ is again an ill-typed application, while $ g\,(\unfold{z}) $ is type correct because \castdn reduces the type of $ z $ to $ \mathsf{Int} $.
+The dual operation of \castup is \castdn. The use of \castdn is better explained by another similar example. Suppose that \[ g \equiv \lam{x}{\mathsf{Int}}{x} \] and $z$ has type \[ (\lam{y}{\star}{y})\,\mathsf{Int} \] $ g\,z $ is again an ill-typed application, while $ g\,(\unfold{z}) $ is type correct because \castdn reduces the type of $ z $ to $ \mathsf{Int} $.
 
 \subsection{Decidability and Strong Normalization}
 
 \bruno{Informally explain that with explicit fold/unfold rules the decidability of the 
 type system does not depend on strong normalization.}
 
-The decidability of the type system of \coc depends on the normalization property for all constructed terms~\cite{coc:decidability}.
+The decidability of the type system of \coc depends on the normalization property for all constructed terms~\cite{coc:decidability}. However strong normalization does not hold with general recursion. This is simply because due to the conversion rule, any non-terminating term would force the type checker to go into an infinitely loop, thus rendering the type system undecidable.
+
+With explicit reduction rules, however, the decidability of the type system no longer depends on the normalization property. In fact \name is not strong normalizing, as we will see in later sections. The ability to write non-terminating terms forces us to have more control over type-level computation. To illustrate, let us consider a contrived example. Suppose that $d$ is a ``dependent type'' where \[d : \mathsf{Int} \rightarrow \star\] so that $d\,3$ or $d\,100$ all yield the same type.  With general recursion at hand, we can image  a term $z$ that has type \[d\,(\mathsf{fix}\,(\lam{y}{\mathsf{Int}}{y}))\] Apparently evaluating $\mathsf{fix}\,(\lam{y}{\mathsf{Int}}{y})$ would give us an infinite evaluation sequence, always yielding the same term. What would happen if we try to type check the following application: \[(\lam{x}{d\,3}{x})\,z\] Under the normal typing rules of \coc, the type checker would get stuck as it tries to do $\beta$-equality on two terms: $d\,3$ and $\mathsf{fix}\,(\lam{y}{\mathsf{Int}}{y})$, where the latter is non-terminating.
+
+This is not the case for \name: 1) it has no such conversion rule, therefore the type checker would do syntactic comparison between the two terms instead of $\beta$-equality in the above example; 2) one would need to write infinitely \castup/\castdn to make the type checker loop forever (e.g., $(\lam{x}{d\,3}{x})\,(\unfold{\unfold{\dots}}z) $). Apparently this is impossible in reality.
+
+In summary, \name approaches the decidability of the type system by explicitly controlling type-level computation, which is independent of the normalization property, while supporting general recursion at the same type.
 
 \subsection{Unifying Recursive Types and Recursion}
 
 \bruno{Show how in \name recursion and recursive types are unified. 
 Discuss that due to this unification the sensible choice for the 
-evaluation strategy is call-by-name. }
+evaluation strategy is call-by-name. } hello
 
 \subsection{Encoding Datatypes}
 
