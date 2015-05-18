@@ -43,10 +43,62 @@ In summary, \name approaches the decidability of the type system by explicitly c
 Discuss that due to this unification the sensible choice for the 
 evaluation strategy is call-by-name. }
 
+Recursive types arise naturally if we want to do general recursion. \name differs from other programming languages in that it unifies both recursion and recursive types by the same $\mu$ primitive.
+
+\emph{Recursive types}. In the literature on type systems, there are two approaches to recursive types. One is called \emph{equi-recursive}, the other \emph{iso-recursive}. \name takes the latter approach since it is more intuitive to us with regard to recursion. The \emph{iso-recusive} approach treats a recursive type and its unfolding as different, but isomorphic. In \name, this is witnessed by first \castup, then \castdn. A classic example of recursive types is the so-called ``hungry'' type: $H = \miu{\sigma}{\star}{\mathsf{Int} \rightarrow \sigma}$. A function of type $H$ can accept any number of numeric arguments and return a new function that is hungry for more, as illustrated below:
+\begin{align*}
+\unfold{H} &: \mathsf{Int} \rightarrow H  \\
+\unfold{\unfold{H}} &: \mathsf{Int} \rightarrow \mathsf{Int} \rightarrow H \\
+\unfold{\unfold{\dots H}} &: \mathsf{Int} \rightarrow \mathsf{Int} \rightarrow \dots \rightarrow H
+\end{align*}
+
+\emph{Recursion}. The same $\mu$ primitive can also be used to define recursive functions, e.g., the factorial function: \[\miu{f}{\mathsf{Int} \rightarrow \mathsf{Int}}{\lam{x}{\mathsf{Int}}{\mathsf{if}\,(x == 0)\,\mathsf{then}\,1\,\mathsf{else}\,x * f\,(x - 1)}}\] This is reflected by the dynamic semantics of the $\mu$ primitive: 
+\[\miu{x}{T}{E} \longrightarrow E[x:=\miu{x}{T}{E}]\]
+which is exactly doing recursive unfolding of the same term.
+
+Due to the unification, the \emph{call-by-value} strategy seems unfit to us. \jeremy{explain}
+
 \subsection{Encoding Datatypes}
 
 \bruno{Informally explain how to encode recursive datatypes and recursive functions 
 using datatypes.}
+
+\newcommand{\Nat}{\mathsf{Nat}} \newcommand{\zero}{\mathsf{zero}}
+\newcommand{\suc}{\mathsf{suc}} \newcommand{\plus}{\mathsf{plus}}
+\newcommand{\List}{\mathsf{List}} \newcommand{\nil}{\mathsf{nil}}
+\newcommand{\cons}{\mathsf{cons}}
+\newcommand{\length}{\mathsf{length}}
+\newcommand{\case}{\mathbf{case}} \newcommand{\of}{\mathbf{of}}
+\newcommand{\data}{\mathbf{data}} \newcommand{\where}{\mathbf{where}}
+\newcommand{\letbb}{\mathbf{let}} \newcommand{\inb}{\mathbf{in}}
+
+With the explicit reduction rules and the $\mu$ primitive, it is straightforward to encode recursive datatypes and recusive functions using datatypes. While inductive datatypes can be encoded using either the Church or the Scott encoding, we adopt the Scott encoding as it is more fit with our unified recursive types. We demonstrate the encoding method using a simple datatype as a running example: the natural numbers.
+
+Written in GADT-style, the datatype for natural numbers is:
+\begin{align*}
+  \data\,&\Nat : \star\,\where \\
+         &\zero : \Nat \\
+         &\suc : \Nat \rightarrow \Nat
+\end{align*}
+In the Scoot encoding, the encoding of the $\Nat$ type reflects how its two constructors are going to be used. Since $\Nat$ is a recursive datatype, we have to use recursive types at some point to reflect its recursive nature. As it turns out, the $\Nat$ type can be simply represented as
+\[\miu{X}{\star}{\pai{b}{\star}{b \rightarrow (X \rightarrow b) \rightarrow b}}\]
+As can be seen, in the function type $b \rightarrow (X \rightarrow b) \rightarrow b$, $b$ corresponds to type of the $\zero$ constructor, and $X \rightarrow b$ corresponds to the type of the $\suc$ constructor. The intuition is that any use of the datatype being defined in the constructors is replaced with the recursive type, except for the return type, which is a type variable for use in the recursive functions.
+
+Now its two constructors can be encoded correspondingly as below:
+\begin{align*}
+  \letbb\,&\zero : \Nat = \fold{\Nat}{(\lambda (b : \star) (z : b) (f : \Nat \rightarrow b).\,z)}\,\inb \\
+  \letbb\,&\suc : \Nat \rightarrow \Nat = \lambda (n : \Nat).\,\fold{\Nat}{(\lambda (b : \star) (z : b)\\ &(f : \Nat \rightarrow b).\,f\,n)}\,\inb
+\end{align*}
+Thanks to the explicit reduction rules, we can make use of the \castup operation to do type conversion between the recursive type and its unfolding.
+
+As the last example, let us see how we can define recursive functions using the $\Nat$ datatype. A simple example would be recursively adding two natural numbers, which can be defined as below:
+\begin{align*}
+  \mu f &: \Nat \rightarrow \Nat \rightarrow \Nat.\,\lambda n : \Nat.\,\lambda m : \Nat.\\
+  &(\unfold{n})\,\Nat\,m\,(\lam{n'}{\Nat}{\suc\,(f\,n'\,m)})
+\end{align*}
+As we can see, the above definition quite resembles the case analysis common in modern functional programming languages. (Actually we formalize the encoding of case analysis as shown in Section~\ref{sec:surface}.)
+
+Due to the unification of recursive types and recursion, it facilitates encoding of recursive functions using recursive datatypes.
 
 %%% Local Variables:
 %%% mode: latex
