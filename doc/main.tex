@@ -39,6 +39,18 @@
 \usepackage{graphicx}
 \usepackage{float}
 
+% Theorem
+\usepackage{amsthm}
+\newtheoremstyle{break}
+  {\topsep}{\topsep}%
+  {\itshape}{}%
+  {\bfseries}{}%
+  {\newline}{}%
+\theoremstyle{break}
+\newtheorem{thm}{Theorem}[section]
+\newtheorem{cor}{Corollary}[thm]
+\newtheorem{lem}[thm]{Lemma}
+
 % Ott includes
 \usepackage{supertabular}
 \input{sections/expcore.tex}

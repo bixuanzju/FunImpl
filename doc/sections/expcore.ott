@@ -11,17 +11,18 @@ metavar x ::= {{ com Variable names }}
 grammar
 
 %% Expressions
-e, t {{ tex \tau }}     :: 'e_' ::=           {{ com Expressions    }}
-  | x                   ::  :: Var                   {{ com Variable }}
-  | s                   ::  :: Sort                  {{ com Sort }}
-  | e e'                ::  :: App                   {{ com Application }}
-  | \ x : t . e         ::  :: Lam                   {{ com Abstraction }}
-  | Pi x : t . t'       ::  :: Pi                    {{ com Product }}
-  | fold [ t ] e        ::  :: Fold                  {{ com Generalized fold }}
-  | unfold e            ::  :: Unfold                {{ com Generalized unfold }}
-  | e' [ x |-> e ]      :: M:: Sub                   {{ com Substitution }}
-  | ( e )               :: M:: Parens                {{ com Parenthesized expression }}
-  | let x : t = e in e' :: S:: LetBinding            {{ com Let binding }}
+e, t {{ tex \tau }}      :: 'e_' ::=       {{ com Expressions    }}
+  | x                    ::  :: Var        {{ com Variable }}
+  | s                    ::  :: Sort       {{ com Sort }}
+  | e1 e2                ::  :: App        {{ com Application }}
+  | \ x : t . e          ::  :: Lam        {{ com Abstraction }}
+  | Pi x : t1 . t2       ::  :: Pi         {{ com Product }}
+  | castup [ t ] e       ::  :: CastUp     {{ com Cast up to type}}
+  | castdown e           ::  :: CastDown   {{ com Cast down by reduction }}
+  | e1 [ x |-> e2 ]      :: M:: Sub        {{ com Substitution }}
+  | ( e )                :: M:: Parens     {{ com Parenthesized expression }}
+  | let x : t = e2 in e1 :: M:: LetBinding {{ com Let binding }}
+  | t1 -> t2             :: M:: FuncType   {{ com Function Type }}
 
 %% Sorts
 s, r {{ tex t }} :: 's_' ::= {{ com Sorts }}
@@ -35,25 +36,41 @@ G {{ tex \Gamma }} :: 'G_' ::= {{ com Contexts }}
 
 %% Values
 v :: 'v_' ::=                               {{ com Values   }}
-  | \ x : t . e      ::  :: Lam                   {{ com Abstraction  }}
-  | Pi x : t . t'    ::  :: Pi                    {{ com Product }}
-  | fold [ t ] e     ::  :: Fild                  {{ com Generalized fold }}
+  | \ x : t . e          ::  :: Lam        {{ com Abstraction  }}
+  | Pi x : t1 . t2       ::  :: Pi         {{ com Product }}
+  | castup [ t ] e       ::  :: CastUp     {{ com Cast up }}
+  | let x : t = e2 in e1 :: M:: LetBinding {{ com Let binding }}
+  | t1 -> t2             :: M:: FuncType   {{ com Function Type }}
 
 %%% Terminals
 terminals :: 'terminals_' ::=
-  | \            ::  :: lambda    {{ tex \lambda }}
-  | Pi           ::  :: pi        {{ tex \Pi }}
-  | star         ::  :: star      {{ tex \star }}
-  | square       ::  :: square    {{ tex \Box }}
-  | empty        ::  :: empty     {{ tex \varnothing }}
-  | -->          ::  :: steps     {{ tex \longrightarrow }}
-  | |->          ::  :: mapsto    {{ tex \mapsto }}
-  | fold         ::  :: fold      {{ tex \mathsf{fold} }}
-  | |-           ::  :: turnstile {{ tex \vdash }}
-  | unfold       ::  :: unfold    {{ tex \mathsf{unfold} }}
-  | let          ::  :: let       {{ tex \mathbf{let} }}
-  | in           ::  :: key_in    {{ tex \mathbf{in} }}
-  | elt          ::  :: elt       {{ tex \in }}
+  | \        ::  :: lambda    {{ tex \lambda }}
+  | Pi       ::  :: pi        {{ tex \Pi }}
+  | star     ::  :: star      {{ tex \star }}
+  | square   ::  :: square    {{ tex \Box }}
+  | empty    ::  :: empty     {{ tex \varnothing }}
+  | ->       ::  :: to        {{ tex \rightarrow }}
+  | -->      ::  :: steps     {{ tex \longrightarrow }}
+  | |->      ::  :: mapsto    {{ tex \mapsto }}
+  | castup   ::  :: castup    {{ tex \mathsf{cast}_{\Uparrow} }}
+  | |-       ::  :: turnstile {{ tex \vdash }}
+  | castdown ::  :: castdown  {{ tex \mathsf{cast}_{\Downarrow} }}
+  | let      ::  :: let       {{ tex \mathbf{let} }}
+  | in       ::  :: key_in    {{ tex \mathbf{in} }}
+  | eqb      ::  :: eqb       {{ tex =_{\beta} }}
+
+%%% Fomulae
+formula :: 'formula_' ::=
+  | judgement                          ::   :: judgement
+  | G1 = G2                            ::   :: context_rewrite
+  | e1 = e2                            ::   :: rewrite
+  | e1 /= e2                           ::   :: inequality
+  | e1 =b e2                           ::   :: beta_equality
+    {{ tex [[e1]] =_{\beta} [[e2]] }}
+  | ( formula )                        ::   :: parens
+  | x : t elt G                        ::   :: context_inclusion
+  | G |- tylit lit : k                 ::   :: lintTyLit
+    {{ tex [[G]] \labeledjudge{tylit} [[lit]] : [[k]] }}
 
 %%% Subrule
 subrules
@@ -63,7 +80,17 @@ subrules
 defns
 Lint :: '' ::=
 
+defn G  |- e : t ::  :: coc :: 'Tcc_' {{ com CoC typing }}
+by
+
+G |- e : t1
+G |- t2 : s
+t1 =b t2
+----------- :: Conv
+G |- e : t2
+
 defn G  |- e : t ::  :: expr :: 'T_' {{ com Expression typing }}
+%{{ tex [[G]] \labeledjudge{e} [[e]] : [[t]] }}
 by
 
 ---------------------- :: Ax
@@ -73,56 +100,56 @@ G |- t : s
 ----------------- :: Var
 G, x : t |- x : t
 
-G |- e : t'
-G |- t : s
------------------- :: Weak
-G, x : t |- e : t'
+G |- e : t2
+G |- t1 : s
+------------------- :: Weak
+G, x : t1 |- e : t2
 
-G |- e : (Pi x:t'.t)
-G |- e' : t'
------------------------ :: App
-G |- e e' : t[x |-> e']
+G |- e1 : (Pi x:t2.t1)
+G |- e2 : t2
+------------------------ :: App
+G |- e1 e2 : t1[x |-> e2]
 
-G, x : t |- e : t'
-G |- (Pi x:t.t') : s
-------------------------- :: Lam
-G |- (\x:t.e):(Pi x:t.t')
+G, x : t1 |- e : t2
+G |- (Pi x:t1.t2) : s
+--------------------------- :: Lam
+G |- (\x:t1.e):(Pi x:t1.t2)
 
-G |- t : s
-G, x:t |- t':r
------------------- :: Pi
-G |- (Pi x:t.t'):r
+G |- t1 : s
+G, x:t1 |- t2:r
+------------------- :: Pi
+G |- (Pi x:t1.t2):r
 
-G |- e : t'
-G |- t : s
-t --> t'
------------------- :: Fold
-G |- (fold[t] e):t
+G |- e : t2
+G |- t1 : s
+t1 --> t2
+---------------------- :: CastUp
+G |- (castup[t1] e):t1
 
-G |- e : t
-G |- t' : s
-t --> t'
--------------------- :: Unfold
-G |- (unfold e) : t'
+G |- e : t1
+G |- t2 : s
+t1 --> t2
+---------------------- :: CastDown
+G |- (castdown e) : t2
 
 %%% Dynamic semantics
 defns
 OpSem :: '' ::=
 
-defn e --> e' ::  :: step :: 'S_' {{ com Single step semantics }}
+defn e --> e' ::  :: step :: 'S_' {{ com One-step reduction }}
 by
 
 ----------------------------  :: Beta
 (\x:t.e1) e2 --> e1 [x|->e2]
 
 e1 --> e1'
--------------- :: App
-e1 e --> e1' e
+---------------- :: App
+e1 e2 --> e1' e2
 
 e --> e'
----------------------- :: Unfold
-unfold e --> unfold e'
+-------------------------- :: CastDown
+castdown e --> castdown e'
 
------------------------- :: Unfold_Fold
-unfold (fold[t] e) --> e
+---------------------------- :: CastDownUp
+castdown (castup[t] e) --> e
 

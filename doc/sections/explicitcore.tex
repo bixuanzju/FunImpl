@@ -1,37 +1,148 @@
+%%% !!! WARNING: AUTO GENERATED. DO NOT MODIFY !!! %%%
+
 \section{The Explicit Calculus of Constructions}
 
 \bruno{Linus: can you write up this section? I think this section should be your priority.
 First bring in all results and formalization: syntax; semantics; proofs ... then write text}
 
-This section formalizes the syntax and semantics of the explicit calculus 
-of constructions. This section also shows that how in the explicit 
-calculus of constructions decidability of the type system does not 
-depend on strong normalization.
+% This section formalizes the syntax and semantics of the explicit calculus 
+% of constructions. This section also shows that how in the explicit 
+% calculus of constructions decidability of the type system does not 
+% depend on strong normalization.
 
+% \begin{itemize}
+% \item Give an overview of the core language and its syntax.
+% \item Show the typing rules and operational semantics.
+% \item The original formalization is suggested to rewrite using \textsf{ott}\footnote{\url{http://www.cl.cam.ac.uk/~pes20/ott/}} which is a standard in academia. For example, the formalization of GHC \url{https://github.com/ghc/ghc/tree/master/docs/core-spec}.
+% \item Give formal proof of the soundness of the core language.
+% \item Subject reduction and progress theorems will be proved.
+% \end{itemize}
+
+\newcommand{\expcc}{\textsf{ExpCC}\xspace}
+\newcommand{\cc}{\textsf{CC}\xspace}
+\newcommand{\gram}[1]{\ottgrammartabular{#1\ottafterlastrule}}
+\newcommand{\ruleref}[1]{\ottdrulename{#1}}
+
+In this section, we present a variant of the Calculus of Constructions (\cc), called \emph{explicit} Calculus of Constructions (\expcc), which is the foundation of our core language \name. \expcc can be regarded as \name without general recursion, so that has more straightforward properties and metatheory. It is suitable for illustrating the core idea of our design, that is to control $\beta$-reduction at the type level by introducing \emph{explicit} type conversion semantics. This also brings a benefit to type checking of \expcc, that the strong normalization is no long necessary to achieve the decidability of type checking. In the following part of this section, we give explanation of these properties by showing the syntax, static and dynamic semantics and the metatheory of \expcc.
+
+\subsection{Syntax}\label{sec:ecc:syn}
+The basic syntax of \expcc is shown in Figure \ref{fig:ecc:syntax}, which gives abstract syntax of expressions, sorts, contexts and values. Just like \cc, \expcc has two main advantages of keeping syntax concise when compared to the System $F$ families including System $F_\omega$ and $F_C$. One is that \expcc uses a single syntactic level to represent terms, types and kinds, which are usually distinguished in System $F$ families. This brings the economy that we can use a single set of rules for terms, types and kinds uniformly. We use metavariables $\ottnt{e}$ and $\tau$ when referring to a "term" and a "type" respectively. Note that without distinction of terms, types and kinds, the "term" can be a term, a type or a kind. For example, in $\alpha :  \star $, the "term" $\alpha$ is a type and the "type" of $\alpha$ is $ \star $, which is a kind.
+
+Another advantage is that \expcc includes a product form $\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}$ which is used to represent type of functions from values of type $\tau_{{\mathrm{1}}}$ to values of type $\tau_{{\mathrm{2}}}$. Compared with concepts in System $F$, $\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}$ subsumes both the arrow of function types $\tau_{{\mathrm{1}}}  \rightarrow  \tau_{{\mathrm{2}}}$ (if $\ottmv{x}$ does not occur free in $\tau_{{\mathrm{2}}}$), and the universal quantification $\forall \ottmv{x}:\tau_{{\mathrm{1}}}.\tau_{{\mathrm{2}}}$. Moreover, if $\ottmv{x}$ occurs free in $\tau_{{\mathrm{2}}}$, the product becomes a dependent product, which allows to represent dependent types. The product $ \Pi $ keeps the syntax of \expcc simple and expressive at the same time.
+
+The syntax difference of from \cc is that \expcc introduces two new explicit type conversion primitives, namely $ \mathsf{cast}_{\Uparrow} $ and $ \mathsf{cast}_{\Downarrow} $ (pronounced as "cast up" and "cast down"), in order to replace the implicit conversion rule of \cc. They represent two directions of type conversion operations: $ \mathsf{cast}_{\Downarrow} $ stands for the reduction of types while $ \mathsf{cast}_{\Uparrow} $ is the inverse. Specifically speaking, suppose we have $e:\sigma$, i.e. the type of expression $e$ is $\sigma$. $\mathsf{cast}_{\Uparrow} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}$ converts the type of $\ottnt{e}$ to $\tau$, if there exists a type $\tau$ such that it can be reduced to $\sigma$ in a single step, i.e. $\tau  \longrightarrow  \sigma$. $\mathsf{cast}_{\Downarrow} \, \ottnt{e}$ represents the one-step-reduced type of $e$, i.e. $(\mathsf{cast}_{\Downarrow} \, \ottnt{e}) : \sigma'$ if $\sigma  \longrightarrow  \sigma'$.
+
+The intention of introducing two explicit cast primitives is that we can gain full control of computation at the type level by manually managing the type conversions. Later in \S \ref{sec:ecc:type} we will see dropping the implicit conversion rule of \cc simplifies the type checking and leads to syntax-directed typing rules. This also influences the requirements of decidable type checking, that strong normalization is no long necessary.
+
+\begin{figure}[ht]
+	\gram{\otte\ottinterrule
+		\otts\ottinterrule
+		\ottG\ottinterrule
+		\ottv}
+	\caption{Syntax of \expcc}
+	\label{fig:ecc:syntax}
+\end{figure}
+
+\subsection{Syntactic sugar}
+\linus{This part can be moved to the next section for \name.}
+
+To keep the core language minimal and simplify the translation of surface language, we use syntactic sugar shown in Figure \ref{fig:ecc:sugar} for \expcc.
+
+Let binding for $x=\ottnt{e_{{\mathrm{2}}}}$ in $\ottnt{e_{{\mathrm{1}}}}$ is equivalent to the substitution of $x$ in $\ottnt{e_{{\mathrm{1}}}}$ with $\ottnt{e_{{\mathrm{2}}}}$, which can be reduced from $\ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}  \ottsym{)} \, \ottnt{e_{{\mathrm{2}}}}$.
+
+The syntactic sugar for the function type is discussed in \S \ref{sec:ecc:syn} for the functionality of the product $ \Pi $. The product $\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}$ can also be simply denoted by $ \Pi  \_ : \tau_{{\mathrm{1}}} . \tau_{{\mathrm{2}}}$, where the underscore stands for an anonymous variable.
+
+\begin{figure}[ht]
+	\centering
+	\[
+	\begin{array}{llll}
+	\text{Let binding} & \mathbf{let} \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{=}  \ottnt{e_{{\mathrm{2}}}} \, \mathbf{in} \, \ottnt{e_{{\mathrm{1}}}} & \triangleq & \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}  \ottsym{)} \, \ottnt{e_{{\mathrm{2}}}} \\
+	\text{Function type} & \tau_{{\mathrm{1}}}  \rightarrow  \tau_{{\mathrm{2}}} & \triangleq & \Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}\\
+	&&& \text{($x$ does not occur free in $\tau_{{\mathrm{2}}}$)}
+	\end{array}
+	\]
+	\caption{Syntatic sugar}
+	\label{fig:ecc:sugar}
+\end{figure}
+
+\subsection{Type system}\label{sec:ecc:type}
+The type system for \expcc contains typing judgements and operational semantics. Figure \ref{fig:ecc:dynsem} lists operational semantics for \expcc that defines rules for one-step reduction, including the $\beta$-reduction rule and $ \mathsf{cast}_{\Downarrow} $ rules. The expressions will be reduced by applying rules one or more times. Rule \ruleref{S\_CastDown} prevents the reduction from stalling with $ \mathsf{cast}_{\Downarrow} $ and continues to reduce the inner expression. Rule \ruleref{S\_CastDownUp} states that $ \mathsf{cast}_{\Downarrow} $ cancels the $ \mathsf{cast}_{\Uparrow} $ of an expression.
+
+\begin{figure}[ht]
+	\ottdefnstep{}
+	\caption{Operational semantics of \expcc}
+	\label{fig:ecc:dynsem}
+\end{figure}
+
+\renewcommand{\ottpremise}[1]{\enskip #1 \enskip}
+
+Figure \ref{fig:ecc:typerule} lists the typing judgements to check the validity of expressions. Most rules are straightforward and similar with the ones in \cc. For example, rule \ruleref{T\_Ax} states that the "type" of sort $ \star $ is a kind. This is derived from an axiom in \cc, that the highest sort is $ \Box $, making the type system predicative. Rule \ruleref{T\_Pi} allows us to type dependent products. There are four possible combinations of types of $\tau_{{\mathrm{1}}}$ and $\tau_{{\mathrm{2}}}$ in a product $\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}$, i.e. $(s,t) \in \{ \star ,  \Box \} \times \{ \star ,  \Box \}$. For some $(\lambda  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \ottnt{e}):(\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}})$, when $(s,t)=( \star , \Box )$, $x:\tau_{{\mathrm{1}}}: \star $, $e:\tau_{{\mathrm{2}}}: \Box $, so $x$ is a term and $e$ is a type. Thus, we have a type depending on a term which means the product is a dependent type.
+
+The difference from \cc for typing rules of \expcc is that rule \ruleref{T\_CastUp} and \ruleref{T\_CastDown} are added to check the type conversion primitives $ \mathsf{cast}_{\Uparrow} $ and $ \mathsf{cast}_{\Downarrow} $, and the implicit type conversion rule of \cc is removed, which is the rule as follows:
+\ottusedrule{\ottdruleTccXXConv{}}
+This rule is necessary for \cc because of the premise requirements of the application rule \ruleref{T\_App}:
+\ottusedrule{\ottdruleTXXApp{}}
+Consider the following two cases of the term $\ottnt{e_{{\mathrm{1}}}} \, \ottnt{e_{{\mathrm{2}}}}$:
 \begin{itemize}
-\item Give an overview of the core language and its syntax.
-\item Show the typing rules and operational semantics.
-\item The original formalization is suggested to rewrite using \textsf{ott}\footnote{\url{http://www.cl.cam.ac.uk/~pes20/ott/}} which is a standard in academia. For example, the formalization of GHC \url{https://github.com/ghc/ghc/tree/master/docs/core-spec}.
-\item Give formal proof of the soundness of the core language.
-\item Subject reduction and progress theorems will be proved.
+\item $\ottnt{e_{{\mathrm{2}}}}$ can be an arbitrary term so its type $\tau_{{\mathrm{2}}}$ is not necessary in normal form which might break the type checking of $\ottnt{e_{{\mathrm{1}}}}$, e.g. suppose $\ottnt{e_{{\mathrm{1}}}}:\sigma  \rightarrow  \tau$ and $\ottnt{e_{{\mathrm{2}}}} : \tau_{{\mathrm{2}}}$, where $\tau_{{\mathrm{2}}}$ is an application $(\lambda  \ottmv{x}  \ottsym{:}  \star  \ottsym{.}  \ottmv{x})~\sigma$. By \ruleref{Tcc\_Conv}, $(\lambda  \ottmv{x}  \ottsym{:}  \star  \ottsym{.}  \ottmv{x})~\sigma$ is $\beta$-equivalent to $\sigma$, thus $\ottnt{e_{{\mathrm{2}}}} : \sigma$ and we can further use \ruleref{T\_App} to achieve $\ottnt{e_{{\mathrm{1}}}} \, \ottnt{e_{{\mathrm{2}}}} : \tau$.
+\item The type of $\ottnt{e_{{\mathrm{1}}}}$ should be a product expression according to the premise. But without the conversion rule, the term fails to type check if the type of $\ottnt{e_{{\mathrm{1}}}}$ is an expression which can further evaluate to a product, e.g. $ \Pi  y:(\ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \star  \ottsym{.}  \ottmv{x}  \ottsym{)} \, \tau_{{\mathrm{2}}}).\tau_{{\mathrm{1}}}$. After applying \ruleref{Tcc\_Conv}, the type of $\ottnt{e_{{\mathrm{1}}}}$ is converted to its $\beta$-equivalence $ \Pi  x:\tau_{{\mathrm{2}}}.\tau_{{\mathrm{1}}}$. Thus we can further apply the \ruleref{T\_App}.
 \end{itemize}
 
-\newcommand{\gram}[1]{\ottgrammartabular{#1\ottafterlastrule}}
+We need to show that explicit type conversion rules with cast primitives can also satisfy the premises of rule \ruleref{T\_App}. Still consider the above two cases:
+\begin{itemize}
+\item Given $\ottnt{e_{{\mathrm{1}}}}:\sigma  \rightarrow  \tau$ and $\ottnt{e_{{\mathrm{2}}}} : (\lambda  \ottmv{x}  \ottsym{:}  \star  \ottsym{.}  \ottmv{x})~\sigma$, we do the application by term $\ottnt{e_{{\mathrm{1}}}} \, \ottsym{(}  \mathsf{cast}_{\Downarrow} \, \ottnt{e_{{\mathrm{2}}}}  \ottsym{)}$. Since $(\lambda  \ottmv{x}  \ottsym{:}  \star  \ottsym{.}  \ottmv{x})~\sigma  \longrightarrow  \sigma$, $\mathsf{cast}_{\Downarrow} \, \ottnt{e_{{\mathrm{2}}}} : \sigma$, the term $\ottnt{e_{{\mathrm{1}}}} \, \ottsym{(}  \mathsf{cast}_{\Downarrow} \, \ottnt{e_{{\mathrm{2}}}}  \ottsym{)}$ type-checks with the rule \ruleref{T\_App}.
+\item Given $\ottnt{e_{{\mathrm{1}}}} : ( \Pi  y:(\ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \star  \ottsym{.}  \ottmv{x}  \ottsym{)} \, \tau_{{\mathrm{2}}}).\tau_{{\mathrm{1}}})$ and $\ottnt{e_{{\mathrm{2}}}} : \tau_{{\mathrm{2}}}$, we do the application by term $\ottnt{e_{{\mathrm{1}}}} \, \ottsym{(}  \mathsf{cast}_{\Uparrow} \, \ottsym{[}  \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \star  \ottsym{.}  \ottmv{x}  \ottsym{)} \, \tau_{{\mathrm{2}}}  \ottsym{]}  \ottnt{e_{{\mathrm{2}}}}  \ottsym{)}$. Noting that $\ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \star  \ottsym{.}  \ottmv{x}  \ottsym{)} \, \tau_{{\mathrm{2}}}  \longrightarrow  \tau_{{\mathrm{2}}}$, the term conforms to rule \ruleref{T\_CastUp}. Thus $\mathsf{cast}_{\Uparrow} \, \ottsym{[}  \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \star  \ottsym{.}  \ottmv{x}  \ottsym{)} \, \tau_{{\mathrm{2}}}  \ottsym{]}  \ottnt{e_{{\mathrm{2}}}} : \ottsym{(}  \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \star  \ottsym{.}  \ottmv{x}  \ottsym{)} \, \tau_{{\mathrm{2}}}  \ottsym{)}$ and the term $\ottnt{e_{{\mathrm{1}}}} \, \ottsym{(}  \mathsf{cast}_{\Uparrow} \, \ottsym{[}  \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \star  \ottsym{.}  \ottmv{x}  \ottsym{)} \, \tau_{{\mathrm{2}}}  \ottsym{]}  \ottnt{e_{{\mathrm{2}}}}  \ottsym{)}$ can be type-checked by the rule \ruleref{T\_App}.
+\end{itemize}
+
+Therefore, it is feasible to replace implicit conversion rules of \cc with explicit type conversion rules.
 
 \begin{figure}[ht]
-    \gram{\otte\ottinterrule
-          \otts\ottinterrule
-          \ottG\ottinterrule
-          \ottv}
-    \caption{Syntax}
+	\ottdefnexpr{}
+	\caption{Typing rules of \expcc}
+	\label{fig:ecc:typerule}
 \end{figure}
 
-\begin{figure}[ht]
-    \ottdefnstep{}
-    \caption{Dynamic semantics}
-\end{figure}
+\subsection{Decidability of type checking}
+The conversion rule of \cc is not syntax-directed because it can be implicitly applied at any time in a derivation. The $\beta$-equality premise of the rule also leads to the decidability of type checking relying on the strong normalization property of \cc:
 
-\begin{figure}[ht]
-    \ottdefnexpr{}
-    \caption{Typing rules}
-\end{figure}
+\begin{thm}[Necessity of strong normalization]
+The strong normalization property of \cc is necessary for the decidability of its type checking.
+\end{thm}
+
+\begin{proof}
+The proof is by contradiction. Suppose strong normalization does not hold in the type system, then we can find a type $\tau_{{\mathrm{1}}}$ such that there exists at least one reduction sequence which does not terminate. Notice that any type $\tau_{{\mathrm{2}}}$ in such reduction sequence holds for $ \tau_{{\mathrm{1}}}  =_{\beta}  \tau_{{\mathrm{2}}} $. Thus we can constantly apply the conversion rule without termination and the type checking will not stop, which means the type checking is undecidable.
+\end{proof}
+
+Requiring strong normalization to achieve the decidability of type checking makes it impossible to combine general recursion with \cc, because general recursion might cause nontermination which simply breaks the strong normalization property. So we use explicit type conversion rules by cast operations to relax the constraints of achieving decidable type checking. We have the following theorem:
+
+\begin{thm}[Decidability of type chechking for \expcc]
+Let $\Gamma$ be an environment, $\ottnt{e}$ and $\tau$ be expressions of \expcc such that $\Gamma  \vdash  \tau  \ottsym{:}  \ottnt{s}$. Then the problem of knowing if one has $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$ is decidable.
+\end{thm}
+
+\begin{proof}
+By induction on typing rules in Figure \ref{fig:ecc:typerule}.
+\end{proof}
+
+Notice that new explicit type conversion rules are syntax-directed and do not include the $\beta$-equality premise but one-step reduction instead. Because checking if one term is one-step-reducible to the other is always decidable by enumerating the reduction rules, type checking using these rules are always decidable. Therefore the proof of decidability for \expcc does not rely on the strong normalization. This also implies the possibility of introducing general recursion into the system with decidable type checking.
+
+\subsection{Soundness}
+\linus{Is it necessary to show soundness in this section? How about merging with the core language? Because we have to show the soundness of \name in later sections anyway.}
+
+It is straightforward to obtain the soundness of \expcc by combining the following two theorems:
+
+\begin{thm}[Subject Reduction]
+  If $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$ and $e  \longrightarrow  e'$ then $\Gamma  \vdash  \ottnt{e'}  \ottsym{:}  \tau$.
+\end{thm}
+
+\begin{proof}
+	By induction on rules in Figure \ref{fig:ecc:dynsem}.
+\end{proof}
+
+\begin{thm}[Progress]
+  If $\varnothing  \vdash  \ottnt{e}  \ottsym{:}  \tau$ then either $e$ is a value $v$ or there exists
+  $e'$ such that $e  \longrightarrow  e'$.
+\end{thm}
+
+\begin{proof}
+	By induction on rules in Figure \ref{fig:ecc:syntax}.
+\end{proof}

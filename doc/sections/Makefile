@@ -5,8 +5,9 @@ TARGET    = explicitcore
 
 all: $(TARGET).tex $(OTT_TEX)
 
-$(TARGET).tex: $(TARGET).mng $(OTT_FILES)
+$(TARGET).tex: $(TARGET)-template.tex $(OTT_FILES)
 	ott $(OTT_OPTS) -tex_filter $< $@ $(OTT_FILES)
+	echo '%%% !!! WARNING: AUTO GENERATED. DO NOT MODIFY !!! %%%'$$'\n\n'"`cat $@`" > $@
 
 $(OTT_TEX): $(OTT_FILES)
 	ott -tex_wrap false $(OTT_OPTS) -o $@ $^

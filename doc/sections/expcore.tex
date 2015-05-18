@@ -36,12 +36,11 @@
 \ottrulehead{\ottnt{e}  ,\ \tau}{::=}{\ottcom{Expressions}}\ottprodnewline
 \ottfirstprodline{|}{\ottmv{x}}{}{}{}{\ottcom{Variable}}\ottprodnewline
 \ottprodline{|}{\ottnt{s}}{}{}{}{\ottcom{Sort}}\ottprodnewline
-\ottprodline{|}{\ottnt{e} \, \ottnt{e'}}{}{}{}{\ottcom{Application}}\ottprodnewline
+\ottprodline{|}{\ottnt{e_{{\mathrm{1}}}} \, \ottnt{e_{{\mathrm{2}}}}}{}{}{}{\ottcom{Application}}\ottprodnewline
 \ottprodline{|}{\lambda  \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}}{}{}{}{\ottcom{Abstraction}}\ottprodnewline
-\ottprodline{|}{\Pi \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \tau'}{}{}{}{\ottcom{Product}}\ottprodnewline
-\ottprodline{|}{\mathsf{fold} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}}{}{}{}{\ottcom{Generalized fold}}\ottprodnewline
-\ottprodline{|}{\mathsf{unfold} \, \ottnt{e}}{}{}{}{\ottcom{Generalized unfold}}\ottprodnewline
-\ottprodline{|}{\mathbf{let} \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{=}  \ottnt{e} \, \mathbf{in} \, \ottnt{e'}} {\textsf{S}}{}{}{\ottcom{Let binding}}}
+\ottprodline{|}{\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}}{}{}{}{\ottcom{Product}}\ottprodnewline
+\ottprodline{|}{\mathsf{cast}_{\Uparrow} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}}{}{}{}{\ottcom{Cast up to type}}\ottprodnewline
+\ottprodline{|}{\mathsf{cast}_{\Downarrow} \, \ottnt{e}}{}{}{}{\ottcom{Cast down by reduction}}}
 
 \newcommand{\otts}{
 \ottrulehead{\ottnt{s}  ,\ t}{::=}{\ottcom{Sorts}}\ottprodnewline
@@ -56,8 +55,8 @@
 \newcommand{\ottv}{
 \ottrulehead{\ottnt{v}}{::=}{\ottcom{Values}}\ottprodnewline
 \ottfirstprodline{|}{\lambda  \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}}{}{}{}{\ottcom{Abstraction}}\ottprodnewline
-\ottprodline{|}{\Pi \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \tau'}{}{}{}{\ottcom{Product}}\ottprodnewline
-\ottprodline{|}{\mathsf{fold} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}}{}{}{}{\ottcom{Generalized fold}}}
+\ottprodline{|}{\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}}{}{}{}{\ottcom{Product}}\ottprodnewline
+\ottprodline{|}{\mathsf{cast}_{\Uparrow} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}}{}{}{}{\ottcom{Cast up}}}
 
 \newcommand{\ottgrammar}{\ottgrammartabular{
 \otte\ottinterrule
@@ -68,6 +67,20 @@
 
 % defnss
 % defns Lint
+%% defn coc
+\newcommand{\ottdruleTccXXConv}[1]{\ottdrule[#1]{%
+\ottpremise{\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau_{{\mathrm{1}}}}%
+\ottpremise{\Gamma  \vdash  \tau_{{\mathrm{2}}}  \ottsym{:}  \ottnt{s}}%
+\ottpremise{ \tau_{{\mathrm{1}}}  =_{\beta}  \tau_{{\mathrm{2}}} }%
+}{
+\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau_{{\mathrm{2}}}}{%
+{\ottdrulename{Tcc\_Conv}}{}%
+}}
+
+\newcommand{\ottdefncoc}[1]{\begin{ottdefnblock}[#1]{$\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$}{\ottcom{CoC typing}}
+\ottusedrule{\ottdruleTccXXConv{}}
+\end{ottdefnblock}}
+
 %% defn expr
 \newcommand{\ottdruleTXXAx}[1]{\ottdrule[#1]{%
 }{
@@ -85,58 +98,58 @@
 
 
 \newcommand{\ottdruleTXXWeak}[1]{\ottdrule[#1]{%
-\ottpremise{\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau'}%
-\ottpremise{\Gamma  \vdash  \tau  \ottsym{:}  \ottnt{s}}%
+\ottpremise{\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau_{{\mathrm{2}}}}%
+\ottpremise{\Gamma  \vdash  \tau_{{\mathrm{1}}}  \ottsym{:}  \ottnt{s}}%
 }{
-\Gamma  \ottsym{,}  \ottmv{x}  \ottsym{:}  \tau  \vdash  \ottnt{e}  \ottsym{:}  \tau'}{%
+\Gamma  \ottsym{,}  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \vdash  \ottnt{e}  \ottsym{:}  \tau_{{\mathrm{2}}}}{%
 {\ottdrulename{T\_Weak}}{}%
 }}
 
 
 \newcommand{\ottdruleTXXApp}[1]{\ottdrule[#1]{%
-\ottpremise{\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \ottsym{(}  \Pi \, \ottmv{x}  \ottsym{:}  \tau'  \ottsym{.}  \tau  \ottsym{)}}%
-\ottpremise{\Gamma  \vdash  \ottnt{e'}  \ottsym{:}  \tau'}%
+\ottpremise{\Gamma  \vdash  \ottnt{e_{{\mathrm{1}}}}  \ottsym{:}  \ottsym{(}  \Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{2}}}  \ottsym{.}  \tau_{{\mathrm{1}}}  \ottsym{)}}%
+\ottpremise{\Gamma  \vdash  \ottnt{e_{{\mathrm{2}}}}  \ottsym{:}  \tau_{{\mathrm{2}}}}%
 }{
-\Gamma  \vdash  \ottnt{e} \, \ottnt{e'}  \ottsym{:}  \tau  \ottsym{[}  \ottmv{x}  \mapsto  \ottnt{e'}  \ottsym{]}}{%
+\Gamma  \vdash  \ottnt{e_{{\mathrm{1}}}} \, \ottnt{e_{{\mathrm{2}}}}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{[}  \ottmv{x}  \mapsto  \ottnt{e_{{\mathrm{2}}}}  \ottsym{]}}{%
 {\ottdrulename{T\_App}}{}%
 }}
 
 
 \newcommand{\ottdruleTXXLam}[1]{\ottdrule[#1]{%
-\ottpremise{\Gamma  \ottsym{,}  \ottmv{x}  \ottsym{:}  \tau  \vdash  \ottnt{e}  \ottsym{:}  \tau'}%
-\ottpremise{\Gamma  \vdash  \ottsym{(}  \Pi \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \tau'  \ottsym{)}  \ottsym{:}  \ottnt{s}}%
+\ottpremise{\Gamma  \ottsym{,}  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \vdash  \ottnt{e}  \ottsym{:}  \tau_{{\mathrm{2}}}}%
+\ottpremise{\Gamma  \vdash  \ottsym{(}  \Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}  \ottsym{)}  \ottsym{:}  \ottnt{s}}%
 }{
-\Gamma  \vdash  \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{)}  \ottsym{:}  \ottsym{(}  \Pi \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \tau'  \ottsym{)}}{%
+\Gamma  \vdash  \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \ottnt{e}  \ottsym{)}  \ottsym{:}  \ottsym{(}  \Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}  \ottsym{)}}{%
 {\ottdrulename{T\_Lam}}{}%
 }}
 
 
 \newcommand{\ottdruleTXXPi}[1]{\ottdrule[#1]{%
-\ottpremise{\Gamma  \vdash  \tau  \ottsym{:}  \ottnt{s}}%
-\ottpremise{\Gamma  \ottsym{,}  \ottmv{x}  \ottsym{:}  \tau  \vdash  \tau'  \ottsym{:}  t}%
+\ottpremise{\Gamma  \vdash  \tau_{{\mathrm{1}}}  \ottsym{:}  \ottnt{s}}%
+\ottpremise{\Gamma  \ottsym{,}  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \vdash  \tau_{{\mathrm{2}}}  \ottsym{:}  t}%
 }{
-\Gamma  \vdash  \ottsym{(}  \Pi \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \tau'  \ottsym{)}  \ottsym{:}  t}{%
+\Gamma  \vdash  \ottsym{(}  \Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}  \ottsym{)}  \ottsym{:}  t}{%
 {\ottdrulename{T\_Pi}}{}%
 }}
 
 
-\newcommand{\ottdruleTXXFold}[1]{\ottdrule[#1]{%
-\ottpremise{\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau'}%
-\ottpremise{\Gamma  \vdash  \tau  \ottsym{:}  \ottnt{s}}%
-\ottpremise{\tau  \longrightarrow  \tau'}%
+\newcommand{\ottdruleTXXCastUp}[1]{\ottdrule[#1]{%
+\ottpremise{\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau_{{\mathrm{2}}}}%
+\ottpremise{\Gamma  \vdash  \tau_{{\mathrm{1}}}  \ottsym{:}  \ottnt{s}}%
+\ottpremise{\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}}%
 }{
-\Gamma  \vdash  \ottsym{(}  \mathsf{fold} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}  \ottsym{)}  \ottsym{:}  \tau}{%
-{\ottdrulename{T\_Fold}}{}%
+\Gamma  \vdash  \ottsym{(}  \mathsf{cast}_{\Uparrow} \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]}  \ottnt{e}  \ottsym{)}  \ottsym{:}  \tau_{{\mathrm{1}}}}{%
+{\ottdrulename{T\_CastUp}}{}%
 }}
 
 
-\newcommand{\ottdruleTXXUnfold}[1]{\ottdrule[#1]{%
-\ottpremise{\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau}%
-\ottpremise{\Gamma  \vdash  \tau'  \ottsym{:}  \ottnt{s}}%
-\ottpremise{\tau  \longrightarrow  \tau'}%
+\newcommand{\ottdruleTXXCastDown}[1]{\ottdrule[#1]{%
+\ottpremise{\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau_{{\mathrm{1}}}}%
+\ottpremise{\Gamma  \vdash  \tau_{{\mathrm{2}}}  \ottsym{:}  \ottnt{s}}%
+\ottpremise{\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}}%
 }{
-\Gamma  \vdash  \ottsym{(}  \mathsf{unfold} \, \ottnt{e}  \ottsym{)}  \ottsym{:}  \tau'}{%
-{\ottdrulename{T\_Unfold}}{}%
+\Gamma  \vdash  \ottsym{(}  \mathsf{cast}_{\Downarrow} \, \ottnt{e}  \ottsym{)}  \ottsym{:}  \tau_{{\mathrm{2}}}}{%
+{\ottdrulename{T\_CastDown}}{}%
 }}
 
 \newcommand{\ottdefnexpr}[1]{\begin{ottdefnblock}[#1]{$\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$}{\ottcom{Expression typing}}
@@ -146,13 +159,13 @@
 \ottusedrule{\ottdruleTXXApp{}}
 \ottusedrule{\ottdruleTXXLam{}}
 \ottusedrule{\ottdruleTXXPi{}}
-\ottusedrule{\ottdruleTXXFold{}}
-\ottusedrule{\ottdruleTXXUnfold{}}
+\ottusedrule{\ottdruleTXXCastUp{}}
+\ottusedrule{\ottdruleTXXCastDown{}}
 \end{ottdefnblock}}
 
 
 \newcommand{\ottdefnsLint}{
-\ottdefnexpr{}}
+\ottdefncoc{}\ottdefnexpr{}}
 
 % defns OpSem
 %% defn step
@@ -166,30 +179,30 @@
 \newcommand{\ottdruleSXXApp}[1]{\ottdrule[#1]{%
 \ottpremise{\ottnt{e_{{\mathrm{1}}}}  \longrightarrow  \ottnt{e'_{{\mathrm{1}}}}}%
 }{
-\ottnt{e_{{\mathrm{1}}}} \, \ottnt{e}  \longrightarrow  \ottnt{e'_{{\mathrm{1}}}} \, \ottnt{e}}{%
+\ottnt{e_{{\mathrm{1}}}} \, \ottnt{e_{{\mathrm{2}}}}  \longrightarrow  \ottnt{e'_{{\mathrm{1}}}} \, \ottnt{e_{{\mathrm{2}}}}}{%
 {\ottdrulename{S\_App}}{}%
 }}
 
 
-\newcommand{\ottdruleSXXUnfold}[1]{\ottdrule[#1]{%
+\newcommand{\ottdruleSXXCastDown}[1]{\ottdrule[#1]{%
 \ottpremise{\ottnt{e}  \longrightarrow  \ottnt{e'}}%
 }{
-\mathsf{unfold} \, \ottnt{e}  \longrightarrow  \mathsf{unfold} \, \ottnt{e'}}{%
-{\ottdrulename{S\_Unfold}}{}%
+\mathsf{cast}_{\Downarrow} \, \ottnt{e}  \longrightarrow  \mathsf{cast}_{\Downarrow} \, \ottnt{e'}}{%
+{\ottdrulename{S\_CastDown}}{}%
 }}
 
 
-\newcommand{\ottdruleSXXUnfoldXXFold}[1]{\ottdrule[#1]{%
+\newcommand{\ottdruleSXXCastDownUp}[1]{\ottdrule[#1]{%
 }{
-\mathsf{unfold} \, \ottsym{(}  \mathsf{fold} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}  \ottsym{)}  \longrightarrow  \ottnt{e}}{%
-{\ottdrulename{S\_Unfold\_Fold}}{}%
+\mathsf{cast}_{\Downarrow} \, \ottsym{(}  \mathsf{cast}_{\Uparrow} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}  \ottsym{)}  \longrightarrow  \ottnt{e}}{%
+{\ottdrulename{S\_CastDownUp}}{}%
 }}
 
-\newcommand{\ottdefnstep}[1]{\begin{ottdefnblock}[#1]{$\ottnt{e}  \longrightarrow  \ottnt{e'}$}{\ottcom{Single step semantics}}
+\newcommand{\ottdefnstep}[1]{\begin{ottdefnblock}[#1]{$\ottnt{e}  \longrightarrow  \ottnt{e'}$}{\ottcom{One-step reduction}}
 \ottusedrule{\ottdruleSXXBeta{}}
 \ottusedrule{\ottdruleSXXApp{}}
-\ottusedrule{\ottdruleSXXUnfold{}}
-\ottusedrule{\ottdruleSXXUnfoldXXFold{}}
+\ottusedrule{\ottdruleSXXCastDown{}}
+\ottusedrule{\ottdruleSXXCastDownUp{}}
 \end{ottdefnblock}}
 
 
