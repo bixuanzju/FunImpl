@@ -39,8 +39,8 @@
 \ottprodline{|}{\ottnt{e_{{\mathrm{1}}}} \, \ottnt{e_{{\mathrm{2}}}}}{}{}{}{\ottcom{Application}}\ottprodnewline
 \ottprodline{|}{\lambda  \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}}{}{}{}{\ottcom{Abstraction}}\ottprodnewline
 \ottprodline{|}{\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}}{}{}{}{\ottcom{Product}}\ottprodnewline
-\ottprodline{|}{\mathsf{cast}_{\Uparrow} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}}{}{}{}{\ottcom{Cast up to type}}\ottprodnewline
-\ottprodline{|}{\mathsf{cast}_{\Downarrow} \, \ottnt{e}}{}{}{}{\ottcom{Cast down by reduction}}}
+\ottprodline{|}{\mathsf{cast}^{\uparrow} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}}{}{}{}{\ottcom{Cast up to type}}\ottprodnewline
+\ottprodline{|}{\mathsf{cast}_{\downarrow} \, \ottnt{e}}{}{}{}{\ottcom{Cast down by reduction}}}
 
 \newcommand{\otts}{
 \ottrulehead{\ottnt{s}  ,\ t}{::=}{\ottcom{Sorts}}\ottprodnewline
@@ -56,7 +56,7 @@
 \ottrulehead{\ottnt{v}}{::=}{\ottcom{Values}}\ottprodnewline
 \ottfirstprodline{|}{\lambda  \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}}{}{}{}{\ottcom{Abstraction}}\ottprodnewline
 \ottprodline{|}{\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}}{}{}{}{\ottcom{Product}}\ottprodnewline
-\ottprodline{|}{\mathsf{cast}_{\Uparrow} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}}{}{}{}{\ottcom{Cast up}}}
+\ottprodline{|}{\mathsf{cast}^{\uparrow} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}}{}{}{}{\ottcom{Cast up}}}
 
 \newcommand{\ottgrammar}{\ottgrammartabular{
 \otte\ottinterrule
@@ -138,7 +138,7 @@
 \ottpremise{\Gamma  \vdash  \tau_{{\mathrm{1}}}  \ottsym{:}  \ottnt{s}}%
 \ottpremise{\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}}%
 }{
-\Gamma  \vdash  \ottsym{(}  \mathsf{cast}_{\Uparrow} \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]}  \ottnt{e}  \ottsym{)}  \ottsym{:}  \tau_{{\mathrm{1}}}}{%
+\Gamma  \vdash  \ottsym{(}  \mathsf{cast}^{\uparrow} \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]}  \ottnt{e}  \ottsym{)}  \ottsym{:}  \tau_{{\mathrm{1}}}}{%
 {\ottdrulename{T\_CastUp}}{}%
 }}
 
@@ -148,7 +148,7 @@
 \ottpremise{\Gamma  \vdash  \tau_{{\mathrm{2}}}  \ottsym{:}  \ottnt{s}}%
 \ottpremise{\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}}%
 }{
-\Gamma  \vdash  \ottsym{(}  \mathsf{cast}_{\Downarrow} \, \ottnt{e}  \ottsym{)}  \ottsym{:}  \tau_{{\mathrm{2}}}}{%
+\Gamma  \vdash  \ottsym{(}  \mathsf{cast}_{\downarrow} \, \ottnt{e}  \ottsym{)}  \ottsym{:}  \tau_{{\mathrm{2}}}}{%
 {\ottdrulename{T\_CastDown}}{}%
 }}
 
@@ -187,14 +187,14 @@
 \newcommand{\ottdruleSXXCastDown}[1]{\ottdrule[#1]{%
 \ottpremise{\ottnt{e}  \longrightarrow  \ottnt{e'}}%
 }{
-\mathsf{cast}_{\Downarrow} \, \ottnt{e}  \longrightarrow  \mathsf{cast}_{\Downarrow} \, \ottnt{e'}}{%
+\mathsf{cast}_{\downarrow} \, \ottnt{e}  \longrightarrow  \mathsf{cast}_{\downarrow} \, \ottnt{e'}}{%
 {\ottdrulename{S\_CastDown}}{}%
 }}
 
 
 \newcommand{\ottdruleSXXCastDownUp}[1]{\ottdrule[#1]{%
 }{
-\mathsf{cast}_{\Downarrow} \, \ottsym{(}  \mathsf{cast}_{\Uparrow} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}  \ottsym{)}  \longrightarrow  \ottnt{e}}{%
+\mathsf{cast}_{\downarrow} \, \ottsym{(}  \mathsf{cast}^{\uparrow} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}  \ottsym{)}  \longrightarrow  \ottnt{e}}{%
 {\ottdrulename{S\_CastDownUp}}{}%
 }}
 

@@ -56,7 +56,8 @@ The syntactic sugar for the function type is discussed in \S \ref{sec:ecc:syn} f
 	\begin{array}{llll}
 	\text{Let binding} & [[let x : t = e2 in e1]] & \triangleq & [[(\x:t.e1)e2]] \\
 	\text{Function type} & [[t1->t2]] & \triangleq & [[Pi x:t1.t2]]\\
-	&&& \text{($x$ does not occur free in $[[t2]]$)}
+	&&& \text{($x$ does not occur free}\\
+	&&& \text{in $[[t2]]$)}
 	\end{array}
 	\]
 	\caption{Syntatic sugar}
@@ -142,5 +143,5 @@ It is straightforward to obtain the soundness of \expcc by combining the followi
 \end{thm}
 
 \begin{proof}
-	By induction on rules in Figure \ref{fig:ecc:syntax}.
+	By induction on rules in Figure \ref{fig:ecc:typerule}.
 \end{proof}

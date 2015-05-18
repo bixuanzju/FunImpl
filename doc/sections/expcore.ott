@@ -52,9 +52,9 @@ terminals :: 'terminals_' ::=
   | ->       ::  :: to        {{ tex \rightarrow }}
   | -->      ::  :: steps     {{ tex \longrightarrow }}
   | |->      ::  :: mapsto    {{ tex \mapsto }}
-  | castup   ::  :: castup    {{ tex \mathsf{cast}_{\Uparrow} }}
+  | castup   ::  :: castup    {{ tex \mathsf{cast}^{\uparrow} }}
   | |-       ::  :: turnstile {{ tex \vdash }}
-  | castdown ::  :: castdown  {{ tex \mathsf{cast}_{\Downarrow} }}
+  | castdown ::  :: castdown  {{ tex \mathsf{cast}_{\downarrow} }}
   | let      ::  :: let       {{ tex \mathbf{let} }}
   | in       ::  :: key_in    {{ tex \mathbf{in} }}
   | eqb      ::  :: eqb       {{ tex =_{\beta} }}

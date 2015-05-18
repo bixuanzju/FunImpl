@@ -1,8 +1,9 @@
-MAIN = {main,pts}
+MAIN = main
 
-all: pts.pdf main.pdf
+all: $(MAIN).pdf
 
-%.pdf: $(wildcard *.tex) %.bib
+$(MAIN).pdf: $(wildcard sections/*.tex) $(wildcard sections/*.ott) $(MAIN).bib
+	make -C sections
 	pdflatex $(@:.pdf=.tex)
 	bibtex $(@:.pdf=)
 	pdflatex $(@:.pdf=.tex)
@@ -12,6 +13,7 @@ clean:
 	rm -f $(MAIN).aux $(MAIN).log $(MAIN).out $(MAIN).synctex.gz $(MAIN).blg texput.log
 
 distclean: clean
+	make -C sections clean
 	rm -f $(MAIN).pdf $(MAIN).bbl *.aux *.fls *.out *.synctex.gz *.log *.fdb_latexmk *.blg
 
 .PHONY: all clean distclean
