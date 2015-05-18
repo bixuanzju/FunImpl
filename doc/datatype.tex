@@ -162,8 +162,9 @@ resulting expression $E$. In the translation, \emph{We require that
   as follows:
   \begin{align*}
     \length &: \pai{a}{\star}{\List\,a \rightarrow \Nat} \\
-    \length &= \mathsf{fix}\,(\pai{a}{\star}{\List\,a \rightarrow \Nat})\,(\lambda(f : \pai{a}{\star}{\List\,a \rightarrow \Nat})\\&(a:\star)(l : \List\,a).
-            (\unfold[\List\,a]{l})\,\Nat\,\zero\,\\&(\lambda(x : a)(xs : \List\,a).\,\suc\,(f\,a\,xs)))
+    \length &= \lam{a}{\star}{\mathsf{fix}\,({\List\,a \rightarrow \Nat})\\
+            &(\lambda(f : \List\,a \rightarrow \Nat)(l : \List\,a).\\
+            &(\unfold[\List\,a]{l})\,\Nat\,\zero\,(\lambda(x : a)(xs : \List\,a).\,\suc\,(f\,xs)))}\,\inb
   \end{align*}
 \item Encoding of a datatype with existential types
   \begin{align*}

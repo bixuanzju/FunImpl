@@ -25,3 +25,4 @@ doc/*.fls
 doc/auto/
 doc/_region_.tex
 doc/*.fdb_latexmk
+/doc/sections/auto/
