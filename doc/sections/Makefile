@@ -1,11 +1,16 @@
 OTT_FILES = expcore.ott
 OTT_TEX   = expcore.tex
 OTT_OPTS  = -tex_show_meta false
-TARGET    = explicitcore
+TARGET_S2    = overview
+TARGET_S3    = explicitcore
 
-all: $(TARGET).tex $(OTT_TEX)
+all: $(TARGET_S2).tex $(TARGET_S3).tex $(OTT_TEX)
 
-$(TARGET).tex: $(TARGET)-template.tex $(OTT_FILES)
+$(TARGET_S2).tex: $(TARGET_S2)-template.tex $(OTT_FILES)
+	ott $(OTT_OPTS) -tex_filter $< $@ $(OTT_FILES)
+	@echo '%%% !!! WARNING: AUTO GENERATED. DO NOT MODIFY !!! %%%' | cat - "$@" | tee "$@" >/dev/null
+
+$(TARGET_S3).tex: $(TARGET_S3)-template.tex $(OTT_FILES)
 	ott $(OTT_OPTS) -tex_filter $< $@ $(OTT_FILES)
 	@echo '%%% !!! WARNING: AUTO GENERATED. DO NOT MODIFY !!! %%%' | cat - "$@" | tee "$@" >/dev/null
 
@@ -14,4 +19,4 @@ $(OTT_TEX): $(OTT_FILES)
 
 .PHONY: all clean
 clean:
-	rm -f $(OTT_TEX) $(TARGET).tex
+	rm -f $(OTT_TEX) $(TARGET_S2).tex $(TARGET_S3).tex
