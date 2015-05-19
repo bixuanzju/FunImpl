@@ -2,27 +2,30 @@
 
 \bruno{Jeremy: can you give this section a go and start writing it up? I think this section should be your priority for now.}
 
-We begin this section with an informal introduction to the main features of \name. We show how it can serve as a simple and compiler-friendly core language with general recursion and decidable type system. The formal details are presented in Section~\ref{sec:formal}.
+We begin this section with an informal introduction to the main features of \name. We show how it can serve as a simple and compiler-friendly core language with general recursion and decidable type system. The formal details are presented in \S\ref{sec:formal}.
 
-\subsection{Explicit Reduction Rules}
+\subsection{Explicit Type Conversion Rules}
 
 \bruno{Contrast our calculus with the calculus of constructions. Explain fold/unfold.}
 
 \name is based on the \emph{Calculus of Constructions} (\coc)~\cite{coc}. In contrast to the implicit reduction rules of \coc, \name makes it explicit as to when and where to apply reduction rules.
 
-\begin{figure}[ht]
-  \centering \small
-  \begin{tabular}{c}
-    \ruleIII{\ctx{a:A}}{\ctx{B:s}}{A=_\beta B}{\ctx{a:B}}
-  \end{tabular}
-  \caption{The conversion rule of \coc}\label{fig:conv}
-\end{figure}
+% \begin{figure}[ht]
+%   \centering \small
+%   \begin{tabular}{c}
+%     \ruleIII{\ctx{a:A}}{\ctx{B:s}}{A=_\beta B}{\ctx{a:B}}
+%   \end{tabular}
+%   \caption{The conversion rule of \coc}\label{fig:conv}
+% \end{figure}
 
-Figure~\ref{fig:conv} is the so-called \emph{conversion} rule of \coc, which allows one to drive $x : A$ from the derivation of $x : B$ and the beta-equality of $A$ and $B$. Note that in \coc, the use of this rule is implicit in that it is automatically applied during type checking to all non-normal form terms. \name however differs in the following respects: 1) it eliminates the need to have the conversion rule; 2) it makes type conversion explicit by introducing two operations: \castup and \castdn.
+\renewcommand{\ottpremise}[1]{\enskip #1 \enskip}
 
-In order to have a better intuition of the explicit reduction rules, let us consider a simple example. Suppose we have a built-in base type $\mathsf{Int}$ and \[f \equiv \lam{x}{(\lam{y}{\star}{y})\,\mathsf{Int}}{x}\] Without the conversion rule, $f$ cannot be applied to, say $3$ in \coc. Given that $f$ is actually $\beta$-convertible to $\lam{x}{\mathsf{Int}}{x}$, the conversion rule would allow the application of $f$ to $3$. However in \name, $f\,3$ is intended as an ill-typed application. Instead one would like to write the application as \[ f\,(\fold{(\lam{y}{\star}{y})\,\mathsf{Int}}{3}) \] The intuition is that, \castup is actually doing type conversion since the type of $ 3 $ is $ \mathsf{Int} $ and $ (\lam{y}{\star}{y})\,\mathsf{Int} $ can be reduced to $ \mathsf{Int} $.
+\ottusedrule{\ottdruleTccXXConv{}}
+The above is the so-called \emph{conversion} rule of \coc, which allows one to derive $e:[[t2]]$ from the derivation of $e:[[t1]]$ and the $\beta$-equality of $[[t1]]$ and $[[t2]]$. Note that in \coc, the use of this rule is implicit in that it is automatically applied during type checking to all non-normal form terms. \name however differs in the following respect: it makes type conversion explicit by introducing two operations: $[[castup]]$ and $[[castdown]]$.
 
-The dual operation of \castup is \castdn. The use of \castdn is better explained by another similar example. Suppose that \[ g \equiv \lam{x}{\mathsf{Int}}{x} \] and $z$ has type \[ (\lam{y}{\star}{y})\,\mathsf{Int} \] $ g\,z $ is again an ill-typed application, while $ g\,(\unfold{z}) $ is type correct because \castdn reduces the type of $ z $ to $ \mathsf{Int} $.
+In order to have a better intuition of the explicit type conversion rules, let us consider a simple example. Suppose we have a built-in base type $[[int]]$ and \[f \equiv [[\x:(\y:star.y)int.x]] \] Without the conversion rule, $f$ cannot be applied to, say $3$ in \coc. Given that $f$ is actually $\beta$-convertible to $[[\x:int.x]]$, the conversion rule would allow the application of $f$ to $3$. However in \name, $f\,3$ is intended as an ill-typed application. Instead one would like to write the application as \[ f\,([[castup[(\y:star.y)int]three]]) \] The intuition is that, $[[castup]]$ is actually doing type conversion since the type of $ 3 $ is $ [[int]] $ and $ [[(\y:star.y)int]] $ can be reduced to $ [[int]] $.
+
+The dual operation of $[[castup]]$ is $[[castdown]]$. The use of $[[castdown]]$ is better explained by another similar example. Suppose that \[ g \equiv [[\x:int.x]] \] and term $z$ has type \[ [[(\y:star.y)int]] \] $ g\,z $ is again an ill-typed application, while $ g\,([[castdown z]]) $ is type correct because $[[castdown]]$ reduces the type of $ z $ to $ [[int]] $.
 
 \subsection{Decidability and Strong Normalization}
 
@@ -31,9 +34,9 @@ type system does not depend on strong normalization.}
 
 The decidability of the type system of \coc depends on the normalization property for all constructed terms~\cite{coc:decidability}. However strong normalization does not hold with general recursion. This is simply because due to the conversion rule, any non-terminating term would force the type checker to go into an infinitely loop, thus rendering the type system undecidable.
 
-With explicit reduction rules, however, the decidability of the type system no longer depends on the normalization property. In fact \name is not strong normalizing, as we will see in later sections. The ability to write non-terminating terms forces us to have more control over type-level computation. To illustrate, let us consider a contrived example. Suppose that $d$ is a ``dependent type'' where \[d : \mathsf{Int} \rightarrow \star\] so that $d\,3$ or $d\,100$ all yield the same type.  With general recursion at hand, we can image  a term $z$ that has type \[d\,(\mathsf{fix}\,(\lam{y}{\mathsf{Int}}{y}))\] Apparently evaluating $\mathsf{fix}\,(\lam{y}{\mathsf{Int}}{y})$ would give us an infinite evaluation sequence, always yielding the same term. What would happen if we try to type check the following application: \[(\lam{x}{d\,3}{x})\,z\] Under the normal typing rules of \coc, the type checker would get stuck as it tries to do $\beta$-equality on two terms: $d\,3$ and $\mathsf{fix}\,(\lam{y}{\mathsf{Int}}{y})$, where the latter is non-terminating.
+With explicit type conversion rules, however, the decidability of the type system no longer depends on the normalization property. In fact \name is not strong normalizing, as we will see in later sections. The ability to write non-terminating terms forces us to have more control over type-level computation. To illustrate, let us consider a contrived example. Suppose that $d$ is a ``dependent type'' where \[d : [[int -> star]]\] so that $d\,3$ or $d\,100$ all yield the same type.  With general recursion at hand, we can image  a term $z$ that has type \[d\,\mathsf{loop}\] where $\mathsf{loop}$ is some non-terminating computation and of type $[[int]]$. What would happen if we try to type check the following application: \[ [[(\x: d three.x)z]]\] Under the normal typing rules of \coc, the type checker would get stuck as it tries to do $\beta$-equality on two terms: $d\,3$ and $d\,\mathsf{loop}$, where the latter is non-terminating.
 
-This is not the case for \name: 1) it has no such conversion rule, therefore the type checker would do syntactic comparison between the two terms instead of $\beta$-equality in the above example; 2) one would need to write infinitely \castup/\castdn to make the type checker loop forever (e.g., $(\lam{x}{d\,3}{x})\,(\unfold{\unfold{\dots}}z) $). Apparently this is impossible in reality.
+This is not the case for \name: 1) it has no such conversion rule, therefore the type checker would do syntactic comparison between the two terms instead of $\beta$-equality in the above example; 2) one would need to write infinitely $[[castdown]]$'s to make the type checker loop forever (e.g., $([[\x:d three.x]])([[castdown]]([[castdown]] \dots z) $), which is impossible in reality.
 
 In summary, \name approaches the decidability of the type system by explicitly controlling type-level computation, which is independent of the normalization property, while supporting general recursion at the same time.
 
@@ -45,11 +48,11 @@ evaluation strategy is call-by-name. }
 
 Recursive types arise naturally if we want to do general recursion. \name differs from other programming languages in that it unifies both recursion and recursive types by the same $\mu$ primitive.
 
-\emph{Recursive types}. In the literature on type systems, there are two approaches to recursive types. One is called \emph{equi-recursive}, the other \emph{iso-recursive}. \name takes the latter approach since it is more intuitive to us with regard to recursion. The \emph{iso-recusive} approach treats a recursive type and its unfolding as different, but isomorphic. In \name, this is witnessed by first \castup, then \castdn. A classic example of recursive types is the so-called ``hungry'' type: $H = \miu{\sigma}{\star}{\mathsf{Int} \rightarrow \sigma}$. A function of type $H$ can accept any number of numeric arguments and return a new function that is hungry for more, as illustrated below:
+\emph{Recursive types}. In the literature on type systems, there are two approaches to recursive types. One is called \emph{equi-recursive}, the other \emph{iso-recursive}. \name takes the latter approach since it is more intuitive to us with regard to recursion. The \emph{iso-recusive} approach treats a recursive type and its unfolding as different, but isomorphic. In \name, this is witnessed by first $[[castup]]$, then $[[castdown]]$. A classic example of recursive types is the so-called ``hungry'' type: $H = \miu{\sigma}{\star}{\mathsf{Int} \rightarrow \sigma}$. A term $z$ of type $H$ can accept any number of numeric arguments and return a new function that is hungry for more, as illustrated below:
 \begin{align*}
-\unfold{H} &: \mathsf{Int} \rightarrow H  \\
-\unfold{\unfold{H}} &: \mathsf{Int} \rightarrow \mathsf{Int} \rightarrow H \\
-\unfold{\unfold{\dots H}} &: \mathsf{Int} \rightarrow \mathsf{Int} \rightarrow \dots \rightarrow H
+[[castdown z]] &: [[int]][[->]]H  \\
+[[castdown(castdown z)]] &: [[int]][[->]][[int]][[->]]H \\
+[[castdown]]([[castdown]] \dots z) &: [[int]][[->]][[int]][[->]]\dots[[->]]H
 \end{align*}
 
 \emph{Recursion}. The same $\mu$ primitive can also be used to define recursive functions, e.g., the factorial function: \[\miu{f}{\mathsf{Int} \rightarrow \mathsf{Int}}{\lam{x}{\mathsf{Int}}{\mathsf{if}\,(x == 0)\,\mathsf{then}\,1\,\mathsf{else}\,x * f\,(x - 1)}}\] This is reflected by the dynamic semantics of the $\mu$ primitive: 
@@ -72,7 +75,7 @@ using datatypes.}
 \newcommand{\data}{\mathbf{data}} \newcommand{\where}{\mathbf{where}}
 \newcommand{\letbb}{\mathbf{let}} \newcommand{\inb}{\mathbf{in}}
 
-With the explicit reduction rules and the $\mu$ primitive, it is straightforward to encode recursive datatypes and recusive functions using datatypes. While inductive datatypes can be encoded using either the Church or the Scott encoding, we adopt the Scott encoding as it is more fit with our unified recursive types. We demonstrate the encoding method using a simple datatype as a running example: the natural numbers.
+With the explicit type conversion rules and the $\mu$ primitive, it is straightforward to encode recursive datatypes and recusive functions using datatypes. While inductive datatypes can be encoded using either the Church or the Scott encoding, we adopt the Scott encoding as it is more fit with our unified recursive types. We demonstrate the encoding method using a simple datatype as a running example: the natural numbers.
 
 Written in GADT-style, the datatype for natural numbers is:
 \begin{align*}
@@ -89,14 +92,14 @@ Now its two constructors can be encoded correspondingly as below:
   \letbb\,&\zero : \Nat = \fold{\Nat}{(\lambda (b : \star) (z : b) (f : \Nat \rightarrow b).\,z)}\,\inb \\
   \letbb\,&\suc : \Nat \rightarrow \Nat = \lambda (n : \Nat).\,\fold{\Nat}{(\lambda (b : \star) (z : b)\\ &(f : \Nat \rightarrow b).\,f\,n)}\,\inb
 \end{align*}
-Thanks to the explicit reduction rules, we can make use of the \castup operation to do type conversion between the recursive type and its unfolding.
+Thanks to the explicit type conversion rules, we can make use of the $[[castup]]$ operation to do type conversion between the recursive type and its unfolding.
 
 As the last example, let us see how we can define recursive functions using the $\Nat$ datatype. A simple example would be recursively adding two natural numbers, which can be defined as below:
 \begin{align*}
   \mu f &: \Nat \rightarrow \Nat \rightarrow \Nat.\,\lambda n : \Nat.\,\lambda m : \Nat.\\
   &(\unfold{n})\,\Nat\,m\,(\lam{n'}{\Nat}{\suc\,(f\,n'\,m)})
 \end{align*}
-As we can see, the above definition quite resembles the case analysis common in modern functional programming languages. (Actually we formalize the encoding of case analysis as shown in Section~\ref{sec:surface}.)
+As we can see, the above definition quite resembles the case analysis common in modern functional programming languages. (Actually we formalize the encoding of case analysis as shown in \S\ref{sec:surface}.)
 
 Due to the unification of recursive types and recursion, it facilitates encoding of recursive functions using recursive datatypes.
 

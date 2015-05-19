@@ -5,7 +5,7 @@ embed {{ tex-preamble
 }}
 
 %%% Metavariables
-metavar x ::= {{ com Variable names }}
+metavar x, y, d, z ::= {{ com Variable names }}
 
 %%% Syntax
 grammar
@@ -23,6 +23,13 @@ e, t {{ tex \tau }}      :: 'e_' ::=       {{ com Expressions    }}
   | ( e )                :: M:: Parens     {{ com Parenthesized expression }}
   | let x : t = e2 in e1 :: M:: LetBinding {{ com Let binding }}
   | t1 -> t2             :: M:: FuncType   {{ com Function Type }}
+  | l                    :: M:: Literals   {{ com Literals }}
+
+%% Literals
+l :: 'l_' ::=
+  | int     :: M:: IntType
+  | bool    :: M:: BoolType
+  | three   :: M:: Number
 
 %% Sorts
 s, r {{ tex t }} :: 's_' ::= {{ com Sorts }}
@@ -58,6 +65,9 @@ terminals :: 'terminals_' ::=
   | let      ::  :: let       {{ tex \mathbf{let} }}
   | in       ::  :: key_in    {{ tex \mathbf{in} }}
   | eqb      ::  :: eqb       {{ tex =_{\beta} }}
+  | int      ::  :: int       {{ tex \mathsf{Int} }}
+  | bool     ::  :: bool      {{ tex \mathsf{Bool} }}
+  | three    ::  :: three     {{ tex 3 }}
 
 %%% Fomulae
 formula :: 'formula_' ::=

@@ -8,7 +8,6 @@
 \usepackage{amssymb}
 \usepackage{amsthm}
 \usepackage{xspace}
-\usepackage{bussproofs}
 
 % Language
 \usepackage{csquotes}
@@ -18,15 +17,9 @@
 \newcommand{\name}{{\bf $\lambda C_{\beta}$}\xspace}
 \newcommand{\coc}{{\bf $\lambda C$}\xspace}
 
-\newcommand{\ruleIII}[4]{\AxiomC{$#1$}\AxiomC{$#2$}\AxiomC{$#3$}\TrinaryInfC{$#4$}\DisplayProof}
-\newcommand{\ctx}[2][\Gamma]{#1 \vdash #2}
-
-\newcommand{\castup}{{\bf $\mathsf{cast}^\uparrow$}\xspace}
-\newcommand{\castdn}{{\bf $\mathsf{cast}_\downarrow$}\xspace}
 \newcommand{\fold}[2]{\mathsf{cast}^\uparrow[#1]\,#2}
 \newcommand{\unfold}[2][dummy]{\mathsf{cast}_\downarrow\,#2}
 
-\newcommand{\bet}[1]{\mathsf{beta}\,#1}
 \newcommand{\lam}[3]{\lambda #1:#2.\,#3}
 \newcommand{\pai}[3]{\Pi #1:#2.\,#3}
 \newcommand{\miu}[3]{\mu #1:#2.\,#3}

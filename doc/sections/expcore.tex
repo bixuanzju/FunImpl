@@ -29,7 +29,7 @@
 
 \newcommand{\ottmetavars}{
 \ottmetavartabular{
- $ \ottmv{x} $ & \ottcom{Variable names} \\
+ $ \ottmv{x} ,\, \ottmv{y} ,\, \ottmv{d} ,\, \ottmv{z} $ & \ottcom{Variable names} \\
 }}
 
 \newcommand{\otte}{
@@ -41,6 +41,9 @@
 \ottprodline{|}{\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}}{}{}{}{\ottcom{Product}}\ottprodnewline
 \ottprodline{|}{\mathsf{cast}^{\uparrow} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}}{}{}{}{\ottcom{Cast up to type}}\ottprodnewline
 \ottprodline{|}{\mathsf{cast}_{\downarrow} \, \ottnt{e}}{}{}{}{\ottcom{Cast down by reduction}}}
+
+\newcommand{\ottl}{
+\ottrulehead{\ottnt{l}}{::=}{}}
 
 \newcommand{\otts}{
 \ottrulehead{\ottnt{s}  ,\ t}{::=}{\ottcom{Sorts}}\ottprodnewline
@@ -60,6 +63,7 @@
 
 \newcommand{\ottgrammar}{\ottgrammartabular{
 \otte\ottinterrule
+\ottl\ottinterrule
 \otts\ottinterrule
 \ottG\ottinterrule
 \ottv\ottafterlastrule
