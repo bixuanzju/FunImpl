@@ -4,26 +4,22 @@
 
 We begin this section with an informal introduction to the main features of \name. We show how it can serve as a simple and compiler-friendly core language with general recursion and decidable type system. The formal details are presented in \S\ref{sec:formal}.
 
+\subsection{Calculus of Constructions}
+\label{sec:coc}
+
+\name is based on the \emph{Calculus of Constructions} (\coc)~\cite{coc}, which is a higher-order typed lambda calculus. One ``unconventional'' feature in \coc is the so-called \emph{conversion} rule as shown below:
+\renewcommand{\ottpremise}[1]{\enskip #1 \enskip}
+\ottusedrule{\ottdruleTccXXConv{}}
+
+The conversion rule allows one to derive $e:[[t2]]$ from the derivation of $e:[[t1]]$ and the $\beta$-equality of $[[t1]]$ and $[[t2]]$. Note that in \coc, the use of this rule is implicit in that it is automatically applied during type checking to all non-normal form terms. To illustrate, let us consider a simple example. Suppose we have a built-in base type $[[int]]$ and \[f \equiv [[\x:(\y:star.y)int.x]] \] Without the conversion rule, $f$ cannot be applied to, say $3$ in \coc. Given that $f$ is actually $\beta$-convertible to $[[\x:int.x]]$, the conversion rule would allow the application of $f$ to $3$ by implicitly converting $[[\x:(\y:star.y)int.x]]$ to $[[\x:int.x]]$.
+
 \subsection{Explicit Type Conversion Rules}
 
 \bruno{Contrast our calculus with the calculus of constructions. Explain fold/unfold.}
 
-\name is based on the \emph{Calculus of Constructions} (\coc)~\cite{coc}. In contrast to the implicit reduction rules of \coc, \name makes it explicit as to when and where to apply reduction rules.
+In contrast to the implicit reduction rules of \coc, \name makes it explicit as to when and where to convert one type to another. To achieve that, it makes type conversion explicit by introducing two operations: $[[castup]]$ and $[[castdown]]$.
 
-% \begin{figure}[ht]
-%   \centering \small
-%   \begin{tabular}{c}
-%     \ruleIII{\ctx{a:A}}{\ctx{B:s}}{A=_\beta B}{\ctx{a:B}}
-%   \end{tabular}
-%   \caption{The conversion rule of \coc}\label{fig:conv}
-% \end{figure}
-
-\renewcommand{\ottpremise}[1]{\enskip #1 \enskip}
-
-\ottusedrule{\ottdruleTccXXConv{}}
-The above is the so-called \emph{conversion} rule of \coc, which allows one to derive $e:[[t2]]$ from the derivation of $e:[[t1]]$ and the $\beta$-equality of $[[t1]]$ and $[[t2]]$. Note that in \coc, the use of this rule is implicit in that it is automatically applied during type checking to all non-normal form terms. \name however differs in the following respect: it makes type conversion explicit by introducing two operations: $[[castup]]$ and $[[castdown]]$.
-
-In order to have a better intuition of the explicit type conversion rules, let us consider a simple example. Suppose we have a built-in base type $[[int]]$ and \[f \equiv [[\x:(\y:star.y)int.x]] \] Without the conversion rule, $f$ cannot be applied to, say $3$ in \coc. Given that $f$ is actually $\beta$-convertible to $[[\x:int.x]]$, the conversion rule would allow the application of $f$ to $3$. However in \name, $f\,3$ is intended as an ill-typed application. Instead one would like to write the application as \[ f\,([[castup[(\y:star.y)int]three]]) \] The intuition is that, $[[castup]]$ is actually doing type conversion since the type of $ 3 $ is $ [[int]] $ and $ [[(\y:star.y)int]] $ can be reduced to $ [[int]] $.
+In order to have a better intuition, let us consider the same example from \S\ref{sec:coc}. In \name, $f\,3$ is intended as an ill-typed application. Instead one would like to write the application as \[ f\,([[castup[(\y:star.y)int]three]]) \] The intuition is that, $[[castup]]$ is actually doing type conversion since the type of $ 3 $ is $ [[int]] $ and $ [[(\y:star.y)int]] $ can be reduced to $ [[int]] $.
 
 The dual operation of $[[castup]]$ is $[[castdown]]$. The use of $[[castdown]]$ is better explained by another similar example. Suppose that \[ g \equiv [[\x:int.x]] \] and term $z$ has type \[ [[(\y:star.y)int]] \] $ g\,z $ is again an ill-typed application, while $ g\,([[castdown z]]) $ is type correct because $[[castdown]]$ reduces the type of $ z $ to $ [[int]] $.
 
@@ -36,7 +32,7 @@ The decidability of the type system of \coc depends on the normalization propert
 
 With explicit type conversion rules, however, the decidability of the type system no longer depends on the normalization property. In fact \name is not strong normalizing, as we will see in later sections. The ability to write non-terminating terms forces us to have more control over type-level computation. To illustrate, let us consider a contrived example. Suppose that $d$ is a ``dependent type'' where \[d : [[int -> star]]\] so that $d\,3$ or $d\,100$ all yield the same type.  With general recursion at hand, we can image  a term $z$ that has type \[d\,\mathsf{loop}\] where $\mathsf{loop}$ is some non-terminating computation and of type $[[int]]$. What would happen if we try to type check the following application: \[ [[(\x: d three.x)z]]\] Under the normal typing rules of \coc, the type checker would get stuck as it tries to do $\beta$-equality on two terms: $d\,3$ and $d\,\mathsf{loop}$, where the latter is non-terminating.
 
-This is not the case for \name: 1) it has no such conversion rule, therefore the type checker would do syntactic comparison between the two terms instead of $\beta$-equality in the above example; 2) one would need to write infinitely $[[castdown]]$'s to make the type checker loop forever (e.g., $([[\x:d three.x]])([[castdown]]([[castdown]] \dots z) $), which is impossible in reality.
+This is not the case for \name: (i) it has no such conversion rule, therefore the type checker would do syntactic comparison between the two terms instead of $\beta$-equality in the above example; and (ii) one would need to write infinitely $[[castdown]]$'s to make the type checker loop forever (e.g., $([[\x:d three.x]])([[castdown]]([[castdown]] \dots z) $), which is impossible in reality.
 
 In summary, \name approaches the decidability of the type system by explicitly controlling type-level computation, which is independent of the normalization property, while supporting general recursion at the same time.
 
