@@ -18,10 +18,13 @@ First bring in all results and formalization: syntax; semantics; proofs ... then
 % \item Subject reduction and progress theorems will be proved.
 % \end{itemize}
 
-\newcommand{\expcc}{\textsf{ExpCC}\xspace}
-\newcommand{\cc}{\textsf{CC}\xspace}
+\newcommand{\expcc}{$\lambda C_{\mathsf{exp}}$\xspace}
+\newcommand{\cc}{$\lambda C$\xspace}
 \newcommand{\gram}[1]{\ottgrammartabular{#1\ottafterlastrule}}
 \newcommand{\ruleref}[1]{\ottdrulename{#1}}
+
+% Use space as delimiter for premises
+\renewcommand{\ottpremise}[1]{\enskip #1 \enskip}
 
 In this section, we present a variant of the Calculus of Constructions (\cc), called \emph{explicit} Calculus of Constructions (\expcc), which is the foundation of our core language \name. \expcc can be regarded as \name without general recursion, so that has more straightforward properties and metatheory. It is suitable for illustrating the core idea of our design, that is to control $\beta$-reduction at the type level by introducing \emph{explicit} type conversion semantics. This also brings a benefit to type checking of \expcc, that the strong normalization is no long necessary to achieve the decidability of type checking. In the following part of this section, we give explanation of these properties by showing the syntax, static and dynamic semantics and the metatheory of \expcc.
 
@@ -75,8 +78,6 @@ The type system for \expcc contains typing judgements and operational semantics.
 	\label{fig:ecc:dynsem}
 \end{figure}
 
-\renewcommand{\ottpremise}[1]{\enskip #1 \enskip}
-
 Figure \ref{fig:ecc:typerule} lists the typing judgements to check the validity of expressions. Most rules are straightforward and similar with the ones in \cc. For example, rule \ruleref{T\_Ax} states that the "type" of sort $ \star $ is a kind. This is derived from an axiom in \cc, that the highest sort is $ \Box $, making the type system predicative. Rule \ruleref{T\_Pi} allows us to type dependent products. There are four possible combinations of types of $\tau_{{\mathrm{1}}}$ and $\tau_{{\mathrm{2}}}$ in a product $\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}$, i.e. $(s,t) \in \{ \star ,  \Box \} \times \{ \star ,  \Box \}$. For some $(\lambda  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \ottnt{e}):(\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}})$, when $(s,t)=( \star , \Box )$, $x:\tau_{{\mathrm{1}}}: \star $, $e:\tau_{{\mathrm{2}}}: \Box $, so $x$ is a term and $e$ is a type. Thus, we have a type depending on a term which means the product is a dependent type.
 
 The difference from \cc for typing rules of \expcc is that rule \ruleref{T\_CastUp} and \ruleref{T\_CastDown} are added to check the type conversion primitives $ \mathsf{cast}^{\uparrow} $ and $ \mathsf{cast}_{\downarrow} $, and the implicit type conversion rule of \cc is removed, which is the rule as follows:
@@ -103,16 +104,8 @@ Therefore, it is feasible to replace implicit conversion rules of \cc with expli
 	\label{fig:ecc:typerule}
 \end{figure}
 
-\subsection{Decidability of type checking}
-The conversion rule of \cc is not syntax-directed because it can be implicitly applied at any time in a derivation. The $\beta$-equality premise of the rule also leads to the decidability of type checking relying on the strong normalization property of \cc:
-
-\begin{thm}[Necessity of strong normalization]
-The strong normalization property of \cc is necessary for the decidability of its type checking.
-\end{thm}
-
-\begin{proof}
-The proof is by contradiction. Suppose strong normalization does not hold in the type system, then we can find a type $\tau_{{\mathrm{1}}}$ such that there exists at least one reduction sequence which does not terminate. Notice that any type $\tau_{{\mathrm{2}}}$ in such reduction sequence holds for $ \tau_{{\mathrm{1}}}  =_{\beta}  \tau_{{\mathrm{2}}} $. Thus we can constantly apply the conversion rule without termination and the type checking will not stop, which means the type checking is undecidable.
-\end{proof}
+\subsection{Decidability and soundness without strong normalization}
+The conversion rule of \cc is not syntax-directed because it can be implicitly applied at any time in a derivation. The $\beta$-equality premise of the rule also leads to the decidability of type checking relying on the strong normalization property of \cc. Suppose strong normalization does not hold in the type system, then we can find a type $\tau_{{\mathrm{1}}}$ such that there exists at least one reduction sequence which does not terminate. Notice that any type $\tau_{{\mathrm{2}}}$ in such reduction sequence holds for $ \tau_{{\mathrm{1}}}  =_{\beta}  \tau_{{\mathrm{2}}} $. Thus we can constantly apply the conversion rule without termination and the type checking will not stop, which means the type checking is undecidable.
 
 Requiring strong normalization to achieve the decidability of type checking makes it impossible to combine general recursion with \cc, because general recursion might cause nontermination which simply breaks the strong normalization property. So we use explicit type conversion rules by cast operations to relax the constraints of achieving decidable type checking. We have the following theorem:
 
@@ -126,10 +119,7 @@ By induction on typing rules in Figure \ref{fig:ecc:typerule}.
 
 Notice that new explicit type conversion rules are syntax-directed and do not include the $\beta$-equality premise but one-step reduction instead. Because checking if one term is one-step-reducible to the other is always decidable by enumerating the reduction rules, type checking using these rules are always decidable. Therefore the proof of decidability for \expcc does not rely on the strong normalization. This also implies the possibility of introducing general recursion into the system with decidable type checking.
 
-\subsection{Soundness}
-\linus{Is it necessary to show soundness in this section? How about merging with the core language? Because we have to show the soundness of \name in later sections anyway.}
-
-It is straightforward to obtain the soundness of \expcc by combining the following two theorems:
+Also for obtaining the soundness of \expcc, the proof does not need the strong normalization by combining the following two theorems:
 
 \begin{thm}[Subject Reduction]
   If $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$ and $e  \longrightarrow  e'$ then $\Gamma  \vdash  \ottnt{e'}  \ottsym{:}  \tau$.
