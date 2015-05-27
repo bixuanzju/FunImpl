@@ -6,5 +6,123 @@
 \begin{itemize}
 \item Expand the core language with datatypes and pattern matching by encoding.
 \item Give translation rules.
-\item Encode GADTs and maybe other Haskell extensions? GADTs seems challenging, so perhaps some other examples would be datatypes like $Fix f$, and $Monad$ as a record. Could formalize records in Haskell style.  
+\item Encode GADTs and maybe other Haskell extensions? GADTs seems challenging, so perhaps some other examples would be datatypes like $Fix f$, and $Monad$ as a record. Could formalize records in Haskell style.
 \end{itemize}
+
+\newcommand{\sufcc}{$\lambda C_{\mathsf{suf}}$\xspace}
+
+In this section, we present the surface language (\sufcc) that supports simple datatypes and case analysis. Due to the expressiveness of \name, all these features can be elaborated into the core language without extending the built-in language constructs of \name. In what follows, we first give the syntax of \sufcc, followed by the extended typing rules, then we show the formal translation rules that translates \sufcc into \name. Finally we demonstrate the translation using a simple example.
+
+\subsection{Extended Syntax}
+
+The syntax of \sufcc is shown in Figure~\ref{fig:datasyn} (\jeremy{no existentially qualified type variables due to the syntax change}). Compared with \name, \sufcc has a new syntax category: a program, which consists of a list of datatype declarations, followed by a expression. An \emph{algebraic data type} $D$ is introduced as a top-level \textbf{data} declaration with its \emph{data constructors}. The type of a data constructor $K$ has the form: \[K : \Pi\overline{u : \kappa}^{n}.\overline{\tau} \rightarrow D\,\overline{u}^{n} \] The first $n$ quantified type variables $\overline{u}$ appear in the same order in the return type $D\,\overline{u}$. The \textbf{case} expression is conventional, used to break up values built with data constructors. The patterns of a case expression are flat (no nested patterns), and bind value variables.
+
+\begin{figure}[ht]
+\centering
+\small
+\[
+  \begin{array}{llll}
+    \textbf{Declarations} \\
+    pgm &::= & \overline{decl}; e & \text{Declarations} \\
+    decl &::= & \data\,D\,\overline{u : \kappa} = \overline{\mid K\,\overline{\tau}} & \text{Datatype} \\ \\
+    \textbf{Terms} \\
+    u &::= & x \mid K & \text{Variables and constructors} \\
+    e,\tau,\sigma,\upsilon,\kappa &::= & u & \text{Term atoms} \\
+    & & \dots \\
+    & \mid & \case\,e\,\of\,\overline{p \Rightarrow e} & \text{Case analysis} \\
+    p &::= & K\,\overline{x : \tau} & \text{Pattern} \\ \\
+    \textbf{Environments} \\
+    \Gamma &::= &\varnothing & \text{Empty} \\
+    & \mid & \Gamma,u:\tau & \text{Variable binding}
+  \end{array}
+\]
+  \caption{Syntax of \sufcc ($e$ for terms; $\tau,\sigma,\upsilon$ for types; $\kappa$ for kinds)}\label{fig:datasyn}
+\end{figure}
+
+With datatypes, it is easy to encode \emph{records} as syntactic sugar of simple datatypes, as shown in Figure~\ref{fig:records}.
+
+\begin{figure}[ht]
+\centering
+\[
+  \begin{array}{lll}
+    \data\,R = R\,\{\,\overline{S:\tau}^n\,\} & \triangleq & \data\,R = R\,\overline{\tau} \\
+    & & \letbb\,S_{i}^{i \in 1..n} : R \rightarrow \tau_{i} = \\
+    & &\quad \lam{l}{R}{\case\,l\,\of\, R\,\overline{x:\tau} \Rightarrow x_{i}} \\
+    & &\inb
+  \end{array}
+\]
+\caption{Syntactic sugar for records}\label{fig:records}
+\end{figure}
+
+\subsection{Extended Typing Rules}
+
+The type system of \sufcc is shown in Figure~\ref{fig:datatype}. To save space, we only show the new typing rules. Furthermore, we sometimes adopt the following syntax convention: \[ \overline{\tau}^n \rightarrow \tau_r \equiv \tau_1 \rightarrow \dots \rightarrow \tau_n \rightarrow \tau_r \]
+
+Rule (Pgm) type-checks a whole problem. It first type-checks the declarations, which in return gives a new typing environment. Combined with the original environment, it then checks the expression and return the final type. Rule (Data) type-checks datatype declarations by ensuing the well-formedness of the kinds of type constructors and the types of data constructors. Finally rule (Alt) validates the patterns by looking up the the existence of corresponding data constructors in the typing environment, replacing universally quantified type variables with proper concrete types.
+
+\newcommand{\ctx}[2][\Gamma]{#1 \vdash #2}
+\newcommand{\ctxz}[1]{\ctx[\varnothing]{#1}}
+\newcommand{\ctxw}[3][\Gamma]{#1,#2 \vdash #3}
+
+\begin{figure*}[ht]
+  \centering \small
+  \begin{tabular}{lc}
+    \framebox{$\Gamma \vdash pgm : \tau$} \\
+    (Pgm) & $\inferrule {\overline{\Gamma_{0} \vdash decl : \Gamma_{d}} \\ \Gamma = \Gamma_{0}, \overline{\Gamma_{d}} \\ \ctx{e:\tau}} {\Gamma_{0} \vdash \overline{decl}; e : \tau}$ \\
+    \framebox{$\Gamma \vdash decl : \Gamma_d$} \\
+    (Data) & $\inferrule {\Gamma \vdash \overline{\kappa} \rightarrow \star : \square \\ \overline{\Gamma, D:\overline{\kappa} \rightarrow \star, \overline{u : \kappa} \vdash \overline{\tau} \rightarrow D\,\overline{u}:\star}} {\ctx{(\data\,D\,\overline{u : \kappa} = \overline{\mid K\,\overline{\tau}}): (D : \overline{\kappa} \rightarrow \star, K : \Pi\overline{u : \kappa}.\overline{\tau} \rightarrow D\,\overline{u})}}$ \\
+    \framebox{$\Gamma \vdash e : \tau$} \\
+    (Case) & $\inferrule {\ctx{e_{1}}:\sigma \\ \overline{\Gamma\vdash_{p} p \Rightarrow e_{2}:\sigma \rightarrow \tau}} {\Gamma\vdash\case\,e_{1}\,\of\,\overline{p \Rightarrow e_{2}}:\tau}$ \\
+    \framebox{$\Gamma \vdash_{p} p \Rightarrow e : \sigma \rightarrow \tau$} \\
+    (Alt) & $\inferrule {K:\Pi\overline{u:\kappa}.\,\overline{\sigma} \rightarrow D\,\overline{u} \in \Gamma \\ \theta=[\overline{u := \upsilon}] \\ \Gamma,\overline{x:\theta(\sigma)} \vdash e:\tau} {\Gamma \vdash_{p} K\,\overline{x:\theta(\sigma)} \Rightarrow e : D\,\overline{\upsilon} \rightarrow \tau}$
+  \end{tabular}
+  \caption{Typing rules of \sufcc}\label{fig:datatype}
+\end{figure*}
+
+\subsection{Translation Overview}
+
+We use a type-directed translation. The typing relations have the form: \[\Gamma \vdash e : \tau \rightsquigarrow E \]
+
+It states that \name expression $E$ is the translation of \sufcc expression $e$ of type $\tau$. Figure~\ref{fig:datatrans} shows the translation rules, which are the typing rules in Figure~\ref{fig:datatype} extended with the resulting expression $E$. In the translation, We require that applications of constructors to be \emph{saturated}.
+
+Among others, Rules (Case), (Alt) and (Data) are of the essence for the translation. Rule (Case) translates case expression to applications by first type-converting the scrutinee expression, then applying to the result type and a \name expression.
+
+\renewcommand{\arraystretch}{2.5}
+\begin{figure*}[ht]
+  \centering \small
+  \begin{tabular}{lcl}
+    \framebox{$\Gamma \vdash e : \tau \rightsquigarrow E$} \\
+    (Ax) & $\inferrule { \\ } {\ctxz{\star:\square \rightsquigarrow \star}}$ \\
+
+    (Var) & $\inferrule {x:\tau \in \Gamma} {\ctx{x:\tau \rightsquigarrow x}}$ \\
+
+    (App) & $\inferrule {\ctx{e_{1}:(\pai{x}{\tau_{2}}{\tau_{1}}) \rightsquigarrow E_{1}} \\ \ctx{e_{2}:\tau_{2} \rightsquigarrow E_{2}}} {\ctx{e_{1}e_{2}:\tau_{1}[x:=e_{2}] \rightsquigarrow E_{1}E_{2}}}$ \\
+
+    (Lam) & $\inferrule {\ctxw{x:\tau_{1}}{e:\tau_{2} \rightsquigarrow E} \\ \ctx{(\pai{x}{\tau_{1}}{\tau_{2}}):t}} {\ctx{(\lam{x}{\tau_{1}}{e}}):(\pai{x}{\tau_{1}}{\tau_{2}}) \rightsquigarrow \lam{x}{\tau_{1}}{E}}$ & $t \in \{\star, \square\}$ \\
+
+    (Pi) & $\inferrule {\ctx{\tau_{1}:s} \\ \ctxw{x:\tau_{1}}{\tau_{2}:t}} {\ctx{(\pai{x}{\tau_{1}}{\tau_{2}}):t \rightsquigarrow \pai{x}{\tau_{1}}{\tau_{2}}}}$ & $(s,t) \in \mathcal{R}$ \\
+
+    (Mu) & $\inferrule {\ctxw{x:\tau}{e:\tau} \rightsquigarrow E \\ \ctx{\tau:s}} {\ctx{(\miu{x}{\tau}{e}):\tau} \rightsquigarrow \miu{x}{\tau}{E}}$ & $s \in \{\star, \square\}$ \\
+
+    (Fold) & $\inferrule {\ctx{e:\tau_{2} \rightsquigarrow E} \\ \ctx{\tau_{1}:s} \\ \tau_{1} \longrightarrow \tau_{2}} {\ctx{(\fold{{\tau_{1}}}{e}):{\tau_{1}} \rightsquigarrow \fold{\tau_{1}}{E}}}$ \\
+
+    (Unfold) & $\inferrule {\ctx{e:\tau_{1} \rightsquigarrow E} \\ \ctx{\tau_{2}:s} \\ \tau_{1} \longrightarrow \tau_{2}} {\ctx{(\unfold{e}):\tau_{2} \rightsquigarrow \unfold{E}}}$ \\
+
+    (Case) & $\inferrule {\ctx{e_{1}:\sigma \rightsquigarrow E_{1}} \\ \overline{\Gamma\vdash_{p} p \Rightarrow e_{2}:\sigma \rightarrow \tau \rightsquigarrow E_{2}}} {\Gamma\vdash\case\,e_{1}\,\of\,\overline{p \Rightarrow e_{2}}:\tau \rightsquigarrow (\unfold{E_{1}})\,\tau\,\overline{E_{2}}}$ \\
+    \framebox{$\Gamma \vdash_{p} p \Rightarrow e : \sigma \rightarrow \tau \rightsquigarrow E$} \\
+    (Alt) & $\inferrule {K:\Pi\overline{u:\kappa}.\,\overline{\sigma} \rightarrow D\,\overline{u} \in \Gamma \\ \theta=[\overline{u := \upsilon}] \\ \Gamma,\overline{x:\theta(\sigma)} \vdash e:\tau \rightsquigarrow E} {\Gamma \vdash_{p} K\,\overline{x:\theta(\sigma)} \Rightarrow e : D\,\overline{\upsilon} \rightarrow \tau \rightsquigarrow \lambda(\overline{x:\theta(\sigma)}).E}$ \\
+    \framebox{$\Gamma \vdash decl : \Gamma_d \rightsquigarrow E$} \\
+    (Data) & $\inferrule {\Gamma \vdash \overline{\kappa} \rightarrow \star : \square \\ \overline{\Gamma, D:\overline{\kappa} \rightarrow \star, \overline{u : \kappa} \vdash \overline{\tau} \rightarrow D\,\overline{u}:\star}} {\ctx{(\data\,D\,\overline{u : \kappa} = \overline{\mid K\,\overline{\tau}}): (D : \overline{\kappa} \rightarrow \star, \overline{K : \Pi\overline{u : \kappa}.\overline{\tau} \rightarrow D\,\overline{u}}) \rightsquigarrow E}}$ \\
+         & \begingroup \renewcommand*{\arraystretch}{1.0} $\begin{array} {lll}
+                                                             E & ::= & \letbb\,D : \overline{\kappa} \rightarrow \star =\lambda\overline{u : \kappa}.\,\mu X.\,\Pi b:\star.\,\overline{(\tau[D\,\overline{u}:=X] \rightarrow b)} \rightarrow b\,\inb \\ & & \letbb\,K_{i} : \Pi\overline{u : \kappa}.\overline{\tau} \rightarrow D\,\overline{u} = \lambda \overline{(u : \kappa)}.\lambda\overline{(x : \tau)}.\\
+                                                                    & & \quad \fold{D\,\overline{u}}{(\lambda (b : \star)\overline{(c : \overline{\tau} \rightarrow b)} . c_{i}\,\overline{x})}\,\inb \end{array}$ \endgroup \\
+    \framebox{$\Gamma \vdash pgm : \tau \rightsquigarrow E$} \\
+    (Pgm) & $\inferrule {\overline{\Gamma_{0} \vdash decl : \Gamma_{d} \rightsquigarrow E_{1}} \\ \Gamma = \Gamma_{0}, \overline{\Gamma_{d}} \\ \ctx{e:\tau \rightsquigarrow E}} {\Gamma_{0} \vdash \overline{decl}; e : A \rightsquigarrow \overline{E_{1}} \oplus E}$
+  \end{tabular}
+  \caption{Type-directed translation from \sufcc to \name}\label{fig:datatrans}
+\end{figure*}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../main"
+%%% End:

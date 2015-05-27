@@ -73,7 +73,7 @@ using datatypes.}
 \newcommand{\data}{\mathbf{data}} \newcommand{\where}{\mathbf{where}}
 \newcommand{\letbb}{\mathbf{let}} \newcommand{\inb}{\mathbf{in}}
 
-With the explicit type conversion rules and the $\mu$ primitive, it is straightforward to encode recursive datatypes and recusive functions using datatypes. While inductive datatypes can be encoded using either the Church or the Scott encoding, we adopt the Scott encoding as it is more fit with our unified recursive types. We demonstrate the encoding method using a simple datatype as a running example: the natural numbers.
+With the explicit type conversion rules and the $\mu$ primitive, it is straightforward to encode recursive datatypes and recusive functions using datatypes. While inductive datatypes can be encoded using either the Church or the Scott encoding, we adopt the Scott encoding as it is bear some resemblance to case analysis, making it more convenient to encode pattern matching. We demonstrate the encoding method using a simple datatype as a running example: the natural numbers.
 
 The datatype declaration for natural numbers is:
 \begin{lstlisting}[language=Haskell]
