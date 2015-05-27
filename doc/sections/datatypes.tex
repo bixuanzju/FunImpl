@@ -74,7 +74,7 @@ Rule (Pgm) type-checks a whole problem. It first type-checks the declarations, w
     \framebox{$\Gamma \vdash e : \tau$} \\
     (Case) & $\inferrule {\ctx{e_{1}}:\sigma \\ \overline{\Gamma\vdash_{p} p \Rightarrow e_{2}:\sigma \rightarrow \tau}} {\Gamma\vdash\case\,e_{1}\,\of\,\overline{p \Rightarrow e_{2}}:\tau}$ \\
     \framebox{$\Gamma \vdash_{p} p \Rightarrow e : \sigma \rightarrow \tau$} \\
-    (Alt) & $\inferrule {K:\Pi\overline{u:\kappa}.\,\overline{\sigma} \rightarrow D\,\overline{u} \in \Gamma \\ \theta=[\overline{u := \upsilon}] \\ \Gamma,\overline{x:\theta(\sigma)} \vdash e:\tau} {\Gamma \vdash_{p} K\,\overline{x:\theta(\sigma)} \Rightarrow e : D\,\overline{\upsilon} \rightarrow \tau}$
+    (Alt) & $\inferrule {\theta=[\overline{u := \upsilon}] \\\\ K:\Pi\overline{u:\kappa}.\,\overline{\sigma} \rightarrow D\,\overline{u} \in \Gamma \\ \Gamma,\overline{x:\theta(\sigma)} \vdash e:\tau} {\Gamma \vdash_{p} K\,\overline{x:\theta(\sigma)} \Rightarrow e : D\,\overline{\upsilon} \rightarrow \tau}$
   \end{tabular}
   \caption{Typing rules of \sufcc}\label{fig:datatype}
 \end{figure*}
@@ -92,7 +92,7 @@ Among others, Rules (Case), (Alt) and (Data) are of the essence for the translat
   \centering \small
   \begin{tabular}{lcl}
     \framebox{$\Gamma \vdash e : \tau \rightsquigarrow E$} \\
-    (Ax) & $\inferrule { \\ } {\ctxz{\star:\square \rightsquigarrow \star}}$ \\
+    (Ax) & $\inferrule { } {\ctxz{\star:\square \rightsquigarrow \star}}$ \\
 
     (Var) & $\inferrule {x:\tau \in \Gamma} {\ctx{x:\tau \rightsquigarrow x}}$ \\
 
@@ -110,7 +110,7 @@ Among others, Rules (Case), (Alt) and (Data) are of the essence for the translat
 
     (Case) & $\inferrule {\ctx{e_{1}:\sigma \rightsquigarrow E_{1}} \\ \overline{\Gamma\vdash_{p} p \Rightarrow e_{2}:\sigma \rightarrow \tau \rightsquigarrow E_{2}}} {\Gamma\vdash\case\,e_{1}\,\of\,\overline{p \Rightarrow e_{2}}:\tau \rightsquigarrow (\unfold{E_{1}})\,\tau\,\overline{E_{2}}}$ \\
     \framebox{$\Gamma \vdash_{p} p \Rightarrow e : \sigma \rightarrow \tau \rightsquigarrow E$} \\
-    (Alt) & $\inferrule {K:\Pi\overline{u:\kappa}.\,\overline{\sigma} \rightarrow D\,\overline{u} \in \Gamma \\ \theta=[\overline{u := \upsilon}] \\ \Gamma,\overline{x:\theta(\sigma)} \vdash e:\tau \rightsquigarrow E} {\Gamma \vdash_{p} K\,\overline{x:\theta(\sigma)} \Rightarrow e : D\,\overline{\upsilon} \rightarrow \tau \rightsquigarrow \lambda(\overline{x:\theta(\sigma)}).E}$ \\
+    (Alt) & $\inferrule {\theta=[\overline{u := \upsilon}] \\\\ K:\Pi\overline{u:\kappa}.\,\overline{\sigma} \rightarrow D\,\overline{u} \in \Gamma \\ \Gamma,\overline{x:\theta(\sigma)} \vdash e:\tau \rightsquigarrow E} {\Gamma \vdash_{p} K\,\overline{x:\theta(\sigma)} \Rightarrow e : D\,\overline{\upsilon} \rightarrow \tau \rightsquigarrow \lambda(\overline{x:\theta(\sigma)}).E}$ \\
     \framebox{$\Gamma \vdash decl : \Gamma_d \rightsquigarrow E$} \\
     (Data) & $\inferrule {\Gamma \vdash \overline{\kappa} \rightarrow \star : \square \\ \overline{\Gamma, D:\overline{\kappa} \rightarrow \star, \overline{u : \kappa} \vdash \overline{\tau} \rightarrow D\,\overline{u}:\star}} {\ctx{(\data\,D\,\overline{u : \kappa} = \overline{\mid K\,\overline{\tau}}): (D : \overline{\kappa} \rightarrow \star, \overline{K : \Pi\overline{u : \kappa}.\overline{\tau} \rightarrow D\,\overline{u}}) \rightsquigarrow E}}$ \\
          & \begingroup \renewcommand*{\arraystretch}{1.0} $\begin{array} {lll}
