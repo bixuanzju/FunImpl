@@ -7,7 +7,7 @@ We begin this section with an informal introduction to the main features of \nam
 \subsection{Calculus of Constructions}
 \label{sec:coc}
 
-\name is based on the \emph{Calculus of Constructions} (\coc)~\cite{coc}, which is a higher-order typed lambda calculus. One ``unconventional'' feature in \coc is the so-called \emph{conversion} rule as shown below:
+\name is based on the \emph{Calculus of Constructions} (\coc)~\cite{coc}, which is a higher-order typed lambda calculus. One ``unconventional'' feature of \coc is the so-called \emph{conversion} rule as shown below:
 \renewcommand{\ottpremise}[1]{\enskip #1 \enskip}
 \ottusedrule{\ottdruleTccXXConv{}}
 
@@ -25,21 +25,21 @@ The dual operation of $[[castup]]$ is $[[castdown]]$. The use of $[[castdown]]$ 
 
 \subsection{Decidability and Strong Normalization}
 
-\bruno{Informally explain that with explicit fold/unfold rules the decidability of the 
+\bruno{Informally explain that with explicit fold/unfold rules the decidability of the
 type system does not depend on strong normalization.}
 
-The decidability of the type system of \coc depends on the normalization property for all constructed terms~\cite{coc:decidability}. However strong normalization does not hold with general recursion. This is simply because due to the conversion rule, any non-terminating term would force the type checker to go into an infinitely loop, thus rendering the type system undecidable.
+The decidability of the type system of \coc depends on the normalization property for all constructed terms~\cite{coc:decidability}. However strong normalization does not hold with general recursion. This is simply because due to the conversion rule, any non-terminating term would force the type checker to go into an infinitely loop (by constantly applying the conversion rule without termination), thus rendering the type system undecidable.
 
-With explicit type conversion rules, however, the decidability of the type system no longer depends on the normalization property. In fact \name is not strong normalizing, as we will see in later sections. The ability to write non-terminating terms forces us to have more control over type-level computation. To illustrate, let us consider a contrived example. Suppose that $d$ is a ``dependent type'' where \[d : [[int -> star]]\] so that $d\,3$ or $d\,100$ all yield the same type.  With general recursion at hand, we can image  a term $z$ that has type \[d\,\mathsf{loop}\] where $\mathsf{loop}$ is some non-terminating computation and of type $[[int]]$. What would happen if we try to type check the following application: \[ [[(\x: d three.x)z]]\] Under the normal typing rules of \coc, the type checker would get stuck as it tries to do $\beta$-equality on two terms: $d\,3$ and $d\,\mathsf{loop}$, where the latter is non-terminating.
+With explicit type conversion rules, however, the decidability of the type system no longer depends on the normalization property. In fact \name is not strong normalizing, as we will see in later sections. The ability to write non-terminating terms motivates us to have more control over type-level computation. To illustrate, let us consider a contrived example. Suppose that $d$ is a ``dependent type'' where \[d : [[int -> star]]\] so that $d\,3$ or $d\,100$ all yield the same type.  With general recursion at hand, we can image  a term $z$ that has type \[d\,\mathsf{loop}\] where $\mathsf{loop}$ stands for any diverging computation and of type $[[int]]$. What would happen if we try to type check the following application: \[ [[(\x: d three.x)z]]\] Under the normal typing rules of \coc, the type checker would get stuck as it tries to do $\beta$-equality on two terms: $d\,3$ and $d\,\mathsf{loop}$, where the latter is non-terminating.
 
-This is not the case for \name: (i) it has no such conversion rule, therefore the type checker would do syntactic comparison between the two terms instead of $\beta$-equality in the above example; and (ii) one would need to write infinitely $[[castdown]]$'s to make the type checker loop forever (e.g., $([[\x:d three.x]])([[castdown]]([[castdown]] \dots z) $), which is impossible in reality.
+This is not the case for \name: (i) it has no such conversion rule, therefore the type checker would do syntactic comparison between the two terms instead of $\beta$-equality in the above example; and (ii) one would need to write infinite number of $[[castdown]]$'s to make the type checker loop forever (e.g., $([[\x:d three.x]])([[castdown]]([[castdown]] \dots z) $), which is impossible in reality.
 
-In summary, \name approaches the decidability of the type system by explicitly controlling type-level computation, which is independent of the normalization property, while supporting general recursion at the same time.
+In summary, \name achieves the decidability of type checking by explicitly controlling type-level computation, which is independent of the normalization property, while supporting general recursion at the same time.
 
 \subsection{Unifying Recursive Types and Recursion}
 
-\bruno{Show how in \name recursion and recursive types are unified. 
-Discuss that due to this unification the sensible choice for the 
+\bruno{Show how in \name recursion and recursive types are unified.
+Discuss that due to this unification the sensible choice for the
 evaluation strategy is call-by-name. }
 
 Recursive types arise naturally if we want to do general recursion. \name differs from other programming languages in that it unifies both recursion and recursive types by the same $\mu$ primitive.
@@ -51,15 +51,17 @@ Recursive types arise naturally if we want to do general recursion. \name differ
 [[castdown]]([[castdown]] \dots z) &: [[int]][[->]][[int]][[->]]\dots[[->]]H
 \end{align*}
 
-\emph{Recursion}. The same $\mu$ primitive can also be used to define recursive functions, e.g., the factorial function: \[\miu{f}{\mathsf{Int} \rightarrow \mathsf{Int}}{\lam{x}{\mathsf{Int}}{\mathsf{if}\,(x == 0)\,\mathsf{then}\,1\,\mathsf{else}\,x * f\,(x - 1)}}\] This is reflected by the dynamic semantics of the $\mu$ primitive: 
+\emph{Recursion}. The same $\mu$ primitive can also be used to define recursive functions, e.g., the factorial function: \[\miu{f}{\mathsf{Int} \rightarrow \mathsf{Int}}{\lam{x}{\mathsf{Int}}{\mathsf{if}\,(x == 0)\,\mathsf{then}\,1\,\mathsf{else}\,x * f\,(x - 1)}}\] This is reflected by the dynamic semantics of the $\mu$ primitive:
 \[\miu{x}{T}{E} \longrightarrow E[x:=\miu{x}{T}{E}]\]
 which is exactly doing recursive unfolding of the same term.
 
-Due to the unification, the \emph{call-by-value} strategy seems unfit to us. \jeremy{explain}
+Due to the unification, the \emph{call-by-value} evaluation strategy does not fit in our setting. In call-by-value evaluation, recursion can be expressed by the recursive binder $\mu$ as $\mu f : T \rightarrow T.\, E$ (note that the type of $f$ is restricted to function types). Since we don't want to pose restrictions on the types, the \emph{call-by-name}  evaluation is a sensible choice.
+
+% The dynamic semantics of $\mu$ requires the recursive binder to satisfy (omit type annotations for clarity):  \[ \mu f.\,E = (\lambda f.\,E) (\mu f.\,E) \] which, however, does not terminate in strict languages. Therefore, to loosen the function-type restriction to allow any types, the sensible choice for the evaluation strategy is \emph{call-by-name}.
 
 \subsection{Encoding Datatypes}
 
-\bruno{Informally explain how to encode recursive datatypes and recursive functions 
+\bruno{Informally explain how to encode recursive datatypes and recursive functions
 using datatypes.}
 
 \newcommand{\Nat}{\mathsf{Nat}} \newcommand{\zero}{\mathsf{zero}}
