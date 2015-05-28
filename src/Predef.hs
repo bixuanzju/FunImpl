@@ -1,7 +1,5 @@
 module Predef where
 
-import Data.Maybe (fromMaybe)
-
 import Expr
 import Parser
 import Syntax
@@ -75,17 +73,4 @@ three = App suc two
 
 plus :: Expr
 plus = parse "fix (nat -> nat -> nat) (lam p : (nat -> nat -> nat) . lam n : nat . lam m : nat . (unfold n) nat m (lam l : nat . suc (p l m)))"
-
-repFreeVar :: BEnv -> Expr -> Expr
-repFreeVar env = repl
-  where
-    repl :: Expr -> Expr
-    repl (App f a) = App (repl f) (repl a)
-    repl (Lam n t e) = Lam n (repl t) (repl e)
-    repl (Pi n t e) = Pi n (repl t) (repl e)
-    repl (Mu n t) = Mu n (repl t)
-    repl (F t e) = F (repl t) (repl e)
-    repl (U t) = U (repl t)
-    repl (Kind s) = Kind s
-    repl (Var n) = fromMaybe (Var n) (lookup n env)
 

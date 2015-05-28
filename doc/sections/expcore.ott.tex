@@ -85,6 +85,18 @@
 \ottusedrule{\ottdruleTccXXConv{}}
 \end{ottdefnblock}}
 
+%% defn ext
+\newcommand{\ottdruleTXXMu}[1]{\ottdrule[#1]{%
+\ottpremise{\Gamma  \ottsym{,}  \ottmv{x}  \ottsym{:}  \ottnt{s}  \vdash  \tau  \ottsym{:}  \ottnt{s}}%
+}{
+\Gamma  \vdash  \ottsym{(}  \mu \, \ottmv{x}  \ottsym{.}  \tau  \ottsym{)}  \ottsym{:}  \ottnt{s}}{%
+{\ottdrulename{T\_Mu}}{}%
+}}
+
+\newcommand{\ottdefnext}[1]{\begin{ottdefnblock}[#1]{$\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$}{\ottcom{Extended expression typing}}
+\ottusedrule{\ottdruleTXXMu{}}
+\end{ottdefnblock}}
+
 %% defn expr
 \newcommand{\ottdruleTXXAx}[1]{\ottdrule[#1]{%
 }{
@@ -169,9 +181,20 @@
 
 
 \newcommand{\ottdefnsLint}{
-\ottdefncoc{}\ottdefnexpr{}}
+\ottdefncoc{}\ottdefnext{}\ottdefnexpr{}}
 
 % defns OpSem
+%% defn extstep
+\newcommand{\ottdruleSXXMu}[1]{\ottdrule[#1]{%
+}{
+\mu \, \ottmv{x}  \ottsym{.}  \tau  \longrightarrow  \tau  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{.}  \tau  \ottsym{]}}{%
+{\ottdrulename{S\_Mu}}{}%
+}}
+
+\newcommand{\ottdefnextstep}[1]{\begin{ottdefnblock}[#1]{$\ottnt{e}  \longrightarrow  \ottnt{e'}$}{\ottcom{One-step reduction}}
+\ottusedrule{\ottdruleSXXMu{}}
+\end{ottdefnblock}}
+
 %% defn step
 \newcommand{\ottdruleSXXBeta}[1]{\ottdrule[#1]{%
 }{
@@ -211,7 +234,7 @@
 
 
 \newcommand{\ottdefnsOpSem}{
-\ottdefnstep{}}
+\ottdefnextstep{}\ottdefnstep{}}
 
 \newcommand{\ottdefnss}{
 \ottdefnsLint

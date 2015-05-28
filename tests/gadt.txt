@@ -1,0 +1,40 @@
+:add Zero Int
+:add One Int
+:add Yes Bool
+:add No Bool
+:add Int *
+:add Bool *
+
+:let PairAB mu X . pi p : * . (a -> b -> p) -> p
+:let PairA lam b : * . PairAB
+:let Pair lam a : * . PairA
+:let MkPair lam a : * . lam b : * . lam fst : a . lam snd : b . fold[Pair a b] fold[PairA b] fold[PairAB] lam p : * . lam f : a -> b -> p . f fst snd
+:let fst lam a : * . lam b : * . lam p : (Pair a b) . (unfold (unfold (unfold p))) a (lam x : a . lam y : b . x)
+:let snd lam a : * . lam b : * . lam p : (Pair a b) . (unfold (unfold (unfold p))) b (lam x : a . lam y : b . y)
+
+:let Expr lam c : * . mu X . Int -> (Int -> Int) -> (Bool -> Bool) -> (pi a : * . pi b : * . a -> b -> (Pair a b)) -> c
+:let ExprInt mu X . Int -> (Int -> Int) -> (Bool -> Bool) -> (pi a : * . pi b : * . a -> b -> (Pair a b)) -> Int
+:let ExprBool mu X . Int -> (Int -> Int) -> (Bool -> Bool) -> (pi a : * . pi b : * . a -> b -> (Pair a b)) -> Bool
+:let ExprPairAB mu X . Int -> (Int -> Int) -> (Bool -> Bool) -> (pi a : * . pi b : * . a -> b -> (Pair a b)) -> (Pair a b)
+
+:let ZeroE fold[Expr Int] fold[ExprInt] lam fz : Int . lam fs : Int -> Int . lam fb : Bool -> Bool . lam fp : (pi a : * . pi b : * . a -> b -> (Pair a b)) . fz
+:let SuccE lam e : Expr Int . fold[Expr Int] fold[ExprInt] lam fz : Int . lam fs : Int -> Int . lam fb : Bool -> Bool . lam fp : (pi a : * . pi b : * . a -> b -> (Pair a b)) . fs ((unfold (unfold e)) fz fs fb fp)
+:let BoolE lam x : Bool . fold[Expr Bool] fold[ExprBool] lam fz : Int . lam fs : Int -> Int . lam fb : Bool -> Bool . lam fp : (pi a : * . pi b : * . a -> b -> (Pair a b)) . fb x
+:let PairE lam a : * . lam b : * . lam ex : Expr a . lam ey : Expr b . fold[Expr (Pair a b)] fold[ExprPairAB] lam fz : Int . lam fs : Int -> Int . lam fb : Bool -> Bool . lam fp : (pi a : * . pi b : * . a -> b -> (Pair a b)) . (fp a b) ((unfold (unfold ex)) fz fs fb fp) ((unfold (unfold ey)) fz fs fb fp)
+
+:let eval lam a : * . lam e : Expr a . (unfold (unfold (e))) Zero (lam x : Int . One) (lam x : Bool . x) (lam a : * . lam b : * . lam x : a . lam y : b . MkPair a b x y)
+
+:teq ZeroE ; Expr Int
+:teq SuccE ; Expr Int -> Expr Int
+:teq BoolE ; Bool -> Expr Bool
+:teq PairE ; pi x : * . pi y : * . Expr x -> Expr y -> Expr (Pair x y)
+
+:e eval Int ZeroE
+:e eval Int (SuccE ZeroE)
+:e eval Bool (BoolE Yes)
+:e eval Bool (BoolE No)
+
+:let testPair PairE Int Bool (SuccE ZeroE) (BoolE Yes)
+:teq testPair ; Expr (Pair Int Bool)
+:e fst Int Bool (eval (Pair Int Bool) testPair)
+:e snd Int Bool (eval (Pair Int Bool) testPair)

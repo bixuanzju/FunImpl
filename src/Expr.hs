@@ -1,6 +1,7 @@
 module Expr where
 
 import Data.List ((\\), union)
+import Data.Maybe (fromMaybe)
 import Syntax
 
 subst :: Sym -> Expr -> Expr -> Expr
@@ -55,6 +56,19 @@ alphaEq (U t) (U t') = alphaEq t t'
 alphaEq (Kind k) (Kind k') = k == k'
 alphaEq _ _ = False
 
+repFreeVar :: BEnv -> Expr -> Expr
+repFreeVar env = repl
+  where
+    repl :: Expr -> Expr
+    repl (App f a) = App (repl f) (repl a)
+    repl (Lam n t e) = Lam n (repl t) (repl e)
+    repl (Pi n t e) = Pi n (repl t) (repl e)
+    repl (Mu n t) = Mu n (repl t)
+    repl (F t e) = F (repl t) (repl e)
+    repl (U t) = U (repl t)
+    repl (Kind s) = Kind s
+    repl (Var n) = fromMaybe (Var n) (lookup n env)
+
 -- TODO: Generalize
 desugar :: Expr -> Expr
 desugar (Var n) = Var n
@@ -90,19 +104,26 @@ reduct (App e1 e2) = App (reduct e1) e2     -- (R-AppL)
 reduct (U (F _ e)) = e                            -- (R-Unfold-Fold)
 reduct (U e) = U (reduct e)                 -- (R-unfold)
 reduct m@(Mu x t) = subst x m t                   -- (R-Mu)
+reduct e = error $ "Not reducible: " ++ show e
 
-eval :: Expr -> Expr
-eval = loop
+eval :: BEnv -> Expr -> Expr
+eval benv = loop
   where
     loop e
       | isVal e = e
-      | otherwise = loop (reduct e)
+      | otherwise = case e of
+                     Var n -> case lookup n benv of
+                               Nothing -> e
+                               Just e' -> loop (reduct e')
+                     Kind _ -> e
+                     _ -> loop (reduct e)
 
--- -- | Definitional equality because we use weak head normal form
--- equate :: BEnv -> Expr -> Expr -> Bool
--- equate benv e1 e2 =
---   let e1' = eval benv . desugar $ e1
---       e2' = eval benv . desugar $ e2
+-- | Definitional equality
+equate :: BEnv -> Expr -> Expr -> Bool
+equate benv e1 e2 =
+  let e1' = eval benv . repFreeVar benv . desugar $ e1
+      e2' = eval benv . repFreeVar benv . desugar $ e2
+  in alphaEq e1' e2'
 --   in case (e1',e2') of
 --        (App a1 b1,App a2 b2) ->
 --          equate benv a1 a2 &&

@@ -1,0 +1,27 @@
+:let Nat mu X . pi a : * . a -> (a -> a) -> a
+:let Zero fold[Nat] lam a : * . lam fzero : a . lam fsucc : a -> a . fzero
+:let Succ lam n : Nat . fold[Nat] lam a : * . lam fzero : a . lam fsucc : a -> a . fsucc ((unfold n) a fzero fsucc)
+
+:let P lam x : Nat . Nat
+:let VecAN mu X . (P Zero) -> (pi n : Nat . a -> P n -> P (Succ n)) -> P (Succ n)
+:let VecA lam n : Nat . VecAN
+:let Vec lam a : * . VecA
+
+:let VecAZ mu X . (P Zero) -> (pi n : Nat . a -> P n -> P (Succ n)) -> P (Succ Zero)
+:let VecASN mu X . (P Zero) -> (pi n : Nat . a -> P n -> P (Succ n)) -> P (Succ (Succ n))
+
+:let Nil lam a : * . fold[Vec a Zero] fold[VecA Zero] fold[VecAZ] lam fnil : P Zero . lam fcons : (pi n : Nat . a -> P n -> P (Succ n)) . fold[P (Succ Zero)] Zero
+:let Cons lam a : * . lam n : Nat . lam x : a . lam v : (Vec a n). fold[Vec a (Succ n)] fold[VecA (Succ n)] fold[VecASN] lam fnil : P Zero . lam fcons : (pi n : Nat . a -> P n -> P (Succ n)) . (fcons (Succ n)) x ((unfold (unfold (unfold v))) fnil fcons)
+
+:teq Nil ; pi a : * . Vec a Zero
+:teq Cons ; pi a : * . pi n : Nat . a -> Vec a n -> Vec a (Succ n)
+
+:let One Succ Zero
+:let Two Succ One
+:let Three Succ Two
+
+:add Yes Bool
+:add No Bool
+:add Bool *
+
+:teq Cons Bool One Yes (Cons Bool Zero Yes (Nil Bool)) ; Vec Bool Two

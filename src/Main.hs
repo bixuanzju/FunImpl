@@ -42,15 +42,15 @@ main = runInputT defaultSettings (loop initalBEnv initalEnv)
         ":e" -> processCMD progm $
           \xs -> do
             if length xs == 1
-              then outputStrLn . show . eval . repFreeVar benv . desugar . head $ xs
+              then outputStrLn . show . eval benv . repFreeVar benv . desugar . head $ xs
               else outputStrLn "Command parser error - need one expression!"
             loop benv env
-        -- ":eq" -> processCMD progm $
-        --   \xs -> do
-        --     if length xs == 2
-        --       then outputStrLn . show $ equate benv (head xs) (xs !! 1)
-        --       else outputStrLn "Command parser error - need two expressions!"
-        --     loop benv env
+        ":eq" -> processCMD progm $
+          \xs -> do
+            if length xs == 2
+              then outputStrLn . show $ equate benv (head xs) (xs !! 1)
+              else outputStrLn "Command parser error - need two expressions!"
+            loop benv env
         ":t" -> processCMD progm $
           \xs -> do
             if length xs == 1
@@ -58,6 +58,14 @@ main = runInputT defaultSettings (loop initalBEnv initalEnv)
                 Left err  -> outputStrLn err
                 Right typ -> outputStrLn . show $ typ
               else outputStrLn "Command parser error - need one expression!"
+            loop benv env
+        ":teq" -> processCMD progm $
+          \xs -> do
+            if length xs == 2
+              then case tcheck env . repFreeVar benv . desugar . head $ xs of
+                Left err  -> outputStrLn err
+                Right typ -> outputStrLn . show $ equate benv typ (xs !! 1)
+              else outputStrLn "Command parser error - need two expressions!"
             loop benv env
         _ -> processCMD e $
           \xs -> do

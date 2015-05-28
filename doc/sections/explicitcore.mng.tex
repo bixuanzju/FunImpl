@@ -103,12 +103,12 @@ Therefore, it is feasible to replace implicit conversion rules of \cc with expli
 	\label{fig:ecc:typerule}
 \end{figure}
 
-\subsection{Decidability and soundness without strong normalization}
+\subsection{Decidability and soundness without strong normalization}\label{sec:ecc:sound}
 The conversion rule of \cc is not syntax-directed because it can be implicitly applied at any time in a derivation. The $\beta$-equality premise of the rule also leads to the decidability of type checking relying on the strong normalization property of \cc. Suppose strong normalization does not hold in the type system, then we can find a type $[[t1]]$ such that there exists at least one reduction sequence which does not terminate. Notice that any type $[[t2]]$ in such reduction sequence holds for $[[t1 =b t2]]$. Thus we can constantly apply the conversion rule without termination and the type checking will not stop, which means the type checking is undecidable.
 
 Requiring strong normalization to achieve the decidability of type checking makes it impossible to combine general recursion with \cc, because general recursion might cause nontermination which simply breaks the strong normalization property. So we use explicit type conversion rules by cast operations to relax the constraints of achieving decidable type checking. We have the following theorem:
 
-\begin{thm}[Decidability of type chechking for \expcc]
+\begin{thm}[Decidability of type checking for \expcc]
 Let $[[G]]$ be an environment, $[[e]]$ and $[[t]]$ be expressions of \expcc such that $[[G |- t : s]]$. Then the problem of knowing if one has $[[G |- e : t]]$ is decidable.
 \end{thm}
 

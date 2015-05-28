@@ -19,6 +19,7 @@ e, t {{ tex \tau }}      :: 'e_' ::=       {{ com Expressions    }}
   | Pi x : t1 . t2       ::  :: Pi         {{ com Product }}
   | castup [ t ] e       ::  :: CastUp     {{ com Cast up to type}}
   | castdown e           ::  :: CastDown   {{ com Cast down by reduction }}
+  | mu x . t             :: M:: Mu         {{ com General recursion }}
   | e1 [ x |-> e2 ]      :: M:: Sub        {{ com Substitution }}
   | ( e )                :: M:: Parens     {{ com Parenthesized expression }}
   | let x : t = e2 in e1 :: M:: LetBinding {{ com Let binding }}
@@ -53,6 +54,7 @@ v :: 'v_' ::=                               {{ com Values   }}
 terminals :: 'terminals_' ::=
   | \        ::  :: lambda    {{ tex \lambda }}
   | Pi       ::  :: pi        {{ tex \Pi }}
+  | mu       ::  :: mu        {{ tex \mu }}
   | star     ::  :: star      {{ tex \star }}
   | square   ::  :: square    {{ tex \Box }}
   | empty    ::  :: empty     {{ tex \varnothing }}
@@ -98,6 +100,13 @@ G |- t2 : s
 t1 =b t2
 ----------- :: Conv
 G |- e : t2
+
+defn G  |- e : t ::  :: ext :: 'T_' {{ com Extended expression typing }}
+by
+
+G, x:s |- t:s
+--------------- :: Mu
+G |- (mu x.t):s
 
 defn G  |- e : t ::  :: expr :: 'T_' {{ com Expression typing }}
 %{{ tex [[G]] \labeledjudge{e} [[e]] : [[t]] }}
@@ -145,6 +154,12 @@ G |- (castdown e) : t2
 %%% Dynamic semantics
 defns
 OpSem :: '' ::=
+
+defn e --> e' ::  :: extstep :: 'S_' {{ com One-step reduction }}
+by
+
+---------------------------- :: Mu
+mu x.t --> t [x |-> mu x. t]
 
 defn e --> e' ::  :: step :: 'S_' {{ com One-step reduction }}
 by
