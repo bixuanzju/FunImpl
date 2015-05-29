@@ -11,11 +11,11 @@
 
 \newcommand{\sufcc}{$\lambda C_{\mathsf{suf}}$\xspace}
 
-In this section, we present the surface language (\sufcc) that supports simple datatypes and case analysis. Due to the expressiveness of \name, all these features can be elaborated into the core language without extending the built-in language constructs of \name. In what follows, we first give the syntax of \sufcc, followed by the extended typing rules, then we show the formal translation rules that translates \sufcc into \name. Finally we demonstrate the translation using a simple example.
+In this section, we present the surface language (\sufcc) that supports simple datatypes and case analysis. Due to the expressiveness of \name, all these features can be elaborated into the core language without extending the built-in language constructs of \name. In what follows, we first give the syntax of \sufcc, followed by the extended typing rules, then we show the formal translation rules that translates \sufcc expressions into \name expressions. Finally we demonstrate the translation using a simple example.
 
 \subsection{Extended Syntax}
 
-The syntax of \sufcc is shown in Figure~\ref{fig:datasyn} (\jeremy{no existentially qualified type variables due to the syntax change}). Compared with \name, \sufcc has a new syntax category: a program, which consists of a list of datatype declarations, followed by a expression. An \emph{algebraic data type} $D$ is introduced as a top-level \textbf{data} declaration with its \emph{data constructors}. The type of a data constructor $K$ has the form: \[K : \Pi\overline{u : \kappa}^{n}.\overline{\tau} \rightarrow D\,\overline{u}^{n} \] The first $n$ quantified type variables $\overline{u}$ appear in the same order in the return type $D\,\overline{u}$. The \textbf{case} expression is conventional, used to break up values built with data constructors. The patterns of a case expression are flat (no nested patterns), and bind value variables.
+The syntax of \sufcc is shown in Figure~\ref{fig:datasyn} (\jeremy{no existentially qualified type variables due to the syntax change}). Compared with \name, \sufcc has a new syntax category: a program, consisting of a list of datatype declarations, followed by a expression. An \emph{algebraic data type} $D$ is introduced as a top-level \textbf{data} declaration with its \emph{data constructors}. The type of a data constructor $K$ has the form: \[K : \Pi\overline{u : \kappa}^{n}.\overline{\tau} \rightarrow D\,\overline{u}^{n} \] The first $n$ quantified type variables $\overline{u}$ appear in the same order in the return type $D\,\overline{u}$. The \textbf{case} expression is conventional, used to break up values built with data constructors. The patterns of a case expression are flat (no nested patterns), and bind value variables.
 
 \begin{figure}[ht]
 \centering
@@ -56,9 +56,9 @@ With datatypes, it is easy to encode \emph{records} as syntactic sugar of simple
 
 \subsection{Extended Typing Rules}
 
-The type system of \sufcc is shown in Figure~\ref{fig:datatype}. To save space, we only show the new typing rules. Furthermore, we sometimes adopt the following syntax convention: \[ \overline{\tau}^n \rightarrow \tau_r \equiv \tau_1 \rightarrow \dots \rightarrow \tau_n \rightarrow \tau_r \]
+The type system of \sufcc is shown in Figure~\ref{fig:datatype}. To save space, we only show the new typing rules. Furthermore, we sometimes adopt the following syntactic convention: \[ \overline{\tau}^n \rightarrow \tau_r \equiv \tau_1 \rightarrow \dots \rightarrow \tau_n \rightarrow \tau_r \]
 
-Rule (Pgm) type-checks a whole problem. It first type-checks the declarations, which in return gives a new typing environment. Combined with the original environment, it then checks the expression and return the final type. Rule (Data) type-checks datatype declarations by ensuing the well-formedness of the kinds of type constructors and the types of data constructors. Finally rule (Alt) validates the patterns by looking up the the existence of corresponding data constructors in the typing environment, replacing universally quantified type variables with proper concrete types.
+Rule (Pgm) type-checks a whole problem. It first type-checks the declarations, which in return gives a new typing environment. Combined with the original environment, it then checks the expression and return the result type. Rule (Data) type-checks datatype declarations by ensuing the well-formedness of the kinds of type constructors and the types of data constructors. Finally rule (Alt) validates the patterns by looking up the the existence of corresponding data constructors in the typing environment, replacing universally quantified type variables with proper concrete types.
 
 \newcommand{\ctx}[2][\Gamma]{#1 \vdash #2}
 \newcommand{\ctxz}[1]{\ctx[\varnothing]{#1}}
@@ -85,7 +85,11 @@ We use a type-directed translation. The typing relations have the form: \[\Gamma
 
 It states that \name expression $E$ is the translation of \sufcc expression $e$ of type $\tau$. Figure~\ref{fig:datatrans} shows the translation rules, which are the typing rules in Figure~\ref{fig:datatype} extended with the resulting expression $E$. In the translation, We require that applications of constructors to be \emph{saturated}.
 
-Among others, Rules (Case), (Alt) and (Data) are of the essence for the translation. Rule (Case) translates case expression to applications by first type-converting the scrutinee expression, then applying to the result type and a \name expression.
+Among others, Rules (Case), (Alt) and (Data) are of the essence for the translation. Rule (Case) translates case expressions into applications by first type-converting the scrutinee expression, then applying it to the result type and a \name expression. Rule (Alt) translate each pattern into a lambda expression, with each variable in the pattern corresponding to a variable in the lambda expression in the same order. The body in the alternative is recursively translated and taken as the lambda body. 
+
+Rule (Data) does the most heavy work and deserves further explanation. First of all, it results in a incomplete expression (as can be seen by the incomplete \emph{let} expressions), The result expression is supposed to be prepended to the translation of the last expression to form a complete \name expression, as specified by Rule (Pgm). Furthermore, each type constructor is translated as a lambda expression, with a recursive type as the body. Each data constructor is also translated as a lambda expression. Notice that we use cast operation in the lambda body to restore to the corresponding datatype.
+
+The rest of the translation rules hold few surprises.
 
 \renewcommand{\arraystretch}{2.5}
 \begin{figure*}[ht]
@@ -114,7 +118,7 @@ Among others, Rules (Case), (Alt) and (Data) are of the essence for the translat
     \framebox{$\Gamma \vdash decl : \Gamma_d \rightsquigarrow E$} \\
     (Data) & $\inferrule {\Gamma \vdash \overline{\kappa} \rightarrow \star : \square \\ \overline{\Gamma, D:\overline{\kappa} \rightarrow \star, \overline{u : \kappa} \vdash \overline{\tau} \rightarrow D\,\overline{u}:\star}} {\ctx{(\data\,D\,\overline{u : \kappa} = \overline{\mid K\,\overline{\tau}}): (D : \overline{\kappa} \rightarrow \star, \overline{K : \Pi\overline{u : \kappa}.\overline{\tau} \rightarrow D\,\overline{u}}) \rightsquigarrow E}}$ \\
          & \begingroup \renewcommand*{\arraystretch}{1.0} $\begin{array} {lll}
-                                                             E & ::= & \letbb\,D : \overline{\kappa} \rightarrow \star =\lambda\overline{u : \kappa}.\,\mu X.\,\Pi b:\star.\,\overline{(\tau[D\,\overline{u}:=X] \rightarrow b)} \rightarrow b\,\inb \\ & & \letbb\,K_{i} : \Pi\overline{u : \kappa}.\overline{\tau} \rightarrow D\,\overline{u} = \lambda \overline{(u : \kappa)}.\lambda\overline{(x : \tau)}.\\
+                                                             E & ::= & \letbb\,D : \overline{\kappa} \rightarrow \star =\lambda\overline{u : \kappa}.\,\mu X.\,\Pi b:\star.\,\overline{(\overline{\tau}[D\,\overline{u}:=X] \rightarrow b)} \rightarrow b\,\inb \\ & & \letbb\,K_{i} : \Pi\overline{u : \kappa}.\overline{\tau} \rightarrow D\,\overline{u} = \lambda \overline{(u : \kappa)}.\lambda\overline{(x : \tau)}.\\
                                                                     & & \quad \fold{D\,\overline{u}}{(\lambda (b : \star)\overline{(c : \overline{\tau} \rightarrow b)} . c_{i}\,\overline{x})}\,\inb \end{array}$ \endgroup \\
     \framebox{$\Gamma \vdash pgm : \tau \rightsquigarrow E$} \\
     (Pgm) & $\inferrule {\overline{\Gamma_{0} \vdash decl : \Gamma_{d} \rightsquigarrow E_{1}} \\ \Gamma = \Gamma_{0}, \overline{\Gamma_{d}} \\ \ctx{e:\tau \rightsquigarrow E}} {\Gamma_{0} \vdash \overline{decl}; e : A \rightsquigarrow \overline{E_{1}} \oplus E}$
