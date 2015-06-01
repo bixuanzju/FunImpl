@@ -1,9 +1,15 @@
 module Syntax where
 
-type Sym = String
+import Text.PrettyPrint.ANSI.Leijen
 
 
 data Program = Progm [Expr] deriving Show
+
+-- data Prog = Prog [Decl] Expr deriving Show
+
+-- data Decl = Decl String [(String, Type)] [(String, [Type])] deriving Show
+
+type Sym = String
 
 data Expr = Var Sym
           | App Expr Expr
@@ -13,8 +19,15 @@ data Expr = Var Sym
           | F Type Expr
           | U Expr
           | Kind Kinds
-          | Let Sym Type Expr Expr -- | Syntax sugar
-          deriving (Eq, Read)
+          -- | Data [DataBind] Expr
+          -- | Let Sym Type Expr Expr
+          deriving Eq
+
+-- data DataBind = DB String [(Sym, Type)] [Constructor]
+--   deriving (Eq, Show)
+
+-- data Constructor = Constructor { constrName :: Sym, constrParams :: [Type] }
+--   deriving (Eq, Show)
 
 isVal :: Expr -> Bool
 isVal (Lam _ _ _) = True
@@ -26,36 +39,24 @@ type Type = Expr
 
 data Kinds = Star | Box deriving (Eq, Read)
 
-instance Show Kinds where
-  show Star = "⋆"
-  show Box = "□"
+-- Pretty printer
 
 instance Show Expr where
-  show = showExp True
+  show e = show (pretty e)
 
-showExp :: Bool -> Expr -> String
-showExp _ (Var n) = n
-showExp flag (App e1 e2) =
-  if flag
-    then result
-    else paren result
-  where
-    result = showExp False e1 ++ " " ++ showExp False e2
-showExp flag (Lam n t e) =
-  if flag
-    then result
-    else paren result
-  where
-    result = "λ(" ++ n ++ " : " ++ showExp True t ++ ") . " ++ showExp True e
-showExp _ (Pi n t e) =
-  if n == ""
-    then paren (showExp True t ++ " → " ++ showExp True e)
-    else "Π(" ++ n ++ " : " ++ showExp True t ++ ") . " ++ showExp True e
-showExp _ (Mu n t1 t2) = "μ" ++ n ++ " : " ++ showExp True t1 ++ " . " ++ showExp True t2
-showExp _ (F t e) = "fold[" ++ showExp True t ++ "]" ++ showExp True e
-showExp _ (U e) = "unfold" ++ paren (showExp True e)
-showExp _ (Kind k) = show k
-showExp _ (Let n t e1 e2) = "let " ++ n ++ " : " ++ showExp True t ++ " = " ++ showExp True e1 ++ " in " ++ showExp True e2
+instance Pretty Kinds where
+  pretty Star = char '⋆'
+  pretty Box = char '□'
 
-paren :: String -> String
-paren x = "(" ++ x ++ ")"
+instance Pretty Expr where
+  pretty (Var x) = text x
+  pretty (App e1 e2) = parens $ pretty e1 <+> pretty e2
+  pretty (Lam n t e) = parens $ text "λ" <> parens (pretty n <+> colon <+> pretty t) <> dot <+> pretty e
+  pretty (Pi n t e) =
+    if n == ""
+    then parens $ pretty t <+> char '→' <+> pretty e
+    else parens $ char 'Π' <> parens (pretty n <+> colon <+> pretty t) <> dot <+> pretty e
+  pretty (Mu n t e) = char 'μ' <> parens (pretty n <+> colon <+> pretty t) <> dot <+> pretty e
+  pretty (F t e) = text "fold" <> brackets (pretty t) <+> parens (pretty e)
+  pretty (U e) = text "unfold" <> parens (pretty e)
+  pretty (Kind k) = pretty k

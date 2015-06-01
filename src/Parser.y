@@ -19,6 +19,7 @@ import Syntax
     in     { TokenKeyword "in" }
     mu     { TokenKeyword "mu" }
     lam    { TokenKeyword "lam" }
+    data    { TokenKeyword "data" }
     id     { TokenIdent $$ }
     ':'    { TokenSymbol ":" }
     '='    { TokenSymbol "=" }
