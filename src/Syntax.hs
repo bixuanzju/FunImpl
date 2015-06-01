@@ -1,13 +1,10 @@
 module Syntax where
 
 import Text.PrettyPrint.ANSI.Leijen
+import Prelude hiding ((<$>))
 
 
-data Program = Progm [Expr] deriving Show
-
--- data Prog = Prog [Decl] Expr deriving Show
-
--- data Decl = Decl String [(String, Type)] [(String, [Type])] deriving Show
+data Program = Progm [Expr]
 
 type Sym = String
 
@@ -19,15 +16,15 @@ data Expr = Var Sym
           | F Type Expr
           | U Expr
           | Kind Kinds
-          -- | Data [DataBind] Expr
+          | Data DataBind Expr
           -- | Let Sym Type Expr Expr
           deriving Eq
 
--- data DataBind = DB String [(Sym, Type)] [Constructor]
---   deriving (Eq, Show)
+data DataBind = DB String [(Sym, Type)] [Constructor]
+  deriving (Eq, Show)
 
--- data Constructor = Constructor { constrName :: Sym, constrParams :: [Type] }
---   deriving (Eq, Show)
+data Constructor = Constructor { constrName :: Sym, constrParams :: [Type] }
+  deriving (Eq, Show)
 
 isVal :: Expr -> Bool
 isVal (Lam _ _ _) = True
@@ -43,6 +40,9 @@ data Kinds = Star | Box deriving (Eq, Read)
 
 instance Show Expr where
   show e = show (pretty e)
+
+instance Show Program where
+  show (Progm exprs) = concatMap show exprs
 
 instance Pretty Kinds where
   pretty Star = char '⋆'
@@ -60,3 +60,17 @@ instance Pretty Expr where
   pretty (F t e) = text "fold" <> brackets (pretty t) <+> parens (pretty e)
   pretty (U e) = text "unfold" <> parens (pretty e)
   pretty (Kind k) = pretty k
+  pretty (Data datatypes e) = text "data" <+> (pretty datatypes) <$> pretty e
+
+instance Pretty DataBind where
+  pretty (DB n tpairs cons) = text n <+>
+                              hsep
+                                (map (\(tv, tk) -> parens (pretty tv <+> colon <+> pretty tk))
+                                   tpairs) <+>
+                              align (equals <+> intersperseBar (map pretty cons) <$$> semi)
+
+instance Pretty Constructor where
+  pretty (Constructor n ts) = hsep $ text n : map pretty ts
+
+intersperseBar :: [Doc] -> Doc
+intersperseBar = foldl1 (\acc x -> acc <$$> (char '|') <+> x)
