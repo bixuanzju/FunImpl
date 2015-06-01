@@ -53,8 +53,9 @@ Expr : lam id ':' Expr '.' Expr         { Lam $2 $4 $6 }
      | mu id ':' Expr '.' Expr          { Mu $2 $4 $6}
      | fold '[' Expr ']' Expr           { F $3 $5 }
      | unfold Expr %prec UNFOLD         { U $2 }
+     -- desugar
      | Expr '->' Expr                   { Pi "" $1 $3 }
-     | let id ':' Expr '=' Expr in Expr {Let $2 $4 $6 $8}
+     | let id ':' Expr '=' Expr in Expr { App (Lam $2 $4 $8) $6 }
      | Exp                              { $1 }
 
 Exp : Exp Term                          { App $1 $2 }

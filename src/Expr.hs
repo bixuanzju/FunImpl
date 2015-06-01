@@ -67,16 +67,16 @@ repFreeVar env = repl
     repl (Var n) = fromMaybe (Var n) (lookup n env)
 
 -- TODO: Generalize
-desugar :: Expr -> Expr
-desugar (Var n) = Var n
-desugar (App e1 e2) = App (desugar e1) (desugar e2)
-desugar (Lam n t e) = Lam n (desugar t) (desugar e)
-desugar (Pi n t e) = Pi n (desugar t) (desugar e)
-desugar (Mu n t1 t2) = Mu n (desugar t1) (desugar t2)
-desugar (F t e) = F (desugar t) (desugar e)
-desugar (U t) = U (desugar t)
-desugar e@(Kind _) = e
-desugar (Let n t e1 e2) = App (Lam n t (desugar e2)) (desugar e1)
+-- desugar :: Expr -> Expr
+-- desugar (Var n) = Var n
+-- desugar (App e1 e2) = App (desugar e1) (desugar e2)
+-- desugar (Lam n t e) = Lam n (desugar t) (desugar e)
+-- desugar (Pi n t e) = Pi n (desugar t) (desugar e)
+-- desugar (Mu n t1 t2) = Mu n (desugar t1) (desugar t2)
+-- desugar (F t e) = F (desugar t) (desugar e)
+-- desugar (U t) = U (desugar t)
+-- desugar e@(Kind _) = e
+-- desugar (Let n t e1 e2) = App (Lam n t (desugar e2)) (desugar e1)
 
 type BEnv = [(Sym, Expr)]
 
@@ -115,8 +115,8 @@ eval benv = loop
 -- | Definitional equality
 equate :: BEnv -> Expr -> Expr -> Bool
 equate benv e1 e2 =
-  let Right e1' = eval benv . repFreeVar benv . desugar $ e1
-      Right e2' = eval benv . repFreeVar benv . desugar $ e2
+  let Right e1' = eval benv . repFreeVar benv $ e1
+      Right e2' = eval benv . repFreeVar benv $ e2
   in alphaEq e1' e2'
 --   in case (e1',e2') of
 --        (App a1 b1,App a2 b2) ->
