@@ -40,7 +40,7 @@ vec :: Expr
 vec = repFreeVar initalBEnv (parse "* -> nat -> *")
 
 bool :: Expr
-bool = parse "mu x . pi a : * . a -> a -> a"
+bool = parse "mu x : * . pi a : * . a -> a -> a"
 
 true :: Expr
 true = parse "fold[bool] (lam a : * . lam t : a . lam f : a . t)"
@@ -51,10 +51,10 @@ false = parse "fold[bool] (lam a : * . lam t : a . lam f : a . f)"
 fix :: Expr
 fix =
   parse
-    "lam a : * . lam f : a -> a . (lam x : (mu m . m -> a) . f ((unfold x) x)) (fold [mu m . m -> a] (lam x : (mu m . m -> a) .  f ((unfold x) x)))"
+    "lam a : * . lam f : a -> a . (lam x : (mu m : * . m -> a) . f ((unfold x) x)) (fold [mu m : * . m -> a] (lam x : (mu m : * . m -> a) .  f ((unfold x) x)))"
 
 nat :: Expr
-nat = parse "mu x . pi a : * . a -> (x -> a) -> a"
+nat = parse "mu x : * . pi a : * . a -> (x -> a) -> a"
 
 zero :: Expr
 zero = parse "fold[nat] (lam a : * . lam z : a . lam f : (nat -> a) . z)"
@@ -73,4 +73,3 @@ three = App suc two
 
 plus :: Expr
 plus = parse "fix (nat -> nat -> nat) (lam p : (nat -> nat -> nat) . lam n : nat . lam m : nat . (unfold n) nat m (lam l : nat . suc (p l m)))"
-

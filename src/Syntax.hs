@@ -9,7 +9,7 @@ data Expr = Var Sym
           | App Expr Expr
           | Lam Sym Type Expr
           | Pi Sym Type Type
-          | Mu Sym Type
+          | Mu Sym Type Type
           | F Type Expr
           | U Expr
           | Kind Kinds
@@ -51,7 +51,7 @@ showExp _ (Pi n t e) =
   if n == ""
     then paren (showExp True t ++ " → " ++ showExp True e)
     else "Π(" ++ n ++ " : " ++ showExp True t ++ ") . " ++ showExp True e
-showExp _ (Mu n t) = "μ" ++ n ++ " . " ++ showExp True t
+showExp _ (Mu n t1 t2) = "μ" ++ n ++ " : " ++ showExp True t1 ++ " . " ++ showExp True t2
 showExp _ (F t e) = "fold[" ++ showExp True t ++ "]" ++ showExp True e
 showExp _ (U e) = "unfold" ++ paren (showExp True e)
 showExp _ (Kind k) = show k

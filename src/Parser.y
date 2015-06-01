@@ -50,7 +50,7 @@ Exprs : Expr                            { [$1] }
 
 Expr : lam id ':' Expr '.' Expr         { Lam $2 $4 $6 }
      | pi id ':' Expr '.' Expr          { Pi $2 $4 $6 }
-     | mu id '.' Expr                   { Mu $2 $4 }
+     | mu id ':' Expr '.' Expr          { Mu $2 $4 $6}
      | fold '[' Expr ']' Expr           { F $3 $5 }
      | unfold Expr %prec UNFOLD         { U $2 }
      | Expr '->' Expr                   { Pi "" $1 $3 }

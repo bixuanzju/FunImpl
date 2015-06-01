@@ -42,7 +42,9 @@ main = runInputT defaultSettings (loop initalBEnv initalEnv)
         ":e" -> processCMD progm $
           \xs -> do
             if length xs == 1
-              then outputStrLn . show . eval benv . repFreeVar benv . desugar . head $ xs
+              then case eval benv . repFreeVar benv . desugar . head $ xs of
+                    Left err -> outputStrLn err
+                    Right e' -> outputStrLn . show $ e'
               else outputStrLn "Command parser error - need one expression!"
             loop benv env
         ":eq" -> processCMD progm $

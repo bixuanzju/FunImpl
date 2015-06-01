@@ -45,20 +45,21 @@ tcheck env (Pi x a b) =                  -- (Pi)
      t <- tcheck env' b
      when ((s,t) `notElem` allowedKinds) $ Left "Bad abstraction"
      return t
-tcheck env (Mu i t) =                    -- (Mu) TODO: Is star enough?
-  do let env' = extend i (Kind Star) env
-     s <- tcheck env' t
-     when (s /= Kind Star) $ Left "Bad recursive type"
-     return s
+tcheck env (Mu i t e) =                -- (Mu)
+  do let env' = extend i t env
+     t' <- tcheck env' e
+     tcheck env t' -- check sorts?
+     unless (alphaEq t t') $ Left "Bad recursive type"
+     return t
 tcheck env (F t1 e) =                    -- (Fold)
   do t2 <- tcheck env e
-     tcheck env t1
-     let t2' = reduct t1
+     tcheck env t1 --check sorts?
+     t2' <- reduct t1
      unless (alphaEq t2 t2') $ Left "Bad fold expression"
      return t1
 tcheck env (U e) =                       -- (Unfold)
   do t1 <- tcheck env e
-     let t2 = reduct t1
+     t2 <- reduct t1
      tcheck env t2
      return t2
 
