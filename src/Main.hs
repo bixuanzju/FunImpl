@@ -71,7 +71,7 @@ main = runInputT defaultSettings (loop initalBEnv initalEnv)
             loop benv env
         _ -> processCMD e $
           \xs -> do
-            outputStrLn . show $ xs
+            outputStrLn $ concatMap show xs
             loop benv env
       where
         processCMD expr func =

@@ -16,7 +16,9 @@ data Expr = Var Sym
           | F Type Expr
           | U Expr
           | Kind Kinds
+          -- Surface language
           | Data DataBind Expr
+          | Case Expr [Alt]
           -- | Let Sym Type Expr Expr
           deriving Eq
 
@@ -25,6 +27,10 @@ data DataBind = DB String [(Sym, Type)] [Constructor]
 
 data Constructor = Constructor { constrName :: Sym, constrParams :: [Type] }
   deriving (Eq, Show)
+
+data Alt = ConstrAlt Pattern Expr deriving Eq
+
+data Pattern = PConstr Constructor [(Sym, Expr)] deriving Eq
 
 isVal :: Expr -> Bool
 isVal (Lam _ _ _) = True
@@ -61,6 +67,14 @@ instance Pretty Expr where
   pretty (U e) = text "unfold" <> parens (pretty e)
   pretty (Kind k) = pretty k
   pretty (Data datatypes e) = text "data" <+> (pretty datatypes) <$> pretty e
+  pretty (Case e alts) = hang 2 (text "case" <+> pretty e <+> text "of" <$> text " " <+> intersperseBar (map pretty alts))
+
+instance Pretty Alt where
+  pretty (ConstrAlt p e) = (pretty p) <+> char '⇒' <+> pretty e
+
+instance Pretty Pattern where
+  pretty (PConstr ctr []) = text (constrName ctr)
+  pretty (PConstr ctr ps) = text (constrName ctr) <+> (hsep $ map (\(n, t) -> parens (pretty n <+> colon <+> pretty t)) ps)
 
 instance Pretty DataBind where
   pretty (DB n tpairs cons) = text n <+>
