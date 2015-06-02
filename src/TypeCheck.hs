@@ -21,8 +21,8 @@ findVar r s =
    Nothing -> Left $ "Cannot find variable " ++ s
 
 tcheck :: Env -> Expr -> TC Type
-tcheck env (Var s) = findVar env s       -- (Var and Weak)
-tcheck env (App f a) =                   -- (App)
+tcheck env (Var s) = findVar env s       -- (T_VAR and T_WEAK)
+tcheck env (App f a) =                   -- (T_APP)
   do tf <- tcheck env f
      case tf of
        Pi x at rt ->
@@ -31,37 +31,56 @@ tcheck env (App f a) =                   -- (App)
               Left "Bad function argument type"
             return $ subst x a rt
        _ -> Left "Non-function in application"
-tcheck env (Lam s t e) =                 -- (Lam)
+tcheck env (Lam s t e) =                 -- (T_LAM)
   do let env' = extend s t env
      te <- tcheck env' e
      let lt = Pi s t te
      tcheck env lt
      return lt
-tcheck _ (Kind Star) = return $ Kind Box -- (Ax)
+tcheck _ (Kind Star) = return $ Kind Box -- (T_AX)
 tcheck _ (Kind Box) = Left "Found a Box"
-tcheck env (Pi x a b) =                  -- (Pi)
-  do s <- tcheck env a                   -- evaluate after type check
+tcheck env (Pi x a b) =                  -- (T_PI)
+  do s <- tcheck env a -- evaluate after type check
      let env' = extend x a env
      t <- tcheck env' b
      when ((s,t) `notElem` allowedKinds) $ Left "Bad abstraction"
      return t
-tcheck env (Mu i t e) =                -- (Mu)
+tcheck env (Mu i t e) =                  -- (T_MU)
   do let env' = extend i t env
      t' <- tcheck env' e
-     tcheck env t' -- check sorts?
+     tcheck env t'
      unless (alphaEq t t') $ Left "Bad recursive type"
      return t
-tcheck env (F t1 e) =                    -- (Fold)
+tcheck env (F t1 e) =                    -- (T_CASTUP)
   do t2 <- tcheck env e
-     tcheck env t1 --check sorts?
+     tcheck env t1
      t2' <- reduct t1
      unless (alphaEq t2 t2') $ Left "Bad fold expression"
      return t1
-tcheck env (U e) =                       -- (Unfold)
+tcheck env (U e) =                       -- (T_CASTDOWN)
   do t1 <- tcheck env e
      t2 <- reduct t1
      tcheck env t2
      return t2
+tcheck env (Data databinds e) = do
+  env' <- tcd databinds
+  let nenv = env' ++ env
+  tcheck nenv e
+  where
+    tcd :: DataBind -> TC Env
+    tcd (DB tc tca constrs) = do
+      let tct = chainType (Kind Star) . map snd $ tca
+      tcs <- tcheck env tct
+      unless (tcs == (Kind Box)) $ Left "Bad type constructor arguments"
+      let du = foldl App (Var tc) (map (Var . fst) tca)
+      let tduList = map (\dc -> chainType du (constrParams dc)) constrs
+      dcts <- mapM (tcheck ((tc, tct) : tca ++ env)) tduList
+      unless (any (== (Kind Star)) dcts) $ Left "Bad data constructor arguments"
+      let dctList = map (\tdu -> foldr (\(u, k) t -> Pi u k t) tdu tca) tduList
+      return ([(tc, tct)] ++ (zip (map constrName constrs) dctList))
+
+chainType :: Type -> [Type] -> Type
+chainType lt = foldr (\t t' -> Pi "" t t') lt
 
 allowedKinds :: [(Type, Type)]
 allowedKinds =

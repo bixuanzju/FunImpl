@@ -70,7 +70,7 @@ Rule (Pgm) type-checks a whole problem. It first type-checks the declarations, w
     \framebox{$\Gamma \vdash pgm : \tau$} \\
     (Pgm) & $\inferrule {\overline{\Gamma_{0} \vdash decl : \Gamma_{d}} \\ \Gamma = \Gamma_{0}, \overline{\Gamma_{d}} \\ \ctx{e:\tau}} {\Gamma_{0} \vdash \overline{decl}; e : \tau}$ \\
     \framebox{$\Gamma \vdash decl : \Gamma_d$} \\
-    (Data) & $\inferrule {\Gamma \vdash \overline{\kappa} \rightarrow \star : \square \\ \overline{\Gamma, D:\overline{\kappa} \rightarrow \star, \overline{u : \kappa} \vdash \overline{\tau} \rightarrow D\,\overline{u}:\star}} {\ctx{(\data\,D\,\overline{u : \kappa} = \overline{\mid K\,\overline{\tau}}): (D : \overline{\kappa} \rightarrow \star, K : \Pi\overline{u : \kappa}.\overline{\tau} \rightarrow D\,\overline{u})}}$ \\
+    (Data) & $\inferrule {\Gamma \vdash \overline{\kappa} \rightarrow \star : \square \\ \overline{\Gamma, D:\overline{\kappa} \rightarrow \star, \overline{u : \kappa} \vdash \overline{\tau} \rightarrow D\,\overline{u}:\star}} {\ctx{(\data\,D\,\overline{u : \kappa} = \overline{\mid K\,\overline{\tau}}): (D : \overline{\kappa} \rightarrow \star, \overline{K : \Pi\overline{u : \kappa}.\overline{\tau} \rightarrow D\,\overline{u}})}}$ \\
     \framebox{$\Gamma \vdash e : \tau$} \\
     (Case) & $\inferrule {\ctx{e_{1}}:\sigma \\ \overline{\Gamma\vdash_{p} p \Rightarrow e_{2}:\sigma \rightarrow \tau}} {\Gamma\vdash\case\,e_{1}\,\of\,\overline{p \Rightarrow e_{2}}:\tau}$ \\
     \framebox{$\Gamma \vdash_{p} p \Rightarrow e : \sigma \rightarrow \tau$} \\
