@@ -9,8 +9,7 @@ We begin this section with an informal introduction to the main features of \nam
 \label{sec:coc}
 
 \name is based on the \emph{Calculus of Constructions} (\coc)~\cite{coc}, which is a higher-order typed lambda calculus. One ``unconventional'' feature of \coc is the so-called \emph{conversion} rule as shown below:
-\renewcommand{\ottpremise}[1]{\enskip #1 \enskip}
-\ottusedrule{\ottdruleTccXXConv{}}
+\ottusedrule{\ottdruleTXXConv{}}
 
 The conversion rule allows one to derive $e:\tau_{{\mathrm{2}}}$ from the derivation of $e:\tau_{{\mathrm{1}}}$ and the $\beta$-equality of $\tau_{{\mathrm{1}}}$ and $\tau_{{\mathrm{2}}}$. Note that in \coc, the use of this rule is implicit in that it is automatically applied during type checking to all non-normal form terms. To illustrate, let us consider a simple example. Suppose we have a built-in base type $ \mathsf{Int} $ and \[f \equiv \lambda  \ottmv{x}  \ottsym{:}  \ottsym{(}  \lambda  \ottmv{y}  \ottsym{:}  \star  \ottsym{.}  \ottmv{y}  \ottsym{)} \, \mathsf{Int}  \ottsym{.}  \ottmv{x} \] Without the conversion rule, $f$ cannot be applied to, say $3$ in \coc. Given that $f$ is actually $\beta$-convertible to $\lambda  \ottmv{x}  \ottsym{:}  \mathsf{Int}  \ottsym{.}  \ottmv{x}$, the conversion rule would allow the application of $f$ to $3$ by implicitly converting $\lambda  \ottmv{x}  \ottsym{:}  \ottsym{(}  \lambda  \ottmv{y}  \ottsym{:}  \star  \ottsym{.}  \ottmv{y}  \ottsym{)} \, \mathsf{Int}  \ottsym{.}  \ottmv{x}$ to $\lambda  \ottmv{x}  \ottsym{:}  \mathsf{Int}  \ottsym{.}  \ottmv{x}$.
 

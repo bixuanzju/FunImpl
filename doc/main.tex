@@ -51,12 +51,6 @@
 
 % Theorem
 \usepackage{amsthm}
-\newtheoremstyle{break}
-  {\topsep}{\topsep}%
-  {\itshape}{}%
-  {\bfseries}{}%
-  {\newline}{}%
-\theoremstyle{break}
 \newtheorem{thm}{Theorem}[section]
 \newtheorem{cor}{Corollary}[thm]
 \newtheorem{lem}[thm]{Lemma}
@@ -67,6 +61,9 @@
 % Ott includes
 \usepackage{supertabular}
 \input{sections/expcore.ott.tex}
+% Hack to use mathpartir for ott
+\newcommand{\ottlinebreak}{}
+\renewcommand{\ottdrule}[4][]{{\inferrule{#2}{#3}\quad\ottdrulename{#4}}}
 
 %% -- Packages Imports --
 

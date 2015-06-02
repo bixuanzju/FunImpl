@@ -11,7 +11,7 @@
 \newcommand{\newsyntax}{
 \ottrulehead{\ottnt{e}  ,\ \tau}{::=}{\ottcom{Expressions}}\ottprodnewline
 \ottfirstprodline{|}{\dots}{}{}{}{}\ottprodnewline
-\ottprodline{|}{\mu \, \ottmv{x}  \ottsym{.}  \tau}{}{}{}{\ottcom{General recursion}}}
+\ottprodline{|}{\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}}{}{}{}{\ottcom{General recursion}}}
 
 We have shown that \expcc does not rely on strong normalization for decidable type checking and soundness. Thus it is safe to combine general recursion with \expcc under the control of explicit type conversion operations $ \mathsf{cast}^{\uparrow} $ and $ \mathsf{cast}_{\downarrow} $. We extend \expcc into \name by introducing one unified primitive called $\mu$-notation for general recursion. It functions as a fixed point at the term level as well as a recursive type at the type level.
 
@@ -37,12 +37,12 @@ And the one-step reduction rule is as follows:
 	\ottusedrule{\ottdruleSXXMu{}}
 \end{figure}
 
-If $\mu \, \ottmv{x}  \ottsym{.}  \tau$ is a term, with the \ruleref{S\_Mu} rule, it is not treated as a value and can be further reduced, which is different from conventional iso-recursive types. The one-step reduced term of $\mu \, \ottmv{x}  \ottsym{.}  \tau$ is the substitution of $\ottmv{x}$ in $\tau$ with itself, i.e. $\tau  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{.}  \tau  \ottsym{]}$. Such behavior is just the same as the definition of a fixed point.
+If $\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$ is a term, with the \ruleref{S\_Mu} rule, it is not treated as a value and can be further reduced, which is different from conventional iso-recursive types. The one-step reduced term of $\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$ is the substitution of $\ottmv{x}$ in $\ottnt{e}$ with itself, i.e. $\ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]}$. Such behavior is just the same as the definition of a fixed point.
 
-If $\mu \, \ottmv{x}  \ottsym{.}  \tau$ is a type, assume there exist $e : \mu \, \ottmv{x}  \ottsym{.}  \tau$ and $e' : \tau  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{.}  \tau  \ottsym{]}$. Notice that the types of $e$ and $e'$ are equivalent by $\beta$-equivalence. But such result cannot be directly obtained because of the removal of implicit conversion rule. Instead, by using explicit cast operations of \expcc, we can obtain the following transformation between $e$ and $e'$:
+If $\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$ is a type, assume there exist $e_1 : \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$ and $e_2 : \ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]}$. Notice that the types of $e_1$ and $e_2$ are equivalent by $\beta$-equivalence. But such result cannot be directly obtained because of the removal of implicit conversion rule. Instead, by using explicit cast operations of \expcc, we can obtain the following transformation between $e$ and $e'$:
 \[\begin{array}{lll}
-	&\mathsf{cast}^{\uparrow} \, \ottsym{[}  \mu \, \ottmv{x}  \ottsym{.}  \tau  \ottsym{]}  \ottnt{e'} &: \mu \, \ottmv{x}  \ottsym{.}  \tau\\
-	&\mathsf{cast}_{\downarrow} \, \ottnt{e} &: \ottsym{(}  \mu \, \ottmv{x}  \ottsym{.}  \tau  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{.}  \tau  \ottsym{]}  \ottsym{)}
+	&\mathsf{cast}^{\uparrow} \, \ottsym{[}  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]}  \ottnt{e_{{\mathrm{2}}}} &: \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}\\
+	& \mathsf{cast}_{\downarrow}  e_1 &: \ottsym{(}  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]}  \ottsym{)}
 \end{array}\]
 For type-level $\mu$-notation, $ \mathsf{cast}^{\uparrow} $ and $ \mathsf{cast}_{\downarrow} $ work in the same way as $\textsf{fold}$ and $\textsf{unfold}$ operations in iso-recursive types to control recursion explicitly.
 

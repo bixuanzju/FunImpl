@@ -5,7 +5,7 @@ embed {{ tex-preamble
 }}
 
 %%% Metavariables
-metavar x, y, d, z ::= {{ com Variable names }}
+metavar x, y, z, d ::= {{ com Variable names }}
 
 %%% Syntax
 grammar
@@ -19,7 +19,7 @@ e, t {{ tex \tau }}      :: 'e_' ::=       {{ com Expressions    }}
   | Pi x : t1 . t2       ::  :: Pi         {{ com Product }}
   | castup [ t ] e       ::  :: CastUp     {{ com Cast up to type}}
   | castdown e           ::  :: CastDown   {{ com Cast down by reduction }}
-  | mu x . t             :: M:: Mu         {{ com General recursion }}
+  | mu x : t . e         :: M:: Mu         {{ com General recursion }}
   | e1 [ x |-> e2 ]      :: M:: Sub        {{ com Substitution }}
   | ( e )                :: M:: Parens     {{ com Parenthesized expression }}
   | let x : t = e2 in e1 :: M:: LetBinding {{ com Let binding }}
@@ -83,6 +83,7 @@ formula :: 'formula_' ::=
   | x : t elt G                        ::   :: context_inclusion
   | G |- tylit lit : k                 ::   :: lintTyLit
     {{ tex [[G]] \labeledjudge{tylit} [[lit]] : [[k]] }}
+  | formula \\                         ::   :: lbhack {{ tex [[formula]] \ottlinebreak }}
 
 %%% Subrule
 subrules
@@ -92,7 +93,7 @@ subrules
 defns
 Lint :: '' ::=
 
-defn G  |- e : t ::  :: coc :: 'Tcc_' {{ com CoC typing }}
+defn G  |- e : t ::  :: coc :: 'T_' {{ com CoC typing }}
 by
 
 G |- e : t1
@@ -104,9 +105,9 @@ G |- e : t2
 defn G  |- e : t ::  :: ext :: 'T_' {{ com Extended expression typing }}
 by
 
-G, x:s |- t:s
---------------- :: Mu
-G |- (mu x.t):s
+G, x:t |- e:t
+------------------- :: Mu
+G |- (mu x:t . e):t
 
 defn G  |- e : t ::  :: expr :: 'T_' {{ com Expression typing }}
 %{{ tex [[G]] \labeledjudge{e} [[e]] : [[t]] }}
@@ -158,8 +159,8 @@ OpSem :: '' ::=
 defn e --> e' ::  :: extstep :: 'S_' {{ com One-step reduction }}
 by
 
----------------------------- :: Mu
-mu x.t --> t [x |-> mu x. t]
+------------------------------- :: Mu
+mu x:t.e --> e [x |-> mu x:t.e]
 
 defn e --> e' ::  :: step :: 'S_' {{ com One-step reduction }}
 by
