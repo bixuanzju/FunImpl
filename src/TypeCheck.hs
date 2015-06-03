@@ -75,9 +75,15 @@ tcheck env (Data databinds e) = do
       let du = foldl App (Var tc) (map (Var . fst) tca)
       let tduList = map (\dc -> chainType du (constrParams dc)) constrs
       dcts <- mapM (tcheck ((tc, tct) : tca ++ env)) tduList
-      unless (any (== (Kind Star)) dcts) $ Left "Bad data constructor arguments"
+      unless (all (== (Kind Star)) dcts) $ Left "Bad data constructor arguments"
       let dctList = map (\tdu -> foldr (\(u, k) t -> Pi u k t) tdu tca) tduList
       return ([(tc, tct)] ++ (zip (map constrName constrs) dctList))
+-- tcheck env (Case e alts) = do
+--   et <- tcheck env e
+--   altTypeList <- mapM tcp alts
+--   undefined
+--   where tcp :: Alt -> TC Type
+--         tcp = undefined
 
 chainType :: Type -> [Type] -> Type
 chainType lt = foldr (\t t' -> Pi "" t t') lt
