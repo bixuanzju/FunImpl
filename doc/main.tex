@@ -52,8 +52,8 @@
 % Theorem
 \usepackage{amsthm}
 \newtheorem{thm}{Theorem}[section]
-\newtheorem{cor}{Corollary}[thm]
 \newtheorem{lem}[thm]{Lemma}
+\newtheorem{dfn}[thm]{Definition}
 
 %% Typesetting inference rules
 \usepackage{styles/mathpartir}  % by Didier Rémy (http://gallium.inria.fr/~remy/latex/mathpartir.html
@@ -134,8 +134,7 @@ Thanks to Blah. This work is supported by Blah.
 %% -- Appendix --
 
 \appendix
-\section{Appendix Title}
-Additional proof goes here.
+\input{sections/appendix.tex}
 
 %% -- The end --
 

@@ -1,6 +1,6 @@
 OTT_FILES = expcore.ott
 OTT_OPTS  = -tex_show_meta false
-TARGETS   = overview.tex explicitcore.tex recursion.tex
+TARGETS   = overview.tex explicitcore.tex recursion.tex appendix.tex
 
 WARN_MSG = "%%% !!! WARNING: AUTO GENERATED. DO NOT MODIFY !!! %%%\n"
 

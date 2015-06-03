@@ -1,0 +1,53 @@
+\section{Specification of core language}
+
+\subsection{Syntax}
+\gram{\otte\ottinterrule
+        \otts\ottinterrule
+        \ottG\ottinterrule
+        \ottv}
+
+\subsection{Operational semantics and expression typing}
+\ottdefnstep{}
+\ottusedrule{\ottdruleSXXMu{}}
+\ottdefnexpr{}
+\ottusedrule{\ottdruleTXXMu{}}
+
+\section{Proofs of core language}
+\subsection{Decidability of type checking}
+\begin{dfn}
+A set of inference rules for a relation $[[|-]]$ is called \textbf{syntax-directed} if there is at most one rule with a conclusion $[[G |- e:t]]$ for given $[[G]],[[e]]$ and this rule (if present) produces exactly one type $[[t]]$ for $[[e]]$.
+\end{dfn}
+
+\begin{lem}
+The expression typing rules $[[G |- e:t]]$ are syntax-directed.
+\end{lem}
+
+\begin{lem}[Decidability of type synthesis]
+There is a decidable algorithm which given $[[G]], [[e]]$ computes the unique $[[t]]$ such that $[[G |- e:t]]$ or reports there is no such $[[t]]$.
+\end{lem}
+
+\begin{lem}[Decidability of type checking]
+There is a decidable algorithm which given $[[G]], [[e]]$ and $[[t]]$ constructs the unique derivation of $[[G |- e:t]]$ or reports there is no such derivation.
+\end{lem}
+
+\subsection{Properties}
+\newcommand{\FV}{\mathrm{FV}}
+\newcommand{\dom}{\mathrm{dom}}
+
+\begin{lem}[Free variables lemma]
+If $[[G |- e:t]]$, then $\FV([[e]]),\FV([[t]]) \subseteq \dom([[G]])$.
+\end{lem}
+
+\begin{lem}[Substitution lemma]
+
+\end{lem}
+
+\subsection{Soundness}
+\begin{lem}[Subject reduction]
+If $[[G |- e:t]]$ and $e [[-->]] e'$ then $[[G |- e':t]]$.
+\end{lem}
+
+\begin{lem}[Progress]
+If $[[empty |- e:t]]$ then either $e$ is a value $v$ or there exists $e'$ such that $e [[-->]] e'$.
+\end{lem}
+

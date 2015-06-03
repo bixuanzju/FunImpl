@@ -19,7 +19,7 @@ e, t {{ tex \tau }}      :: 'e_' ::=       {{ com Expressions    }}
   | Pi x : t1 . t2       ::  :: Pi         {{ com Product }}
   | castup [ t ] e       ::  :: CastUp     {{ com Cast up to type}}
   | castdown e           ::  :: CastDown   {{ com Cast down by reduction }}
-  | mu x : t . e         :: M:: Mu         {{ com General recursion }}
+  | mu x : t . e         ::  :: Mu         {{ com General recursion }}
   | e1 [ x |-> e2 ]      :: M:: Sub        {{ com Substitution }}
   | ( e )                :: M:: Parens     {{ com Parenthesized expression }}
   | let x : t = e2 in e1 :: M:: LetBinding {{ com Let binding }}
@@ -49,6 +49,16 @@ v :: 'v_' ::=                               {{ com Values   }}
   | castup [ t ] e       ::  :: CastUp     {{ com Cast up }}
   | let x : t = e2 in e1 :: M:: LetBinding {{ com Let binding }}
   | t1 -> t2             :: M:: FuncType   {{ com Function Type }}
+
+%% Core without mu
+ee {{ tex e }} , tt {{ tex \tau }} :: 'ee_' ::=       {{ com Expressions    }}
+  | x                              ::  :: eVar        {{ com Variable }}
+  | s                              ::  :: eSort       {{ com Sort }}
+  | ee1 ee2                        ::  :: eApp        {{ com Application }}
+  | \ x : tt . ee                  ::  :: eLam        {{ com Abstraction }}
+  | Pi x : tt1 . tt2               ::  :: ePi         {{ com Product }}
+  | castup [ tt ] ee               ::  :: eCastUp     {{ com Cast up to type}}
+  | castdown ee                    ::  :: eCastDown   {{ com Cast down by reduction }}
 
 %%% Terminals
 terminals :: 'terminals_' ::=
@@ -88,6 +98,7 @@ formula :: 'formula_' ::=
 %%% Subrule
 subrules
   v <:: e
+  ee <:: e
 
 %%% Typing rules
 defns

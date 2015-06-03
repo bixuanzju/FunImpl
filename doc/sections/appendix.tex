@@ -1,0 +1,54 @@
+%%% !!! WARNING: AUTO GENERATED. DO NOT MODIFY !!! %%%
+\section{Specification of core language}
+
+\subsection{Syntax}
+\gram{\otte\ottinterrule
+        \otts\ottinterrule
+        \ottG\ottinterrule
+        \ottv}
+
+\subsection{Operational semantics and expression typing}
+\ottdefnstep{}
+\ottusedrule{\ottdruleSXXMu{}}
+\ottdefnexpr{}
+\ottusedrule{\ottdruleTXXMu{}}
+
+\section{Proofs of core language}
+\subsection{Decidability of type checking}
+\begin{dfn}
+A set of inference rules for a relation $ \vdash $ is called \textbf{syntax-directed} if there is at most one rule with a conclusion $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$ for given $\Gamma,\ottnt{e}$ and this rule (if present) produces exactly one type $\tau$ for $\ottnt{e}$.
+\end{dfn}
+
+\begin{lem}
+The expression typing rules $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$ are syntax-directed.
+\end{lem}
+
+\begin{lem}[Decidability of type synthesis]
+There is a decidable algorithm which given $\Gamma, \ottnt{e}$ computes the unique $\tau$ such that $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$ or reports there is no such $\tau$.
+\end{lem}
+
+\begin{lem}[Decidability of type checking]
+There is a decidable algorithm which given $\Gamma, \ottnt{e}$ and $\tau$ constructs the unique derivation of $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$ or reports there is no such derivation.
+\end{lem}
+
+\subsection{Properties}
+\newcommand{\FV}{\mathrm{FV}}
+\newcommand{\dom}{\mathrm{dom}}
+
+\begin{lem}[Free variables lemma]
+If $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$, then $\FV(\ottnt{e}),\FV(\tau) \subseteq \dom(\Gamma)$.
+\end{lem}
+
+\begin{lem}[Substitution lemma]
+
+\end{lem}
+
+\subsection{Soundness}
+\begin{lem}[Subject reduction]
+If $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$ and $e  \longrightarrow  e'$ then $\Gamma  \vdash  \ottnt{e'}  \ottsym{:}  \tau$.
+\end{lem}
+
+\begin{lem}[Progress]
+If $\varnothing  \vdash  \ottnt{e}  \ottsym{:}  \tau$ then either $e$ is a value $v$ or there exists $e'$ such that $e  \longrightarrow  e'$.
+\end{lem}
+

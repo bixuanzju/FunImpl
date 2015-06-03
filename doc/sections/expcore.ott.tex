@@ -40,7 +40,8 @@
 \ottprodline{|}{\lambda  \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}}{}{}{}{\ottcom{Abstraction}}\ottprodnewline
 \ottprodline{|}{\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}}{}{}{}{\ottcom{Product}}\ottprodnewline
 \ottprodline{|}{\mathsf{cast}^{\uparrow} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}}{}{}{}{\ottcom{Cast up to type}}\ottprodnewline
-\ottprodline{|}{\mathsf{cast}_{\downarrow} \, \ottnt{e}}{}{}{}{\ottcom{Cast down by reduction}}}
+\ottprodline{|}{\mathsf{cast}_{\downarrow} \, \ottnt{e}}{}{}{}{\ottcom{Cast down by reduction}}\ottprodnewline
+\ottprodline{|}{\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}}{}{}{}{\ottcom{General recursion}}}
 
 \newcommand{\ottl}{
 \ottrulehead{\ottnt{l}}{::=}{}}
@@ -61,12 +62,23 @@
 \ottprodline{|}{\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}}{}{}{}{\ottcom{Product}}\ottprodnewline
 \ottprodline{|}{\mathsf{cast}^{\uparrow} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}}{}{}{}{\ottcom{Cast up}}}
 
+\newcommand{\ottee}{
+\ottrulehead{e  ,\ \tau}{::=}{\ottcom{Expressions}}\ottprodnewline
+\ottfirstprodline{|}{\ottmv{x}}{}{}{}{\ottcom{Variable}}\ottprodnewline
+\ottprodline{|}{\ottnt{s}}{}{}{}{\ottcom{Sort}}\ottprodnewline
+\ottprodline{|}{e_{{\mathrm{1}}} \, e_{{\mathrm{2}}}}{}{}{}{\ottcom{Application}}\ottprodnewline
+\ottprodline{|}{\lambda  \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  e}{}{}{}{\ottcom{Abstraction}}\ottprodnewline
+\ottprodline{|}{\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}}{}{}{}{\ottcom{Product}}\ottprodnewline
+\ottprodline{|}{\mathsf{cast}^{\uparrow} \, \ottsym{[}  \tau  \ottsym{]}  e}{}{}{}{\ottcom{Cast up to type}}\ottprodnewline
+\ottprodline{|}{\mathsf{cast}_{\downarrow} \, e}{}{}{}{\ottcom{Cast down by reduction}}}
+
 \newcommand{\ottgrammar}{\ottgrammartabular{
 \otte\ottinterrule
 \ottl\ottinterrule
 \otts\ottinterrule
 \ottG\ottinterrule
-\ottv\ottafterlastrule
+\ottv\ottinterrule
+\ottee\ottafterlastrule
 }}
 
 % defnss
