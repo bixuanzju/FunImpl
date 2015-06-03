@@ -10,7 +10,7 @@
 \newcommand{\newsyntax}{
 \ottrulehead{\ottnt{e}  ,\ \tau}{::=}{\ottcom{Expressions}}\ottprodnewline
 \ottfirstprodline{|}{\dots}{}{}{}{}\ottprodnewline
-\ottprodline{|}{[[mu x.t]]}{}{}{}{\ottcom{General recursion}}}
+\ottprodline{|}{[[mu x:t.e]]}{}{}{}{\ottcom{General recursion}}}
 
 We have shown that \expcc does not rely on strong normalization for decidable type checking and soundness. Thus it is safe to combine general recursion with \expcc under the control of explicit type conversion operations $[[castup]]$ and $[[castdown]]$. We extend \expcc into \name by introducing one unified primitive called $\mu$-notation for general recursion. It functions as a fixed point at the term level as well as a recursive type at the type level.
 
@@ -36,12 +36,12 @@ And the one-step reduction rule is as follows:
 	\ottusedrule{\ottdruleSXXMu{}}
 \end{figure}
 
-If $[[mu x . t]]$ is a term, with the \ruleref{S\_Mu} rule, it is not treated as a value and can be further reduced, which is different from conventional iso-recursive types. The one-step reduced term of $[[mu x . t]]$ is the substitution of $[[x]]$ in $[[t]]$ with itself, i.e. $[[t [x |-> mu x . t] ]]$. Such behavior is just the same as the definition of a fixed point.
+If $[[mu x:t.e]]$ is a term, with the \ruleref{S\_Mu} rule, it is not treated as a value and can be further reduced, which is different from conventional iso-recursive types. The one-step reduced term of $[[mu x:t.e]]$ is the substitution of $[[x]]$ in $[[e]]$ with itself, i.e. $[[e [x |-> mu x:t.e] ]]$. Such behavior is just the same as the definition of a fixed point.
 
-If $[[mu x . t]]$ is a type, assume there exist $e : [[mu x . t]]$ and $e' : [[t [x |-> mu x . t] ]]$. Notice that the types of $e$ and $e'$ are equivalent by $\beta$-equivalence. But such result cannot be directly obtained because of the removal of implicit conversion rule. Instead, by using explicit cast operations of \expcc, we can obtain the following transformation between $e$ and $e'$:
+If $[[mu x:t.e]]$ is a type, assume there exist $e_1 : [[mu x:t.e]]$ and $e_2 : [[e [x |-> mu x:t.e] ]]$. Notice that the types of $e_1$ and $e_2$ are equivalent by $\beta$-equivalence. But such result cannot be directly obtained because of the removal of implicit conversion rule. Instead, by using explicit cast operations of \expcc, we can obtain the following transformation between $e$ and $e'$:
 \[\begin{array}{lll}
-	&[[castup [mu x . t] e']] &: [[mu x . t]]\\
-	&[[castdown e]] &: [[(mu x . t [x |-> mu x . t])]]
+	&[[castup [mu x:t.e] e2]] &: [[mu x:t.e]]\\
+	&[[castdown]] e_1 &: [[(mu x:t.e [x |-> mu x:t.e])]]
 \end{array}\]
 For type-level $\mu$-notation, $[[castup]]$ and $[[castdown]]$ work in the same way as $\textsf{fold}$ and $\textsf{unfold}$ operations in iso-recursive types to control recursion explicitly.
 

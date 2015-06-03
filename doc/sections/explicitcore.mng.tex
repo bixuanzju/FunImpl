@@ -22,9 +22,6 @@ First bring in all results and formalization: syntax; semantics; proofs ... then
 \newcommand{\gram}[1]{\ottgrammartabular{#1\ottafterlastrule}}
 \newcommand{\ruleref}[1]{\ottdrulename{#1}}
 
-% Use space as delimiter for premises
-\renewcommand{\ottpremise}[1]{\enskip #1 \enskip}
-
 In this section, we present a variant of the Calculus of Constructions (\cc), called \emph{explicit} Calculus of Constructions (\expcc), which is the foundation of our core language \name. \expcc can be regarded as \name without general recursion, so that has more straightforward properties and metatheory. It is suitable for illustrating the core idea of our design, that is to control $\beta$-reduction at the type level by introducing \emph{explicit} type conversion semantics. This also brings a benefit to type checking of \expcc, that the strong normalization is no long necessary to achieve the decidability of type checking. In the following part of this section, we give explanation of these properties by showing the syntax, static and dynamic semantics and the metatheory of \expcc.
 
 \subsection{Syntax}\label{sec:ecc:syn}
@@ -37,7 +34,7 @@ The syntax difference of from \cc is that \expcc introduces two new explicit typ
 The intention of introducing two explicit cast primitives is that we can gain full control of computation at the type level by manually managing the type conversions. Later in \S \ref{sec:ecc:type} we will see dropping the implicit conversion rule of \cc simplifies the type checking and leads to syntax-directed typing rules. This also influences the requirements of decidable type checking, that strong normalization is no long necessary.
 
 \begin{figure}[ht]
-	\gram{\otte\ottinterrule
+	\gram{\ottee\ottinterrule
 		\otts\ottinterrule
 		\ottG\ottinterrule
 		\ottv}
@@ -80,7 +77,7 @@ The type system for \expcc contains typing judgements and operational semantics.
 Figure \ref{fig:ecc:typerule} lists the typing judgements to check the validity of expressions. Most rules are straightforward and similar with the ones in \cc. For example, rule \ruleref{T\_Ax} states that the "type" of sort $[[star]]$ is a kind. This is derived from an axiom in \cc, that the highest sort is $[[square]]$, making the type system predicative. Rule \ruleref{T\_Pi} allows us to type dependent products. There are four possible combinations of types of $[[t1]]$ and $[[t2]]$ in a product $[[Pi x:t1.t2]]$, i.e. $(s,t) \in \{[[star]], [[square]]\} \times \{[[star]], [[square]]\}$. For some $([[\x:t1.e]]):([[Pi x:t1.t2]])$, when $(s,t)=([[star]],[[square]])$, $x:[[t1]]:[[star]]$, $e:[[t2]]:[[square]]$, so $x$ is a term and $e$ is a type. Thus, we have a type depending on a term which means the product is a dependent type.
 
 The difference from \cc for typing rules of \expcc is that rule \ruleref{T\_CastUp} and \ruleref{T\_CastDown} are added to check the type conversion primitives $[[castup]]$ and $[[castdown]]$, and the implicit type conversion rule of \cc is removed, which is the rule as follows:
-\ottusedrule{\ottdruleTccXXConv{}}
+\ottusedrule{\ottdruleTXXConv{}}
 This rule is necessary for \cc because of the premise requirements of the application rule \ruleref{T\_App}:
 \ottusedrule{\ottdruleTXXApp{}}
 Consider the following two cases of the term $[[e1 e2]]$:
