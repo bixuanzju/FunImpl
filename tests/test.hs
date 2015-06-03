@@ -2,7 +2,7 @@ import Test.Tasty
 import Test.Tasty.HUnit
 
 import Expr
--- import Parser
+import Parser
 import Syntax
 import TypeCheck
 import Predef
@@ -28,7 +28,7 @@ main :: IO ()
 main = defaultMain tests
 
 tests :: TestTree
-tests = testGroup "Tests" [substTest,tcheckTest]
+tests = testGroup "Tests" [substTest,tcheckTest, datatypeTest]
 
 
 -- letTest :: TestTree
@@ -38,6 +38,29 @@ tests = testGroup "Tests" [substTest,tcheckTest]
 --       equate initalBEnv (parse "let a : nat = one in let b : nat = two in plus a b")
 --         (parse "plus two one") @?= True
 --     ]
+
+nattest1 :: Expr
+nattest1 = let Right (Progm [e]) =  parseExpr "data nat = zero | suc nat; lam x : nat . x"
+           in e
+
+nattest2 :: Expr
+nattest2 = let Right (Progm [e]) =  parseExpr "data nat = zero | suc nat; data list (a : *) = nil | cons a (list a); lam x : nat . suc zero"
+           in e
+
+listtest :: Expr
+listtest = let Right (Progm [e]) = parseExpr "data nat = zero | suc nat; data list (a : *) = nil | cons a (list a); lam x : (list nat) . cons nat zero x"
+           in e
+
+datatypeTest :: TestTree
+datatypeTest =
+  testGroup "Datatype check"
+    [ testCase "natural number" $
+      tcheck [] nattest1 @?= Right (Pi "x" (Var "nat") (Var "nat"))
+    , testCase "successor of zero" $
+      tcheck [] nattest2 @?= Right (Pi "x" (Var "nat") (Var "nat"))
+    , testCase "list of natural numbers" $
+      tcheck [] listtest @?= Right (Pi "x" (App (Var "list") (Var "nat")) (App (Var "list") (Var "nat")))
+    ]
 
 tcheckTest :: TestTree
 tcheckTest =
