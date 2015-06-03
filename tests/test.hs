@@ -28,7 +28,7 @@ main :: IO ()
 main = defaultMain tests
 
 tests :: TestTree
-tests = testGroup "Tests" [substTest,tcheckTest, datatypeTest]
+tests = testGroup "Tests" [substTest, tcheckTest, datatypeTest, patternTest]
 
 
 -- letTest :: TestTree
@@ -51,6 +51,10 @@ listtest :: Expr
 listtest = let Right (Progm [e]) = parseExpr "data nat = zero | suc nat; data list (a : *) = nil | cons a (list a); lam x : (list nat) . cons nat zero x"
            in e
 
+pattest :: Expr
+pattest = let Right (Progm [e]) = parseExpr "data nat = zero | suc nat; data list (a : *) = nil | cons a (list a); lam x : list nat . case x of nil => zero | cons (x : nat) (xs : list nat) => suc (suc x)"
+              in e
+
 datatypeTest :: TestTree
 datatypeTest =
   testGroup "Datatype check"
@@ -61,6 +65,12 @@ datatypeTest =
     , testCase "list of natural numbers" $
       tcheck [] listtest @?= Right (Pi "x" (App (Var "list") (Var "nat")) (App (Var "list") (Var "nat")))
     ]
+
+patternTest :: TestTree
+patternTest =
+  testGroup "Pattern matching check"
+    [testCase "case analysis" $
+      tcheck [] pattest @?= Right (Pi "x" (App (Var "list") (Var "nat")) (Var "nat"))]
 
 tcheckTest :: TestTree
 tcheckTest =

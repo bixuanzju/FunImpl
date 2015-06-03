@@ -30,7 +30,7 @@ data Constructor = Constructor { constrName :: Sym, constrParams :: [Type] }
 
 data Alt = ConstrAlt Pattern Expr deriving Eq
 
-data Pattern = PConstr Constructor [(Sym, Expr)] deriving Eq
+data Pattern = PConstr Constructor [(Sym, Type)] deriving Eq
 
 isVal :: Expr -> Bool
 isVal (Lam _ _ _) = True
