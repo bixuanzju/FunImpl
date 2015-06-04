@@ -1,6 +1,8 @@
 module TypeCheck where
 
 import Control.Monad (unless, when)
+import Control.Monad.Except (throwError)
+-- import Debug.Trace
 
 import Syntax
 import Expr
@@ -18,7 +20,7 @@ findVar :: Env -> Sym -> TC Type
 findVar r s =
   case lookup s r of
    Just t -> return t
-   Nothing -> Left $ "Cannot find variable " ++ s
+   Nothing -> throwError $ "Cannot find variable " ++ s
 
 tcheck :: Env -> Expr -> TC Type
 tcheck env (Var s) = findVar env s       -- (T_VAR and T_WEAK)
@@ -28,9 +30,9 @@ tcheck env (App f a) =                   -- (T_APP)
        Pi x at rt ->
          do ta <- tcheck env a
             unless (alphaEq ta at) $     -- up to alpha equivalence
-              Left "Bad function argument type"
+              throwError "Bad function argument type"
             return $ subst x a rt
-       _ -> Left "Non-function in application"
+       _ -> throwError "Non-function in application"
 tcheck env (Lam s t e) =                 -- (T_LAM)
   do let env' = extend s t env
      te <- tcheck env' e
@@ -38,49 +40,90 @@ tcheck env (Lam s t e) =                 -- (T_LAM)
      tcheck env lt
      return lt
 tcheck _ (Kind Star) = return $ Kind Box -- (T_AX)
-tcheck _ (Kind Box) = Left "Found a Box"
+tcheck _ (Kind Box) = throwError "Found a Box"
 tcheck env (Pi x a b) =                  -- (T_PI)
   do s <- tcheck env a -- evaluate after type check
      let env' = extend x a env
      t <- tcheck env' b
-     when ((s,t) `notElem` allowedKinds) $ Left "Bad abstraction"
+     when ((s,t) `notElem` allowedKinds) $ throwError "Bad abstraction"
      return t
 tcheck env (Mu i t e) =                  -- (T_MU)
   do let env' = extend i t env
      t' <- tcheck env' e
      tcheck env t'
-     unless (alphaEq t t') $ Left "Bad recursive type"
+     unless (alphaEq t t') $ throwError "Bad recursive type"
      return t
 tcheck env (F t1 e) =                    -- (T_CASTUP)
   do t2 <- tcheck env e
      tcheck env t1
      t2' <- reduct t1
-     unless (alphaEq t2 t2') $ Left "Bad fold expression"
+     unless (alphaEq t2 t2') $ throwError "Bad fold expression"
      return t1
 tcheck env (U e) =                       -- (T_CASTDOWN)
   do t1 <- tcheck env e
      t2 <- reduct t1
      tcheck env t2
      return t2
+
+-- type checking surface language
 tcheck env (Data databinds e) = do
   env' <- tcd databinds
   let nenv = env' ++ env
   tcheck nenv e
+
   where
     tcd :: DataBind -> TC Env
     tcd (DB tc tca constrs) = do
+
+      -- check type constructor
       let tct = chainType (Kind Star) . map snd $ tca
       tcs <- tcheck env tct
-      unless (tcs == (Kind Box)) $ Left "Bad type constructor arguments"
+      unless (tcs == (Kind Box)) $ throwError "Bad type constructor arguments"
+
+      -- check data constructors
       let du = foldl App (Var tc) (map (Var . fst) tca)
       let tduList = map (\dc -> chainType du (constrParams dc)) constrs
       dcts <- mapM (tcheck ((tc, tct) : tca ++ env)) tduList
-      unless (any (== (Kind Star)) dcts) $ Left "Bad data constructor arguments"
+      unless (all (== (Kind Star)) dcts) $ throwError "Bad data constructor arguments"
+
+      -- return environment containing type constructor and data constructors
       let dctList = map (\tdu -> foldr (\(u, k) t -> Pi u k t) tdu tca) tduList
       return ([(tc, tct)] ++ (zip (map constrName constrs) dctList))
 
+-- TODO: Lack 1) exhaustive test 2) overlap test
+tcheck env (Case e alts) = do
+  dv <- tcheck env e
+  actualTypes <- fmap reverse (getActualTypes dv)
+
+  -- check patterns
+  altTypeList <- mapM (tcp dv actualTypes) alts
+  unless (all (== (head altTypeList)) (tail altTypeList)) $ throwError "Bad pattern expressions"
+
+  let (Pi "" _ t) = head altTypeList
+  return t
+
+  where
+    tcp :: Type -> [Type] -> Alt -> TC Type
+    tcp dv atys (ConstrAlt (PConstr constr params) body) = do
+      let k = constrName constr
+      kt <- tcheck env (Var k)
+
+      -- check patterns, quit hacky
+      let tcApp = foldl App (Var "dummy$") (atys ++ (map (Var . fst) params))
+      typ <- tcheck (("dummy$", kt) : params ++ env) tcApp
+      unless (alphaEq typ dv) $ throwError "Bad patterns"
+
+      bodyType <- tcheck (params ++ env) body
+      return (arr dv bodyType)
+
+    getActualTypes :: Type -> TC [Type]
+    getActualTypes (App a b) = getActualTypes a >>= \ts -> return (b : ts)
+    getActualTypes (Var _) = return []
+    getActualTypes _ = throwError "Bad scrutinee type"
+
+
 chainType :: Type -> [Type] -> Type
-chainType lt = foldr (\t t' -> Pi "" t t') lt
+chainType teminalType = foldr (\t t' -> Pi "" t t') teminalType
 
 allowedKinds :: [(Type, Type)]
 allowedKinds =
@@ -89,14 +132,5 @@ allowedKinds =
   ,(Kind Box,Kind Star)
   ,(Kind Box,Kind Box)]
 
--- tcheckT :: Env -> Expr -> TC Type
--- tcheckT env e = liftM nf (tcheck env e)
-
--- typeCheck :: Expr -> Either String Type
--- typeCheck e =
---   case tcheck initalEnv e of
---     Left msg -> Left ("Type error:\n" ++ msg)
---     Right t -> Right t
-
-arr :: Expr -> Expr -> Expr
+arr :: Type -> Type -> Type
 arr = Pi ""
