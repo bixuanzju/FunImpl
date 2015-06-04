@@ -70,6 +70,7 @@ terminals :: 'terminals_' ::=
   | empty    ::  :: empty     {{ tex \varnothing }}
   | ->       ::  :: to        {{ tex \rightarrow }}
   | -->      ::  :: steps     {{ tex \longrightarrow }}
+  | ->>      ::  :: msteps    {{ tex \twoheadrightarrow }}
   | |->      ::  :: mapsto    {{ tex \mapsto }}
   | castup   ::  :: castup    {{ tex \mathsf{cast}^{\uparrow} }}
   | |-       ::  :: turnstile {{ tex \vdash }}
@@ -80,6 +81,7 @@ terminals :: 'terminals_' ::=
   | int      ::  :: int       {{ tex \mathsf{Int} }}
   | bool     ::  :: bool      {{ tex \mathsf{Bool} }}
   | three    ::  :: three     {{ tex 3 }}
+  | elt      ::  :: elt       {{ tex \in }}
 
 %%% Fomulae
 formula :: 'formula_' ::=
@@ -117,8 +119,28 @@ defn G  |- e : t ::  :: ext :: 'T_' {{ com Extended expression typing }}
 by
 
 G, x:t |- e:t
+G |- t:s
 ------------------- :: Mu
 G |- (mu x:t . e):t
+
+defn G  |- e : t ::  :: sur :: 'TS_' {{ com Expression typing for source language }}
+by
+
+|- G
+x:t elt G
+---------- :: Var
+G |- x:t
+
+defn |- G        ::  :: ctx :: 'Env_' {{ com Well-formed context }}
+by
+
+-------- :: Empty
+|- empty
+
+|- G
+G |- t : s
+----------- :: Var
+|- G, x : t
 
 defn G  |- e : t ::  :: expr :: 'T_' {{ com Expression typing }}
 %{{ tex [[G]] \labeledjudge{e} [[e]] : [[t]] }}

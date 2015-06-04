@@ -14,28 +14,77 @@
 
 \section{Proofs of core language}
 \subsection{Decidability of type checking}
-\begin{dfn}
-A set of inference rules for a relation $[[|-]]$ is called \textbf{syntax-directed} if there is at most one rule with a conclusion $[[G |- e:t]]$ for given $[[G]],[[e]]$ and this rule (if present) produces exactly one type $[[t]]$ for $[[e]]$.
+\begin{lem}[Uniqueness of one-step reduction]
+	The relation $[[-->]]$, i.e. one-step reduction, is \textbf{unique} in the sense that given $e$ there is at most one $e'$ such that $[[e --> e']]$.
+\end{lem}
+
+\begin{proof}
+	By induction on the structure of $e$:
+	\begin{description}
+		\item[Case $e=v$:] $e$ has one of the following forms:
+		\begin{inparaenum}[(1)]
+			\item $[[\x:t.e]]$,
+			\item $[[Pi x:t1.t2]]$,
+			\item $[[castup [t] e]]$,
+		\end{inparaenum}
+		which cannot match any rules of $[[-->]]$. Thus there is no $e'$ such that $[[e-->e']]$.
+		\item[Case $e=[[(\x:t.e1) e2]]$:] There is a unique $e'=[[ e1[x|->e2] ]]$ by rule \ruleref{S\_Beta}.
+		\item[Case $e=[[castdown (castup [t] e)]]$:] There is a unique $e'=e$ by rule \ruleref{S\_CastDownUp}.
+		\item[Case $e=[[mu x:t.e]]$:] There is a unique $e'=[[e[x|->mu x:t.e] ]]$ by rule \ruleref{S\_Mu}.
+		\item[Case $e=[[e1 e2]]$ with $[[e1 --> e1']]$:] $[[e1]]$ cannot be a $\lambda$-term $[[\x:t.e]]$ which is a value that contradicts $[[e1]]$ can be reduced to $[[e1']]$. By the induction hypothesis, $[[e1']]$ is unique reduction of $[[e1]]$. Thus by rule \ruleref{S\_App}, $e'=[[e1' e2]]$ is the unique reduction for $e$.
+		\item[Case $e=[[castdown e1]]$ with $[[e1 --> e1']]$:] $[[e1]]$ cannot have the form $[[castup [t] e]]$ which is a value that contradicts $[[e1]]$ can be reduced to $[[e1']]$. By the induction hypothesis, $[[e1']]$ is unique reduction of $[[e1]]$. Thus by rule \ruleref{S\_CastDown}, $e'=[[castdown e1']]$ is the unique reduction for $e$.
+	\end{description}
+\end{proof}
+
+\begin{dfn}[Well-formed context]
+	A \textbf{well-formed} context $[[G]]$ is defined by the following rules:
+	
+	\textnormal{\ottdefnctx{}}
 \end{dfn}
 
-\begin{lem}
-The expression typing rules $[[G |- e:t]]$ are syntax-directed.
+\begin{lem}[Consistency of well-formed context]\label{lem:wfc}
+	Given a well-formed initial context $[[G]]$, it remains well-formed through type checking.
 \end{lem}
 
-\begin{lem}[Decidability of type synthesis]
-There is a decidable algorithm which given $[[G]], [[e]]$ computes the unique $[[t]]$ such that $[[G |- e:t]]$ or reports there is no such $[[t]]$.
+\begin{proof}
+	Suppose $[[G]]$ is the initial context which is well-formed. To safely extend $[[G]]$ with a variable $x:[[t]]$, one should have $[[G |- t:s]]$ due to rule \ruleref{Env\_Var}. Note that when applying typing rules of $[[G |- e:t]]$, rule \ruleref{T\_Pi}, \ruleref{T\_Mu} and \ruleref{T\_Lam} will extend the context. We show that these rules cover the condition $[[G |- t:s]]$ with respect to $x:[[t]]$ as follows:
+	\begin{description}
+		\item[Case \ruleref{T\_Pi}:] \ottusedrule{\ottdruleTXXPi{}} For $x:[[t1]]$, $[[G |- t1:s]]$ is directly the premise of the rule.
+		\item[Case \ruleref{T\_Mu}:] \ottusedrule{\ottdruleTXXMu{}} For $x:[[t]]$, $[[G |- t:s]]$ is directly the premise of the rule.
+		\item[Case \ruleref{T\_Lam}:] \ottusedrule{\ottdruleTXXLam{}} For $x:[[t1]]$, note that the premise $[[G |- (Pi x:t1.t2):s]]$ can be derived from rule \ruleref{T\_Pi}, which has the pre-condition $[[G |- t1:s]]$.
+	\end{description}
+\end{proof}
+
+\begin{lem}[Valid context optimization]\label{lem:wfcopt}
+	With a well-formed initial context $[[G]]$, the \ruleref{T\_Var} and \ruleref{T\_Weak} can be replaced by the following rule: \ottusedrule{\ottdruleTSXXVar{}}
 \end{lem}
+
+\begin{proof}
+	By Lemma \ref{lem:wfc}, the context $[[G]]$ remains well-formed if it is initially well-formed. Thus, it is not necessary to use \ruleref{T\_Var} and \ruleref{T\_Weak} to check the well-formedness of $[[G]]$. In order to check the type of a variable $x$, it is necessary and sufficient to check if $[[x:t elt G]]$, which is simply rule \ruleref{TS\_Var}. \linus{This proof needs to be more formally written.}
+\end{proof}
 
 \begin{lem}[Decidability of type checking]
-There is a decidable algorithm which given $[[G]], [[e]]$ and $[[t]]$ constructs the unique derivation of $[[G |- e:t]]$ or reports there is no such derivation.
+	There is a decidable algorithm which given $[[G]], [[e]]$ computes the unique $[[t]]$ such that $[[G |- e:t]]$ or reports there is no such $[[t]]$.
 \end{lem}
 
+\begin{proof}
+	By induction on the derivation of $e$:
+	\begin{description}
+		\item[Case $e=x$:] By Lemma \ref{lem:wfcopt}, we only need to consider context $[[G]]$ that is well-formed. By rule \ruleref{TS\_Var}, if $[[x:t elt G]]$, $t$ is the unique type of $x$.
+		\item[Case $e=[[e1 e2]]$:] By rule \ruleref{T\_App}, 
+	\end{description} 
+\end{proof}
+
 \subsection{Properties}
-\newcommand{\FV}{\mathrm{FV}}
-\newcommand{\dom}{\mathrm{dom}}
+\newcommand{\FV}{\mathsf{FV}}
+\newcommand{\dom}{\mathsf{dom}}
 
 \begin{lem}[Free variables lemma]
 If $[[G |- e:t]]$, then $\FV([[e]]),\FV([[t]]) \subseteq \dom([[G]])$.
+\end{lem}
+
+\begin{lem}[Generation lemma]
+	
 \end{lem}
 
 \begin{lem}[Substitution lemma]
@@ -44,10 +93,10 @@ If $[[G |- e:t]]$, then $\FV([[e]]),\FV([[t]]) \subseteq \dom([[G]])$.
 
 \subsection{Soundness}
 \begin{lem}[Subject reduction]
-If $[[G |- e:t]]$ and $e [[-->]] e'$ then $[[G |- e':t]]$.
+If $[[G |- e:t]]$ and $e [[->>]] e'$ then $[[G |- e':t]]$.
 \end{lem}
 
 \begin{lem}[Progress]
-If $[[empty |- e:t]]$ then either $e$ is a value $v$ or there exists $e'$ such that $e [[-->]] e'$.
+If $[[empty |- e:t]]$ then either $e$ is a value $v$ or there exists $e'$ such that $e [[->>]] e'$.
 \end{lem}
 

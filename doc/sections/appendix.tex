@@ -15,28 +15,77 @@
 
 \section{Proofs of core language}
 \subsection{Decidability of type checking}
-\begin{dfn}
-A set of inference rules for a relation $ \vdash $ is called \textbf{syntax-directed} if there is at most one rule with a conclusion $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$ for given $\Gamma,\ottnt{e}$ and this rule (if present) produces exactly one type $\tau$ for $\ottnt{e}$.
+\begin{lem}[Uniqueness of one-step reduction]
+	The relation $ \longrightarrow $, i.e. one-step reduction, is \textbf{unique} in the sense that given $e$ there is at most one $e'$ such that $\ottnt{e}  \longrightarrow  \ottnt{e'}$.
+\end{lem}
+
+\begin{proof}
+	By induction on the structure of $e$:
+	\begin{description}
+		\item[Case $e=v$:] $e$ has one of the following forms:
+		\begin{inparaenum}[(1)]
+			\item $\lambda  \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$,
+			\item $\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}$,
+			\item $\mathsf{cast}^{\uparrow} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}$,
+		\end{inparaenum}
+		which cannot match any rules of $ \longrightarrow $. Thus there is no $e'$ such that $\ottnt{e}  \longrightarrow  \ottnt{e'}$.
+		\item[Case $e=\ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}  \ottsym{)} \, \ottnt{e_{{\mathrm{2}}}}$:] There is a unique $e'=\ottnt{e_{{\mathrm{1}}}}  \ottsym{[}  \ottmv{x}  \mapsto  \ottnt{e_{{\mathrm{2}}}}  \ottsym{]}$ by rule \ruleref{S\_Beta}.
+		\item[Case $e=\mathsf{cast}_{\downarrow} \, \ottsym{(}  \mathsf{cast}^{\uparrow} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}  \ottsym{)}$:] There is a unique $e'=e$ by rule \ruleref{S\_CastDownUp}.
+		\item[Case $e=\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$:] There is a unique $e'=\ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]}$ by rule \ruleref{S\_Mu}.
+		\item[Case $e=\ottnt{e_{{\mathrm{1}}}} \, \ottnt{e_{{\mathrm{2}}}}$ with $\ottnt{e_{{\mathrm{1}}}}  \longrightarrow  \ottnt{e'_{{\mathrm{1}}}}$:] $\ottnt{e_{{\mathrm{1}}}}$ cannot be a $\lambda$-term $\lambda  \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$ which is a value that contradicts $\ottnt{e_{{\mathrm{1}}}}$ can be reduced to $\ottnt{e'_{{\mathrm{1}}}}$. By the induction hypothesis, $\ottnt{e'_{{\mathrm{1}}}}$ is unique reduction of $\ottnt{e_{{\mathrm{1}}}}$. Thus by rule \ruleref{S\_App}, $e'=\ottnt{e'_{{\mathrm{1}}}} \, \ottnt{e_{{\mathrm{2}}}}$ is the unique reduction for $e$.
+		\item[Case $e=\mathsf{cast}_{\downarrow} \, \ottnt{e_{{\mathrm{1}}}}$ with $\ottnt{e_{{\mathrm{1}}}}  \longrightarrow  \ottnt{e'_{{\mathrm{1}}}}$:] $\ottnt{e_{{\mathrm{1}}}}$ cannot have the form $\mathsf{cast}^{\uparrow} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}$ which is a value that contradicts $\ottnt{e_{{\mathrm{1}}}}$ can be reduced to $\ottnt{e'_{{\mathrm{1}}}}$. By the induction hypothesis, $\ottnt{e'_{{\mathrm{1}}}}$ is unique reduction of $\ottnt{e_{{\mathrm{1}}}}$. Thus by rule \ruleref{S\_CastDown}, $e'=\mathsf{cast}_{\downarrow} \, \ottnt{e'_{{\mathrm{1}}}}$ is the unique reduction for $e$.
+	\end{description}
+\end{proof}
+
+\begin{dfn}[Well-formed context]
+	A \textbf{well-formed} context $\Gamma$ is defined by the following rules:
+	
+	\textnormal{\ottdefnctx{}}
 \end{dfn}
 
-\begin{lem}
-The expression typing rules $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$ are syntax-directed.
+\begin{lem}[Consistency of well-formed context]\label{lem:wfc}
+	Given a well-formed initial context $\Gamma$, it remains well-formed through type checking.
 \end{lem}
 
-\begin{lem}[Decidability of type synthesis]
-There is a decidable algorithm which given $\Gamma, \ottnt{e}$ computes the unique $\tau$ such that $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$ or reports there is no such $\tau$.
+\begin{proof}
+	Suppose $\Gamma$ is the initial context which is well-formed. To safely extend $\Gamma$ with a variable $x:\tau$, one should have $\Gamma  \vdash  \tau  \ottsym{:}  \ottnt{s}$ due to rule \ruleref{Env\_Var}. Note that when applying typing rules of $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$, rule \ruleref{T\_Pi}, \ruleref{T\_Mu} and \ruleref{T\_Lam} will extend the context. We show that these rules cover the condition $\Gamma  \vdash  \tau  \ottsym{:}  \ottnt{s}$ with respect to $x:\tau$ as follows:
+	\begin{description}
+		\item[Case \ruleref{T\_Pi}:] \ottusedrule{\ottdruleTXXPi{}} For $x:\tau_{{\mathrm{1}}}$, $\Gamma  \vdash  \tau_{{\mathrm{1}}}  \ottsym{:}  \ottnt{s}$ is directly the premise of the rule.
+		\item[Case \ruleref{T\_Mu}:] \ottusedrule{\ottdruleTXXMu{}} For $x:\tau$, $\Gamma  \vdash  \tau  \ottsym{:}  \ottnt{s}$ is directly the premise of the rule.
+		\item[Case \ruleref{T\_Lam}:] \ottusedrule{\ottdruleTXXLam{}} For $x:\tau_{{\mathrm{1}}}$, note that the premise $\Gamma  \vdash  \ottsym{(}  \Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}  \ottsym{)}  \ottsym{:}  \ottnt{s}$ can be derived from rule \ruleref{T\_Pi}, which has the pre-condition $\Gamma  \vdash  \tau_{{\mathrm{1}}}  \ottsym{:}  \ottnt{s}$.
+	\end{description}
+\end{proof}
+
+\begin{lem}[Valid context optimization]\label{lem:wfcopt}
+	With a well-formed initial context $\Gamma$, the \ruleref{T\_Var} and \ruleref{T\_Weak} can be replaced by the following rule: \ottusedrule{\ottdruleTSXXVar{}}
 \end{lem}
+
+\begin{proof}
+	By Lemma \ref{lem:wfc}, the context $\Gamma$ remains well-formed if it is initially well-formed. Thus, it is not necessary to use \ruleref{T\_Var} and \ruleref{T\_Weak} to check the well-formedness of $\Gamma$. In order to check the type of a variable $x$, it is necessary and sufficient to check if $\ottmv{x}  \ottsym{:}  \tau \, \in \, \Gamma$, which is simply rule \ruleref{TS\_Var}. \linus{This proof needs to be more formally written.}
+\end{proof}
 
 \begin{lem}[Decidability of type checking]
-There is a decidable algorithm which given $\Gamma, \ottnt{e}$ and $\tau$ constructs the unique derivation of $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$ or reports there is no such derivation.
+	There is a decidable algorithm which given $\Gamma, \ottnt{e}$ computes the unique $\tau$ such that $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$ or reports there is no such $\tau$.
 \end{lem}
 
+\begin{proof}
+	By induction on the derivation of $e$:
+	\begin{description}
+		\item[Case $e=x$:] By Lemma \ref{lem:wfcopt}, we only need to consider context $\Gamma$ that is well-formed. By rule \ruleref{TS\_Var}, if $\ottmv{x}  \ottsym{:}  \tau \, \in \, \Gamma$, $t$ is the unique type of $x$.
+		\item[Case $e=\ottnt{e_{{\mathrm{1}}}} \, \ottnt{e_{{\mathrm{2}}}}$:] By rule \ruleref{T\_App}, 
+	\end{description} 
+\end{proof}
+
 \subsection{Properties}
-\newcommand{\FV}{\mathrm{FV}}
-\newcommand{\dom}{\mathrm{dom}}
+\newcommand{\FV}{\mathsf{FV}}
+\newcommand{\dom}{\mathsf{dom}}
 
 \begin{lem}[Free variables lemma]
 If $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$, then $\FV(\ottnt{e}),\FV(\tau) \subseteq \dom(\Gamma)$.
+\end{lem}
+
+\begin{lem}[Generation lemma]
+	
 \end{lem}
 
 \begin{lem}[Substitution lemma]
@@ -45,10 +94,10 @@ If $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$, then $\FV(\ottnt{e}),\FV(\tau)
 
 \subsection{Soundness}
 \begin{lem}[Subject reduction]
-If $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$ and $e  \longrightarrow  e'$ then $\Gamma  \vdash  \ottnt{e'}  \ottsym{:}  \tau$.
+If $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$ and $e  \twoheadrightarrow  e'$ then $\Gamma  \vdash  \ottnt{e'}  \ottsym{:}  \tau$.
 \end{lem}
 
 \begin{lem}[Progress]
-If $\varnothing  \vdash  \ottnt{e}  \ottsym{:}  \tau$ then either $e$ is a value $v$ or there exists $e'$ such that $e  \longrightarrow  e'$.
+If $\varnothing  \vdash  \ottnt{e}  \ottsym{:}  \tau$ then either $e$ is a value $v$ or there exists $e'$ such that $e  \twoheadrightarrow  e'$.
 \end{lem}
 

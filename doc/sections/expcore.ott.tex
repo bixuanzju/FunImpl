@@ -100,6 +100,7 @@
 %% defn ext
 \newcommand{\ottdruleTXXMu}[1]{\ottdrule[#1]{%
 {\Gamma  \ottsym{,}  \ottmv{x}  \ottsym{:}  \tau  \vdash  \ottnt{e}  \ottsym{:}  \tau}%
+\\ {\Gamma  \vdash  \tau  \ottsym{:}  \ottnt{s}}%
 }{
 \Gamma  \vdash  \ottsym{(}  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{)}  \ottsym{:}  \tau}{%
 {\ottdrulename{T\_Mu}}{}%
@@ -107,6 +108,40 @@
 
 \newcommand{\ottdefnext}[1]{\begin{ottdefnblock}[#1]{$\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$}{\ottcom{Extended expression typing}}
 \ottusedrule{\ottdruleTXXMu{}}
+\end{ottdefnblock}}
+
+%% defn sur
+\newcommand{\ottdruleTSXXVar}[1]{\ottdrule[#1]{%
+{\vdash  \Gamma}%
+\\ {\ottmv{x}  \ottsym{:}  \tau \, \in \, \Gamma}%
+}{
+\Gamma  \vdash  \ottmv{x}  \ottsym{:}  \tau}{%
+{\ottdrulename{TS\_Var}}{}%
+}}
+
+\newcommand{\ottdefnsur}[1]{\begin{ottdefnblock}[#1]{$\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$}{\ottcom{Expression typing for source language}}
+\ottusedrule{\ottdruleTSXXVar{}}
+\end{ottdefnblock}}
+
+%% defn ctx
+\newcommand{\ottdruleEnvXXEmpty}[1]{\ottdrule[#1]{%
+}{
+\vdash  \varnothing}{%
+{\ottdrulename{Env\_Empty}}{}%
+}}
+
+
+\newcommand{\ottdruleEnvXXVar}[1]{\ottdrule[#1]{%
+{\vdash  \Gamma}%
+\\ {\Gamma  \vdash  \tau  \ottsym{:}  \ottnt{s}}%
+}{
+\vdash  \Gamma  \ottsym{,}  \ottmv{x}  \ottsym{:}  \tau}{%
+{\ottdrulename{Env\_Var}}{}%
+}}
+
+\newcommand{\ottdefnctx}[1]{\begin{ottdefnblock}[#1]{$\vdash  \Gamma$}{\ottcom{Well-formed context}}
+\ottusedrule{\ottdruleEnvXXEmpty{}}
+\ottusedrule{\ottdruleEnvXXVar{}}
 \end{ottdefnblock}}
 
 %% defn expr
@@ -193,7 +228,7 @@
 
 
 \newcommand{\ottdefnsLint}{
-\ottdefncoc{}\ottdefnext{}\ottdefnexpr{}}
+\ottdefncoc{}\ottdefnext{}\ottdefnsur{}\ottdefnctx{}\ottdefnexpr{}}
 
 % defns OpSem
 %% defn extstep
