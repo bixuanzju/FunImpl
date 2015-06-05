@@ -14,28 +14,19 @@
 \ottusedrule{\ottdruleTXXMu{}}
 
 \section{Proofs of core language}
-\subsection{Decidability of type checking}
-\begin{lem}[Uniqueness of one-step reduction]
-	The relation $ \longrightarrow $, i.e. one-step reduction, is \textbf{unique} in the sense that given $e$ there is at most one $e'$ such that $\ottnt{e}  \longrightarrow  \ottnt{e'}$.
+\subsection{Properties}
+\begin{lem}[Generation lemma]\label{lem:gen}
+$\quad$
+\begin{enumerate}
+	\item If $\Gamma  \vdash  \ottmv{x}  \ottsym{:}  \ottmv{T}$, then there exist an expression $\tau$ and a sort $s$ such that $ \tau  =_{\alpha}  \ottmv{T} $, $\Gamma  \vdash  \tau  \ottsym{:}  \ottnt{s}$ and $\ottmv{x}  \ottsym{:}  \tau \, \in \, \Gamma$.
+	\item If $\Gamma  \vdash  \ottnt{e_{{\mathrm{1}}}} \, \ottnt{e_{{\mathrm{2}}}}  \ottsym{:}  \ottmv{T}$, then there exist expressions $\tau_{{\mathrm{1}}}$ and $\tau_{{\mathrm{2}}}$ such that $\Gamma  \vdash  \ottnt{e_{{\mathrm{1}}}}  \ottsym{:}  \ottsym{(}  \Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}  \ottsym{)}$, $\Gamma  \vdash  \ottnt{e_{{\mathrm{2}}}}  \ottsym{:}  \tau_{{\mathrm{2}}}$ and $ \ottmv{T}  =_{\alpha}  \tau_{{\mathrm{1}}}  \ottsym{[}  \ottmv{x}  \mapsto  \ottnt{e_{{\mathrm{2}}}}  \ottsym{]} $.
+	\item If $\Gamma  \vdash  \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \ottnt{e}  \ottsym{)}  \ottsym{:}  \ottmv{T}$, then there exist a sort $s$ and an expression $\tau_{{\mathrm{2}}}$ such that $T =a Pi x:t1.t2$ where $\Gamma  \vdash  \ottsym{(}  \Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}  \ottsym{)}  \ottsym{:}  \ottnt{s}$ and $\Gamma  \ottsym{,}  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \vdash  \ottnt{e}  \ottsym{:}  \tau_{{\mathrm{2}}}$.
+\end{enumerate}
 \end{lem}
 
-\begin{proof}
-	By induction on the structure of $e$:
-	\begin{description}
-		\item[Case $e=v$:] $e$ has one of the following forms:
-		\begin{inparaenum}[(1)]
-			\item $\lambda  \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$,
-			\item $\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}$,
-			\item $\mathsf{cast}^{\uparrow} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}$,
-		\end{inparaenum}
-		which cannot match any rules of $ \longrightarrow $. Thus there is no $e'$ such that $\ottnt{e}  \longrightarrow  \ottnt{e'}$.
-		\item[Case $e=\ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}  \ottsym{)} \, \ottnt{e_{{\mathrm{2}}}}$:] There is a unique $e'=\ottnt{e_{{\mathrm{1}}}}  \ottsym{[}  \ottmv{x}  \mapsto  \ottnt{e_{{\mathrm{2}}}}  \ottsym{]}$ by rule \ruleref{S\_Beta}.
-		\item[Case $e=\mathsf{cast}_{\downarrow} \, \ottsym{(}  \mathsf{cast}^{\uparrow} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}  \ottsym{)}$:] There is a unique $e'=e$ by rule \ruleref{S\_CastDownUp}.
-		\item[Case $e=\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$:] There is a unique $e'=\ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]}$ by rule \ruleref{S\_Mu}.
-		\item[Case $e=\ottnt{e_{{\mathrm{1}}}} \, \ottnt{e_{{\mathrm{2}}}}$ with $\ottnt{e_{{\mathrm{1}}}}  \longrightarrow  \ottnt{e'_{{\mathrm{1}}}}$:] $\ottnt{e_{{\mathrm{1}}}}$ cannot be a $\lambda$-term $\lambda  \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$ which is a value that contradicts $\ottnt{e_{{\mathrm{1}}}}$ can be reduced to $\ottnt{e'_{{\mathrm{1}}}}$. By the induction hypothesis, $\ottnt{e'_{{\mathrm{1}}}}$ is unique reduction of $\ottnt{e_{{\mathrm{1}}}}$. Thus by rule \ruleref{S\_App}, $e'=\ottnt{e'_{{\mathrm{1}}}} \, \ottnt{e_{{\mathrm{2}}}}$ is the unique reduction for $e$.
-		\item[Case $e=\mathsf{cast}_{\downarrow} \, \ottnt{e_{{\mathrm{1}}}}$ with $\ottnt{e_{{\mathrm{1}}}}  \longrightarrow  \ottnt{e'_{{\mathrm{1}}}}$:] $\ottnt{e_{{\mathrm{1}}}}$ cannot have the form $\mathsf{cast}^{\uparrow} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}$ which is a value that contradicts $\ottnt{e_{{\mathrm{1}}}}$ can be reduced to $\ottnt{e'_{{\mathrm{1}}}}$. By the induction hypothesis, $\ottnt{e'_{{\mathrm{1}}}}$ is unique reduction of $\ottnt{e_{{\mathrm{1}}}}$. Thus by rule \ruleref{S\_CastDown}, $e'=\mathsf{cast}_{\downarrow} \, \ottnt{e'_{{\mathrm{1}}}}$ is the unique reduction for $e$.
-	\end{description}
-\end{proof}
+\begin{lem}[Substitution lemma]
+	If $\Gamma_{{\mathrm{1}}}, x:\tau_{{\mathrm{1}}}, \Gamma_{{\mathrm{2}}}  \vdash  \ottnt{e_{{\mathrm{1}}}}  \ottsym{:}  \tau_{{\mathrm{2}}}$ and $\Gamma_{{\mathrm{1}}}  \vdash  \ottnt{e_{{\mathrm{2}}}}  \ottsym{:}  \tau_{{\mathrm{1}}}$, then $\Gamma_{{\mathrm{1}}}, \Gamma_{{\mathrm{2}}} [x  \mapsto  \ottnt{e_{{\mathrm{2}}}} ]  \vdash  \ottnt{e_{{\mathrm{1}}}}  \ottsym{[}  \ottmv{x}  \mapsto  \ottnt{e_{{\mathrm{2}}}}  \ottsym{]} : \tau_{{\mathrm{2}}}  \ottsym{[}  \ottmv{x}  \mapsto  \ottnt{e_{{\mathrm{2}}}}  \ottsym{]}$.
+\end{lem}
 
 \begin{dfn}[Well-formed context]
 	A \textbf{well-formed} context $\Gamma$ is defined by the following rules:
@@ -61,7 +52,30 @@
 \end{lem}
 
 \begin{proof}
-	By Lemma \ref{lem:wfc}, the context $\Gamma$ remains well-formed if it is initially well-formed. Thus, it is not necessary to use \ruleref{T\_Var} and \ruleref{T\_Weak} to check the well-formedness of $\Gamma$. In order to check the type of a variable $x$, it is necessary and sufficient to check if $\ottmv{x}  \ottsym{:}  \tau \, \in \, \Gamma$, which is simply rule \ruleref{TS\_Var}. \linus{This proof needs to be more formally written.}
+	By Lemma \ref{lem:wfc}, the context $\Gamma$ remains well-formed if it is initially well-formed. Thus, it is not necessary to use \ruleref{T\_Var} and \ruleref{T\_Weak} to check the well-formedness of $\Gamma$. By Lemma \ref{lem:gen}, in order to check the type of a variable $x$, it is necessary and sufficient to check if $\ottmv{x}  \ottsym{:}  \tau \, \in \, \Gamma$, which is simply rule \ruleref{TS\_Var}.
+\end{proof}
+
+\subsection{Decidability of type checking}
+\begin{lem}[Uniqueness of one-step reduction]\label{lem:unired}
+	The relation $ \longrightarrow $, i.e. one-step reduction, is \textbf{unique} in the sense that given $e$ there is at most one $e'$ such that $\ottnt{e}  \longrightarrow  \ottnt{e'}$.
+\end{lem}
+
+\begin{proof}
+	By induction on the structure of $e$:
+	\begin{description}
+		\item[Case $e=v$:] $e$ has one of the following forms:
+		\begin{inparaenum}[(1)]
+			\item $\lambda  \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$,
+			\item $\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}$,
+			\item $\mathsf{cast}^{\uparrow} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}$,
+		\end{inparaenum}
+		which cannot match any rules of $ \longrightarrow $. Thus there is no $e'$ such that $\ottnt{e}  \longrightarrow  \ottnt{e'}$.
+		\item[Case $e=\ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}  \ottsym{)} \, \ottnt{e_{{\mathrm{2}}}}$:] There is a unique $e'=\ottnt{e_{{\mathrm{1}}}}  \ottsym{[}  \ottmv{x}  \mapsto  \ottnt{e_{{\mathrm{2}}}}  \ottsym{]}$ by rule \ruleref{S\_Beta}.
+		\item[Case $e=\mathsf{cast}_{\downarrow} \, \ottsym{(}  \mathsf{cast}^{\uparrow} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}  \ottsym{)}$:] There is a unique $e'=e$ by rule \ruleref{S\_CastDownUp}.
+		\item[Case $e=\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$:] There is a unique $e'=\ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]}$ by rule \ruleref{S\_Mu}.
+		\item[Case $e=\ottnt{e_{{\mathrm{1}}}} \, \ottnt{e_{{\mathrm{2}}}}$ with $\ottnt{e_{{\mathrm{1}}}}  \longrightarrow  \ottnt{e'_{{\mathrm{1}}}}$:] $\ottnt{e_{{\mathrm{1}}}}$ cannot be a $\lambda$-term $\lambda  \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$ which is a value that contradicts $\ottnt{e_{{\mathrm{1}}}}$ can be reduced to $\ottnt{e'_{{\mathrm{1}}}}$. By the induction hypothesis, $\ottnt{e'_{{\mathrm{1}}}}$ is unique reduction of $\ottnt{e_{{\mathrm{1}}}}$. Thus by rule \ruleref{S\_App}, $e'=\ottnt{e'_{{\mathrm{1}}}} \, \ottnt{e_{{\mathrm{2}}}}$ is the unique reduction for $e$.
+		\item[Case $e=\mathsf{cast}_{\downarrow} \, \ottnt{e_{{\mathrm{1}}}}$ with $\ottnt{e_{{\mathrm{1}}}}  \longrightarrow  \ottnt{e'_{{\mathrm{1}}}}$:] $\ottnt{e_{{\mathrm{1}}}}$ cannot have the form $\mathsf{cast}^{\uparrow} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}$ which is a value that contradicts $\ottnt{e_{{\mathrm{1}}}}$ can be reduced to $\ottnt{e'_{{\mathrm{1}}}}$. By the induction hypothesis, $\ottnt{e'_{{\mathrm{1}}}}$ is unique reduction of $\ottnt{e_{{\mathrm{1}}}}$. Thus by rule \ruleref{S\_CastDown}, $e'=\mathsf{cast}_{\downarrow} \, \ottnt{e'_{{\mathrm{1}}}}$ is the unique reduction for $e$.
+	\end{description}
 \end{proof}
 
 \begin{lem}[Decidability of type checking]
@@ -72,25 +86,11 @@
 	By induction on the derivation of $e$:
 	\begin{description}
 		\item[Case $e=x$:] By Lemma \ref{lem:wfcopt}, we only need to consider context $\Gamma$ that is well-formed. By rule \ruleref{TS\_Var}, if $\ottmv{x}  \ottsym{:}  \tau \, \in \, \Gamma$, $t$ is the unique type of $x$.
-		\item[Case $e=\ottnt{e_{{\mathrm{1}}}} \, \ottnt{e_{{\mathrm{2}}}}$:] By rule \ruleref{T\_App}, 
-	\end{description} 
+		\item[Case $e=\ottnt{e_{{\mathrm{1}}}} \, \ottnt{e_{{\mathrm{2}}}}$, or $\lambda  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}$, or $\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}$, or $\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}$:] Trivial by applying rule \ruleref{T\_App}, \ruleref{T\_Lam}, \ruleref{T\_Pi}, or \ruleref{T\_Mu} respectively.
+		\item[Case $e=\mathsf{cast}^{\uparrow} \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]}  \ottnt{e_{{\mathrm{1}}}}$:] From rule \ruleref{T\_CastUp}, by induction hypothesis, we can derive the type of $\ottnt{e_{{\mathrm{1}}}}$ as $\tau_{{\mathrm{2}}}$, and check whether $\tau_{{\mathrm{1}}}$ is legal, i.e. its sorts is either $ \star $ or $ \Box $. If $\tau_{{\mathrm{1}}}$ is legal, by Lemma \ref{lem:unired}, there is at most one $\tau'_{{\mathrm{1}}}$ such that $\tau_{{\mathrm{1}}}  \longrightarrow  \tau'_{{\mathrm{1}}}$. If such $\tau'_{{\mathrm{1}}}$ does not exist, then we report the type checking is failed. Otherwise, we examine if $\tau'_{{\mathrm{1}}}$ is syntactically equal to $\tau_{{\mathrm{2}}}$, i.e. to check the $\alpha$-equality $ \tau'_{{\mathrm{1}}}  =_{\alpha}  \tau_{{\mathrm{2}}} $. If the equality holds, we obtain the unique type of $\ottnt{e}$ which is $\tau_{{\mathrm{1}}}$. Otherwise, we report $\ottnt{e}$ fails to type check.
+		\item[Case $e=\mathsf{cast}_{\downarrow} \, \ottnt{e_{{\mathrm{1}}}}$:] From rule \ruleref{T\_CastDown}, by induction hypothesis, we can derive the type of $\ottnt{e_{{\mathrm{1}}}}$ as $\tau_{{\mathrm{1}}}$. By Lemma \ref{lem:unired}, there is at most one $\tau_{{\mathrm{2}}}$ such that $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}$. If such $\tau_{{\mathrm{2}}}$ exists and its sorts is either $ \star $ or $ \Box $, we have found the unique type of $\ottnt{e}$ is $\tau_{{\mathrm{2}}}$. Otherwise, we report $\ottnt{e}$ fails to type check.
+	\end{description}
 \end{proof}
-
-\subsection{Properties}
-\newcommand{\FV}{\mathsf{FV}}
-\newcommand{\dom}{\mathsf{dom}}
-
-\begin{lem}[Free variables lemma]
-If $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$, then $\FV(\ottnt{e}),\FV(\tau) \subseteq \dom(\Gamma)$.
-\end{lem}
-
-\begin{lem}[Generation lemma]
-	
-\end{lem}
-
-\begin{lem}[Substitution lemma]
-
-\end{lem}
 
 \subsection{Soundness}
 \begin{lem}[Subject reduction]

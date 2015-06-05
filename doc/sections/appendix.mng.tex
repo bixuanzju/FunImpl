@@ -13,28 +13,19 @@
 \ottusedrule{\ottdruleTXXMu{}}
 
 \section{Proofs of core language}
-\subsection{Decidability of type checking}
-\begin{lem}[Uniqueness of one-step reduction]
-	The relation $[[-->]]$, i.e. one-step reduction, is \textbf{unique} in the sense that given $e$ there is at most one $e'$ such that $[[e --> e']]$.
+\subsection{Properties}
+\begin{lem}[Generation lemma]\label{lem:gen}
+$\quad$
+\begin{enumerate}
+	\item If $[[G |- x:T]]$, then there exist an expression $[[t]]$ and a sort $s$ such that $[[t =a T]]$, $[[G |- t:s]]$ and $[[x:t elt G]]$.
+	\item If $[[G |- e1 e2:T]]$, then there exist expressions $[[t1]]$ and $[[t2]]$ such that $[[G |- e1 : (Pi x:t1.t2)]]$, $[[G |- e2:t2]]$ and $[[T =a t1[x |-> e2] ]]$.
+	\item If $[[G |- (\x:t1.e):T]]$, then there exist a sort $s$ and an expression $[[t2]]$ such that $T =a Pi x:t1.t2$ where $[[G |- (Pi x:t1.t2):s]]$ and $[[G,x:t1 |- e:t2]]$.
+\end{enumerate}
 \end{lem}
 
-\begin{proof}
-	By induction on the structure of $e$:
-	\begin{description}
-		\item[Case $e=v$:] $e$ has one of the following forms:
-		\begin{inparaenum}[(1)]
-			\item $[[\x:t.e]]$,
-			\item $[[Pi x:t1.t2]]$,
-			\item $[[castup [t] e]]$,
-		\end{inparaenum}
-		which cannot match any rules of $[[-->]]$. Thus there is no $e'$ such that $[[e-->e']]$.
-		\item[Case $e=[[(\x:t.e1) e2]]$:] There is a unique $e'=[[ e1[x|->e2] ]]$ by rule \ruleref{S\_Beta}.
-		\item[Case $e=[[castdown (castup [t] e)]]$:] There is a unique $e'=e$ by rule \ruleref{S\_CastDownUp}.
-		\item[Case $e=[[mu x:t.e]]$:] There is a unique $e'=[[e[x|->mu x:t.e] ]]$ by rule \ruleref{S\_Mu}.
-		\item[Case $e=[[e1 e2]]$ with $[[e1 --> e1']]$:] $[[e1]]$ cannot be a $\lambda$-term $[[\x:t.e]]$ which is a value that contradicts $[[e1]]$ can be reduced to $[[e1']]$. By the induction hypothesis, $[[e1']]$ is unique reduction of $[[e1]]$. Thus by rule \ruleref{S\_App}, $e'=[[e1' e2]]$ is the unique reduction for $e$.
-		\item[Case $e=[[castdown e1]]$ with $[[e1 --> e1']]$:] $[[e1]]$ cannot have the form $[[castup [t] e]]$ which is a value that contradicts $[[e1]]$ can be reduced to $[[e1']]$. By the induction hypothesis, $[[e1']]$ is unique reduction of $[[e1]]$. Thus by rule \ruleref{S\_CastDown}, $e'=[[castdown e1']]$ is the unique reduction for $e$.
-	\end{description}
-\end{proof}
+\begin{lem}[Substitution lemma]
+	If $[[G1]], x:[[t1]], [[G2 |- e1:t2]]$ and $[[G1 |- e2:t1]]$, then $[[G1]], [[G2]] [x [[|->]] [[e2]] ] [[|-]] [[e1[x |-> e2] ]] : [[t2[x |-> e2] ]]$.
+\end{lem}
 
 \begin{dfn}[Well-formed context]
 	A \textbf{well-formed} context $[[G]]$ is defined by the following rules:
@@ -60,7 +51,30 @@
 \end{lem}
 
 \begin{proof}
-	By Lemma \ref{lem:wfc}, the context $[[G]]$ remains well-formed if it is initially well-formed. Thus, it is not necessary to use \ruleref{T\_Var} and \ruleref{T\_Weak} to check the well-formedness of $[[G]]$. In order to check the type of a variable $x$, it is necessary and sufficient to check if $[[x:t elt G]]$, which is simply rule \ruleref{TS\_Var}. \linus{This proof needs to be more formally written.}
+	By Lemma \ref{lem:wfc}, the context $[[G]]$ remains well-formed if it is initially well-formed. Thus, it is not necessary to use \ruleref{T\_Var} and \ruleref{T\_Weak} to check the well-formedness of $[[G]]$. By Lemma \ref{lem:gen}, in order to check the type of a variable $x$, it is necessary and sufficient to check if $[[x:t elt G]]$, which is simply rule \ruleref{TS\_Var}.
+\end{proof}
+
+\subsection{Decidability of type checking}
+\begin{lem}[Uniqueness of one-step reduction]\label{lem:unired}
+	The relation $[[-->]]$, i.e. one-step reduction, is \textbf{unique} in the sense that given $e$ there is at most one $e'$ such that $[[e --> e']]$.
+\end{lem}
+
+\begin{proof}
+	By induction on the structure of $e$:
+	\begin{description}
+		\item[Case $e=v$:] $e$ has one of the following forms:
+		\begin{inparaenum}[(1)]
+			\item $[[\x:t.e]]$,
+			\item $[[Pi x:t1.t2]]$,
+			\item $[[castup [t] e]]$,
+		\end{inparaenum}
+		which cannot match any rules of $[[-->]]$. Thus there is no $e'$ such that $[[e-->e']]$.
+		\item[Case $e=[[(\x:t.e1) e2]]$:] There is a unique $e'=[[ e1[x|->e2] ]]$ by rule \ruleref{S\_Beta}.
+		\item[Case $e=[[castdown (castup [t] e)]]$:] There is a unique $e'=e$ by rule \ruleref{S\_CastDownUp}.
+		\item[Case $e=[[mu x:t.e]]$:] There is a unique $e'=[[e[x|->mu x:t.e] ]]$ by rule \ruleref{S\_Mu}.
+		\item[Case $e=[[e1 e2]]$ with $[[e1 --> e1']]$:] $[[e1]]$ cannot be a $\lambda$-term $[[\x:t.e]]$ which is a value that contradicts $[[e1]]$ can be reduced to $[[e1']]$. By the induction hypothesis, $[[e1']]$ is unique reduction of $[[e1]]$. Thus by rule \ruleref{S\_App}, $e'=[[e1' e2]]$ is the unique reduction for $e$.
+		\item[Case $e=[[castdown e1]]$ with $[[e1 --> e1']]$:] $[[e1]]$ cannot have the form $[[castup [t] e]]$ which is a value that contradicts $[[e1]]$ can be reduced to $[[e1']]$. By the induction hypothesis, $[[e1']]$ is unique reduction of $[[e1]]$. Thus by rule \ruleref{S\_CastDown}, $e'=[[castdown e1']]$ is the unique reduction for $e$.
+	\end{description}
 \end{proof}
 
 \begin{lem}[Decidability of type checking]
@@ -71,25 +85,11 @@
 	By induction on the derivation of $e$:
 	\begin{description}
 		\item[Case $e=x$:] By Lemma \ref{lem:wfcopt}, we only need to consider context $[[G]]$ that is well-formed. By rule \ruleref{TS\_Var}, if $[[x:t elt G]]$, $t$ is the unique type of $x$.
-		\item[Case $e=[[e1 e2]]$:] By rule \ruleref{T\_App}, 
-	\end{description} 
+		\item[Case $e=[[e1 e2]]$, or $[[\x:t1.e1]]$, or $[[Pi x:t1.t2]]$, or $[[mu x:t.e1]]$:] Trivial by applying rule \ruleref{T\_App}, \ruleref{T\_Lam}, \ruleref{T\_Pi}, or \ruleref{T\_Mu} respectively.
+		\item[Case $e=[[castup [t1] e1]]$:] From rule \ruleref{T\_CastUp}, by induction hypothesis, we can derive the type of $[[e1]]$ as $[[t2]]$, and check whether $[[t1]]$ is legal, i.e. its sorts is either $[[star]]$ or $[[square]]$. If $[[t1]]$ is legal, by Lemma \ref{lem:unired}, there is at most one $[[t1']]$ such that $[[t1 --> t1']]$. If such $[[t1']]$ does not exist, then we report the type checking is failed. Otherwise, we examine if $[[t1']]$ is syntactically equal to $[[t2]]$, i.e. to check the $\alpha$-equality $[[t1' =a t2]]$. If the equality holds, we obtain the unique type of $[[e]]$ which is $[[t1]]$. Otherwise, we report $[[e]]$ fails to type check.
+		\item[Case $e=[[castdown e1]]$:] From rule \ruleref{T\_CastDown}, by induction hypothesis, we can derive the type of $[[e1]]$ as $[[t1]]$. By Lemma \ref{lem:unired}, there is at most one $[[t2]]$ such that $[[t1 --> t2]]$. If such $[[t2]]$ exists and its sorts is either $[[star]]$ or $[[square]]$, we have found the unique type of $[[e]]$ is $[[t2]]$. Otherwise, we report $[[e]]$ fails to type check.
+	\end{description}
 \end{proof}
-
-\subsection{Properties}
-\newcommand{\FV}{\mathsf{FV}}
-\newcommand{\dom}{\mathsf{dom}}
-
-\begin{lem}[Free variables lemma]
-If $[[G |- e:t]]$, then $\FV([[e]]),\FV([[t]]) \subseteq \dom([[G]])$.
-\end{lem}
-
-\begin{lem}[Generation lemma]
-	
-\end{lem}
-
-\begin{lem}[Substitution lemma]
-
-\end{lem}
 
 \subsection{Soundness}
 \begin{lem}[Subject reduction]

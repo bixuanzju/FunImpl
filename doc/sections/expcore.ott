@@ -5,7 +5,7 @@ embed {{ tex-preamble
 }}
 
 %%% Metavariables
-metavar x, y, z, d ::= {{ com Variable names }}
+metavar x, y, z, d, T ::= {{ com Variable names }}
 
 %%% Syntax
 grammar
@@ -91,6 +91,8 @@ formula :: 'formula_' ::=
   | e1 /= e2                           ::   :: inequality
   | e1 =b e2                           ::   :: beta_equality
     {{ tex [[e1]] =_{\beta} [[e2]] }}
+  | e1 =a e2                           ::   :: alpha_equality
+    {{ tex [[e1]] =_{\alpha} [[e2]] }}
   | ( formula )                        ::   :: parens
   | x : t elt G                        ::   :: context_inclusion
   | G |- tylit lit : k                 ::   :: lintTyLit
