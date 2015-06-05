@@ -4,12 +4,13 @@ import System.Console.Haskeline
 
 import Expr
 import TypeCheck
+import Translation
 import Syntax
 import Parser
 import Predef
 
 main :: IO ()
-main = runInputT defaultSettings (loop initalBEnv initalEnv)
+main = runInputT defaultSettings (loop [] [])
   where
     loop :: BEnv -> Env -> InputT IO ()
     loop benv env =
@@ -42,33 +43,42 @@ main = runInputT defaultSettings (loop initalBEnv initalEnv)
         ":e" -> processCMD progm $
           \xs -> do
             if length xs == 1
-              then case eval benv . repFreeVar benv . head $ xs of
-                    Left err -> outputStrLn err
-                    Right e' -> outputStrLn . show $ e'
+              then case trans env (head xs) >>= \(_, transE) -> eval (desugar transE) of
+                Left err -> outputStrLn err
+                Right e' -> outputStrLn ("\n--- Evaluation result ---\n\n" ++ show e')
               else outputStrLn "Command parser error - need one expression!"
             loop benv env
-        ":eq" -> processCMD progm $
-          \xs -> do
-            if length xs == 2
-              then outputStrLn . show $ equate benv (head xs) (xs !! 1)
-              else outputStrLn "Command parser error - need two expressions!"
-            loop benv env
+        -- ":eq" -> processCMD progm $
+        --   \xs -> do
+        --     if length xs == 2
+        --       then outputStrLn . show $ equate benv (head xs) (xs !! 1)
+        --       else outputStrLn "Command parser error - need two expressions!"
+        --     loop benv env
         ":t" -> processCMD progm $
           \xs -> do
             if length xs == 1
-              then case tcheck env . repFreeVar benv . head $ xs of
-                Left err  -> outputStrLn err
-                Right typ -> outputStrLn . show $ typ
+              then case trans env . head $ xs of
+                Left err       -> outputStrLn err
+                Right (typ, _) -> outputStrLn ("\n--- Typing result ---\n\n" ++ show typ)
               else outputStrLn "Command parser error - need one expression!"
             loop benv env
-        ":teq" -> processCMD progm $
-          \xs -> do
-            if length xs == 2
-              then case tcheck env . repFreeVar benv . head $ xs of
-                Left err  -> outputStrLn err
-                Right typ -> outputStrLn . show $ equate benv typ (xs !! 1)
-              else outputStrLn "Command parser error - need two expressions!"
-            loop benv env
+        -- ":teq" -> processCMD progm $
+        --   \xs -> do
+        --     if length xs == 2
+        --       then case tcheck env . repFreeVar benv . head $ xs of
+        --         Left err  -> outputStrLn err
+        --         Right typ -> outputStrLn . show $ equate benv typ (xs !! 1)
+        --       else outputStrLn "Command parser error - need two expressions!"
+        --     loop benv env
+        ":trans" ->
+          processCMD progm $
+            \xs -> do
+              if length xs == 1
+                then case trans env . head $ xs of
+                  Left err          -> outputStrLn err
+                  Right (_, transE) -> outputStrLn ("\n--- Translation result ---\n\n" ++ show transE)
+                else outputStrLn "Command parser error - need one expression!"
+              loop benv env
         _ -> processCMD e $
           \xs -> do
             outputStrLn $ concatMap show xs
@@ -80,6 +90,7 @@ main = runInputT defaultSettings (loop initalBEnv initalEnv)
               outputStrLn err
               loop benv env
             Right (Progm xs) -> func xs
+
         delegate progm errMsg func =
           if length progm >= 2
             then let (name:typ) = progm

@@ -19,7 +19,7 @@ data Expr = Var Sym
           -- Surface language
           | Data DataBind Expr
           | Case Expr [Alt]
-          -- | Let Sym Type Expr Expr
+          | Let Sym Type Expr Expr
           deriving Eq
 
 data DataBind = DB String [(Sym, Type)] [Constructor]
@@ -68,20 +68,23 @@ instance Pretty Expr where
   pretty (Kind k) = pretty k
   pretty (Data datatypes e) = text "data" <+> (pretty datatypes) <$> pretty e
   pretty (Case e alts) = hang 2 (text "case" <+> pretty e <+> text "of" <$> text " " <+> intersperseBar (map pretty alts))
+  pretty (Let n t e1 e2) = text "let" <+> parens (pretty n <+> colon <+> pretty t) <+> equals <+> pretty e1 <$> text "in" <$> pretty e2
 
 instance Pretty Alt where
   pretty (ConstrAlt p e) = (pretty p) <+> char '⇒' <+> pretty e
 
 instance Pretty Pattern where
   pretty (PConstr ctr []) = text (constrName ctr)
-  pretty (PConstr ctr ps) = text (constrName ctr) <+> (hsep $ map (\(n, t) -> parens (pretty n <+> colon <+> pretty t)) ps)
+  pretty (PConstr ctr ps) =
+    text (constrName ctr) <+>
+    (hsep $
+       map (\(n, t) -> parens (pretty n <+> colon <+> pretty t)) ps)
 
 instance Pretty DataBind where
-  pretty (DB n tpairs cons) = text n <+>
-                              hsep
-                                (map (\(tv, tk) -> parens (pretty tv <+> colon <+> pretty tk))
-                                   tpairs) <+>
-                              align (equals <+> intersperseBar (map pretty cons) <$$> semi)
+  pretty (DB n tpairs cons) =
+    text n <+>
+    hsep (map (\(tv, tk) -> parens (pretty tv <+> colon <+> pretty tk)) tpairs) <+>
+    align (equals <+> intersperseBar (map pretty cons) <$$> semi)
 
 instance Pretty Constructor where
   pretty (Constructor n ts) = hsep $ text n : map pretty ts

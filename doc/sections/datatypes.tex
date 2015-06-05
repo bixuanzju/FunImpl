@@ -118,10 +118,10 @@ The rest of the translation rules hold few surprises.
     \framebox{$\Gamma \vdash decl : \Gamma_d \rightsquigarrow E$} \\
     (Data) & $\inferrule {\Gamma \vdash \overline{\kappa} \rightarrow \star : \square \\ \overline{\Gamma, D:\overline{\kappa} \rightarrow \star, \overline{u : \kappa} \vdash \overline{\tau} \rightarrow D\,\overline{u}:\star}} {\ctx{(\data\,D\,\overline{u : \kappa} = \overline{\mid K\,\overline{\tau}}): (D : \overline{\kappa} \rightarrow \star, \overline{K : \Pi\overline{u : \kappa}.\overline{\tau} \rightarrow D\,\overline{u}}) \rightsquigarrow E}}$ \\
          & \begingroup \renewcommand*{\arraystretch}{1.0} $\begin{array} {lll}
-                                                             E & ::= & \letbb\,D : \overline{\kappa} \rightarrow \star =\lambda\overline{u : \kappa}.\,\mu X.\,\Pi b:\star.\,\overline{(\overline{\tau}[D\,\overline{u}:=X] \rightarrow b)} \rightarrow b\,\inb \\ & & \letbb\,K_{i} : \Pi\overline{u : \kappa}.\overline{\tau} \rightarrow D\,\overline{u} = \lambda \overline{(u : \kappa)}.\lambda\overline{(x : \tau)}.\\
+                                                             E & ::= & \letbb\,D : \overline{\kappa} \rightarrow \star =\lambda\overline{u : \kappa}.\,\mu X : \star.\,\Pi b:\star.\,\overline{(\overline{\tau}[D\,\overline{u}:=X] \rightarrow b)} \rightarrow b\,\inb \\ & & \letbb\,K_{i} : \Pi\overline{u : \kappa}.\overline{\tau} \rightarrow D\,\overline{u} = \lambda \overline{(u : \kappa)}.\lambda\overline{(x : \tau)}.\\
                                                                     & & \quad \fold{D\,\overline{u}}{(\lambda (b : \star)\overline{(c : \overline{\tau} \rightarrow b)} . c_{i}\,\overline{x})}\,\inb \end{array}$ \endgroup \\
     \framebox{$\Gamma \vdash pgm : \tau \rightsquigarrow E$} \\
-    (Pgm) & $\inferrule {\overline{\Gamma_{0} \vdash decl : \Gamma_{d} \rightsquigarrow E_{1}} \\ \Gamma = \Gamma_{0}, \overline{\Gamma_{d}} \\ \ctx{e:\tau \rightsquigarrow E}} {\Gamma_{0} \vdash \overline{decl}; e : A \rightsquigarrow \overline{E_{1}} \oplus E}$
+    (Pgm) & $\inferrule {\overline{\Gamma_{0} \vdash decl : \Gamma_{d} \rightsquigarrow E_{1}} \\ \Gamma = \Gamma_{0}, \overline{\Gamma_{d}} \\ \ctx{e:\tau \rightsquigarrow E}} {\Gamma_{0} \vdash \overline{decl}; e : \tau \rightsquigarrow \overline{E_{1}} \oplus E}$
   \end{tabular}
   \caption{Type-directed translation from \sufcc to \name}\label{fig:datatrans}
 \end{figure*}
