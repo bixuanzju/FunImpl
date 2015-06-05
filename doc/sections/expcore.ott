@@ -74,6 +74,7 @@ terminals :: 'terminals_' ::=
   | |->      ::  :: mapsto    {{ tex \mapsto }}
   | castup   ::  :: castup    {{ tex \mathsf{cast}^{\uparrow} }}
   | |-       ::  :: turnstile {{ tex \vdash }}
+  | ==       ::  :: equiv     {{ tex \equiv }}
   | castdown ::  :: castdown  {{ tex \mathsf{cast}_{\downarrow} }}
   | let      ::  :: let       {{ tex \mathbf{let} }}
   | in       ::  :: key_in    {{ tex \mathbf{in} }}
@@ -93,6 +94,7 @@ formula :: 'formula_' ::=
     {{ tex [[e1]] =_{\beta} [[e2]] }}
   | e1 =a e2                           ::   :: alpha_equality
     {{ tex [[e1]] =_{\alpha} [[e2]] }}
+  | e1 == e2                           ::   :: equivalence
   | ( formula )                        ::   :: parens
   | x : t elt G                        ::   :: context_inclusion
   | G |- tylit lit : k                 ::   :: lintTyLit

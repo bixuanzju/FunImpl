@@ -19,7 +19,11 @@ $\quad$
 \begin{enumerate}
 	\item If $[[G |- x:T]]$, then there exist an expression $[[t]]$ and a sort $s$ such that $[[t =a T]]$, $[[G |- t:s]]$ and $[[x:t elt G]]$.
 	\item If $[[G |- e1 e2:T]]$, then there exist expressions $[[t1]]$ and $[[t2]]$ such that $[[G |- e1 : (Pi x:t1.t2)]]$, $[[G |- e2:t2]]$ and $[[T =a t1[x |-> e2] ]]$.
-	\item If $[[G |- (\x:t1.e):T]]$, then there exist a sort $s$ and an expression $[[t2]]$ such that $T =a Pi x:t1.t2$ where $[[G |- (Pi x:t1.t2):s]]$ and $[[G,x:t1 |- e:t2]]$.
+	\item If $[[G |- (\x:t1.e):T]]$, then there exist a sort $s$ and an expression $[[t2]]$ such that $[[T =a Pi x:t1.t2]]$ where $[[G |- (Pi x:t1.t2):s]]$ and $[[G,x:t1 |- e:t2]]$.
+	\item If $[[G |- (Pi x:t1.t2):T]]$, then there exist sorts $[[s1]]$ and $[[s2]]$ such that $[[T == s2]]$, $[[G |- t1:s1]]$ and $[[G, x:t1 |- t2:s2]]$.
+	\item If $[[G |- (mu x:t.e):T]]$, then there exists a sort $[[s]]$ such that $[[G |- t:s]]$, $[[T =a t]]$ and $[[G, x:t|-e:t]]$.
+	\item IF $[[G |- (castup [t1] e):T]]$, then there exist an expression $[[t2]]$ and a sort $s$ such that $[[G |- e:t2]]$, $[[G |- t1:s]]$, $[[t1 --> t2]]$ and $[[T =a t1]]$.
+	\item If $[[G |- (castdown e):T]]$, then there exist expressions $[[t1]],[[t2]]$ and a sort $s$ such that $[[G |- e:t1]]$, $[[G |- t2:s]]$, $[[t1 --> t2]]$ and $[[T =a t2]]$.
 \end{enumerate}
 \end{lem}
 
@@ -85,7 +89,7 @@ $\quad$
 	By induction on the derivation of $e$:
 	\begin{description}
 		\item[Case $e=x$:] By Lemma \ref{lem:wfcopt}, we only need to consider context $[[G]]$ that is well-formed. By rule \ruleref{TS\_Var}, if $[[x:t elt G]]$, $t$ is the unique type of $x$.
-		\item[Case $e=[[e1 e2]]$, or $[[\x:t1.e1]]$, or $[[Pi x:t1.t2]]$, or $[[mu x:t.e1]]$:] Trivial by applying rule \ruleref{T\_App}, \ruleref{T\_Lam}, \ruleref{T\_Pi}, or \ruleref{T\_Mu} respectively.
+		\item[Case $e=[[e1 e2]]$, or $[[\x:t1.e1]]$, or $[[Pi x:t1.t2]]$, or $[[mu x:t.e1]]$:] Trivial according to Lemma \ref{lem:gen} by applying rule \ruleref{T\_App}, \ruleref{T\_Lam}, \ruleref{T\_Pi}, or \ruleref{T\_Mu} respectively.
 		\item[Case $e=[[castup [t1] e1]]$:] From rule \ruleref{T\_CastUp}, by induction hypothesis, we can derive the type of $[[e1]]$ as $[[t2]]$, and check whether $[[t1]]$ is legal, i.e. its sorts is either $[[star]]$ or $[[square]]$. If $[[t1]]$ is legal, by Lemma \ref{lem:unired}, there is at most one $[[t1']]$ such that $[[t1 --> t1']]$. If such $[[t1']]$ does not exist, then we report the type checking is failed. Otherwise, we examine if $[[t1']]$ is syntactically equal to $[[t2]]$, i.e. to check the $\alpha$-equality $[[t1' =a t2]]$. If the equality holds, we obtain the unique type of $[[e]]$ which is $[[t1]]$. Otherwise, we report $[[e]]$ fails to type check.
 		\item[Case $e=[[castdown e1]]$:] From rule \ruleref{T\_CastDown}, by induction hypothesis, we can derive the type of $[[e1]]$ as $[[t1]]$. By Lemma \ref{lem:unired}, there is at most one $[[t2]]$ such that $[[t1 --> t2]]$. If such $[[t2]]$ exists and its sorts is either $[[star]]$ or $[[square]]$, we have found the unique type of $[[e]]$ is $[[t2]]$. Otherwise, we report $[[e]]$ fails to type check.
 	\end{description}
