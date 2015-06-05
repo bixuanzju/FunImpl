@@ -23,6 +23,7 @@ findVar r s =
    Nothing -> throwError $ "Cannot find variable " ++ s
 
 tcheck :: Env -> Expr -> TC Type
+tcheck _ (Kind Star) = return $ Kind Box -- (T_AX)
 tcheck env (Var s) = findVar env s       -- (T_VAR and T_WEAK)
 tcheck env (App f a) =                   -- (T_APP)
   do tf <- tcheck env f
@@ -39,8 +40,6 @@ tcheck env (Lam s t e) =                 -- (T_LAM)
      let lt = Pi s t te
      tcheck env lt
      return lt
-tcheck _ (Kind Star) = return $ Kind Box -- (T_AX)
-tcheck _ (Kind Box) = throwError "Found a Box"
 tcheck env (Pi x a b) =                  -- (T_PI)
   do s <- tcheck env a -- evaluate after type check
      let env' = extend x a env
@@ -64,31 +63,6 @@ tcheck env (U e) =                       -- (T_CASTDOWN)
      t2 <- reduct t1
      tcheck env t2
      return t2
-
--- type checking surface language
-tcheck env (Data databinds e) = do
-  env' <- tcd databinds
-  let nenv = env' ++ env
-  tcheck nenv e
-
-  where
-    tcd :: DataBind -> TC Env
-    tcd (DB tc tca constrs) = do
-
-      -- check type constructor
-      let tct = chainType (Kind Star) . map snd $ tca
-      tcs <- tcheck env tct
-      unless (tcs == (Kind Box)) $ throwError "Bad type constructor arguments"
-
-      -- check data constructors
-      let du = foldl App (Var tc) (map (Var . fst) tca)
-      let tduList = map (\dc -> chainType du (constrParams dc)) constrs
-      dcts <- mapM (tcheck ((tc, tct) : tca ++ env)) tduList
-      unless (all (== (Kind Star)) dcts) $ throwError "Bad data constructor arguments"
-
-      -- return environment containing type constructor and data constructors
-      let dctList = map (\tdu -> foldr (\(u, k) t -> Pi u k t) tdu tca) tduList
-      return ([(tc, tct)] ++ (zip (map constrName constrs) dctList))
 
 -- TODO: Lack 1) exhaustive test 2) overlap test
 tcheck env (Case e alts) = do
@@ -116,11 +90,36 @@ tcheck env (Case e alts) = do
       bodyType <- tcheck (params ++ env) body
       return (arr dv bodyType)
 
-    getActualTypes :: Type -> TC [Type]
-    getActualTypes (App a b) = getActualTypes a >>= \ts -> return (b : ts)
-    getActualTypes (Var _) = return []
-    getActualTypes _ = throwError "Bad scrutinee type"
+-- type checking surface language
+tcheck env (Data databinds e) = do
+  env' <- tcdatatypes env databinds
+  let nenv = env' ++ env
+  tcheck nenv e
 
+tcheck _ _ = throwError "Impossible happened!"
+
+tcdatatypes :: Env -> DataBind -> TC Env
+tcdatatypes env (DB tc tca constrs) = do
+
+  -- check type constructor
+  let tct = chainType (Kind Star) . map snd $ tca
+  tcs <- tcheck env tct
+  unless (tcs == (Kind Box)) $ throwError "Bad type constructor arguments"
+
+  -- check data constructors
+  let du = foldl App (Var tc) (map (Var . fst) tca)
+  let tduList = map (\dc -> chainType du (constrParams dc)) constrs
+  dcts <- mapM (tcheck ((tc, tct) : tca ++ env)) tduList
+  unless (all (== (Kind Star)) dcts) $ throwError "Bad data constructor arguments"
+
+  -- return environment containing type constructor and data constructors
+  let dctList = map (\tdu -> foldr (\(u, k) t -> Pi u k t) tdu tca) tduList
+  return ([(tc, tct)] ++ (zip (map constrName constrs) dctList))
+
+getActualTypes :: Type -> TC [Type]
+getActualTypes (App a b) = getActualTypes a >>= \ts -> return (b : ts)
+getActualTypes (Var _) = return []
+getActualTypes _ = throwError "Bad scrutinee type"
 
 chainType :: Type -> [Type] -> Type
 chainType teminalType = foldr (\t t' -> Pi "" t t') teminalType
