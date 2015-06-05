@@ -45,7 +45,7 @@ main = runInputT defaultSettings (loop [] [])
             if length xs == 1
               then case trans env (head xs) >>= \(_, transE) -> eval (desugar transE) of
                 Left err -> outputStrLn err
-                Right e' -> outputStrLn ("\n--- Evaluation result ---\n\n" ++ show e')
+                Right e' -> outputStrLn ("\n--- Evaluation result ---\n\n" ++ show e' ++ "\n")
               else outputStrLn "Command parser error - need one expression!"
             loop benv env
         -- ":eq" -> processCMD progm $
@@ -59,7 +59,7 @@ main = runInputT defaultSettings (loop [] [])
             if length xs == 1
               then case trans env . head $ xs of
                 Left err       -> outputStrLn err
-                Right (typ, _) -> outputStrLn ("\n--- Typing result ---\n\n" ++ show typ)
+                Right (typ, _) -> outputStrLn ("\n--- Typing result ---\n\n" ++ show typ ++ "\n")
               else outputStrLn "Command parser error - need one expression!"
             loop benv env
         -- ":teq" -> processCMD progm $
@@ -76,7 +76,7 @@ main = runInputT defaultSettings (loop [] [])
               if length xs == 1
                 then case trans env . head $ xs of
                   Left err          -> outputStrLn err
-                  Right (_, transE) -> outputStrLn ("\n--- Translation result ---\n\n" ++ show transE)
+                  Right (_, transE) -> outputStrLn ("\n--- Translation result ---\n\n" ++ show transE ++ "\n")
                 else outputStrLn "Command parser error - need one expression!"
               loop benv env
         _ -> processCMD e $
