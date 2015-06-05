@@ -96,7 +96,7 @@ tcheck env (Data databinds e) = do
   let nenv = env' ++ env
   tcheck nenv e
 
-tcheck _ _ = throwError "Impossible happened!"
+tcheck _ _ = throwError "TypeCheck: Impossible happened!"
 
 tcdatatypes :: Env -> DataBind -> TC Env
 tcdatatypes env (DB tc tca constrs) = do

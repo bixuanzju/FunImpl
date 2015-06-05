@@ -7,7 +7,6 @@ import Control.Monad.Except (throwError)
 import Syntax
 import Expr
 import TypeCheck
-import Parser
 
 trans :: Env -> Expr -> TC (Type, Expr)
 trans _ (Kind Star) = return (Kind Box, Kind Star)
@@ -119,7 +118,7 @@ trans env (Data db@(DB tc tca constrs) e) = do
     genVars c ts = map (\(n, t) -> (c : show n, t)) (zip [0 :: Int ..] ts)
 
 
-trans _ _ = throwError "Impossible happened"
+trans _ _ = throwError "Trans: Impossible happened"
 
 genLambdas :: [(Sym, Type)] -> Expr -> Expr
 genLambdas params body = foldr (\(x, t) l -> Lam x t l) body params
