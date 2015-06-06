@@ -1,6 +1,6 @@
 module Translation where
 
-import Control.Monad (unless, when, liftM)
+import Control.Monad (unless, when, mapAndUnzipM)
 import Control.Monad.Except (throwError)
 -- import Debug.Trace
 
@@ -52,8 +52,8 @@ trans env (Case e alts) = do
   (dv, e') <- trans env e
   actualTypes <- fmap reverse (getActualTypes dv)
 
-  (altTypeList, e2List) <- liftM unzip . mapM (transPattern dv actualTypes) $ alts
-  unless (all (== (head altTypeList)) (tail altTypeList)) $ throwError "Bad pattern expressions"
+  (altTypeList, e2List) <- mapAndUnzipM (transPattern dv actualTypes) alts
+  unless (all (== head altTypeList) (tail altTypeList)) $ throwError "Bad pattern expressions"
 
   let (Pi "" _ t) = head altTypeList
   let genExpr = foldl App (App (U e') t) e2List
@@ -66,7 +66,7 @@ trans env (Case e alts) = do
       let k = constrName constr
       kt <- tcheck env (Var k)
 
-      let tcApp = foldl App (Var "dummy$") (tys ++ (map (Var . fst) params))
+      let tcApp = foldl App (Var "dummy$") (tys ++ map (Var . fst) params)
       typ <- tcheck (("dummy$", kt) : params ++ env) tcApp
       unless (alphaEq typ dv) $ throwError "Bad patterns"
 
@@ -82,20 +82,18 @@ trans env (Data db@(DB tc tca constrs) e) = do
   let tct = chainType (Kind Star) . map snd $ tca
   let du = foldl App (Var tc) (map (Var . fst) tca)
   let dcArgs = map constrParams constrs
-  let dcArgChains = map (\ts -> chainType (Var "B") ts) dcArgs
+  let dcArgChains = map (chainType (Var "B")) dcArgs
   let dcArgsAndSubst = map
-                         (\ts -> chainType (Var "B")
-                                   (map
-                                      (\tau -> if (tau == du)
-                                                 then (Var "X")
-                                                 else tau)
-                                      ts))
+                         (chainType (Var "B") . map
+                                                  (\tau -> if tau == du
+                                                             then Var "X"
+                                                             else tau))
                          dcArgs
   let transD = (tc, (tct, genLambdas tca
                             (Mu "X" (Kind Star)
                                (Pi "B" (Kind Star) (chainType (Var "B") dcArgsAndSubst)))))
 
-  let tduList = map (\dc -> chainType du (constrParams dc)) constrs
+  let tduList = map (chainType du . constrParams) constrs
   let dctList = map (\tdu -> foldr (\(u, k) tau -> Pi u k tau) tdu tca) tduList
 
   let transKs = zip (map constrName constrs)
@@ -124,7 +122,4 @@ genLambdas :: [(Sym, Type)] -> Expr -> Expr
 genLambdas params body = foldr (\(x, t) l -> Lam x t l) body params
 
 
--- test
--- pattest :: Expr
--- pattest = let Right (Progm [e]) = parseExpr "data nat = zero | suc nat; data list (a : *) = nil | cons a (list a); (lam x : list nat . case x of nil => zero | cons (x : nat) (xs : list nat) => (suc x)) (cons nat zero (nil nat))"
---           in e
+-- test = "data nat = zero | suc nat; data list (a : *) = nil | cons a (list a); (lam x : list nat . case x of nil => zero | cons (x : nat) (xs : list nat) => (suc x)) (cons nat zero (nil nat))"

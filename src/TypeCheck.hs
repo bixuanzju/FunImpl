@@ -71,7 +71,7 @@ tcheck env (Case e alts) = do
 
   -- check patterns
   altTypeList <- mapM (tcp dv actualTypes) alts
-  unless (all (== (head altTypeList)) (tail altTypeList)) $ throwError "Bad pattern expressions"
+  unless (all (== head altTypeList) (tail altTypeList)) $ throwError "Bad pattern expressions"
 
   let (Pi "" _ t) = head altTypeList
   return t
@@ -83,7 +83,7 @@ tcheck env (Case e alts) = do
       kt <- tcheck env (Var k)
 
       -- check patterns, quit hacky
-      let tcApp = foldl App (Var "dummy$") (atys ++ (map (Var . fst) params))
+      let tcApp = foldl App (Var "dummy$") (atys ++ map (Var . fst) params)
       typ <- tcheck (("dummy$", kt) : params ++ env) tcApp
       unless (alphaEq typ dv) $ throwError "Bad patterns"
 
@@ -104,17 +104,17 @@ tcdatatypes env (DB tc tca constrs) = do
   -- check type constructor
   let tct = chainType (Kind Star) . map snd $ tca
   tcs <- tcheck env tct
-  unless (tcs == (Kind Box)) $ throwError "Bad type constructor arguments"
+  unless (tcs == Kind Box) $ throwError "Bad type constructor arguments"
 
   -- check data constructors
   let du = foldl App (Var tc) (map (Var . fst) tca)
-  let tduList = map (\dc -> chainType du (constrParams dc)) constrs
+  let tduList = map (chainType du . constrParams) constrs
   dcts <- mapM (tcheck ((tc, tct) : tca ++ env)) tduList
-  unless (all (== (Kind Star)) dcts) $ throwError "Bad data constructor arguments"
+  unless (all (== Kind Star) dcts) $ throwError "Bad data constructor arguments"
 
   -- return environment containing type constructor and data constructors
   let dctList = map (\tdu -> foldr (\(u, k) t -> Pi u k t) tdu tca) tduList
-  return ([(tc, tct)] ++ (zip (map constrName constrs) dctList))
+  return ((tc, tct) : zip (map constrName constrs) dctList)
 
 getActualTypes :: Type -> TC [Type]
 getActualTypes (App a b) = getActualTypes a >>= \ts -> return (b : ts)
@@ -122,7 +122,7 @@ getActualTypes (Var _) = return []
 getActualTypes _ = throwError "Bad scrutinee type"
 
 chainType :: Type -> [Type] -> Type
-chainType teminalType = foldr (\t t' -> Pi "" t t') teminalType
+chainType = foldr (Pi "")
 
 allowedKinds :: [(Type, Type)]
 allowedKinds =

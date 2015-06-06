@@ -44,11 +44,12 @@ With datatypes, it is easy to encode \emph{records} as syntactic sugar of simple
 \begin{figure}[ht]
 \centering
 \[
-  \begin{array}{lll}
-    \data\,R = R\,\{\,\overline{S:\tau}^n\,\} & \triangleq & \data\,R = R\,\overline{\tau} \\
-    & & \letbb\,S_{i}^{i \in 1..n} : R \rightarrow \tau_{i} = \\
-    & &\quad \lam{l}{R}{\case\,l\,\of\, R\,\overline{x:\tau} \Rightarrow x_{i}} \\
-    & &\inb
+  \begin{array}{l}
+    \data\,R\,\overline{u : \kappa} = K\,\{\,\overline{S:\tau}\,\} \triangleq \\
+    \data\,R\,\overline{u : \kappa} = K\,\overline{\tau} \\
+    \letbb\,S_{i} : \Pi \overline{u : \kappa}.R\,\overline{u} \rightarrow \tau_{i} = \\
+    \quad \lambda \overline{(u:\kappa)}.\lam{l}{R\,\overline{u}}{\case\,l\,\of\, K\,\overline{x:\tau} \Rightarrow x_{i}} \\
+    \inb
   \end{array}
 \]
 \caption{Syntactic sugar for records}\label{fig:records}
