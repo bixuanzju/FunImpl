@@ -118,7 +118,7 @@ atype : id                                            { Var $1 }
 alts : alt                                            { [$1] }
      | alt '|' alts                                   { $1:$3 }
 
-alt : pattern '=>' expr                               { ConstrAlt $1 $3 }
+alt : pattern '=>' expr                               { Alt $1 $3 }
 
 pattern : id ty_param_list_or_empty                   { PConstr (Constructor $1 []) $2 }
 

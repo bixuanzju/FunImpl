@@ -2,11 +2,13 @@ module Translation where
 
 import Control.Monad (unless, when, mapAndUnzipM)
 import Control.Monad.Except (throwError)
+-- import Parser
 -- import Debug.Trace
 
-import Syntax
 import Expr
+import Syntax
 import TypeCheck
+import Utils
 
 trans :: Env -> Expr -> TC (Type, Expr)
 trans _ (Kind Star) = return (Kind Box, Kind Star)
@@ -17,7 +19,7 @@ trans env (App f a) = do
     Pi x at rt -> do
       (ta, a') <- trans env a
       unless (alphaEq ta at) $ throwError "Bad function argument type"
-      return (subst x a rt, App f' a')
+      return (subst x a' rt, App f' a')
     _ -> throwError "Non-function in application"
 trans env (Lam s t e) = do
   let env' = extend s t env
@@ -62,7 +64,7 @@ trans env (Case e alts) = do
 
   where
     transPattern :: Type -> [Type] -> Alt -> TC (Type, Expr)
-    transPattern dv tys (ConstrAlt (PConstr constr params) body) = do
+    transPattern dv tys (Alt (PConstr constr params) body) = do
       let k = constrName constr
       kt <- tcheck env (Var k)
 
@@ -100,8 +102,8 @@ trans env (Data db@(DB tc tca constrs) e) = do
                   (zip dctList
                      (map
                         (\(i, taus) ->
-                           let xs = genVars 'x' taus
-                               cs = genVars 'c' dcArgChains
+                           let xs = genVarsAndTypes 'x' taus
+                               cs = genVarsAndTypes 'c' dcArgChains
                            in genLambdas tca
                                 (genLambdas xs
                                    (F du
@@ -111,15 +113,17 @@ trans env (Data db@(DB tc tca constrs) e) = do
                         (zip [0 :: Int ..] dcArgs)))
   return (t, foldr (\(n, (kt, ke)) body -> Let n kt ke body) e' (transD : transKs))
 
-  where
-    genVars :: Char -> [Type] -> [(Sym, Type)]
-    genVars c ts = map (\(n, t) -> (c : show n, t)) (zip [0 :: Int ..] ts)
-
-
 trans _ _ = throwError "Trans: Impossible happened"
 
-genLambdas :: [(Sym, Type)] -> Expr -> Expr
-genLambdas params body = foldr (\(x, t) l -> Lam x t l) body params
+-- recordTest2 = let Right (Progm [e]) = parseExpr "rec monad (m : * -> *) = mo { return : pi a : * . m a, bind : pi a : *. pi b : *. m a -> (a -> m b) -> m b}; lam x : * . x"
+--              in e
 
+-- test = let Right (Progm [e]) = parseExpr "data nat = zero | suc nat; data list (a : *) = nil | cons a (list a); "
+--        in e
 
--- test = "data nat = zero | suc nat; data list (a : *) = nil | cons a (list a); (lam x : list nat . case x of nil => zero | cons (x : nat) (xs : list nat) => (suc x)) (cons nat zero (nil nat))"
+-- test2 = let Right (Progm [e]) = parseExpr "data nat = zero | suc nat; data list (a : *) = nil | cons a (list a); rec person = p { name : nat, add : list nat}; lam x : nat . x"
+--        in e
+
+-- test3 = let Right (Progm [e]) = parseExpr "data nat = zero | suc nat; data list (a : *) = nil | cons a (list a); data person  = p nat ; (lam n : person -> nat . n) (lam l : person . case l of p (x : nat) => x)"
+--        in e
+

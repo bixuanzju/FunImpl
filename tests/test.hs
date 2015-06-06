@@ -6,6 +6,7 @@ import Parser
 import Syntax
 import TypeCheck
 import Predef
+import Translation
 
 env1 :: Env
 env1 = extend "a" (Kind Star) initalEnv
@@ -28,7 +29,7 @@ main :: IO ()
 main = defaultMain tests
 
 tests :: TestTree
-tests = testGroup "Tests" [substTest, tcheckTest, datatypeTest, patternTest]
+tests = testGroup "Tests" [substTest, tcheckTest, datatypeTest, patternTest, recordTest]
 
 
 -- letTest :: TestTree
@@ -54,6 +55,16 @@ listtest = let Right (Progm [e]) = parseExpr "data nat = zero | suc nat; data li
 pattest :: Expr
 pattest = let Right (Progm [e]) = parseExpr "data nat = zero | suc nat; data list (a : *) = nil | cons a (list a); lam x : list nat . case x of nil => zero | cons (x : nat) (xs : list nat) => suc (suc x)"
               in e
+recordtest :: Expr
+recordtest = let Right (Progm [e]) = parseExpr "data nat = zero | suc nat; data list (a : *) = nil | cons a (list a); rec person = p { name : nat, addr : list nat}; addr (p zero (cons nat zero (nil nat)))"
+             in e
+
+recordTest :: TestTree
+recordTest =
+  testGroup "Record check"
+    [ testCase "record" $
+      (trans [] (desugar recordtest) >>= (\(t, _) -> return t)) @?= Right (App (Var "list") (Var "nat"))
+    ]
 
 datatypeTest :: TestTree
 datatypeTest =

@@ -78,7 +78,7 @@ tcheck env (Case e alts) = do
 
   where
     tcp :: Type -> [Type] -> Alt -> TC Type
-    tcp dv atys (ConstrAlt (PConstr constr params) body) = do
+    tcp dv atys (Alt (PConstr constr params) body) = do
       let k = constrName constr
       kt <- tcheck env (Var k)
 

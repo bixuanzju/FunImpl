@@ -36,7 +36,7 @@ data RecBind = RB Sym [(Sym, Type)] RecField
 data RecField = RecField { recordName :: Sym, selector :: [(Sym, Type)] }
   deriving Eq
 
-data Alt = ConstrAlt Pattern Expr deriving Eq
+data Alt = Alt Pattern Expr deriving Eq
 
 data Pattern = PConstr Constructor [(Sym, Type)] deriving Eq
 
@@ -76,8 +76,8 @@ instance Pretty Expr where
   pretty (Kind k) = pretty k
   pretty (Data datatypes e) = text "data" <+> pretty datatypes <$> pretty e
   pretty (Case e alts) = hang 2 (text "case" <+> pretty e <+> text "of" <$> text " " <+> intersperseBar (map pretty alts))
-  pretty (Let n t e1 e2) = text "let" <+> parens (pretty n <+> colon <+> pretty t) <+> equals <+> pretty e1 <$> text "in" <$> pretty e2
-  pretty (Rec recbind e) = text "Record" <+> pretty recbind <+> pretty e
+  pretty (Let n t e1 e2) = text "let" <+> pretty n <+> colon <+> pretty t <+> equals <+> pretty e1 <$> text "in" <$> pretty e2
+  pretty (Rec recbind e) = text "Record" <+> pretty recbind <$> pretty e
 
 instance Pretty RecBind where
   pretty (RB n tpairs fields) = text n <+>
@@ -98,7 +98,7 @@ instance Pretty RecField where
                               semi
 
 instance Pretty Alt where
-  pretty (ConstrAlt p e) = pretty p <+> char '⇒' <+> pretty e
+  pretty (Alt p e) = pretty p <+> char '⇒' <+> pretty e
 
 instance Pretty Pattern where
   pretty (PConstr ctr []) = text (constrName ctr)

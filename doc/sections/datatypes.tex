@@ -101,7 +101,7 @@ The rest of the translation rules hold few surprises.
 
     (Var) & $\inferrule {x:\tau \in \Gamma} {\ctx{x:\tau \rightsquigarrow x}}$ \\
 
-    (App) & $\inferrule {\ctx{e_{1}:(\pai{x}{\tau_{2}}{\tau_{1}}) \rightsquigarrow E_{1}} \\ \ctx{e_{2}:\tau_{2} \rightsquigarrow E_{2}}} {\ctx{e_{1}e_{2}:\tau_{1}[x:=e_{2}] \rightsquigarrow E_{1}E_{2}}}$ \\
+    (App) & $\inferrule {\ctx{e_{1}:(\pai{x}{\tau_{2}}{\tau_{1}}) \rightsquigarrow E_{1}} \\ \ctx{e_{2}:\tau_{2} \rightsquigarrow E_{2}}} {\ctx{e_{1}e_{2}:\tau_{1}[x:=E_{2}] \rightsquigarrow E_{1}E_{2}}}$ \\
 
     (Lam) & $\inferrule {\ctxw{x:\tau_{1}}{e:\tau_{2} \rightsquigarrow E} \\ \ctx{(\pai{x}{\tau_{1}}{\tau_{2}}):t}} {\ctx{(\lam{x}{\tau_{1}}{e}}):(\pai{x}{\tau_{1}}{\tau_{2}}) \rightsquigarrow \lam{x}{\tau_{1}}{E}}$ & $t \in \{\star, \square\}$ \\
 
