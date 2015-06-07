@@ -55,15 +55,16 @@ in
 \subsection{Fix as a datatype}
 \label{sec:fix}
 
-In Haskell, we can make a fix datatype:
-\begin{lstlisting}
-newtype Fix f = In {out :: f (Fix f)}
-\end{lstlisting}
-
-And in \name:
+We can make a fix datatype in \name:
 \begin{lstlisting}
 rec Fix (f : * -> *) = In {out : f (Fix f)}
 \end{lstlisting}
+
+\jeremy{applications?}
+
+\subsection{PHOAS}
+\label{sec:phoas}
+
 
 
 %%% Local Variables:
