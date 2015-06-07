@@ -18,13 +18,13 @@ tests :: TestTree
 tests = testGroup "Tests" [substTest, tcheckTest, datatypeTest, patternTest, recordTest, recurTest]
 
 natdt :: String
-natdt = "data nat = zero | suc (nat);"
+natdt = "data nat = zero | suc nat;"
 
 listdt :: String
-listdt = "data list (a : *) = nil | cons (a) (list a);"
+listdt = "data list (a : *) = nil | cons a (list a);"
 
 maybedt :: String
-maybedt = "data maybe (a : *) = nothing | just (a);"
+maybedt = "data maybe (a : *) = nothing | just a;"
 
 monad :: String
 monad = "rec monad (m : * -> *) = mo { return : pi a : * . a -> m a, bind : pi a : *. pi b : *. m a -> (a -> m b) -> m b};"

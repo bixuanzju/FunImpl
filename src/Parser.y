@@ -54,67 +54,70 @@ import Syntax
 
 %%
 
-progm : exprs                                         { Progm $1 }
+progm : exprs                                   { Progm $1 }
 
-exprs : expr                                          { [$1] }
-      | exprs '&' expr                                { $1 ++ [$3] }
+exprs : expr                                    { [$1] }
+      | exprs '&' expr                          { $1 ++ [$3] }
 
-expr : lam id ':' expr '.' expr                       { Lam $2 $4 $6 }
-     | pi id ':' expr '.' expr                        { Pi $2 $4 $6 }
-     | mu id ':' expr '.' expr                        { Mu $2 $4 $6}
-     | fold '[' expr ']' expr                         { F $3 $5 }
-     | unfold expr %prec UNFOLD                       { U $2 }
-     | data databind ';' expr                         { Data $2 $4 }
-     | rec recbind ';' expr                           { Rec $2 $4 }
-     | case expr of alts                              { Case $2 $4}
+expr : lam id ':' expr '.' expr                 { Lam $2 $4 $6 }
+     | pi id ':' expr '.' expr                  { Pi $2 $4 $6 }
+     | mu id ':' expr '.' expr                  { Mu $2 $4 $6}
+     | fold '[' expr ']' expr                   { F $3 $5 }
+     | unfold expr %prec UNFOLD                 { U $2 }
+     | data databind ';' expr                   { Data $2 $4 }
+     | rec recbind ';' expr                     { Rec $2 $4 }
+     | case expr of alts                        { Case $2 $4}
      -- desugar
-     | expr '->' expr                                 { Pi "" $1 $3 }
-     | let id ':' expr '=' expr in expr               { Let $2 $4 $6 $8 }
-     | aexp                                           { $1 }
+     | expr '->' expr                           { Pi "" $1 $3 }
+     | let id ':' expr '=' expr in expr         { Let $2 $4 $6 $8 }
+     | aexp                                     { $1 }
 
-aexp : aexp term                                      { App $1 $2 }
-    | term                                            { $1 }
+aexp : aexp term                                { App $1 $2 }
+    | term                                      { $1 }
 
-term : id                                             { Var $1 }
-    | '*'                                             { Kind Star }
-    | '(' expr ')'                                    { $2 }
+term : id                                       { Var $1 }
+    | '*'                                       { Kind Star }
+    | '(' expr ')'                              { $2 }
 
-recbind : id ty_param_list_or_empty '=' records   { RB $1 $2 $4 }
+recbind : id ty_param_list_or_empty '=' records { RB $1 $2 $4 }
 
-records : id '{' fields '}'                    { RecField $1 $3 }
+records : id '{' fields '}'                     { RecField $1 $3 }
 
-fields : fparam   { [$1] }
-        | fparam ',' fields       { $1:$3 }
+fields : fparam                                 { [$1] }
+       | fparam ',' fields                      { $1:$3 }
 
-fparam : id ':' expr   { ($1,$3) }
+fparam : id ':' expr                            { ($1,$3) }
 
 databind
-  : id ty_param_list_or_empty '=' constrs_decl        { DB $1 $2 $4 }
+  : id ty_param_list_or_empty '=' constrs_decl  { DB $1 $2 $4 }
 
 ty_param_list_or_empty
-  : ty_param_list                                     { $1 }
-  | {- empty -}                                       { [] }
+  : ty_param_list                               { $1 }
+  | {- empty -}                                 { [] }
 
 ty_param_list
-  : ty_param                                          { [$1] }
-  | ty_param ty_param_list                            { $1:$2 }
+  : ty_param                                    { [$1] }
+  | ty_param ty_param_list                      { $1:$2 }
 
-ty_param : '(' id ':' expr ')'                        { ($2, $4) }
+ty_param : '(' id ':' expr ')'                  { ($2, $4) }
 
-constrs_decl : constr_decl                            { [$1] }
-             | constr_decl '|' constrs_decl           { $1:$3 }
+constrs_decl : constr_decl                      { [$1] }
+             | constr_decl '|' constrs_decl     { $1:$3 }
 
-constr_decl : id types                                { Constructor $1 $2 }
+constr_decl : id types                          { Constructor $1 $2 }
 
-types : {- empty -}                                   { [] }
-      | '(' expr ')' types                            { $2:$4 }
+types : {- empty -}                             { [] }
+      | ftype types                             { $1:$2 }
 
-alts : alt                                            { [$1] }
-     | alt '|' alts                                   { $1:$3 }
+ftype : '(' expr ')'                            { $2 }
+        | id                                    { Var $1 }
 
-alt : pattern '=>' expr                               { Alt $1 $3 }
+alts : alt                                      { [$1] }
+     | alt '|' alts                             { $1:$3 }
 
-pattern : id ty_param_list_or_empty                   { PConstr (Constructor $1 []) $2 }
+alt : pattern '=>' expr                         { Alt $1 $3 }
+
+pattern : id ty_param_list_or_empty             { PConstr (Constructor $1 []) $2 }
 
 
 {
