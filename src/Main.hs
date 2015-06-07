@@ -9,7 +9,8 @@ import Syntax
 import Parser
 import Predef
 
--- Note: first `desugar` to get rid of record, second desugar to get rid of let expression
+-- Note: 1. datatypes first, then record
+--       2. first `desugar` to get rid of record, second desugar to get rid of let expression
 main :: IO ()
 main = runInputT defaultSettings (loop [] [])
   where

@@ -2,6 +2,7 @@ module TypeCheck where
 
 import Control.Monad (unless, when)
 import Control.Monad.Except (throwError)
+-- import Parser
 -- import Debug.Trace
 
 import Syntax
@@ -37,7 +38,7 @@ tcheck env (App f a) =                   -- (T_APP)
 tcheck env (Lam s t e) =                 -- (T_LAM)
   do let env' = extend s t env
      te <- tcheck env' e
-     let lt = Pi s t te
+     let lt = Pi s t te  -- Note: cannot have datatype
      tcheck env lt
      return lt
 tcheck env (Pi x a b) =                  -- (T_PI)

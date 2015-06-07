@@ -4,6 +4,68 @@
 
 \jeremy{Fill in large examples like monad, Fix, HOAS, dependent types.}
 
+\subsection{Monad}
+\label{sec:monad}
+
+In this section, we show how we can encode monad in \name.
+
+Monad definition in Haskell:
+\begin{lstlisting}
+class Monad m where
+  return :: a -> m a
+  bind :: m a -> (a -> m b) -> m b
+\end{lstlisting}
+
+Translated in \name as a record:
+
+\begin{lstlisting}
+rec monad (m : * -> *) = mo
+  {
+    return : pi a : * . a -> m a,
+    bind : pi a : *. pi b : *.
+           m a -> (a -> m b) -> m b
+  }
+\end{lstlisting}
+
+The monad instance of \emph{Maybe} datatype in Haskell:
+
+\begin{lstlisting}
+instance Monad Maybe where
+  return x = Just x
+  Nothing >>= f = Nothing
+  Just x >>= f  = f x
+\end{lstlisting}
+
+And in \name:
+\begin{figure}[ht]
+  \centering
+\begin{lstlisting}
+let inst : monad maybe =
+  (mo maybe
+      (lam a : * . lam x : a . nothing a)
+      (lam a : *. lam b : *.
+       lam x : maybe a . lam f : a -> maybe b .
+       case x of
+         nothing => nothing b
+       | just (y : a) => f y))
+in
+\end{lstlisting}
+\end{figure}
+
+\subsection{Fix as a datatype}
+\label{sec:fix}
+
+In Haskell, we can make a fix datatype:
+\begin{lstlisting}
+newtype Fix f = In {out :: f (Fix f)}
+\end{lstlisting}
+
+And in \name:
+\begin{lstlisting}
+rec Fix (f : * -> *) = In {out : f (Fix f)}
+\end{lstlisting}
+
+
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../main"
