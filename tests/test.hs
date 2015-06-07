@@ -59,11 +59,17 @@ recordtest :: Expr
 recordtest = let Right (Progm [e]) = parseExpr "data nat = zero | suc nat; data list (a : *) = nil | cons a (list a); rec person = p { name : nat, addr : list nat}; addr (p zero (cons nat zero (nil nat)))"
              in e
 
+recordtest2 :: Expr
+recordtest2 = let Right (Progm [e]) = parseExpr "data nat = zero | suc nat; data maybe (a : *) = nothing | just a; rec monad (m : * -> *) = mo { return : pi a : * . a -> m a, bind : pi a : *. pi b : *. m a -> (a -> m b) -> m b}; let inst : monad maybe = (mo maybe (lam a : * . lam x : a . nothing a) (lam a : *. lam b : *. lam x : maybe a . lam f : a -> maybe b . case x of nothing => nothing b | just (y : a) => f y)) in return maybe inst nat zero"
+             in e
+
 recordTest :: TestTree
 recordTest =
   testGroup "Record check"
     [ testCase "record" $
       (trans [] (desugar recordtest) >>= (\(t, _) -> return t)) @?= Right (App (Var "list") (Var "nat"))
+    , testCase "monad" $
+      (trans [] (desugar recordtest2) >>= (\(t, _) -> return t)) @?= Right (App (Var "maybe") (Var "nat"))
     ]
 
 datatypeTest :: TestTree

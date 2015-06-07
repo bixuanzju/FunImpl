@@ -43,6 +43,9 @@ freeVars (Mu i t1 t2) = freeVars t1 `union` (freeVars t2 \\ [i])
 freeVars (F t e) = freeVars t `union` freeVars e
 freeVars (U e) = freeVars e
 freeVars (Kind _) = []
+freeVars (Case e _) = freeVars e
+freeVars (Data _ e) = freeVars e
+freeVars (Rec _ e) = freeVars e
 
 alphaEq :: Expr -> Expr -> Bool
 alphaEq (Var v) (Var v') = v == v'
