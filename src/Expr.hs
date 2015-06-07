@@ -2,7 +2,9 @@ module Expr where
 
 import Data.List ((\\), union)
 import Data.Maybe (fromMaybe)
+
 import Syntax
+import Utils
 
 subst :: Sym -> Expr -> Expr -> Expr
 subst v x = sub
@@ -41,6 +43,9 @@ freeVars (Mu i t1 t2) = freeVars t1 `union` (freeVars t2 \\ [i])
 freeVars (F t e) = freeVars t `union` freeVars e
 freeVars (U e) = freeVars e
 freeVars (Kind _) = []
+freeVars (Case e _) = freeVars e
+freeVars (Data _ e) = freeVars e
+freeVars (Rec _ e) = freeVars e
 
 alphaEq :: Expr -> Expr -> Bool
 alphaEq (Var v) (Var v') = v == v'
@@ -77,6 +82,28 @@ desugar (F t e) = F (desugar t) (desugar e)
 desugar (U t) = U (desugar t)
 desugar e@(Kind _) = e
 desugar (Let n t e1 e2) = App (Lam n t (desugar e2)) (desugar e1)
+desugar (Rec (RB n params field) e) =
+  let selNames = map fst . selector $ field
+      taus = map snd . selector $ field
+      ru = foldl App (Var n) (map (Var . fst) params)
+      selTypes = map (\t -> foldr (\(u, k) tau -> Pi u k tau) (Pi "" ru t) params) taus
+      xs = genVarsAndTypes 'x' taus
+      selExprs = zip selNames
+                   (zip selTypes
+                      (map
+                         (\i ->
+                            genLambdas params
+                              (Lam "L" ru
+                                 (Case (Var "L")
+                                    [ Alt (PConstr (Constructor (recordName field) []) xs)
+                                        (Var (map fst xs !! i))
+                                    ])))
+                         [0 :: Int .. length taus - 1]))
+      lastExpr = Data (DB n params [Constructor (recordName field) taus])
+                   (desugar (foldr (\(name, (kt, ke)) body -> Let name kt ke body) e selExprs))
+  in lastExpr
+desugar (Data bind e) = Data bind (desugar e)
+desugar e = e
 
 type BEnv = [(Sym, Expr)]
 

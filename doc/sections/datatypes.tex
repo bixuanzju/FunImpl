@@ -44,11 +44,12 @@ With datatypes, it is easy to encode \emph{records} as syntactic sugar of simple
 \begin{figure}[ht]
 \centering
 \[
-  \begin{array}{lll}
-    \data\,R = R\,\{\,\overline{S:\tau}^n\,\} & \triangleq & \data\,R = R\,\overline{\tau} \\
-    & & \letbb\,S_{i}^{i \in 1..n} : R \rightarrow \tau_{i} = \\
-    & &\quad \lam{l}{R}{\case\,l\,\of\, R\,\overline{x:\tau} \Rightarrow x_{i}} \\
-    & &\inb
+  \begin{array}{l}
+    \data\,R\,\overline{u : \kappa} = K\,\{\,\overline{S:\tau}\,\} \triangleq \\
+    \data\,R\,\overline{u : \kappa} = K\,\overline{\tau} \\
+    \letbb\,S_{i} : \Pi \overline{u : \kappa}.R\,\overline{u} \rightarrow \tau_{i} = \\
+    \quad \lambda \overline{(u:\kappa)}.\lam{l}{R\,\overline{u}}{\case\,l\,\of\, K\,\overline{x:\tau} \Rightarrow x_{i}} \\
+    \inb
   \end{array}
 \]
 \caption{Syntactic sugar for records}\label{fig:records}
@@ -102,7 +103,7 @@ The rest of the translation rules hold few surprises.
 
     (App) & $\inferrule {\ctx{e_{1}:(\pai{x}{\tau_{2}}{\tau_{1}}) \rightsquigarrow E_{1}} \\ \ctx{e_{2}:\tau_{2} \rightsquigarrow E_{2}}} {\ctx{e_{1}e_{2}:\tau_{1}[x:=e_{2}] \rightsquigarrow E_{1}E_{2}}}$ \\
 
-    (Lam) & $\inferrule {\ctxw{x:\tau_{1}}{e:\tau_{2} \rightsquigarrow E} \\ \ctx{(\pai{x}{\tau_{1}}{\tau_{2}}):t}} {\ctx{(\lam{x}{\tau_{1}}{e}}):(\pai{x}{\tau_{1}}{\tau_{2}}) \rightsquigarrow \lam{x}{\tau_{1}}{E}}$ & $t \in \{\star, \square\}$ \\
+    (Lam) & $\inferrule {\ctxw{x:\tau_{1}}{e:\tau_{2} \rightsquigarrow E} \\ \ctx{(\pai{x}{\tau_{1}}{\tau_{2}}):t}} {\ctx{(\lam{x}{\tau_{1}}{e})}:(\pai{x}{\tau_{1}}{\tau_{2}}) \rightsquigarrow \lam{x}{\tau_{1}}{E}}$ & $t \in \{\star, \square\}$ \\
 
     (Pi) & $\inferrule {\ctx{\tau_{1}:s} \\ \ctxw{x:\tau_{1}}{\tau_{2}:t}} {\ctx{(\pai{x}{\tau_{1}}{\tau_{2}}):t \rightsquigarrow \pai{x}{\tau_{1}}{\tau_{2}}}}$ & $(s,t) \in \mathcal{R}$ \\
 

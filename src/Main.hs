@@ -9,6 +9,8 @@ import Syntax
 import Parser
 import Predef
 
+-- Note: 1. datatypes first, then record
+--       2. first `desugar` to get rid of record, second desugar to get rid of let expression
 main :: IO ()
 main = runInputT defaultSettings (loop [] [])
   where
@@ -43,7 +45,7 @@ main = runInputT defaultSettings (loop [] [])
         ":e" -> processCMD progm $
           \xs -> do
             if length xs == 1
-              then case trans env (head xs) >>= \(_, transE) -> eval (desugar transE) of
+              then case trans env (desugar . head $ xs) >>= \(_, transE) -> eval (desugar transE) of
                 Left err -> outputStrLn err
                 Right e' -> outputStrLn ("\n--- Evaluation result ---\n\n" ++ show e' ++ "\n")
               else outputStrLn "Command parser error - need one expression!"
@@ -57,7 +59,7 @@ main = runInputT defaultSettings (loop [] [])
         ":t" -> processCMD progm $
           \xs -> do
             if length xs == 1
-              then case trans env . head $ xs of
+              then case trans env . desugar . head $ xs of
                 Left err       -> outputStrLn err
                 Right (typ, _) -> outputStrLn ("\n--- Typing result ---\n\n" ++ show typ ++ "\n")
               else outputStrLn "Command parser error - need one expression!"
@@ -74,7 +76,7 @@ main = runInputT defaultSettings (loop [] [])
           processCMD progm $
             \xs -> do
               if length xs == 1
-                then case trans env . head $ xs of
+                then case trans env . desugar . head $ xs of
                   Left err          -> outputStrLn err
                   Right (_, transE) -> outputStrLn ("\n--- Translation result ---\n\n" ++ show transE ++ "\n")
                 else outputStrLn "Command parser error - need one expression!"

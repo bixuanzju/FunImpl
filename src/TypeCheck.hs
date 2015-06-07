@@ -2,6 +2,7 @@ module TypeCheck where
 
 import Control.Monad (unless, when)
 import Control.Monad.Except (throwError)
+-- import Parser
 -- import Debug.Trace
 
 import Syntax
@@ -37,7 +38,7 @@ tcheck env (App f a) =                   -- (T_APP)
 tcheck env (Lam s t e) =                 -- (T_LAM)
   do let env' = extend s t env
      te <- tcheck env' e
-     let lt = Pi s t te
+     let lt = Pi s t te  -- Note: cannot have datatype
      tcheck env lt
      return lt
 tcheck env (Pi x a b) =                  -- (T_PI)
@@ -71,19 +72,19 @@ tcheck env (Case e alts) = do
 
   -- check patterns
   altTypeList <- mapM (tcp dv actualTypes) alts
-  unless (all (== (head altTypeList)) (tail altTypeList)) $ throwError "Bad pattern expressions"
+  unless (all (== head altTypeList) (tail altTypeList)) $ throwError "Bad pattern expressions"
 
   let (Pi "" _ t) = head altTypeList
   return t
 
   where
     tcp :: Type -> [Type] -> Alt -> TC Type
-    tcp dv atys (ConstrAlt (PConstr constr params) body) = do
+    tcp dv atys (Alt (PConstr constr params) body) = do
       let k = constrName constr
       kt <- tcheck env (Var k)
 
       -- check patterns, quit hacky
-      let tcApp = foldl App (Var "dummy$") (atys ++ (map (Var . fst) params))
+      let tcApp = foldl App (Var "dummy$") (atys ++ map (Var . fst) params)
       typ <- tcheck (("dummy$", kt) : params ++ env) tcApp
       unless (alphaEq typ dv) $ throwError "Bad patterns"
 
@@ -96,7 +97,7 @@ tcheck env (Data databinds e) = do
   let nenv = env' ++ env
   tcheck nenv e
 
-tcheck _ _ = throwError "Impossible happened!"
+tcheck _ _ = throwError "TypeCheck: Impossible happened!"
 
 tcdatatypes :: Env -> DataBind -> TC Env
 tcdatatypes env (DB tc tca constrs) = do
@@ -104,17 +105,17 @@ tcdatatypes env (DB tc tca constrs) = do
   -- check type constructor
   let tct = chainType (Kind Star) . map snd $ tca
   tcs <- tcheck env tct
-  unless (tcs == (Kind Box)) $ throwError "Bad type constructor arguments"
+  unless (tcs == Kind Box) $ throwError "Bad type constructor arguments"
 
   -- check data constructors
   let du = foldl App (Var tc) (map (Var . fst) tca)
-  let tduList = map (\dc -> chainType du (constrParams dc)) constrs
+  let tduList = map (chainType du . constrParams) constrs
   dcts <- mapM (tcheck ((tc, tct) : tca ++ env)) tduList
-  unless (all (== (Kind Star)) dcts) $ throwError "Bad data constructor arguments"
+  unless (all (== Kind Star) dcts) $ throwError "Bad data constructor arguments"
 
   -- return environment containing type constructor and data constructors
   let dctList = map (\tdu -> foldr (\(u, k) t -> Pi u k t) tdu tca) tduList
-  return ([(tc, tct)] ++ (zip (map constrName constrs) dctList))
+  return ((tc, tct) : zip (map constrName constrs) dctList)
 
 getActualTypes :: Type -> TC [Type]
 getActualTypes (App a b) = getActualTypes a >>= \ts -> return (b : ts)
@@ -122,7 +123,7 @@ getActualTypes (Var _) = return []
 getActualTypes _ = throwError "Bad scrutinee type"
 
 chainType :: Type -> [Type] -> Type
-chainType teminalType = foldr (\t t' -> Pi "" t t') teminalType
+chainType = foldr (Pi "")
 
 allowedKinds :: [(Type, Type)]
 allowedKinds =

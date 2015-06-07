@@ -1,13 +1,14 @@
 module Translation where
 
-import Control.Monad (unless, when, liftM)
+import Control.Monad (unless, when, mapAndUnzipM)
 import Control.Monad.Except (throwError)
+-- import Parser
 -- import Debug.Trace
 
-import Syntax
 import Expr
+import Syntax
 import TypeCheck
-import Parser
+import Utils
 
 trans :: Env -> Expr -> TC (Type, Expr)
 trans _ (Kind Star) = return (Kind Box, Kind Star)
@@ -53,8 +54,8 @@ trans env (Case e alts) = do
   (dv, e') <- trans env e
   actualTypes <- fmap reverse (getActualTypes dv)
 
-  (altTypeList, e2List) <- liftM unzip . mapM (transPattern dv actualTypes) $ alts
-  unless (all (== (head altTypeList)) (tail altTypeList)) $ throwError "Bad pattern expressions"
+  (altTypeList, e2List) <- mapAndUnzipM (transPattern dv actualTypes) alts
+  unless (all (== head altTypeList) (tail altTypeList)) $ throwError "Bad pattern expressions"
 
   let (Pi "" _ t) = head altTypeList
   let genExpr = foldl App (App (U e') t) e2List
@@ -63,11 +64,11 @@ trans env (Case e alts) = do
 
   where
     transPattern :: Type -> [Type] -> Alt -> TC (Type, Expr)
-    transPattern dv tys (ConstrAlt (PConstr constr params) body) = do
+    transPattern dv tys (Alt (PConstr constr params) body) = do
       let k = constrName constr
       kt <- tcheck env (Var k)
 
-      let tcApp = foldl App (Var "dummy$") (tys ++ (map (Var . fst) params))
+      let tcApp = foldl App (Var "dummy$") (tys ++ map (Var . fst) params)
       typ <- tcheck (("dummy$", kt) : params ++ env) tcApp
       unless (alphaEq typ dv) $ throwError "Bad patterns"
 
@@ -83,28 +84,26 @@ trans env (Data db@(DB tc tca constrs) e) = do
   let tct = chainType (Kind Star) . map snd $ tca
   let du = foldl App (Var tc) (map (Var . fst) tca)
   let dcArgs = map constrParams constrs
-  let dcArgChains = map (\ts -> chainType (Var "B") ts) dcArgs
+  let dcArgChains = map (chainType (Var "B")) dcArgs
   let dcArgsAndSubst = map
-                         (\ts -> chainType (Var "B")
-                                   (map
-                                      (\tau -> if (tau == du)
-                                                 then (Var "X")
-                                                 else tau)
-                                      ts))
+                         (chainType (Var "B") . map
+                                                  (\tau -> if tau == du
+                                                             then Var "X"
+                                                             else tau))
                          dcArgs
   let transD = (tc, (tct, genLambdas tca
                             (Mu "X" (Kind Star)
                                (Pi "B" (Kind Star) (chainType (Var "B") dcArgsAndSubst)))))
 
-  let tduList = map (\dc -> chainType du (constrParams dc)) constrs
+  let tduList = map (chainType du . constrParams) constrs
   let dctList = map (\tdu -> foldr (\(u, k) tau -> Pi u k tau) tdu tca) tduList
 
   let transKs = zip (map constrName constrs)
                   (zip dctList
                      (map
                         (\(i, taus) ->
-                           let xs = genVars 'x' taus
-                               cs = genVars 'c' dcArgChains
+                           let xs = genVarsAndTypes 'x' taus
+                               cs = genVarsAndTypes 'c' dcArgChains
                            in genLambdas tca
                                 (genLambdas xs
                                    (F du
@@ -114,18 +113,17 @@ trans env (Data db@(DB tc tca constrs) e) = do
                         (zip [0 :: Int ..] dcArgs)))
   return (t, foldr (\(n, (kt, ke)) body -> Let n kt ke body) e' (transD : transKs))
 
-  where
-    genVars :: Char -> [Type] -> [(Sym, Type)]
-    genVars c ts = map (\(n, t) -> (c : show n, t)) (zip [0 :: Int ..] ts)
+trans _ _ = throwError "Trans: Impossible happened"
 
+-- recordTest2 = let Right (Progm [e]) = parseExpr "rec monad (m : * -> *) = mo { return : pi a : * . m a, bind : pi a : *. pi b : *. m a -> (a -> m b) -> m b}; lam x : * . x"
+--              in e
 
-trans _ _ = throwError "Impossible happened"
+-- test = let Right (Progm [e]) = parseExpr "data nat = zero | suc nat; data list (a : *) = nil | cons a (list a); "
+--        in e
 
-genLambdas :: [(Sym, Type)] -> Expr -> Expr
-genLambdas params body = foldr (\(x, t) l -> Lam x t l) body params
+-- test2 = let Right (Progm [e]) = parseExpr "data nat = zero | suc nat; data list (a : *) = nil | cons a (list a); rec person = p { name : nat, add : list nat}; lam x : nat . x"
+--        in e
 
+-- test3 = let Right (Progm [e]) = parseExpr "data nat = zero | suc nat; data list (a : *) = nil | cons a (list a); data person  = p nat ; (lam n : person -> nat . n) (lam l : person . case l of p (x : nat) => x)"
+--        in e
 
--- test
--- pattest :: Expr
--- pattest = let Right (Progm [e]) = parseExpr "data nat = zero | suc nat; data list (a : *) = nil | cons a (list a); (lam x : list nat . case x of nil => zero | cons (x : nat) (xs : list nat) => (suc x)) (cons nat zero (nil nat))"
---           in e

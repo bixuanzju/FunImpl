@@ -20,6 +20,7 @@ import Syntax
     mu     { TokenKeyword "mu" }
     lam    { TokenKeyword "lam" }
     data   { TokenKeyword "data" }
+    rec   { TokenKeyword "rec" }
     case   { TokenKeyword "case" }
     of     { TokenKeyword "of" }
     id     { TokenIdent $$ }
@@ -36,6 +37,9 @@ import Syntax
     ';'    { TokenSymbol ";" }
     '|'    { TokenSymbol "|" }
     '&'    { TokenSymbol "&" }
+    '{'    { TokenSymbol "{" }
+    '}'    { TokenSymbol "}" }
+    ','    { TokenSymbol "," }
 
 
 %right ';'
@@ -61,6 +65,7 @@ expr : lam id ':' expr '.' expr                       { Lam $2 $4 $6 }
      | fold '[' expr ']' expr                         { F $3 $5 }
      | unfold expr %prec UNFOLD                       { U $2 }
      | data databind ';' expr                         { Data $2 $4 }
+     | rec recbind ';' expr                           { Rec $2 $4 }
      | case expr of alts                              { Case $2 $4}
      -- desugar
      | expr '->' expr                                 { Pi "" $1 $3 }
@@ -73,6 +78,15 @@ aexp : aexp term                                      { App $1 $2 }
 term : id                                             { Var $1 }
     | '*'                                             { Kind Star }
     | '(' expr ')'                                    { $2 }
+
+recbind : id ty_param_list_or_empty '=' records   { RB $1 $2 $4 }
+
+records : id '{' fields '}'                    { RecField $1 $3 }
+
+fields : fparam   { [$1] }
+        | fparam ',' fields       { $1:$3 }
+
+fparam : id ':' expr   { ($1,$3) }
 
 databind
   : id ty_param_list_or_empty '=' constrs_decl        { DB $1 $2 $4 }
@@ -104,7 +118,7 @@ atype : id                                            { Var $1 }
 alts : alt                                            { [$1] }
      | alt '|' alts                                   { $1:$3 }
 
-alt : pattern '=>' expr                               { ConstrAlt $1 $3 }
+alt : pattern '=>' expr                               { Alt $1 $3 }
 
 pattern : id ty_param_list_or_empty                   { PConstr (Constructor $1 []) $2 }
 
@@ -142,8 +156,8 @@ lexer symbols keywords = lexer'
                             Nothing -> lexSym cs ss
         lexSym cs [] = error $ "Cannot tokenize " ++ cs
 
-symbols = [".", "(", ")", ":", "\\", "*", "->", "=>", "[", "]", ";" , "=", "|", "&"]
-keywords = ["fold", "unfold", "pi", "mu", "lam", "beta", "let", "in", "data", "case", "of"]
+symbols = [".", "(", ")", ":", "\\", "*", "->", "=>", "[", "]", ";" , "=", "|", "&", "{", "}", ","]
+keywords = ["fold", "unfold", "pi", "mu", "lam", "beta", "let", "in", "data", "case", "of", "rec"]
 
 parseExpr = parser . lexer symbols keywords
 
