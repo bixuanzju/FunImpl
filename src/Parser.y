@@ -69,7 +69,7 @@ expr : lam id ':' expr '.' expr                       { Lam $2 $4 $6 }
      | case expr of alts                              { Case $2 $4}
      -- desugar
      | expr '->' expr                                 { Pi "" $1 $3 }
-     | let id ':' expr '=' expr in expr               { App (Lam $2 $4 $8) $6 }
+     | let id ':' expr '=' expr in expr               { Let $2 $4 $6 $8 }
      | aexp                                           { $1 }
 
 aexp : aexp term                                      { App $1 $2 }
@@ -107,13 +107,7 @@ constrs_decl : constr_decl                            { [$1] }
 constr_decl : id types                                { Constructor $1 $2 }
 
 types : {- empty -}                                   { [] }
-      | ftype types                                   { $1:$2 }
-
-ftype : ftype atype                                   { App $1 $2 }
-      | atype                                         { $1 }
-
-atype : id                                            { Var $1 }
-      | '(' ftype ')'                                 { $2 }
+      | '(' expr ')' types                            { $2:$4 }
 
 alts : alt                                            { [$1] }
      | alt '|' alts                                   { $1:$3 }
