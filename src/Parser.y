@@ -18,7 +18,6 @@ import Syntax
     let    { TokenKeyword "let" }
     in     { TokenKeyword "in" }
     mu     { TokenKeyword "mu" }
-    lam    { TokenKeyword "lam" }
     data   { TokenKeyword "data" }
     rec   { TokenKeyword "rec" }
     case   { TokenKeyword "case" }
@@ -40,6 +39,7 @@ import Syntax
     '{'    { TokenSymbol "{" }
     '}'    { TokenSymbol "}" }
     ','    { TokenSymbol "," }
+    '\\'    { TokenSymbol "\\" }
 
 
 %right ';'
@@ -59,7 +59,7 @@ progm : exprs                                   { Progm $1 }
 exprs : expr                                    { [$1] }
       | exprs '&' expr                          { $1 ++ [$3] }
 
-expr : lam id ':' expr '.' expr                 { Lam $2 $4 $6 }
+expr : '\\' id ':' expr '.' expr                 { Lam $2 $4 $6 }
      | pi id ':' expr '.' expr                  { Pi $2 $4 $6 }
      | mu id ':' expr '.' expr                  { Mu $2 $4 $6}
      | fold '[' expr ']' expr                   { F $3 $5 }

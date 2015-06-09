@@ -30,30 +30,30 @@ monad :: String
 monad = "rec monad (m : * -> *) = mo { return : pi a : * . a -> m a, bind : pi a : *. pi b : *. m a -> (a -> m b) -> m b};"
 
 nattest1 :: Expr
-nattest1 = let Right (Progm [e]) =  parseExpr $ natdt ++ "lam x : nat . x"
+nattest1 = let Right (Progm [e]) =  parseExpr $ natdt ++ "\\ x : nat . x"
            in e
 
 nattest2 :: Expr
-nattest2 = let Right (Progm [e]) =  parseExpr $ natdt ++ "lam x : nat . suc zero"
+nattest2 = let Right (Progm [e]) =  parseExpr $ natdt ++ "\\ x : nat . suc zero"
            in e
 
 listtest :: Expr
-listtest = let Right (Progm [e]) = parseExpr $ natdt ++ listdt ++ "lam x : (list nat) . cons nat zero x"
+listtest = let Right (Progm [e]) = parseExpr $ natdt ++ listdt ++ "\\ x : (list nat) . cons nat zero x"
            in e
 
 pattest :: Expr
-pattest = let Right (Progm [e]) = parseExpr $ natdt ++ listdt ++ "lam x : list nat . case x of nil => zero | cons (x : nat) (xs : list nat) => suc (suc x)"
+pattest = let Right (Progm [e]) = parseExpr $ natdt ++ listdt ++ "\\ x : list nat . case x of nil => zero | cons (x : nat) (xs : list nat) => suc (suc x)"
               in e
 recordtest :: Expr
 recordtest = let Right (Progm [e]) = parseExpr $ natdt ++ listdt ++ "rec person = p { name : nat, addr : list nat}; addr (p zero (cons nat zero (nil nat)))"
              in e
 
 recordtest2 :: Expr
-recordtest2 = let Right (Progm [e]) = parseExpr $ natdt ++ maybedt ++ monad ++ "let inst : monad maybe = (mo maybe (lam a : * . lam x : a . nothing a) (lam a : *. lam b : *. lam x : maybe a . lam f : a -> maybe b . case x of nothing => nothing b | just (y : a) => f y)) in return maybe inst nat zero"
+recordtest2 = let Right (Progm [e]) = parseExpr $ natdt ++ maybedt ++ monad ++ "let inst : monad maybe = (mo maybe (\\ a : * . \\ x : a . nothing a) (\\ a : *. \\ b : *. \\ x : maybe a . \\ f : a -> maybe b . case x of nothing => nothing b | just (y : a) => f y)) in return maybe inst nat zero"
              in e
 
 recurtest :: Expr
-recurtest = let Right (Progm [e]) = parseExpr $ natdt ++ listdt ++ "let length : list nat -> nat = mu len : list nat -> nat . lam l : list nat . case l of nil => zero | cons (x : nat) (xs : list nat) => suc (len xs) in length (cons nat zero (nil nat))"
+recurtest = let Right (Progm [e]) = parseExpr $ natdt ++ listdt ++ "let length : list nat -> nat = mu len : list nat -> nat . \\ l : list nat . case l of nil => zero | cons (x : nat) (xs : list nat) => suc (len xs) in length (cons nat zero (nil nat))"
              in e
 
 recurTest :: TestTree
