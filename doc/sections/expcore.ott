@@ -5,13 +5,13 @@ embed {{ tex-preamble
 }}
 
 %%% Metavariables
-metavar x, y, z, d, T ::= {{ com Variable names }}
+metavar x, y, z, d ::= {{ com Variable names }}
 
 %%% Syntax
 grammar
 
 %% Expressions
-e, t {{ tex \tau }}      :: 'e_' ::=       {{ com Expressions    }}
+e, t {{ tex \tau }}, T {{ tex \sigma }} :: 'e_' ::=       {{ com Expressions    }}
   | x                    ::  :: Var        {{ com Variable }}
   | s                    ::  :: Sort       {{ com Sort }}
   | e1 e2                ::  :: App        {{ com Application }}
@@ -23,14 +23,15 @@ e, t {{ tex \tau }}      :: 'e_' ::=       {{ com Expressions    }}
   | e1 [ x |-> e2 ]      :: M:: Sub        {{ com Substitution }}
   | ( e )                :: M:: Parens     {{ com Parenthesized expression }}
   | let x : t = e2 in e1 :: M:: LetBinding {{ com Let binding }}
-  | t1 -> t2             :: M:: FuncType   {{ com Function Type }}
+  | t1 -> t2             :: M:: FuncType   {{ com Function type }}
   | l                    :: M:: Literals   {{ com Literals }}
+  | e *                  :: M:: Starred    {{ com Starred expression }}
 
 %% Literals
 l :: 'l_' ::=
-  | int     :: M:: IntType
-  | bool    :: M:: BoolType
-  | three   :: M:: Number
+  | int                 :: M:: IntType
+  | bool                :: M:: BoolType
+  | three               :: M:: Number
 
 %% Sorts
 s, r {{ tex t }} :: 's_' ::= {{ com Sorts }}
@@ -41,6 +42,10 @@ s, r {{ tex t }} :: 's_' ::= {{ com Sorts }}
 G {{ tex \Gamma }} :: 'G_' ::= {{ com Contexts }}
   | empty          ::  :: Empty       {{ com Empty }}
   | G , x : t      ::  :: Binding     {{ com Variable binding }}
+  | G , G'         :: M:: CtxBind     {{ com Context binding }}
+  | G , x : t , G' :: M:: MixBind     {{ com Context-var binding }}
+  | G [ x |-> e ]  :: M:: CtxSubst    {{ com Context substitution }}
+  | G *            :: M:: CtxStar     {{ com Starred context }}
 
 %% Values
 v :: 'v_' ::=                               {{ com Values   }}
@@ -74,6 +79,9 @@ terminals :: 'terminals_' ::=
   | |->      ::  :: mapsto    {{ tex \mapsto }}
   | castup   ::  :: castup    {{ tex \mathsf{cast}^{\uparrow} }}
   | |-       ::  :: turnstile {{ tex \vdash }}
+  | ==       ::  :: equiv     {{ tex \equiv }}
+  | =a       ::  :: alphaeq   {{ tex \equiv }}
+  | =b       ::  :: betaeq    {{ tex =_{\beta} }}
   | castdown ::  :: castdown  {{ tex \mathsf{cast}_{\downarrow} }}
   | let      ::  :: let       {{ tex \mathbf{let} }}
   | in       ::  :: key_in    {{ tex \mathbf{in} }}
@@ -82,6 +90,7 @@ terminals :: 'terminals_' ::=
   | bool     ::  :: bool      {{ tex \mathsf{Bool} }}
   | three    ::  :: three     {{ tex 3 }}
   | elt      ::  :: elt       {{ tex \in }}
+  | *        ::  :: upstar    {{ tex ^{*} }}
 
 %%% Fomulae
 formula :: 'formula_' ::=
@@ -90,13 +99,13 @@ formula :: 'formula_' ::=
   | e1 = e2                            ::   :: rewrite
   | e1 /= e2                           ::   :: inequality
   | e1 =b e2                           ::   :: beta_equality
-    {{ tex [[e1]] =_{\beta} [[e2]] }}
   | e1 =a e2                           ::   :: alpha_equality
-    {{ tex [[e1]] =_{\alpha} [[e2]] }}
+  | e1 == e2                           ::   :: equivalence
   | ( formula )                        ::   :: parens
   | x : t elt G                        ::   :: context_inclusion
   | G |- tylit lit : k                 ::   :: lintTyLit
     {{ tex [[G]] \labeledjudge{tylit} [[lit]] : [[k]] }}
+  | |- e : t                           ::   :: empty_context
   | formula \\                         ::   :: lbhack {{ tex [[formula]] \ottlinebreak }}
 
 %%% Subrule

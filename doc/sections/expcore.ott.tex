@@ -29,11 +29,11 @@
 
 \newcommand{\ottmetavars}{
 \ottmetavartabular{
- $ \ottmv{x} ,\, \ottmv{y} ,\, \ottmv{z} ,\, \ottmv{d} ,\, \ottmv{T} $ & \ottcom{Variable names} \\
+ $ \ottmv{x} ,\, \ottmv{y} ,\, \ottmv{z} ,\, \ottmv{d} $ & \ottcom{Variable names} \\
 }}
 
 \newcommand{\otte}{
-\ottrulehead{\ottnt{e}  ,\ \tau}{::=}{\ottcom{Expressions}}\ottprodnewline
+\ottrulehead{\ottnt{e}  ,\ \tau  ,\ \sigma}{::=}{\ottcom{Expressions}}\ottprodnewline
 \ottfirstprodline{|}{\ottmv{x}}{}{}{}{\ottcom{Variable}}\ottprodnewline
 \ottprodline{|}{\ottnt{s}}{}{}{}{\ottcom{Sort}}\ottprodnewline
 \ottprodline{|}{\ottnt{e_{{\mathrm{1}}}} \, \ottnt{e_{{\mathrm{2}}}}}{}{}{}{\ottcom{Application}}\ottprodnewline
@@ -87,7 +87,7 @@
 \newcommand{\ottdruleTXXConv}[1]{\ottdrule[#1]{%
 {\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau_{{\mathrm{1}}}}%
 \\ {\Gamma  \vdash  \tau_{{\mathrm{2}}}  \ottsym{:}  \ottnt{s}}%
-\\ { \tau_{{\mathrm{1}}}  =_{\beta}  \tau_{{\mathrm{2}}} }%
+\\ {\tau_{{\mathrm{1}}}  =_{\beta}  \tau_{{\mathrm{2}}}}%
 }{
 \Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau_{{\mathrm{2}}}}{%
 {\ottdrulename{T\_Conv}}{}%
