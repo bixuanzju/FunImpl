@@ -1,0 +1,107 @@
+% Formalization of Source Language
+
+%%% Syntax
+grammar
+
+%% Declarations
+pgm                                           :: 'pgm_' ::=                  {{ com Program }}
+  | </ decli // i /> ; E                           ::   :: Decl              {{ com Declarations }}
+
+decl                                          :: 'decl_' ::=                 {{ com Declarations }}
+  | data D </ ul : kl // l /> = </ or Ki </ Aij // j /> // i /> ::   :: DataDecl {{ com Datatype declaration }}
+  | data D </ ul : kl // l /> = Ki </ Ai // i /> :: M :: SDataDecl {{ com Datatype single }}
+  | data R </ ul : kl // l /> = K { </ Ni : Ai // i /> }        :: M :: RecordDecl {{ com Record declaration }}
+
+p :: 'pat_' ::=                           {{ com Patterns }}
+  | K </ xi : Ai // i />   ::  :: Pattern {{ com Pattern }}
+
+u :: 'u_'   ::=                           {{ com Atoms }}
+  | x                      ::  :: Var     {{ com Variable }}
+  | K                      ::  :: DCon    {{ com Data constructor }}
+
+%% Expressions
+E , A {{ tex T }}, B {{ tex S }}, k {{ tex \kappa }} :: 'es_' ::=       {{ com Expressions    }}
+  | u                      ::  :: Atom       {{ com Atom }}
+  | s                      ::  :: Sort       {{ com Sort }}
+  | E1 E2                  ::  :: App        {{ com Application }}
+  | \ x : A . E            ::  :: Lam        {{ com Abstraction }}
+  | Pi x : A1 . A2         ::  :: Pi         {{ com Product }}
+  | castup [ A ] E         ::  :: CastUp     {{ com Cast up to type}}
+  | castdown E             ::  :: CastDown   {{ com Cast down by reduction }}
+  | mu x : A . E           ::  :: Mu         {{ com General recursion }}
+  | case E of </ pi => Ei' // i /> ::  :: Case     {{ com Case analysis }}
+  | E1 [ x |-> E2 ]        :: M:: Sub        {{ com Substitution }}
+  | ( E )                  :: M:: Parens     {{ com Parenthesized expression }}
+  | let x : A = E2 in E1   :: M:: LetBinding {{ com Let binding }}
+  | A1 -> A2               :: M:: FuncType   {{ com Function type }}
+  | ( x : A1 ) -> A2       :: M:: DepFunType {{ com Dependent function type }}
+  | ( </ ui : ki // i /> ) :: M:: VectorSugar1
+  | \ </ ui : ki // i />   :: M:: VectorSugar2
+  | A -> D </ ui // i />   :: M:: VectorSugar3
+  | D </ ui // i /> -> A   :: M:: VectorSugar4
+  | \ x : D </ ui // i />  :: M:: VectorSugar5
+
+%% Contexts
+Gs {{ tex \Gamma }} :: 'Gs_' ::= {{ com Contexts }}
+  | empty          ::  :: Empty       {{ com Empty }}
+  | Gs , u : A      ::  :: Binding     {{ com Atom binding }}
+
+%%% Typing rules
+defns
+LintSrc :: '' ::=
+
+defn |- G        ::  :: ctxsrc :: 'Ctx_' {{ com Well-formed context }}
+by
+
+-------- :: Empty
+|- empty
+
+|- G
+G |- A : s
+----------- :: Var
+|- G, x : A
+
+defn G  |- E : A ::  :: exprsrc :: 'TS_' {{ com Expression typing }}
+%{{ tex [[G]] \labeledjudge{E} [[E]] : [[A]] }}
+by
+
+---------------------- :: Ax
+empty |- star : square
+
+|- G
+x:A elt G
+---------- :: Var
+G |- x:A
+
+G |- E1 : (Pi x:A2.A1)
+G |- E2 : A2
+------------------------ :: App
+G |- E1 E2 : A1[x |-> E2]
+
+G, x : A1 |- E : A2
+G |- (Pi x:A1.A2) : s
+--------------------------- :: Lam
+G |- (\x:A1.E):(Pi x:A1.A2)
+
+G |- A1 : s
+G, x:A1 |- A2:r
+------------------- :: Pi
+G |- (Pi x:A1.A2):r
+
+G |- E : A2
+G |- A1 : s
+A1 --> A2
+---------------------- :: CastUp
+G |- (castup[A1] E):A1
+
+G |- E : A1
+G |- A2 : s
+A1 --> A2
+---------------------- :: CastDown
+G |- (castdown E) : A2
+
+G, x:A |- E:A
+G |- A:s
+------------------- :: Mu
+G |- (mu x:A . E):A
+

@@ -2,10 +2,12 @@
 
 embed {{ tex-preamble
   \newcommand{\labeledjudge}[1]{\vdash_{\!\!\mathsf{#1} } }
+  \newcommand{\kw}[1]{\mathsf{#1} }
 }}
 
 %%% Metavariables
-metavar x, y, z, d ::= {{ com Variable names }}
+metavar x, y, z, d, D, K, N, R ::= {{ com Variable names }}
+indexvar i, j, l ::= {{ com Index variables }}
 
 %%% Syntax
 grammar
@@ -24,11 +26,11 @@ e, t {{ tex \tau }}, T {{ tex \sigma }} :: 'e_' ::=       {{ com Expressions    
   | ( e )                :: M:: Parens     {{ com Parenthesized expression }}
   | let x : t = e2 in e1 :: M:: LetBinding {{ com Let binding }}
   | t1 -> t2             :: M:: FuncType   {{ com Function type }}
-  | l                    :: M:: Literals   {{ com Literals }}
+  | lit                  :: M:: Literals   {{ com Literals }}
   | e *                  :: M:: Starred    {{ com Starred expression }}
 
 %% Literals
-l :: 'l_' ::=
+lit :: 'lit_' ::=
   | int                 :: M:: IntType
   | bool                :: M:: BoolType
   | three               :: M:: Number
@@ -46,6 +48,7 @@ G {{ tex \Gamma }} :: 'G_' ::= {{ com Contexts }}
   | G , x : t , G' :: M:: MixBind     {{ com Context-var binding }}
   | G [ x |-> e ]  :: M:: CtxSubst    {{ com Context substitution }}
   | G *            :: M:: CtxStar     {{ com Starred context }}
+  | G , u : A      :: M:: SrcBind     {{ com Atom binding }}
 
 %% Values
 v :: 'v_' ::=                               {{ com Values   }}
@@ -77,20 +80,26 @@ terminals :: 'terminals_' ::=
   | -->      ::  :: steps     {{ tex \longrightarrow }}
   | ->>      ::  :: msteps    {{ tex \twoheadrightarrow }}
   | |->      ::  :: mapsto    {{ tex \mapsto }}
-  | castup   ::  :: castup    {{ tex \mathsf{cast}^{\uparrow} }}
+  | castup   ::  :: castup    {{ tex \kw{cast}^{\uparrow} }}
   | |-       ::  :: turnstile {{ tex \vdash }}
   | ==       ::  :: equiv     {{ tex \equiv }}
   | =a       ::  :: alphaeq   {{ tex \equiv }}
   | =b       ::  :: betaeq    {{ tex =_{\beta} }}
-  | castdown ::  :: castdown  {{ tex \mathsf{cast}_{\downarrow} }}
-  | let      ::  :: let       {{ tex \mathbf{let} }}
-  | in       ::  :: key_in    {{ tex \mathbf{in} }}
+  | castdown ::  :: castdown  {{ tex \kw{cast}_{\downarrow} }}
+  | let      ::  :: let       {{ tex \kw{let} }}
+  | in       ::  :: key_in    {{ tex \kw{in} }}
   | eqb      ::  :: eqb       {{ tex =_{\beta} }}
-  | int      ::  :: int       {{ tex \mathsf{Int} }}
-  | bool     ::  :: bool      {{ tex \mathsf{Bool} }}
+  | int      ::  :: int       {{ tex \kw{Int} }}
+  | bool     ::  :: bool      {{ tex \kw{Bool} }}
   | three    ::  :: three     {{ tex 3 }}
   | elt      ::  :: elt       {{ tex \in }}
   | *        ::  :: upstar    {{ tex ^{*} }}
+  | =>       ::  :: match     {{ tex \Rightarrow }}
+  | /=       ::  :: ineq      {{ tex \not \eq }}
+  | data     ::  :: data      {{ tex \kw{data} }}
+  | or       ::  :: or        {{ tex \mid }}
+  | case     ::  :: case      {{ tex \kw{case} }}
+  | of       ::  :: of        {{ tex \kw{of} }}
 
 %%% Fomulae
 formula :: 'formula_' ::=
@@ -107,6 +116,9 @@ formula :: 'formula_' ::=
     {{ tex [[G]] \labeledjudge{tylit} [[lit]] : [[k]] }}
   | |- e : t                           ::   :: empty_context
   | formula \\                         ::   :: lbhack {{ tex [[formula]] \ottlinebreak }}
+  | u : A elt G                        ::   :: context_inclusion_src
+  | |- E : A                           ::   :: empty_context_src
+  | E1 --> E2                          ::   :: reduction_src
 
 %%% Subrule
 subrules
@@ -115,7 +127,7 @@ subrules
 
 %%% Typing rules
 defns
-Lint :: '' ::=
+LintCore :: '' ::=
 
 defn G  |- e : t ::  :: coc :: 'T_' {{ com CoC typing }}
 by
@@ -134,12 +146,9 @@ G |- t:s
 ------------------- :: Mu
 G |- (mu x:t . e):t
 
-defn G  |- e : t ::  :: sur :: 'TS_' {{ com Expression typing for source language }}
-by
-
 |- G
 x:t elt G
----------- :: Var
+---------- :: VarEnv
 G |- x:t
 
 defn |- G        ::  :: ctx :: 'Env_' {{ com Well-formed context }}
