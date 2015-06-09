@@ -22,7 +22,9 @@ import Syntax
     rec   { TokenKeyword "rec" }
     case   { TokenKeyword "case" }
     of     { TokenKeyword "of" }
+    nat     { TokenKeyword "nat" }
     id     { TokenIdent $$ }
+    digits { TokenDigits $$ }
     ':'    { TokenSymbol ":" }
     '='    { TokenSymbol "=" }
     '.'    { TokenSymbol "." }
@@ -40,6 +42,7 @@ import Syntax
     '}'    { TokenSymbol "}" }
     ','    { TokenSymbol "," }
     '\\'    { TokenSymbol "\\" }
+    '+'    { TokenSymbol "+" }
 
 
 %right ';'
@@ -47,6 +50,7 @@ import Syntax
 %right '->'
 %right ']'
 %right in
+%left '+'
 %left UNFOLD
 
 
@@ -67,17 +71,20 @@ expr : '\\' id ':' expr '.' expr                 { Lam $2 $4 $6 }
      | data databind ';' expr                   { Data $2 $4 }
      | rec recbind ';' expr                     { Rec $2 $4 }
      | case expr of alts                        { Case $2 $4}
-     -- desugar
+     -- surface language
+     | expr '+' expr   { Add $1 $3 }
      | expr '->' expr                           { Pi "" $1 $3 }
      | let id ':' expr '=' expr in expr         { Let $2 $4 $6 $8 }
      | aexp                                     { $1 }
 
 aexp : aexp term                                { App $1 $2 }
-    | term                                      { $1 }
+     | term                                      { $1 }
 
-term : id                                       { Var $1 }
-    | '*'                                       { Kind Star }
-    | '(' expr ')'                              { $2 }
+term : nat   { Nat }
+     | id                                       { Var $1 }
+     | digits     { Lit $1 }
+     | '*'                                       { Kind Star }
+     | '(' expr ')'                              { $2 }
 
 recbind : id ty_param_list_or_empty '=' records { RB $1 $2 $4 }
 
@@ -125,7 +132,7 @@ pattern : id ty_param_list_or_empty             { PConstr (Constructor $1 []) $2
 parseError _ = Left "Parse error!"
 
 data Token
-      = TokenInt Int
+      = TokenDigits Int
       | TokenKeyword String
       | TokenSymbol String
       | TokenIdent String
@@ -139,7 +146,7 @@ lexer symbols keywords = lexer'
           | isAlpha c = lexVar s
           | otherwise = lexSym s symbols
 
-        lexNum cs = TokenInt (read num) : lexer' rest
+        lexNum cs = TokenDigits (read num) : lexer' rest
           where (num, rest) = span isDigit cs
 
         lexVar cs = token : lexer' rest
@@ -153,8 +160,8 @@ lexer symbols keywords = lexer'
                             Nothing -> lexSym cs ss
         lexSym cs [] = error $ "Cannot tokenize " ++ cs
 
-symbols = [".", "(", ")", ":", "\\", "*", "->", "=>", "[", "]", ";" , "=", "|", "&", "{", "}", ","]
-keywords = ["fold", "unfold", "pi", "mu", "lam", "beta", "let", "in", "data", "case", "of", "rec"]
+symbols = [".", "(", ")", ":", "\\", "*", "->", "=>", "[", "]", ";" , "=", "|", "&", "{", "}", ",", "+"]
+keywords = ["fold", "unfold", "pi", "mu", "lam", "beta", "let", "in", "data", "case", "of", "rec", "nat"]
 
 parseExpr = parser . lexer symbols keywords
 

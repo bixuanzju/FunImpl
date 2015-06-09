@@ -65,6 +65,7 @@ tcheck env (U e) =                       -- (T_CASTDOWN)
      tcheck env t2
      return t2
 
+-- type checking surface language
 -- TODO: Lack 1) exhaustive test 2) overlap test
 tcheck env (Case e alts) = do
   dv <- tcheck env e
@@ -91,11 +92,18 @@ tcheck env (Case e alts) = do
       bodyType <- tcheck (params ++ env) body
       return (arr dv bodyType)
 
--- type checking surface language
 tcheck env (Data databinds e) = do
   env' <- tcdatatypes env databinds
   let nenv = env' ++ env
   tcheck nenv e
+
+tcheck _ Nat = return (Kind Star)
+tcheck _ (Lit _) = return Nat
+tcheck env (Add e1 e2) = do
+  t1 <- tcheck env e1
+  t2 <- tcheck env e2
+  unless (t1 == Nat && t2 == Nat) $ throwError "Addition is only allowed for numbers!"
+  return Nat
 
 tcheck _ _ = throwError "TypeCheck: Impossible happened!"
 

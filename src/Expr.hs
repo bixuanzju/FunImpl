@@ -16,6 +16,10 @@ subst v x = sub
         sub (F t e) = F (sub t) (sub e)
         sub (U e) = U (sub e)
         sub (Kind k) = Kind k
+        -- surface language
+        sub Nat = Nat
+        sub (Lit n) = Lit n
+        sub (Add e1 e2) = Add (sub e1) (sub e2)
         abstr con i t e
           | v == i = con i (sub t) e -- type is also expression, need substitution
           | i `elem` fvx =
@@ -46,6 +50,9 @@ freeVars (Kind _) = []
 freeVars (Case e _) = freeVars e
 freeVars (Data _ e) = freeVars e
 freeVars (Rec _ e) = freeVars e
+freeVars Nat = []
+freeVars (Lit _) = []
+freeVars (Add e1 e2) = freeVars e1 `union` freeVars e2
 
 alphaEq :: Expr -> Expr -> Bool
 alphaEq (Var v) (Var v') = v == v'
@@ -56,6 +63,9 @@ alphaEq (Mu i t1 t2) (Mu i' t1' t2') = alphaEq t2 (substVar i' i t2') && alphaEq
 alphaEq (F t e) (F t' e') = alphaEq t t' && alphaEq e e'
 alphaEq (U t) (U t') = alphaEq t t'
 alphaEq (Kind k) (Kind k') = k == k'
+alphaEq Nat Nat = True
+alphaEq (Lit n) (Lit m) = n == m
+alphaEq (Add e1 e2) (Add e1' e2') = alphaEq e1 e1' && alphaEq e2 e2'
 alphaEq _ _ = False
 
 repFreeVar :: BEnv -> Expr -> Expr
@@ -128,6 +138,10 @@ reduct (App e1 e2) = reduct e1 >>= \e -> Right (App e e2) -- (R-AppL)
 reduct (U (F _ e)) = Right e                              -- (R-Unfold-Fold)
 reduct (U e) = reduct e >>= Right . U                     -- (R-unfold)
 reduct m@(Mu x _ t2) = Right $ subst x m t2               -- (R-Mu)
+-- surface language
+reduct (Add (Lit n) (Lit m)) = Right (Lit (n + m))
+reduct (Add n m) = reduct n >>= \n' -> Right (Add n' m)
+reduct (Add (Lit n) m) = reduct m >>= \m' -> Right $ Add (Lit n) m'
 reduct e = Left $ "Not reducible: " ++ show e
 
 eval :: Expr -> Either String Expr

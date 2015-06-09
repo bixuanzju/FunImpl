@@ -22,6 +22,10 @@ data Expr = Var Sym
           | Rec RecBind Expr  --TODO: could be merged to datatype?
           | Case Expr [Alt]
           | Let Sym Type Expr Expr
+          -- Primitive nat
+          | Nat
+          | Lit Int
+          | Add Expr Expr
           deriving Eq
 
 data DataBind = DB Sym [(Sym, Type)] [Constructor]
@@ -44,6 +48,7 @@ isVal :: Expr -> Bool
 isVal (Lam{}) = True
 isVal (Pi{}) = True
 isVal (F{}) = True
+isVal (Lit _) = True
 isVal _ = False
 
 type Type = Expr
@@ -78,6 +83,9 @@ instance Pretty Expr where
   pretty (Case e alts) = hang 2 (text "case" <+> pretty e <+> text "of" <$> text " " <+> intersperseBar (map pretty alts))
   pretty (Let n t e1 e2) = text "let" <+> pretty n <+> colon <+> pretty t <+> equals <+> pretty e1 <$> text "in" <$> pretty e2
   pretty (Rec recbind e) = text "Record" <+> pretty recbind <$> pretty e
+  pretty Nat = text "nat"
+  pretty (Add e1 e2) = parens (pretty e1 <+> text "+" <+> pretty e2)
+  pretty (Lit n) = text (show n)
 
 instance Pretty RecBind where
   pretty (RB n tpairs fields) = text n <+>

@@ -113,6 +113,14 @@ trans env (Data db@(DB tc tca constrs) e) = do
                         (zip [0 :: Int ..] dcArgs)))
   return (t, foldr (\(n, (kt, ke)) body -> Let n kt ke body) e' (transD : transKs))
 
+trans _ Nat = return (Kind Star, Nat)
+trans _ n@(Lit _) = return (Nat, n)
+trans env (Add e1 e2) = do
+  (t1, e1') <- trans env e1
+  (t2, e2') <- trans env e2
+  unless (t1 == Nat && t2 == Nat) $ throwError "Addition is only allowed for numbers!"
+  return (Nat, Add e1' e2')
+
 trans _ _ = throwError "Trans: Impossible happened"
 
 -- recordTest2 = let Right (Progm [e]) = parseExpr "rec monad (m : * -> *) = mo { return : pi a : * . m a, bind : pi a : *. pi b : *. m a -> (a -> m b) -> m b}; lam x : * . x"
