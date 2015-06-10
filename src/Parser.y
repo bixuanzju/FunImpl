@@ -48,6 +48,7 @@ import Syntax
 %right ';'
 %right '.'
 %right '->'
+%right '=>'
 %right ']'
 %right in
 %left '+'
