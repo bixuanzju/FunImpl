@@ -4,20 +4,25 @@
 grammar
 
 %% Declarations
-pgm                                           :: 'pgm_' ::=                  {{ com Program }}
-  | </ decli // i /> ; E                           ::   :: Decl              {{ com Declarations }}
+pgm                                         :: 'pgm_' ::=      {{ com Program }}
+  | << decl >> ; E                          ::   :: Decl       {{ com Declarations }}
+  | decl ; E                                :: M :: DeclSingle
+  | ( pgm )                                 :: M :: ParenPgm
 
-decl                                          :: 'decl_' ::=                 {{ com Declarations }}
-  | data D </ ul : kl // l /> = </ or Ki </ Aij // j /> // i /> ::   :: DataDecl {{ com Datatype declaration }}
-  | data D </ ul : kl // l /> = Ki </ Ai // i /> :: M :: SDataDecl {{ com Datatype single }}
-  | data R </ ul : kl // l /> = K { </ Ni : Ai // i /> }        :: M :: RecordDecl {{ com Record declaration }}
+decl                                        :: 'decl_' ::=     {{ com Declarations }}
+  | data D << u : k >> = << or K << A >> >> ::   :: DataDecl   {{ com Datatype declaration }}
+  | data D << u : k >> = K << A >>          :: M :: SDataDecl  {{ com Datatype single }}
+  | data R << u : k >> = K { << N : A >> }  :: M :: RecordDecl {{ com Record declaration }}
+  | ( decl )                                :: M :: ParenDecl
+  | << decl >>                              :: M :: DeclVec
 
-p :: 'pat_' ::=                           {{ com Patterns }}
-  | K </ xi : Ai // i />   ::  :: Pattern {{ com Pattern }}
+p                                           :: 'pat_' ::=      {{ com Patterns }}
+  | K << x : A >>                           ::   :: Pattern    {{ com Pattern }}
+  | ( p )                                   :: M :: ParenPat
 
-u :: 'u_'   ::=                           {{ com Atoms }}
-  | x                      ::  :: Var     {{ com Variable }}
-  | K                      ::  :: DCon    {{ com Data constructor }}
+u, U {{ tex \upsilon }}                     :: 'u_'   ::=      {{ com Atoms }}
+  | x                                       ::  :: Var         {{ com Variable }}
+  | K                                       ::  :: DCon        {{ com Data constructor }}
 
 %% Expressions
 E , A {{ tex T }}, B {{ tex S }}, k {{ tex \kappa }} :: 'es_' ::=       {{ com Expressions    }}
@@ -29,21 +34,22 @@ E , A {{ tex T }}, B {{ tex S }}, k {{ tex \kappa }} :: 'es_' ::=       {{ com E
   | castup [ A ] E         ::  :: CastUp     {{ com Cast up to type}}
   | castdown E             ::  :: CastDown   {{ com Cast down by reduction }}
   | mu x : A . E           ::  :: Mu         {{ com General recursion }}
-  | case E of </ pi => Ei' // i /> ::  :: Case     {{ com Case analysis }}
+  | case E1 of << p => E2 >> ::  :: Case     {{ com Case analysis }}
   | E1 [ x |-> E2 ]        :: M:: Sub        {{ com Substitution }}
   | ( E )                  :: M:: Parens     {{ com Parenthesized expression }}
   | let x : A = E2 in E1   :: M:: LetBinding {{ com Let binding }}
   | A1 -> A2               :: M:: FuncType   {{ com Function type }}
   | ( x : A1 ) -> A2       :: M:: DepFunType {{ com Dependent function type }}
-  | ( </ ui : ki // i /> ) :: M:: VectorSugar1
-  | \ </ ui : ki // i />   :: M:: VectorSugar2
-  | A -> D </ ui // i />   :: M:: VectorSugar3
-  | D </ ui // i /> -> A   :: M:: VectorSugar4
-  | \ x : D </ ui // i />  :: M:: VectorSugar5
+  | << E >>                :: M:: VectorForm
+  | case E of p => E'      :: M:: CaseSingle
+  | D @ << u >>            :: M:: Datatype
+  | ( << u : k >> ) -> A   :: M:: FuncTypeVec
+  | \ << u : k >> . E      :: M:: LamVec
+  | E1 [ << u |-> E2 >> ]  :: M:: SubstVec
 
 %% Contexts
 Gs {{ tex \Gamma }} :: 'Gs_' ::= {{ com Contexts }}
-  | empty          ::  :: Empty       {{ com Empty }}
+  | empty           ::  :: Empty       {{ com Empty }}
   | Gs , u : A      ::  :: Binding     {{ com Atom binding }}
 
 %%% Typing rules
@@ -60,6 +66,33 @@ by
 G |- A : s
 ----------- :: Var
 |- G, x : A
+
+defn G  |- pgm : A ::  :: pgmsrc :: 'Tpgm_' {{ com Program context }}
+by
+
+<< G0 |- decl : G' >>
+G = G0, <<G'>>
+G |- E : A
+--------------------- :: Pgm
+G0 |- (<<decl>>;E) :A
+
+
+defn G  |- decl : G' ::  :: declsrc :: 'Tdecl_' {{ com Datatype declaration }}
+by
+
+G |- <<k>> -> star : square
+<< G, D : <<k>> -> star, << u:k >> |- <<A>> -> D@<<u>> : star >>
+------------------------------------------------------------------ :: Data
+G |- (data D << u:k >> = << or K <<A>> >>) : (D : <<k>> -> star, << K : (<<u:k>>) -> <<A>> -> D@<<u>> >>)
+
+defn G  |- p => E : B -> A ::  :: patsrc :: 'Tpat_' {{ com Pattern typing }}
+by
+
+K : (<<u:k>>)-><<B>>->D@<<u>> elt G
+G,<<x:B[<< u |-> U >>]>> |- E:A
+--------------------------- :: Alt
+G |- K <<x:B[<< u |-> U >>]>> => E:D@<<U>>->A
+
 
 defn G  |- E : A ::  :: exprsrc :: 'TS_' {{ com Expression typing }}
 %{{ tex [[G]] \labeledjudge{E} [[E]] : [[A]] }}
@@ -104,4 +137,9 @@ G, x:A |- E:A
 G |- A:s
 ------------------- :: Mu
 G |- (mu x:A . E):A
+
+G |- E1 : B
+<< G |- p => E2 : B -> A >>
+---------------------------------- :: Case
+G |- case E1 of << p => E2 >> : A
 

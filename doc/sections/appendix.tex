@@ -30,14 +30,14 @@ See Figure \ref{fig:appendix:syntax}.
 \ottGs}
     \[
     \begin{array}{lllll}
-    \text{Syntactic Sugar} &&&& \\
-    \quad\text{Let binding} & \kw{let} \, \ottmv{x}  \ottsym{:}  T  \ottsym{=}  \ottnt{E_{{\mathrm{2}}}} \, \kw{in} \, \ottnt{E_{{\mathrm{1}}}} & \triangleq & \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  T  \ottsym{.}  \ottnt{E_{{\mathrm{1}}}}  \ottsym{)} \, \ottnt{E_{{\mathrm{2}}}} & \\
-    \quad\text{Function type} & T_{{\mathrm{1}}}  \rightarrow  T_{{\mathrm{2}}} & \triangleq & \Pi \, \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{.}  T_{{\mathrm{2}}} & x \not \in \FV(T_{{\mathrm{2}}}) \\
-    \quad\text{Dependent function type} & \ottsym{(}  \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{)}  \rightarrow  T_{{\mathrm{2}}} & \triangleq & \Pi \, \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{.}  T_{{\mathrm{2}}} & x \in \FV(T_{{\mathrm{2}}})\\
-    \quad\text{Record} & \kw{data} \, \ottmv{R} \, \ottcomp{\ottnt{u_{\ottmv{l}}}  \ottsym{:}  \kappa_{\ottmv{l}}}{\ottmv{l}} \, \ottsym{=}  \ottmv{K}  \ottsym{\{} \, \ottcomp{\ottmv{N_{\ottmv{i}}}  \ottsym{:}  T_{\ottmv{i}}}{\ottmv{i}} \, \ottsym{\}} & \triangleq &
-                    \kw{data} \, \ottmv{R} \, \ottcomp{\ottnt{u_{\ottmv{l}}}  \ottsym{:}  \kappa_{\ottmv{l}}}{\ottmv{l}} \, \ottsym{=}  \ottmv{K} \, \ottcomp{T_{\ottmv{i}}}{\ottmv{i}}; & \\
-                  &&&  \kw{let} ~\ottmv{N}_i : \ottsym{(} \, \ottcomp{\ottnt{u_{\ottmv{j}}}  \ottsym{:}  \kappa_{\ottmv{j}}}{\ottmv{j}} \, \ottsym{)}  \rightarrow  \ottmv{R} \, \ottcomp{\ottnt{u_{\ottmv{l}}}}{\ottmv{l}} \, \rightarrow  T_i = & \forall \ottmv{N}_i \\
-                  &&& \lambda \, \ottcomp{\ottnt{u_{\ottmv{j}}}  \ottsym{:}  \kappa_{\ottmv{j}}}{\ottmv{j}} . \lambda  \ottmv{y}  \ottsym{:}  \ottmv{R} \, \ottcomp{\ottnt{u_{\ottmv{l}}}}{\ottmv{l}} . \kw{case} \, \ottmv{y} \, \kw{of} \, \ottmv{K} \, \ottcomp{\ottmv{x_{\ottmv{i}}}  \ottsym{:}  T_{\ottmv{i}}}{\ottmv{i}}  \Rightarrow  \ottmv{x}_i~ \kw{in}  & \\
+     &&&& \text{Syntactic Sugar} \\
+     \kw{let} \, \ottmv{x}  \ottsym{:}  T  \ottsym{=}  \ottnt{E_{{\mathrm{2}}}} \, \kw{in} \, \ottnt{E_{{\mathrm{1}}}} & \triangleq & \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  T  \ottsym{.}  \ottnt{E_{{\mathrm{1}}}}  \ottsym{)} \, \ottnt{E_{{\mathrm{2}}}} && \quad\text{Let binding} \\
+     T_{{\mathrm{1}}}  \rightarrow  T_{{\mathrm{2}}} & \triangleq & \Pi \, \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{.}  T_{{\mathrm{2}}} & x \not \in \FV(T_{{\mathrm{2}}}) & \quad\text{Function type} \\
+     \ottsym{(}  \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{)}  \rightarrow  T_{{\mathrm{2}}} & \triangleq & \Pi \, \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{.}  T_{{\mathrm{2}}} & x \in \FV(T_{{\mathrm{2}}}) & \quad\text{Dependent function type} \\
+     \kw{data} \, \ottmv{R}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{=}  \ottmv{K}  \ottsym{\{}  \overline{  \ottmv{N}  \ottsym{:}  T  }  \ottsym{\}} & \triangleq &
+                    \kw{data} \, \ottmv{R}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{=}  \ottmv{K}  \overline{  T  }; && \quad\text{Record} \\
+                  &&  \kw{let} ~\ottmv{N}_i : \ottsym{(}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{)}  \rightarrow  \ottmv{R}    \overline{  \ottnt{u}  }  \rightarrow  T_i = & \forall i &  \\
+                  && \lambda  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{.}  \lambda  \ottmv{y}  \ottsym{:}  \ottmv{R} \, \overline{  \ottnt{u}  }  \ottsym{.}  \kw{case} \, \ottmv{y} \, \kw{of} \, \ottmv{K}  \overline{  \ottmv{x}  \ottsym{:}  T  }  \Rightarrow  \ottmv{x}_i~ \kw{in}  && \\
     \end{array}
     \]
 \caption{Syntax of source language}
@@ -45,8 +45,16 @@ See Figure \ref{fig:appendix:syntax}.
 \end{figure*}
 
 \subsection{Expression typing}
-\ottdefnctxsrc{}
+See Figure \ref{fig:appendix:typing}.
+\begin{figure*}[ht]
+$\;$\ottdefnctxsrc{}
+\ottdefnpgmsrc{}
+\ottdefndeclsrc{}
+\ottdefnpatsrc{}
 \ottdefnexprsrc{}
+\caption{Typing rules of source language}
+\label{fig:appendix:typing}
+\end{figure*}
 
 \section{Proofs about core language}
 \subsection{Properties}

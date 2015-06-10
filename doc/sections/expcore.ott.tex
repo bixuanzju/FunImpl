@@ -30,8 +30,7 @@
 
 \newcommand{\ottmetavars}{
 \ottmetavartabular{
- $ \ottmv{x} ,\, \ottmv{y} ,\, \ottmv{z} ,\, \ottmv{d} ,\, \ottmv{D} ,\, \ottmv{K} ,\, \ottmv{N} ,\, \ottmv{R} $ & \ottcom{Variable names} \\
- $ \ottmv{i} ,\, \ottmv{j} ,\, \ottmv{l} $ & \ottcom{Index variables} \\
+ $ \ottmv{x} ,\, \ottmv{y} ,\, \ottmv{z} ,\, \ottmv{d} ,\, \ottmv{D} ,\, \ottmv{K} ,\, \ottmv{N} ,\, \ottmv{R} ,\, \theta $ & \ottcom{Variable names} \\
 }}
 
 \newcommand{\otte}{
@@ -76,18 +75,18 @@
 
 \newcommand{\ottpgm}{
 \ottrulehead{\ottnt{pgm}}{::=}{\ottcom{Program}}\ottprodnewline
-\ottfirstprodline{|}{\ottcomp{\ottnt{decl_{\ottmv{i}}}}{\ottmv{i}} \, \ottsym{;}  \ottnt{E}}{}{}{}{\ottcom{Declarations}}}
+\ottfirstprodline{|}{\overline{  \ottnt{decl}  }  \ottsym{;}  \ottnt{E}}{}{}{}{\ottcom{Declarations}}}
 
 \newcommand{\ottdecl}{
 \ottrulehead{\ottnt{decl}}{::=}{\ottcom{Declarations}}\ottprodnewline
-\ottfirstprodline{|}{\kw{data} \, \ottmv{D} \, \ottcomp{\ottnt{u_{\ottmv{l}}}  \ottsym{:}  \kappa_{\ottmv{l}}}{\ottmv{l}} \, \ottsym{=} \, \ottcomp{\mid \, \ottmv{K_{\ottmv{i}}} \, \ottcomp{T_{\ottmv{i}\,\ottmv{j}}}{\ottmv{j}}}{\ottmv{i}}}{}{}{}{\ottcom{Datatype declaration}}}
+\ottfirstprodline{|}{\kw{data} \, \ottmv{D}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{=}  \overline{ \, \mid \, \ottmv{K}  \overline{  T  }  }}{}{}{}{\ottcom{Datatype declaration}}}
 
 \newcommand{\ottp}{
 \ottrulehead{\ottnt{p}}{::=}{\ottcom{Patterns}}\ottprodnewline
-\ottfirstprodline{|}{\ottmv{K} \, \ottcomp{\ottmv{x_{\ottmv{i}}}  \ottsym{:}  T_{\ottmv{i}}}{\ottmv{i}}}{}{}{}{\ottcom{Pattern}}}
+\ottfirstprodline{|}{\ottmv{K}  \overline{  \ottmv{x}  \ottsym{:}  T  }}{}{}{}{\ottcom{Pattern}}}
 
 \newcommand{\ottu}{
-\ottrulehead{\ottnt{u}}{::=}{\ottcom{Atoms}}\ottprodnewline
+\ottrulehead{\ottnt{u}  ,\ \upsilon}{::=}{\ottcom{Atoms}}\ottprodnewline
 \ottfirstprodline{|}{\ottmv{x}}{}{}{}{\ottcom{Variable}}\ottprodnewline
 \ottprodline{|}{\ottmv{K}}{}{}{}{\ottcom{Data constructor}}}
 
@@ -101,7 +100,7 @@
 \ottprodline{|}{\kw{cast}^{\uparrow} \, \ottsym{[}  T  \ottsym{]}  \ottnt{E}}{}{}{}{\ottcom{Cast up to type}}\ottprodnewline
 \ottprodline{|}{\kw{cast}_{\downarrow} \, \ottnt{E}}{}{}{}{\ottcom{Cast down by reduction}}\ottprodnewline
 \ottprodline{|}{\mu \, \ottmv{x}  \ottsym{:}  T  \ottsym{.}  \ottnt{E}}{}{}{}{\ottcom{General recursion}}\ottprodnewline
-\ottprodline{|}{\kw{case} \, \ottnt{E} \, \kw{of} \, \ottcomp{\ottnt{p_{\ottmv{i}}}  \Rightarrow  \ottnt{E'_{\ottmv{i}}}}{\ottmv{i}}}{}{}{}{\ottcom{Case analysis}}}
+\ottprodline{|}{\kw{case} \, \ottnt{E_{{\mathrm{1}}}} \, \kw{of} \, \overline{  \ottnt{p}  \Rightarrow  \ottnt{E_{{\mathrm{2}}}}  }}{}{}{}{\ottcom{Case analysis}}}
 
 \newcommand{\ottGs}{
 \ottrulehead{\Gamma}{::=}{\ottcom{Contexts}}\ottprodnewline
@@ -344,6 +343,46 @@
 \ottusedrule{\ottdruleCtxXXVar{}}
 \end{ottdefnblock}}
 
+%% defn pgmsrc
+\newcommand{\ottdruleTpgmXXPgm}[1]{\ottdrule[#1]{%
+{\overline{  \Gamma_{{\mathrm{0}}}  \vdash  \ottnt{decl}  \ottsym{:}  \Gamma'  }}%
+\\ {\Gamma  \ottsym{=}  \Gamma_{{\mathrm{0}}}  \ottsym{,}  \overline{  \Gamma'  }}%
+\\ {\Gamma  \vdash  \ottnt{E}  \ottsym{:}  T}%
+}{
+\Gamma_{{\mathrm{0}}}  \vdash  \ottsym{(}  \overline{  \ottnt{decl}  }  \ottsym{;}  \ottnt{E}  \ottsym{)}  \ottsym{:}  T}{%
+{\ottdrulename{Tpgm\_Pgm}}{}%
+}}
+
+\newcommand{\ottdefnpgmsrc}[1]{\begin{ottdefnblock}[#1]{$\Gamma  \vdash  \ottnt{pgm}  \ottsym{:}  T$}{\ottcom{Program context}}
+\ottusedrule{\ottdruleTpgmXXPgm{}}
+\end{ottdefnblock}}
+
+%% defn declsrc
+\newcommand{\ottdruleTdeclXXData}[1]{\ottdrule[#1]{%
+{\Gamma  \vdash  \overline{  \kappa  }  \rightarrow  \star  \ottsym{:}  \Box}%
+\\ {\overline{  \Gamma  \ottsym{,}  \ottmv{D}  \ottsym{:}  \overline{  \kappa  }  \rightarrow  \star  \ottsym{,}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \vdash  \overline{  T  }  \rightarrow  \ottmv{D}    \overline{  \ottnt{u}  }  \ottsym{:}  \star  }}%
+}{
+\Gamma  \vdash  \ottsym{(}  \kw{data} \, \ottmv{D}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{=}  \overline{ \, \mid \, \ottmv{K}  \overline{  T  }  }  \ottsym{)}  \ottsym{:}  \ottsym{(}  \ottmv{D}  \ottsym{:}  \overline{  \kappa  }  \rightarrow  \star  \ottsym{,}  \overline{  \ottmv{K}  \ottsym{:}  \ottsym{(}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{)}  \rightarrow  \overline{  T  }  \rightarrow  \ottmv{D}    \overline{  \ottnt{u}  }  }  \ottsym{)}}{%
+{\ottdrulename{Tdecl\_Data}}{}%
+}}
+
+\newcommand{\ottdefndeclsrc}[1]{\begin{ottdefnblock}[#1]{$\Gamma  \vdash  \ottnt{decl}  \ottsym{:}  \Gamma'$}{\ottcom{Datatype declaration}}
+\ottusedrule{\ottdruleTdeclXXData{}}
+\end{ottdefnblock}}
+
+%% defn patsrc
+\newcommand{\ottdruleTpatXXAlt}[1]{\ottdrule[#1]{%
+{\ottmv{K}  \ottsym{:}  \ottsym{(}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{)}  \rightarrow  \overline{  S  }  \rightarrow  \ottmv{D}    \overline{  \ottnt{u}  } \, \in \, \Gamma}%
+\\ {\Gamma  \ottsym{,}  \overline{  \ottmv{x}  \ottsym{:}  S  \ottsym{[}  \overline{  \ottnt{u}  \mapsto  \upsilon  }  \ottsym{]}  }  \vdash  \ottnt{E}  \ottsym{:}  T}%
+}{
+\Gamma  \vdash  \ottmv{K}  \overline{  \ottmv{x}  \ottsym{:}  S  \ottsym{[}  \overline{  \ottnt{u}  \mapsto  \upsilon  }  \ottsym{]}  }  \Rightarrow  \ottnt{E}  \ottsym{:}  \ottmv{D}    \overline{  \upsilon  }  \rightarrow  T}{%
+{\ottdrulename{Tpat\_Alt}}{}%
+}}
+
+\newcommand{\ottdefnpatsrc}[1]{\begin{ottdefnblock}[#1]{$\Gamma  \vdash  \ottnt{p}  \Rightarrow  \ottnt{E}  \ottsym{:}  S  \rightarrow  T$}{\ottcom{Pattern typing}}
+\ottusedrule{\ottdruleTpatXXAlt{}}
+\end{ottdefnblock}}
+
 %% defn exprsrc
 \newcommand{\ottdruleTSXXAx}[1]{\ottdrule[#1]{%
 }{
@@ -416,6 +455,15 @@
 {\ottdrulename{TS\_Mu}}{}%
 }}
 
+
+\newcommand{\ottdruleTSXXCase}[1]{\ottdrule[#1]{%
+{\Gamma  \vdash  \ottnt{E_{{\mathrm{1}}}}  \ottsym{:}  S}%
+\\ {\overline{  \Gamma  \vdash  \ottnt{p}  \Rightarrow  \ottnt{E_{{\mathrm{2}}}}  \ottsym{:}  S  \rightarrow  T  }}%
+}{
+\Gamma  \vdash  \kw{case} \, \ottnt{E_{{\mathrm{1}}}} \, \kw{of} \, \overline{  \ottnt{p}  \Rightarrow  \ottnt{E_{{\mathrm{2}}}}  }  \ottsym{:}  T}{%
+{\ottdrulename{TS\_Case}}{}%
+}}
+
 \newcommand{\ottdefnexprsrc}[1]{\begin{ottdefnblock}[#1]{$\Gamma  \vdash  \ottnt{E}  \ottsym{:}  T$}{\ottcom{Expression typing}}
 \ottusedrule{\ottdruleTSXXAx{}}
 \ottusedrule{\ottdruleTSXXVar{}}
@@ -425,11 +473,12 @@
 \ottusedrule{\ottdruleTSXXCastUp{}}
 \ottusedrule{\ottdruleTSXXCastDown{}}
 \ottusedrule{\ottdruleTSXXMu{}}
+\ottusedrule{\ottdruleTSXXCase{}}
 \end{ottdefnblock}}
 
 
 \newcommand{\ottdefnsLintSrc}{
-\ottdefnctxsrc{}\ottdefnexprsrc{}}
+\ottdefnctxsrc{}\ottdefnpgmsrc{}\ottdefndeclsrc{}\ottdefnpatsrc{}\ottdefnexprsrc{}}
 
 \newcommand{\ottdefnss}{
 \ottdefnsLintCore

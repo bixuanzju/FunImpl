@@ -6,8 +6,7 @@ embed {{ tex-preamble
 }}
 
 %%% Metavariables
-metavar x, y, z, d, D, K, N, R ::= {{ com Variable names }}
-indexvar i, j, l ::= {{ com Index variables }}
+metavar x, y, z, d, D, K, N, R, th {{ tex \theta }} ::= {{ com Variable names }}
 
 %%% Syntax
 grammar
@@ -48,7 +47,10 @@ G {{ tex \Gamma }} :: 'G_' ::= {{ com Contexts }}
   | G , x : t , G' :: M:: MixBind     {{ com Context-var binding }}
   | G [ x |-> e ]  :: M:: CtxSubst    {{ com Context substitution }}
   | G *            :: M:: CtxStar     {{ com Starred context }}
-  | G , u : A      :: M:: SrcBind     {{ com Atom binding }}
+  | << u : A >>    :: M:: SrcBindVec
+  | u : A          :: M:: SrcBind
+  | ( G )          :: M:: ParenCtx
+  | << G >>        :: M:: CtxVec
 
 %% Values
 v :: 'v_' ::=                               {{ com Values   }}
@@ -100,6 +102,9 @@ terminals :: 'terminals_' ::=
   | or       ::  :: or        {{ tex \mid }}
   | case     ::  :: case      {{ tex \kw{case} }}
   | of       ::  :: of        {{ tex \kw{of} }}
+  | <<       ::  :: vecl      {{ tex \overline{ }}
+  | >>       ::  :: vecr      {{ tex } }}
+  | @        ::  :: marker    {{ tex }}
 
 %%% Fomulae
 formula :: 'formula_' ::=
@@ -119,6 +124,8 @@ formula :: 'formula_' ::=
   | u : A elt G                        ::   :: context_inclusion_src
   | |- E : A                           ::   :: empty_context_src
   | E1 --> E2                          ::   :: reduction_src
+  | << formula >>                      ::   :: formula_vector
+  | E1 = E2                            ::   :: rewrite_src
 
 %%% Subrule
 subrules

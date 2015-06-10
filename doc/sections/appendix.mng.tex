@@ -29,14 +29,14 @@ See Figure \ref{fig:appendix:syntax}.
 \ottGs}
     \[
     \begin{array}{lllll}
-    \text{Syntactic Sugar} &&&& \\
-    \quad\text{Let binding} & [[let x : A = E2 in E1]] & \triangleq & [[(\x:A.E1)E2]] & \\
-    \quad\text{Function type} & [[A1->A2]] & \triangleq & [[Pi x:A1.A2]] & x \not \in \FV([[A2]]) \\
-    \quad\text{Dependent function type} & [[(x:A1)->A2]] & \triangleq & [[Pi x:A1.A2]] & x \in \FV([[A2]])\\
-    \quad\text{Record} & [[data R </ul:kl // l/> = K { </Ni:Ai // i/> }]] & \triangleq &
-                    [[data R </ul:kl //l/> = K </ Ai //i/>]]; & \\
-                  &&& [[let]]~[[N]]_i : [[ (</uj:kj//j/>) ]] [[->]] [[ R </ul//l/> -> A]]_i = & \forall [[N]]_i \\
-                  &&& [[\ </uj:kj //j/> ]] . [[ \ y : R </ul//l/> ]] . [[case y of K </xi:Ai//i/> => x]]_i~[[in]] & \\
+     &&&& \text{Syntactic Sugar} \\
+     [[let x : A = E2 in E1]] & \triangleq & [[(\x:A.E1)E2]] && \quad\text{Let binding} \\
+     [[A1->A2]] & \triangleq & [[Pi x:A1.A2]] & x \not \in \FV([[A2]]) & \quad\text{Function type} \\
+     [[(x:A1)->A2]] & \triangleq & [[Pi x:A1.A2]] & x \in \FV([[A2]]) & \quad\text{Dependent function type} \\
+     [[data R <<u:k>> = K { <<N:A>> }]] & \triangleq &
+                    [[data R <<u:k>> = K <<A>>]]; && \quad\text{Record} \\
+                  && [[let]]~[[N]]_i : [[ (<<u:k>>) -> R@<<u>> -> A]]_i = & \forall i &  \\
+                  && [[\ <<u:k>> . \ y : R <<u>> . case y of K <<x:A>> => x]]_i~[[in]] && \\
     \end{array}
     \]
 \caption{Syntax of source language}
@@ -44,8 +44,16 @@ See Figure \ref{fig:appendix:syntax}.
 \end{figure*}
 
 \subsection{Expression typing}
-\ottdefnctxsrc{}
+See Figure \ref{fig:appendix:typing}.
+\begin{figure*}[ht]
+$\;$\ottdefnctxsrc{}
+\ottdefnpgmsrc{}
+\ottdefndeclsrc{}
+\ottdefnpatsrc{}
 \ottdefnexprsrc{}
+\caption{Typing rules of source language}
+\label{fig:appendix:typing}
+\end{figure*}
 
 \section{Proofs about core language}
 \subsection{Properties}
