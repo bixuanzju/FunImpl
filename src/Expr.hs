@@ -140,8 +140,8 @@ reduct (U e) = reduct e >>= Right . U                     -- (R-unfold)
 reduct m@(Mu x _ t2) = Right $ subst x m t2               -- (R-Mu)
 -- surface language
 reduct (Add (Lit n) (Lit m)) = Right (Lit (n + m))
-reduct (Add n m) = reduct n >>= \n' -> Right (Add n' m)
 reduct (Add (Lit n) m) = reduct m >>= \m' -> Right $ Add (Lit n) m'
+reduct (Add n m) = reduct n >>= \n' -> Right (Add n' m)
 reduct e = Left $ "Not reducible: " ++ show e
 
 eval :: Expr -> Either String Expr
