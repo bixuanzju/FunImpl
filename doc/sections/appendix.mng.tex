@@ -1,5 +1,8 @@
 \section{Specification of core language}
 
+\newcommand{\FV}{\mathsf{FV}}
+\newcommand{\dom}{\mathsf{dom}}
+
 \subsection{Syntax}
 \gram{\otte\ottinterrule
         \otts\ottinterrule
@@ -12,10 +15,48 @@
 \ottdefnexpr{}
 \ottusedrule{\ottdruleTXXMu{}}
 
+\section{Specification of source language}
+\subsection{Syntax}
+See Figure \ref{fig:appendix:syntax}.
+\begin{figure*}[ht]
+\centering
+\gram{\ottpgm\ottinterrule
+\ottdecl\ottinterrule
+\ottu\ottinterrule
+\ottp\ottinterrule
+\otts\ottinterrule
+\ottE\ottinterrule
+\ottGs}
+    \[
+    \begin{array}{lllll}
+     &&&& \text{Syntactic Sugar} \\
+     [[let x : A = E2 in E1]] & \triangleq & [[(\x:A.E1)E2]] && \quad\text{Let binding} \\
+     [[A1->A2]] & \triangleq & [[Pi x:A1.A2]] & x \not \in \FV([[A2]]) & \quad\text{Function type} \\
+     [[(x:A1)->A2]] & \triangleq & [[Pi x:A1.A2]] & x \in \FV([[A2]]) & \quad\text{Dependent function type} \\
+     [[data R <<u:k>> = K { <<N:A>> }]] & \triangleq &
+                    [[data R <<u:k>> = K <<A>>]]; && \quad\text{Record} \\
+                  && [[let]]~[[N]]_i : [[ (<<u:k>>) -> R@<<u>> -> A]]_i = & \forall i &  \\
+                  && [[\ <<u:k>> . \ y : R <<u>> . case y of K <<x:A>> => x]]_i~[[in]] && \\
+    \end{array}
+    \]
+\caption{Syntax of source language}
+\label{fig:appendix:syntax}
+\end{figure*}
+
+\subsection{Expression typing}
+See Figure \ref{fig:appendix:typing}.
+\begin{figure*}[ht]
+$\;$\ottdefnctxsrc{}
+\ottdefnpgmsrc{}
+\ottdefndeclsrc{}
+\ottdefnpatsrc{}
+\ottdefnexprsrc{}
+\caption{Typing rules of source language}
+\label{fig:appendix:typing}
+\end{figure*}
+
 \section{Proofs about core language}
 \subsection{Properties}
-\newcommand{\FV}{\mathsf{FV}}
-\newcommand{\dom}{\mathsf{dom}}
 \begin{lem}[Free variable lemma]\label{lem:free}
     If $[[G |- e:t]]$, then $\FV(e) \subseteq \dom([[G]])$ and $\FV([[t]]) \subseteq \dom([[G]])$.
 \end{lem}
@@ -103,11 +144,11 @@ $\quad$
 \end{proof}
 
 \begin{lem}[Valid context optimization]\label{lem:wfcopt}
-	With a well-formed initial context $[[G]]$, the \ruleref{T\_Var} and \ruleref{T\_Weak} can be replaced by the following rule: \ottusedrule{\ottdruleTSXXVar{}}
+	With a well-formed initial context $[[G]]$, the \ruleref{T\_Var} and \ruleref{T\_Weak} can be replaced by the following rule: \ottusedrule{\ottdruleTXXVarEnv{}}
 \end{lem}
 
 \begin{proof}
-	By Lemma \ref{lem:wfc}, the context $[[G]]$ remains well-formed if it is initially well-formed. Thus, the well-formedness of $[[G]]$ keeps without checking by rule \ruleref{T\_Var} and \ruleref{T\_Weak}. By Lemma \ref{lem:gen}, if $[[G |- x:t]]$, then $[[x:t elt G]]$. Thus, in order to check the type of a variable $x$, it is sufficient to check its bound type $[[t]]$ in the context, which is simply rule \ruleref{TS\_Var}.
+	By Lemma \ref{lem:wfc}, the context $[[G]]$ remains well-formed if it is initially well-formed. Thus, the well-formedness of $[[G]]$ keeps without checking by rule \ruleref{T\_Var} and \ruleref{T\_Weak}. By Lemma \ref{lem:gen}, if $[[G |- x:t]]$, then $[[x:t elt G]]$. Thus, in order to check the type of a variable $x$, it is sufficient to check its bound type $[[t]]$ in the context, which is simply rule \ruleref{T\_VarEnv}.
 \end{proof}
 
 \subsection{Decidability of type checking}
