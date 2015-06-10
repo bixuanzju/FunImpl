@@ -162,7 +162,7 @@ lexer symbols keywords = lexer'
         lexSym cs [] = error $ "Cannot tokenize " ++ cs
 
 symbols = [".", "(", ")", ":", "\\", "*", "->", "=>", "[", "]", ";" , "=", "|", "&", "{", "}", ",", "+"]
-keywords = ["fold", "unfold", "pi", "mu", "lam", "beta", "let", "in", "data", "case", "of", "rec", "nat"]
+keywords = ["fold", "unfold", "pi", "mu", "beta", "let", "in", "data", "case", "of", "rec", "nat"]
 
 parseExpr = parser . lexer symbols keywords
 

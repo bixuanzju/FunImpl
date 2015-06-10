@@ -4,7 +4,7 @@ TARGETS   = overview.tex explicitcore.tex recursion.tex appendix.tex
 
 WARN_MSG = "%%% !!! WARNING: AUTO GENERATED. DO NOT MODIFY !!! %%%\n"
 
-all: $(TARGETS) $(OTT_FILES:.ott=.ott.tex)
+all: $(TARGETS) $(OTT_FILES:.ott=.ott.tex) lhs
 
 # Hack to use mathpartir for ott
 %.ott.tex: %.ott
@@ -16,6 +16,9 @@ all: $(TARGETS) $(OTT_FILES:.ott=.ott.tex)
 %.tex: %.mng.tex $(OTT_FILES)
 	ott $(OTT_OPTS) -tex_filter $< $@ $(OTT_FILES)
 	@perl -pi -e 'print $(WARN_MSG) if $$. == 1' $@
+
+lhs: examples.lhs
+	lhs2tex -o examples.tex examples.lhs --poly
 
 .PHONY: all clean
 clean:

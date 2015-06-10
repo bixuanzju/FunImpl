@@ -27,3 +27,4 @@ doc/_region_.tex
 doc/*.fdb_latexmk
 /doc/sections/auto/
 .texpadtmp/
+*.ptb
