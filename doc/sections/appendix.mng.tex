@@ -55,6 +55,21 @@ $\;$\ottdefnctxsrc{}
 \label{fig:appendix:typing}
 \end{figure*}
 
+\subsection{Translation to the core}
+See Figure \ref{fig:appendix:translate}.
+\begin{figure*}[ht]
+$\,$
+\ottdefnpgmtrans{}
+\ottdefndecltrans{}
+\begin{align*}
+[[ e := & let D : <<T>> -> star = \ <<u:T>> . mu X : star . (aa:star) -> << (<<t>>[D@<<u>> |-> X] -> aa) >> -> aa in \\\let Ki : (<<u:T>>) -> <<t>> -> D@<<u>> = \ <<u:T>> . \<<x:t>> . castup [D@<<u>>] (\aa:star.\<<bb : <<t>> -> aa >> . bbi <<x>>) in @@ ]]
+\end{align*}
+\ottdefnpattrans{}
+\ottdefnexprtrans{}
+\caption{Translation rules of source language}
+\label{fig:appendix:translate}
+\end{figure*}
+
 \section{Proofs about core language}
 \subsection{Properties}
 \begin{lem}[Free variable lemma]\label{lem:free}

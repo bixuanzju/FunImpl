@@ -155,7 +155,7 @@ Next we define the evaluator for our lambda calculus. One advantage of PHOAS is 
 \>[6]{}\mid \Varid{num}\;(\Varid{n}\mathbin{:}\Varid{nat})\Rightarrow (\Varid{vi}\;\Varid{n}){}\<[E]%
 \\
 \>[4]{}\hsindent{2}{}\<[6]%
-\>[6]{}\mid \Varid{lam}\;(\Varid{f}\mathbin{:}\Varid{value}\mathbin{→}\Varid{plambda}\;\Varid{value})\Rightarrow {}\<[E]%
+\>[6]{}\mid \Varid{lam}\;(\Varid{f}\mathbin{:}\Varid{value}\to \Varid{plambda}\;\Varid{value})\Rightarrow {}\<[E]%
 \\
 \>[6]{}\hsindent{4}{}\<[10]%
 \>[10]{}\Varid{vf}\;(\lambda \Varid{x}\mathbin{:}\Varid{value}\mathbin{\circ}\Varid{ev}\;(\Varid{f}\;\Varid{x})){}\<[E]%
@@ -170,7 +170,7 @@ Next we define the evaluator for our lambda calculus. One advantage of PHOAS is 
 \>[11]{}\Varid{vi}\;(\Varid{n}\mathbin{:}\Varid{nat})\Rightarrow \Varid{vi}\;\Varid{n}\mbox{\onelinecomment  absurd value}{}\<[E]%
 \\
 \>[6]{}\hsindent{3}{}\<[9]%
-\>[9]{}\mid \Varid{vf}\;(\Varid{f}\mathbin{:}\Varid{value}\mathbin{→}\Varid{value})\Rightarrow \Varid{f}\;(\Varid{ev}\;\Varid{b}){}\<[E]%
+\>[9]{}\mid \Varid{vf}\;(\Varid{f}\mathbin{:}\Varid{value}\to \Varid{value})\Rightarrow \Varid{f}\;(\Varid{ev}\;\Varid{b}){}\<[E]%
 \\
 \>[B]{}\mathbf{in}{}\<[E]%
 \ColumnHook
