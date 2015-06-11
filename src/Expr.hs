@@ -142,6 +142,7 @@ reduct m@(Mu x _ t2) = Right $ subst x m t2               -- (R-Mu)
 reduct (Add (Lit n) (Lit m)) = Right (Lit (n + m))
 reduct (Add (Lit n) m) = reduct m >>= \m' -> Right $ Add (Lit n) m'
 reduct (Add n m) = reduct n >>= \n' -> Right (Add n' m)
+reduct Nat = return Nat
 reduct e = Left $ "Not reducible: " ++ show e
 
 eval :: Expr -> Either String Expr

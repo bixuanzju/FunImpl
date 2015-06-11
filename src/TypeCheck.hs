@@ -84,7 +84,7 @@ tcheck env (Case e alts) = do
       let k = constrName constr
       kt <- tcheck env (Var k)
 
-      -- check patterns, quit hacky
+      -- check patterns, quite hacky
       let tcApp = foldl App (Var "dummy$") (atys ++ map (Var . fst) params)
       typ <- tcheck (("dummy$", kt) : params ++ env) tcApp
       unless (alphaEq typ dv) $ throwError "Bad patterns"
