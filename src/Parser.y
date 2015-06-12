@@ -51,6 +51,8 @@ import Syntax
 %right '=>'
 %right '->'
 %right ']'
+%right ONEALT
+%right '|'
 %left '+'
 %left UNFOLD
 
@@ -122,10 +124,11 @@ ftype : '(' expr ')'                            { $2 }
       | nat                                     { Nat }
       | id                                      { Var $1 }
 
-alts : alt                                      { [$1] }
+alts : alt %prec ONEALT                         { [$1] }
      | alt '|' alts                             { $1:$3 }
 
 alt : pattern '=>' expr                         { Alt $1 $3 }
+    | '(' alt ')'                               { $2 }
 
 pattern : id ty_param_list_or_empty             { PConstr (Constructor $1 []) $2 }
 
