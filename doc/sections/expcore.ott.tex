@@ -576,7 +576,7 @@
 
 \newcommand{\ottdruleTRXXCastDown}[1]{\ottdrule[#1]{%
 {\Gamma  \vdash  \ottnt{E}  \ottsym{:}  T_{{\mathrm{1}}}  \rightsquigarrow  \ottnt{e}}%
-\\ {\Gamma  \vdash  T_{{\mathrm{2}}}  \ottsym{:}  \ottnt{s}}%
+\\ {\Gamma  \vdash  T_{{\mathrm{2}}}  \ottsym{:}  \ottnt{s}  \rightsquigarrow  \tau_{{\mathrm{2}}}}%
 \\ {T_{{\mathrm{1}}}  \longrightarrow  T_{{\mathrm{2}}}}%
 }{
 \Gamma  \vdash  \ottsym{(}  \kw{cast}_{\downarrow} \, \ottnt{E}  \ottsym{)}  \ottsym{:}  T_{{\mathrm{2}}}  \rightsquigarrow  \kw{cast}_{\downarrow} \, \ottnt{e}}{%
