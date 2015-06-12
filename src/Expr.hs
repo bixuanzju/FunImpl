@@ -20,6 +20,7 @@ subst v x = sub
         sub Nat = Nat
         sub (Lit n) = Lit n
         sub (Add e1 e2) = Add (sub e1) (sub e2)
+        sub (Case e alts) = Case (sub e) (map subAlt alts)
         abstr con i t e
           | v == i = con i (sub t) e -- type is also expression, need substitution
           | i `elem` fvx =
@@ -34,6 +35,8 @@ subst v x = sub
                      else i'
                 vars = fvx ++ freeVars e
         fvx = freeVars x
+        subAlt :: Alt -> Alt
+        subAlt (Alt p e) = Alt p (sub e)
 
 substVar :: Sym -> Sym -> Expr -> Expr
 substVar s s' = subst s (Var s')
@@ -91,7 +94,7 @@ desugar (Mu n t1 t2) = Mu n (desugar t1) (desugar t2)
 desugar (F t e) = F (desugar t) (desugar e)
 desugar (U t) = U (desugar t)
 desugar e@(Kind _) = e
-desugar (Let n t e1 e2) = App (Lam n t (desugar e2)) (desugar e1)
+desugar (Let n _ e1 e2) = subst n (desugar e1) (desugar e2)
 desugar (Rec (RB n params field) e) =
   let selNames = map fst . selector $ field
       taus = map snd . selector $ field

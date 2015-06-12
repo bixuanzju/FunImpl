@@ -59,9 +59,9 @@ main = runInputT defaultSettings (loop [] [])
         ":t" -> processCMD progm $
           \xs -> do
             if length xs == 1
-              then case trans env . desugar . head $ xs of
-                Left err       -> outputStrLn err
-                Right (typ, _) -> outputStrLn ("\n--- Typing result ---\n\n" ++ show typ ++ "\n")
+              then case trans env (desugar . head $ xs) >>= \(_, transE) -> tcheck env (desugar transE) of
+                Left err  -> outputStrLn err
+                Right typ -> outputStrLn ("\n--- Typing result ---\n\n" ++ show typ ++ "\n")
               else outputStrLn "Command parser error - need one expression!"
             loop benv env
         -- ":teq" -> processCMD progm $

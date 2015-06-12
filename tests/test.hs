@@ -75,14 +75,14 @@ datatypeTest :: TestTree
 datatypeTest =
   testGroup "Datatype check"
     [ testCase "list of natural numbers" $
-      tcheck [] listtest @?= Right (Pi "x" (App (Var "list") Nat) (App (Var "list") Nat))
+      (trans [] (desugar listtest) >>= (\(t, _) -> return t)) @?= Right (Pi "x" (App (Var "list") Nat) (App (Var "list") Nat))
     ]
 
 patternTest :: TestTree
 patternTest =
   testGroup "Pattern matching check"
     [testCase "case analysis" $
-      tcheck [] pattest @?= Right (Pi "x" (App (Var "list") Nat) Nat)]
+      (trans [] (desugar pattest) >>= (\(t, _) -> return t)) @?= Right (Pi "x" (App (Var "list") Nat) Nat)]
 
 tcheckTest :: TestTree
 tcheckTest =
