@@ -89,7 +89,7 @@ tcheckTest =
   testGroup "Type check"
     [testCase "type depend on term" $
       tcheck env1 (Pi "" (Var "a") (Kind Star)) @?=
-      Right (Kind Box), testCase "A simple term with a type that depends on a term" $
+      Right (Kind Star), testCase "A simple term with a type that depends on a term" $
                           tcheck env1 (Lam "x" (Var "a") (Var "a")) @?=
                           Right (Pi "x" (Var "a") (Kind Star))]
 
