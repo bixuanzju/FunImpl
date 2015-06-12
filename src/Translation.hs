@@ -11,7 +11,7 @@ import TypeCheck
 import Utils
 
 trans :: Env -> Expr -> TC (Type, Expr)
-trans _ (Kind Star) = return (Kind Box, Kind Star)
+trans _ (Kind Star) = return (Kind Star, Kind Star)
 trans env (Var s) = findVar env s >>= \t -> return (t, Var s)
 trans env (App f a) = do
   (tf, f') <- trans env f

@@ -74,6 +74,7 @@ expr : '\\' id ':' expr '.' expr                { Lam $2 $4 $6 }
      | case expr of alts                        { Case $2 $4}
      -- surface language
      | expr '+' expr                            { Add $1 $3 }
+     | '(' id ':' expr ')' '->' expr            { Pi $2 $4 $7 }
      | expr '->' expr                           { Pi "" $1 $3 }
      | let id ':' expr '=' expr in expr         { Let $2 $4 $6 $8 }
      | aexp                                     { $1 }
@@ -146,13 +147,14 @@ lexer symbols keywords = lexer'
           | isSpace c = lexer' cs
           | isDigit c = lexNum s
           | isAlpha c = lexVar s
+          | c == '\'' = lexVar s
           | otherwise = lexSym s symbols
 
         lexNum cs = TokenDigits (read num) : lexer' rest
           where (num, rest) = span isDigit cs
 
         lexVar cs = token : lexer' rest
-          where (var, rest) = span isAlpha cs
+          where (var, rest) = span (\x -> isAlpha x || x == '\'') cs
                 token = if var `elem` keywords
                         then TokenKeyword var
                         else TokenIdent var

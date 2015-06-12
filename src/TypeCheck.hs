@@ -24,7 +24,7 @@ findVar r s =
    Nothing -> throwError $ "Cannot find variable " ++ s
 
 tcheck :: Env -> Expr -> TC Type
-tcheck _ (Kind Star) = return $ Kind Box -- (T_AX)
+tcheck _ (Kind Star) = return $ Kind Star -- (T_AX)
 tcheck env (Var s) = findVar env s       -- (T_VAR and T_WEAK)
 tcheck env (App f a) =                   -- (T_APP)
   do tf <- tcheck env f
@@ -114,7 +114,7 @@ tcdatatypes env (DB tc tca constrs) = do
   -- check type constructor
   let tct = chainType (Kind Star) . map snd $ tca
   tcs <- tcheck env tct
-  unless (tcs == Kind Box) $ throwError "Bad type constructor arguments"
+  unless (tcs == Kind Star) $ throwError "Bad type constructor arguments"
 
   -- check data constructors
   let du = foldl App (Var tc) (map (Var . fst) tca)
