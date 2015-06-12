@@ -39,6 +39,7 @@ e, t {{ tex \tau }}, T {{ tex \sigma }} :: 'e_' ::=       {{ com Expressions    
   | \\\ e                     :: M:: LineHack
   | & e                       :: M:: AlignHack
   | @@                        :: M:: DummyExpr
+  | let x * : t = e2 in e1    :: M:: StarBinding
 
 %% Literals
 lit :: 'lit_' ::=

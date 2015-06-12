@@ -1,10 +1,10 @@
 OTT_FILES = expcore.ott srclang.ott
 OTT_OPTS  = -tex_show_meta false
-TARGETS   = overview.tex explicitcore.tex recursion.tex appendix.tex
+TARGETS   = overview.tex explicitcore.tex recursion.tex appendix.tex examples.tex
 
 WARN_MSG = "%%% !!! WARNING: AUTO GENERATED. DO NOT MODIFY !!! %%%\n"
 
-all: $(TARGETS) expcore.ott.tex lhs
+all: $(TARGETS) expcore.ott.tex
 
 # Hack to use mathpartir for ott
 expcore.ott.tex: $(OTT_FILES)
@@ -13,13 +13,13 @@ expcore.ott.tex: $(OTT_FILES)
 	@perl -pi -e 's/^\\ottpremise/\\\\ /g' $@
 	@perl -pi -e 's/^(.*\\ottlinebreak.*)$$/\\\\$$1/g' $@
 
+examples.tex: examples.lhs
+	lhs2tex -o examples.tex examples.lhs --poly
+
 %.tex: %.mng.tex $(OTT_FILES)
 	ott $(OTT_OPTS) -tex_filter $< $@ $(OTT_FILES)
 	@perl -pi -e 'print $(WARN_MSG) if $$. == 1' $@
 
-lhs: examples.lhs
-	lhs2tex -o examples.tex examples.lhs --poly
-
-.PHONY: all clean
+.PHONY: all clean lhs
 clean:
 	rm -f *.ott.tex $(TARGETS)

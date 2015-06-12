@@ -62,7 +62,7 @@ $\,$
 \ottdefnpgmtrans{}
 \ottdefndecltrans{}
 \begin{align*}
-[[ e := & let D : <<T>> -> star = \ <<u:T>> . mu X : star . (aa:star) -> << (<<t>>[D@<<u>> |-> X] -> aa) >> -> aa in \\\let Ki : (<<u:T>>) -> <<t>> -> D@<<u>> = \ <<u:T>> . \<<x:t>> . castup [D@<<u>>] (\aa:star.\<<bb : <<t>> -> aa >> . bbi <<x>>) in @@ ]]
+[[ e := & let D* : star = mu X : star . (aa:star) -> << (<<t>>[D@<<u>> |-> X] -> aa) >> -> aa in \\\let Ki : (<<u:T>>) -> <<t>> -> D* = \ <<u:T>> . \<<x:t>> . castup [D*] (\aa:star.\<<bb : <<t>>[D@<<u>> |-> D*] -> aa >> . bbi <<x>>) in @@ ]]
 \end{align*}
 \ottdefnpattrans{}
 \ottdefnexprtrans{}
