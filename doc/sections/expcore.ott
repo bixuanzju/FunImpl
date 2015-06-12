@@ -6,27 +6,39 @@ embed {{ tex-preamble
 }}
 
 %%% Metavariables
-metavar x, y, z, d, D, K, N, R, th {{ tex \theta }} ::= {{ com Variable names }}
+metavar x, y, z, d, X, D, K, N, R, th {{ tex \theta }}, aa {{ tex \alpha }}, bb {{ tex b }} ::= {{ com Variable names }}
+indexvar i, j ::= {{ com Index variables }}
 
 %%% Syntax
 grammar
 
 %% Expressions
 e, t {{ tex \tau }}, T {{ tex \sigma }} :: 'e_' ::=       {{ com Expressions    }}
-  | x                    ::  :: Var        {{ com Variable }}
-  | s                    ::  :: Sort       {{ com Sort }}
-  | e1 e2                ::  :: App        {{ com Application }}
-  | \ x : t . e          ::  :: Lam        {{ com Abstraction }}
-  | Pi x : t1 . t2       ::  :: Pi         {{ com Product }}
-  | castup [ t ] e       ::  :: CastUp     {{ com Cast up to type}}
-  | castdown e           ::  :: CastDown   {{ com Cast down by reduction }}
-  | mu x : t . e         ::  :: Mu         {{ com General recursion }}
-  | e1 [ x |-> e2 ]      :: M:: Sub        {{ com Substitution }}
-  | ( e )                :: M:: Parens     {{ com Parenthesized expression }}
-  | let x : t = e2 in e1 :: M:: LetBinding {{ com Let binding }}
-  | t1 -> t2             :: M:: FuncType   {{ com Function type }}
-  | lit                  :: M:: Literals   {{ com Literals }}
-  | e *                  :: M:: Starred    {{ com Starred expression }}
+  | x                         ::  :: Var        {{ com Variable }}
+  | s                         ::  :: Sort       {{ com Sort }}
+  | e1 e2                     ::  :: App        {{ com Application }}
+  | \ x : t . e               ::  :: Lam        {{ com Abstraction }}
+  | Pi x : t1 . t2            ::  :: Pi         {{ com Product }}
+  | castup [ t ] e            ::  :: CastUp     {{ com Cast up to type}}
+  | castdown e                ::  :: CastDown   {{ com Cast down by reduction }}
+  | mu x : t . e              ::  :: Mu         {{ com General recursion }}
+  | e1 [ x |-> e2 ]           :: M:: Sub        {{ com Substitution }}
+  | ( e )                     :: M:: Parens     {{ com Parenthesized expression }}
+  | let x : t = e2 in e1      :: M:: LetBinding {{ com Let binding }}
+  | t1 -> t2                  :: M:: FuncType   {{ com Function type }}
+  | lit                       :: M:: Literals   {{ com Literals }}
+  | e *                       :: M:: Starred    {{ com Starred expression }}
+  | << e >>                   :: M:: ExprVec
+  | e1 (+) e2                 :: M:: ExprUnion
+  | ( << u : t1 >> ) -> t2    :: M:: FuncTypeVec
+  | ( u : t1 ) -> t2          :: M:: DepFuncType
+  | \ << u : t >> . e         :: M:: LamVec
+  | e1 [ << e2 |-> t2 >> ]    :: M:: SubstVec
+  | D @ << u >>               :: M:: Datatype
+  | e1 [ D @ << u >> |-> e3 ] :: M:: ExprSubst
+  | \\\ e                     :: M:: LineHack
+  | & e                       :: M:: AlignHack
+  | @@                        :: M:: DummyExpr
 
 %% Literals
 lit :: 'lit_' ::=
@@ -105,6 +117,12 @@ terminals :: 'terminals_' ::=
   | <<       ::  :: vecl      {{ tex \overline{ }}
   | >>       ::  :: vecr      {{ tex } }}
   | @        ::  :: marker    {{ tex }}
+  | ~>       ::  :: transto   {{ tex \rightsquigarrow }}
+  | (+)      ::  :: union     {{ tex \uplus }}
+  | :=       ::  :: define    {{ tex \triangleq ~ }}
+  | &        ::  :: align     {{ tex & }}
+  | \\\      ::  :: newline   {{ tex \\ & }}
+  | @@       ::  :: dummy     {{ tex }}
 
 %%% Fomulae
 formula :: 'formula_' ::=
@@ -126,6 +144,7 @@ formula :: 'formula_' ::=
   | E1 --> E2                          ::   :: reduction_src
   | << formula >>                      ::   :: formula_vector
   | E1 = E2                            ::   :: rewrite_src
+  | e1 := e2                           ::   :: definition
 
 %%% Subrule
 subrules
