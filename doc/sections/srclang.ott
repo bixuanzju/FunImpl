@@ -27,7 +27,7 @@ u, U {{ tex \upsilon }}                     :: 'u_'   ::=      {{ com Atoms }}
 %% Expressions
 E , A {{ tex T }}, B {{ tex S }}, k {{ tex \kappa }} :: 'es_' ::=       {{ com Expressions    }}
   | u                      ::  :: Atom       {{ com Atom }}
-  | s                      ::  :: Sort       {{ com Sort }}
+  | star                   ::  :: Star       {{ com Type of types }}
   | E1 E2                  ::  :: App        {{ com Application }}
   | \ x : A . E            ::  :: Lam        {{ com Abstraction }}
   | Pi x : A1 . A2         ::  :: Pi         {{ com Product }}
@@ -46,6 +46,7 @@ E , A {{ tex T }}, B {{ tex S }}, k {{ tex \kappa }} :: 'es_' ::=       {{ com E
   | ( << u : k >> ) -> A   :: M:: FuncTypeVec
   | \ << u : k >> . E      :: M:: LamVec
   | E1 [ << u |-> E2 >> ]  :: M:: SubstVec
+  | s                      :: M:: Sort       {{ com Sort }}
 
 %% Contexts
 Gs {{ tex \Gamma }} :: 'Gs_' ::= {{ com Contexts }}
@@ -100,7 +101,7 @@ defn G  |- E : A ::  :: exprsrc :: 'TS_' {{ com Expression typing }}
 by
 
 ---------------------- :: Ax
-empty |- star : square
+empty |- star : star
 
 |- G
 x:A elt G
@@ -179,7 +180,7 @@ defn G  |- E : A ~> e ::  :: exprtrans :: 'TR_' {{ com Expression translation }}
 by
 
 ------------------------------ :: Ax
-empty |- star : square ~> star
+empty |- star : star ~> star
 
 |- G
 x:A elt G
