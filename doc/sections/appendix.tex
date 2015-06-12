@@ -6,7 +6,7 @@
 
 \subsection{Syntax}
 \gram{\otte\ottinterrule
-        \otts\ottinterrule
+        % \otts\ottinterrule % for sorts
         \ottG\ottinterrule
         \ottv}
 
@@ -25,13 +25,13 @@ See Figure \ref{fig:appendix:syntax}.
 \ottdecl\ottinterrule
 \ottu\ottinterrule
 \ottp\ottinterrule
-\otts\ottinterrule
+% \otts\ottinterrule % for sorts
 \ottE\ottinterrule
 \ottGs}
     \[
     \begin{array}{lllll}
      &&&& \text{Syntactic Sugar} \\
-     \kw{let} \, \ottmv{x}  \ottsym{:}  T  \ottsym{=}  \ottnt{E_{{\mathrm{2}}}} \, \kw{in} \, \ottnt{E_{{\mathrm{1}}}} & \triangleq & \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  T  \ottsym{.}  \ottnt{E_{{\mathrm{1}}}}  \ottsym{)} \, \ottnt{E_{{\mathrm{2}}}} && \quad\text{Let binding} \\
+     \kw{let} \, \ottmv{x}  \ottsym{:}  T  \ottsym{=}  \ottnt{E_{{\mathrm{2}}}} \, \kw{in} \, \ottnt{E_{{\mathrm{1}}}} & \triangleq & \ottnt{E_{{\mathrm{1}}}}  \ottsym{[}  \ottmv{x}  \mapsto  \ottnt{E_{{\mathrm{2}}}}  \ottsym{]} && \quad\text{Let binding} \\
      T_{{\mathrm{1}}}  \rightarrow  T_{{\mathrm{2}}} & \triangleq & \Pi \, \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{.}  T_{{\mathrm{2}}} & x \not \in \FV(T_{{\mathrm{2}}}) & \quad\text{Function type} \\
      \ottsym{(}  \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{)}  \rightarrow  T_{{\mathrm{2}}} & \triangleq & \Pi \, \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{.}  T_{{\mathrm{2}}} & x \in \FV(T_{{\mathrm{2}}}) & \quad\text{Dependent function type} \\
      \kw{data} \, \ottmv{R}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{=}  \ottmv{K}  \ottsym{\{}  \overline{  \ottmv{N}  \ottsym{:}  T  }  \ottsym{\}} & \triangleq &
@@ -63,7 +63,7 @@ $\,$
 \ottdefnpgmtrans{}
 \ottdefndecltrans{}
 \begin{align*}
-\ottnt{e}  \triangleq ~  &  \kw{let} \, \ottmv{D}  \ottsym{:}  \overline{  \sigma  }  \rightarrow  \star  \ottsym{=}  \lambda  \overline{  \ottnt{u}  \ottsym{:}  \sigma  }  \ottsym{.}  \mu \, \ottmv{X}  \ottsym{:}  \star  \ottsym{.}  \ottsym{(}  \alpha  \ottsym{:}  \star  \ottsym{)}  \rightarrow  \overline{  \ottsym{(}  \overline{  \tau  }  \ottsym{[}  \ottmv{D}    \overline{  \ottnt{u}  }  \mapsto  \ottmv{X}  \ottsym{]}  \rightarrow  \alpha  \ottsym{)}  }  \rightarrow  \alpha \, \kw{in} \, \\ &  \kw{let} \, \ottmv{K_{\ottmv{i}}}  \ottsym{:}  \ottsym{(}  \overline{  \ottnt{u}  \ottsym{:}  \sigma  }  \ottsym{)}  \rightarrow  \overline{  \tau  }  \rightarrow  \ottmv{D}    \overline{  \ottnt{u}  }  \ottsym{=}  \lambda  \overline{  \ottnt{u}  \ottsym{:}  \sigma  }  \ottsym{.}  \lambda  \overline{  \ottmv{x}  \ottsym{:}  \tau  }  \ottsym{.}  \kw{cast}^{\uparrow} \, \ottsym{[}  \ottmv{D}    \overline{  \ottnt{u}  }  \ottsym{]}  \ottsym{(}  \lambda  \alpha  \ottsym{:}  \star  \ottsym{.}  \lambda  \overline{  b  \ottsym{:}  \overline{  \tau  }  \rightarrow  \alpha  }  \ottsym{.}  b_{\ottmv{i}} \, \overline{  \ottmv{x}  }  \ottsym{)} \, \kw{in} \, 
+\ottnt{e}  \triangleq ~  &  \kw{let} \, \ottmv{D}  ^{*}  \ottsym{:}  \star  \ottsym{=}  \mu \, \ottmv{X}  \ottsym{:}  \star  \ottsym{.}  \ottsym{(}  \alpha  \ottsym{:}  \star  \ottsym{)}  \rightarrow  \overline{  \ottsym{(}  \overline{  \tau  }  \ottsym{[}  \ottmv{D}    \overline{  \ottnt{u}  }  \mapsto  \ottmv{X}  \ottsym{]}  \rightarrow  \alpha  \ottsym{)}  }  \rightarrow  \alpha \, \kw{in} \, \\ &  \kw{let} \, \ottmv{K_{\ottmv{i}}}  \ottsym{:}  \ottsym{(}  \overline{  \ottnt{u}  \ottsym{:}  \sigma  }  \ottsym{)}  \rightarrow  \overline{  \tau  }  \rightarrow  \ottmv{D}  ^{*}  \ottsym{=}  \lambda  \overline{  \ottnt{u}  \ottsym{:}  \sigma  }  \ottsym{.}  \lambda  \overline{  \ottmv{x}  \ottsym{:}  \tau  }  \ottsym{.}  \kw{cast}^{\uparrow} \, \ottsym{[}  \ottmv{D}  ^{*}  \ottsym{]}  \ottsym{(}  \lambda  \alpha  \ottsym{:}  \star  \ottsym{.}  \lambda  \overline{  b  \ottsym{:}  \overline{  \tau  }  \ottsym{[}  \ottmv{D}    \overline{  \ottnt{u}  }  \mapsto  \ottmv{D}  ^{*}  \ottsym{]}  \rightarrow  \alpha  }  \ottsym{.}  b_{\ottmv{i}} \, \overline{  \ottmv{x}  }  \ottsym{)} \, \kw{in} \, 
 \end{align*}
 \ottdefnpattrans{}
 \ottdefnexprtrans{}
@@ -80,7 +80,7 @@ $\,$
 \begin{proof}
     By induction on the derivation of $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$. We only treat cases \ruleref{T\_Mu}, \ruleref{T\_CastUp} and \ruleref{T\_CastDown} (since proofs of other cases are the same as \cc \cite{handbook}):
     \begin{description}
-        \item[Case \ruleref{T\_Mu}:] From premises of $\Gamma  \vdash  \ottsym{(}  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}  \ottsym{)}  \ottsym{:}  \tau$, by induction hypothesis, we have $\FV(e_1) \subseteq \dom(\Gamma) \cup \{x\}$ and $\FV(\tau) \subseteq \dom(\Gamma)$. Thus the result follows by $\FV(\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}})=\FV(e_1) \setminus \{x\} \subseteq \dom(\Gamma)$ and $\FV(\tau) \subseteq \dom(\Gamma)$.
+        \item[Case \ruleref{T\_Mu}:] From premises of $\Gamma  \vdash  \ottsym{(}  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}  \ottsym{)}  \ottsym{:}  \tau$, by induction hypothesis, we have $\FV(e_1) \subseteq \dom(\Gamma) \cup \{\ottmv{x}\}$ and $\FV(\tau) \subseteq \dom(\Gamma)$. Thus the result follows by $\FV(\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}})=\FV(e_1) \setminus \{\ottmv{x}\} \subseteq \dom(\Gamma)$ and $\FV(\tau) \subseteq \dom(\Gamma)$.
         \item[Case \ruleref{T\_CastUp}:] Since $\FV(\kw{cast}^{\uparrow} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e_{{\mathrm{1}}}})=\FV(\ottnt{e_{{\mathrm{1}}}})$, the result follows directly by the induction hypothesis.
         \item[Case \ruleref{T\_CastDown}:] Since $\FV(\kw{cast}_{\downarrow} \, \ottnt{e_{{\mathrm{1}}}})=\FV(\ottnt{e_{{\mathrm{1}}}})$, the result follows directly by the induction hypothesis.
     \end{description}
@@ -93,33 +93,34 @@ $\,$
 \begin{proof}
     By induction on the derivation of $\Gamma_{{\mathrm{1}}}  \ottsym{,}  \ottmv{x}  \ottsym{:}  \sigma  \ottsym{,}  \Gamma_{{\mathrm{2}}}  \vdash  \ottnt{e_{{\mathrm{1}}}}  \ottsym{:}  \tau$. Let $\ottnt{e}  ^{*}  \equiv  \ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \ottnt{e_{{\mathrm{2}}}}  \ottsym{]}$. Then the result can be written as $\Gamma_{{\mathrm{1}}}  \ottsym{,}  \Gamma_{{\mathrm{2}}}  ^{*}  \vdash  \ottnt{e_{{\mathrm{1}}}}  ^{*}  \ottsym{:}  \tau  ^{*}$. We only treat cases \ruleref{T\_Mu}, \ruleref{T\_CastUp} and \ruleref{T\_CastDown}. Consider the last step of derivation of the following cases:
     \begin{description}
-        \item[Case \ruleref{T\_Mu}:] $\inferrule{\Gamma_{{\mathrm{1}}}  \ottsym{,}  \ottmv{x}  \ottsym{:}  \sigma  \ottsym{,}  \Gamma_{{\mathrm{2}}}  \vdash  \ottnt{e_{{\mathrm{1}}}}  \ottsym{:}  \tau \\ \Gamma_{{\mathrm{1}}}  \ottsym{,}  \ottmv{x}  \ottsym{:}  \sigma  \ottsym{,}  \Gamma_{{\mathrm{2}}}  \vdash  \tau  \ottsym{:}  \ottnt{s}}{\Gamma_{{\mathrm{1}}}  \ottsym{,}  \ottmv{x}  \ottsym{:}  \sigma  \ottsym{,}  \Gamma_{{\mathrm{2}}}  \vdash  \ottsym{(}  \mu \, \ottmv{y}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}  \ottsym{)}  \ottsym{:}  \tau}$ 
+        \item[Case \ruleref{T\_Mu}:] $\inferrule{\Gamma_{{\mathrm{1}}}  \ottsym{,}  \ottmv{x}  \ottsym{:}  \sigma  \ottsym{,}  \Gamma_{{\mathrm{2}}}  \vdash  \ottnt{e_{{\mathrm{1}}}}  \ottsym{:}  \tau \\ \Gamma_{{\mathrm{1}}}  \ottsym{,}  \ottmv{x}  \ottsym{:}  \sigma  \ottsym{,}  \Gamma_{{\mathrm{2}}}  \vdash  \tau  \ottsym{:}  \star}{\Gamma_{{\mathrm{1}}}  \ottsym{,}  \ottmv{x}  \ottsym{:}  \sigma  \ottsym{,}  \Gamma_{{\mathrm{2}}}  \vdash  \ottsym{(}  \mu \, \ottmv{y}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}  \ottsym{)}  \ottsym{:}  \tau}$ 
         
-        By induction hypothesis, we have $\Gamma_{{\mathrm{1}}}  \ottsym{,}  \Gamma_{{\mathrm{2}}}  ^{*}  \vdash  \ottnt{e_{{\mathrm{1}}}}  ^{*}  \ottsym{:}  \tau  ^{*}$ and $\Gamma_{{\mathrm{1}}}  \ottsym{,}  \Gamma_{{\mathrm{2}}}  ^{*}  \vdash  \tau  ^{*}  \ottsym{:}  \ottnt{s}  ^{*}$. Then by the deviation rule, $\Gamma_{{\mathrm{1}}}  \ottsym{,}  \Gamma_{{\mathrm{2}}}  ^{*}  \vdash  \ottsym{(}  \mu \, \ottmv{y}  \ottsym{:}  \tau  ^{*}  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}  ^{*}  \ottsym{)}  \ottsym{:}  \tau  ^{*}$. Thus we have $\Gamma_{{\mathrm{1}}}  \ottsym{,}  \Gamma_{{\mathrm{2}}}  ^{*}  \vdash  \ottsym{(}  \mu \, \ottmv{y}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}  \ottsym{)}  ^{*}  \ottsym{:}  \tau  ^{*}$ which is just the result.
-        \item[Case \ruleref{T\_CastUp}:] $\inferrule{\Gamma_{{\mathrm{1}}}  \ottsym{,}  \ottmv{x}  \ottsym{:}  \sigma  \ottsym{,}  \Gamma_{{\mathrm{2}}}  \vdash  \ottnt{e_{{\mathrm{1}}}}  \ottsym{:}  \tau_{{\mathrm{2}}} \\ \Gamma_{{\mathrm{1}}}  \ottsym{,}  \ottmv{x}  \ottsym{:}  \sigma  \ottsym{,}  \Gamma_{{\mathrm{2}}}  \vdash  \tau_{{\mathrm{1}}}  \ottsym{:}  \ottnt{s} \\ \tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}}{\Gamma_{{\mathrm{1}}}  \ottsym{,}  \ottmv{x}  \ottsym{:}  \sigma  \ottsym{,}  \Gamma_{{\mathrm{2}}}  \vdash  \ottsym{(}  \kw{cast}^{\uparrow} \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]}  \ottnt{e_{{\mathrm{1}}}}  \ottsym{)}  \ottsym{:}  \tau_{{\mathrm{1}}}}$ 
+        By induction hypothesis, we have $\Gamma_{{\mathrm{1}}}  \ottsym{,}  \Gamma_{{\mathrm{2}}}  ^{*}  \vdash  \ottnt{e_{{\mathrm{1}}}}  ^{*}  \ottsym{:}  \tau  ^{*}$ and $\Gamma_{{\mathrm{1}}}  \ottsym{,}  \Gamma_{{\mathrm{2}}}  ^{*}  \vdash  \tau  ^{*}  \ottsym{:}  \star  ^{*}$. Then by the deviation rule, $\Gamma_{{\mathrm{1}}}  \ottsym{,}  \Gamma_{{\mathrm{2}}}  ^{*}  \vdash  \ottsym{(}  \mu \, \ottmv{y}  \ottsym{:}  \tau  ^{*}  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}  ^{*}  \ottsym{)}  \ottsym{:}  \tau  ^{*}$. Thus we have $\Gamma_{{\mathrm{1}}}  \ottsym{,}  \Gamma_{{\mathrm{2}}}  ^{*}  \vdash  \ottsym{(}  \mu \, \ottmv{y}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}  \ottsym{)}  ^{*}  \ottsym{:}  \tau  ^{*}$ which is just the result.
+        \item[Case \ruleref{T\_CastUp}:] $\inferrule{\Gamma_{{\mathrm{1}}}  \ottsym{,}  \ottmv{x}  \ottsym{:}  \sigma  \ottsym{,}  \Gamma_{{\mathrm{2}}}  \vdash  \ottnt{e_{{\mathrm{1}}}}  \ottsym{:}  \tau_{{\mathrm{2}}} \\ \Gamma_{{\mathrm{1}}}  \ottsym{,}  \ottmv{x}  \ottsym{:}  \sigma  \ottsym{,}  \Gamma_{{\mathrm{2}}}  \vdash  \tau_{{\mathrm{1}}}  \ottsym{:}  \star \\ \tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}}{\Gamma_{{\mathrm{1}}}  \ottsym{,}  \ottmv{x}  \ottsym{:}  \sigma  \ottsym{,}  \Gamma_{{\mathrm{2}}}  \vdash  \ottsym{(}  \kw{cast}^{\uparrow} \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]}  \ottnt{e_{{\mathrm{1}}}}  \ottsym{)}  \ottsym{:}  \tau_{{\mathrm{1}}}}$ 
         
-        By induction hypothesis, we have $\Gamma_{{\mathrm{1}}}  \ottsym{,}  \Gamma_{{\mathrm{2}}}  ^{*}  \vdash  \ottnt{e_{{\mathrm{1}}}}  ^{*}  \ottsym{:}  \tau_{{\mathrm{2}}}  ^{*}$, $\Gamma_{{\mathrm{1}}}  \ottsym{,}  \Gamma_{{\mathrm{2}}}  ^{*}  \vdash  \tau_{{\mathrm{1}}}  ^{*}  \ottsym{:}  \ottnt{s}  ^{*}$ and $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}$. By the definition of substitution, we can obtain $\tau_{{\mathrm{1}}}  ^{*}  \longrightarrow  \tau_{{\mathrm{2}}}  ^{*}$ by $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}$. Then by the deviation rule, $\Gamma_{{\mathrm{1}}}  \ottsym{,}  \Gamma_{{\mathrm{2}}}  ^{*}  \vdash  \ottsym{(}  \kw{cast}^{\uparrow} \, \ottsym{[}  \tau_{{\mathrm{1}}}  ^{*}  \ottsym{]}  \ottnt{e_{{\mathrm{1}}}}  ^{*}  \ottsym{)}  \ottsym{:}  \tau_{{\mathrm{1}}}  ^{*}$. Thus we have $\Gamma_{{\mathrm{1}}}  \ottsym{,}  \Gamma_{{\mathrm{2}}}  ^{*}  \vdash  \ottsym{(}  \kw{cast}^{\uparrow} \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]}  \ottnt{e_{{\mathrm{1}}}}  \ottsym{)}  ^{*}  \ottsym{:}  \tau_{{\mathrm{1}}}  ^{*}$ which is just the result.
-        \item[Case \ruleref{T\_CastDown}:] $\inferrule{\Gamma_{{\mathrm{1}}}  \ottsym{,}  \ottmv{x}  \ottsym{:}  \sigma  \ottsym{,}  \Gamma_{{\mathrm{2}}}  \vdash  \ottnt{e_{{\mathrm{1}}}}  \ottsym{:}  \tau_{{\mathrm{1}}} \\ \Gamma_{{\mathrm{1}}}  \ottsym{,}  \ottmv{x}  \ottsym{:}  \sigma  \ottsym{,}  \Gamma_{{\mathrm{2}}}  \vdash  \tau_{{\mathrm{2}}}  \ottsym{:}  \ottnt{s} \\ \tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}}{\Gamma_{{\mathrm{1}}}  \ottsym{,}  \ottmv{x}  \ottsym{:}  \sigma  \ottsym{,}  \Gamma_{{\mathrm{2}}}  \vdash  \ottsym{(}  \kw{cast}_{\downarrow} \, \ottnt{e_{{\mathrm{1}}}}  \ottsym{)}  \ottsym{:}  \tau_{{\mathrm{2}}}}$ 
+        By induction hypothesis, we have $\Gamma_{{\mathrm{1}}}  \ottsym{,}  \Gamma_{{\mathrm{2}}}  ^{*}  \vdash  \ottnt{e_{{\mathrm{1}}}}  ^{*}  \ottsym{:}  \tau_{{\mathrm{2}}}  ^{*}$, $\Gamma_{{\mathrm{1}}}  \ottsym{,}  \Gamma_{{\mathrm{2}}}  ^{*}  \vdash  \tau_{{\mathrm{1}}}  ^{*}  \ottsym{:}  \star  ^{*}$ and $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}$. By the definition of substitution, we can obtain $\tau_{{\mathrm{1}}}  ^{*}  \longrightarrow  \tau_{{\mathrm{2}}}  ^{*}$ by $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}$. Then by the deviation rule, $\Gamma_{{\mathrm{1}}}  \ottsym{,}  \Gamma_{{\mathrm{2}}}  ^{*}  \vdash  \ottsym{(}  \kw{cast}^{\uparrow} \, \ottsym{[}  \tau_{{\mathrm{1}}}  ^{*}  \ottsym{]}  \ottnt{e_{{\mathrm{1}}}}  ^{*}  \ottsym{)}  \ottsym{:}  \tau_{{\mathrm{1}}}  ^{*}$. Thus we have $\Gamma_{{\mathrm{1}}}  \ottsym{,}  \Gamma_{{\mathrm{2}}}  ^{*}  \vdash  \ottsym{(}  \kw{cast}^{\uparrow} \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]}  \ottnt{e_{{\mathrm{1}}}}  \ottsym{)}  ^{*}  \ottsym{:}  \tau_{{\mathrm{1}}}  ^{*}$ which is just the result.
+        \item[Case \ruleref{T\_CastDown}:] $\inferrule{\Gamma_{{\mathrm{1}}}  \ottsym{,}  \ottmv{x}  \ottsym{:}  \sigma  \ottsym{,}  \Gamma_{{\mathrm{2}}}  \vdash  \ottnt{e_{{\mathrm{1}}}}  \ottsym{:}  \tau_{{\mathrm{1}}} \\ \Gamma_{{\mathrm{1}}}  \ottsym{,}  \ottmv{x}  \ottsym{:}  \sigma  \ottsym{,}  \Gamma_{{\mathrm{2}}}  \vdash  \tau_{{\mathrm{2}}}  \ottsym{:}  \star \\ \tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}}{\Gamma_{{\mathrm{1}}}  \ottsym{,}  \ottmv{x}  \ottsym{:}  \sigma  \ottsym{,}  \Gamma_{{\mathrm{2}}}  \vdash  \ottsym{(}  \kw{cast}_{\downarrow} \, \ottnt{e_{{\mathrm{1}}}}  \ottsym{)}  \ottsym{:}  \tau_{{\mathrm{2}}}}$ 
         
-        By induction hypothesis, we have $\Gamma_{{\mathrm{1}}}  \ottsym{,}  \Gamma_{{\mathrm{2}}}  ^{*}  \vdash  \ottnt{e_{{\mathrm{1}}}}  ^{*}  \ottsym{:}  \tau_{{\mathrm{1}}}  ^{*}$, $\Gamma_{{\mathrm{1}}}  \ottsym{,}  \Gamma_{{\mathrm{2}}}  ^{*}  \vdash  \tau_{{\mathrm{2}}}  ^{*}  \ottsym{:}  \ottnt{s}  ^{*}$ and $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}$ thus $\tau_{{\mathrm{1}}}  ^{*}  \longrightarrow  \tau_{{\mathrm{2}}}  ^{*}$. Then by the deviation rule, $\Gamma_{{\mathrm{1}}}  \ottsym{,}  \Gamma_{{\mathrm{2}}}  ^{*}  \vdash  \ottsym{(}  \kw{cast}_{\downarrow} \, \ottnt{e_{{\mathrm{1}}}}  ^{*}  \ottsym{)}  \ottsym{:}  \tau_{{\mathrm{2}}}  ^{*}$. Thus we have $\Gamma_{{\mathrm{1}}}  \ottsym{,}  \Gamma_{{\mathrm{2}}}  ^{*}  \vdash  \ottsym{(}  \kw{cast}_{\downarrow} \, \ottnt{e_{{\mathrm{1}}}}  \ottsym{)}  ^{*}  \ottsym{:}  \tau_{{\mathrm{2}}}  ^{*}$ which is just the result.
+        By induction hypothesis, we have $\Gamma_{{\mathrm{1}}}  \ottsym{,}  \Gamma_{{\mathrm{2}}}  ^{*}  \vdash  \ottnt{e_{{\mathrm{1}}}}  ^{*}  \ottsym{:}  \tau_{{\mathrm{1}}}  ^{*}$, $\Gamma_{{\mathrm{1}}}  \ottsym{,}  \Gamma_{{\mathrm{2}}}  ^{*}  \vdash  \tau_{{\mathrm{2}}}  ^{*}  \ottsym{:}  \star  ^{*}$ and $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}$ thus $\tau_{{\mathrm{1}}}  ^{*}  \longrightarrow  \tau_{{\mathrm{2}}}  ^{*}$. Then by the deviation rule, $\Gamma_{{\mathrm{1}}}  \ottsym{,}  \Gamma_{{\mathrm{2}}}  ^{*}  \vdash  \ottsym{(}  \kw{cast}_{\downarrow} \, \ottnt{e_{{\mathrm{1}}}}  ^{*}  \ottsym{)}  \ottsym{:}  \tau_{{\mathrm{2}}}  ^{*}$. Thus we have $\Gamma_{{\mathrm{1}}}  \ottsym{,}  \Gamma_{{\mathrm{2}}}  ^{*}  \vdash  \ottsym{(}  \kw{cast}_{\downarrow} \, \ottnt{e_{{\mathrm{1}}}}  \ottsym{)}  ^{*}  \ottsym{:}  \tau_{{\mathrm{2}}}  ^{*}$ which is just the result.
     \end{description}
 \end{proof}
 
 \begin{lem}[Generation lemma]\label{lem:gen}
 $\quad$
 \begin{enumerate}[(1)]
-	\item If $\Gamma  \vdash  \ottmv{x}  \ottsym{:}  \sigma$, then there exist an expression $\tau$ and a sort $s$ such that $\tau  \equiv  \sigma$, $\Gamma  \vdash  \tau  \ottsym{:}  \ottnt{s}$ and $\ottmv{x}  \ottsym{:}  \tau \, \in \, \Gamma$.
+	\item If $\Gamma  \vdash  \ottmv{x}  \ottsym{:}  \sigma$, then there exist an expression $\tau$ and a sort $\star$ such that $\tau  \equiv  \sigma$, $\Gamma  \vdash  \tau  \ottsym{:}  \star$ and $\ottmv{x}  \ottsym{:}  \tau \, \in \, \Gamma$.
 	\item If $\Gamma  \vdash  \ottnt{e_{{\mathrm{1}}}} \, \ottnt{e_{{\mathrm{2}}}}  \ottsym{:}  \sigma$, then there exist expressions $\tau_{{\mathrm{1}}}$ and $\tau_{{\mathrm{2}}}$ such that $\Gamma  \vdash  \ottnt{e_{{\mathrm{1}}}}  \ottsym{:}  \ottsym{(}  \Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}  \ottsym{)}$, $\Gamma  \vdash  \ottnt{e_{{\mathrm{2}}}}  \ottsym{:}  \tau_{{\mathrm{1}}}$ and $\sigma  \equiv  \tau_{{\mathrm{2}}}  \ottsym{[}  \ottmv{x}  \mapsto  \ottnt{e_{{\mathrm{2}}}}  \ottsym{]}$.
-	\item If $\Gamma  \vdash  \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \ottnt{e}  \ottsym{)}  \ottsym{:}  \sigma$, then there exist a sort $s$ and an expression $\tau_{{\mathrm{2}}}$ such that $\sigma  \equiv  \Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}$ where $\Gamma  \vdash  \ottsym{(}  \Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}  \ottsym{)}  \ottsym{:}  \ottnt{s}$ and $\Gamma  \ottsym{,}  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \vdash  \ottnt{e}  \ottsym{:}  \tau_{{\mathrm{2}}}$.
-	\item If $\Gamma  \vdash  \ottsym{(}  \Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}  \ottsym{)}  \ottsym{:}  \sigma$, then there exist sorts $\ottnt{s_{{\mathrm{1}}}}$ and $\ottnt{s_{{\mathrm{2}}}}$ such that $\sigma  \equiv  \ottnt{s_{{\mathrm{2}}}}$, $\Gamma  \vdash  \tau_{{\mathrm{1}}}  \ottsym{:}  \ottnt{s_{{\mathrm{1}}}}$ and $\Gamma  \ottsym{,}  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \vdash  \tau_{{\mathrm{2}}}  \ottsym{:}  \ottnt{s_{{\mathrm{2}}}}$.
-	\item If $\Gamma  \vdash  \ottsym{(}  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{)}  \ottsym{:}  \sigma$, then there exists a sort $\ottnt{s}$ such that $\Gamma  \vdash  \tau  \ottsym{:}  \ottnt{s}$, $\sigma  \equiv  \tau$ and $\Gamma  \ottsym{,}  \ottmv{x}  \ottsym{:}  \tau  \vdash  \ottnt{e}  \ottsym{:}  \tau$.
-	\item If $\Gamma  \vdash  \ottsym{(}  \kw{cast}^{\uparrow} \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]}  \ottnt{e}  \ottsym{)}  \ottsym{:}  \sigma$, then there exist an expression $\tau_{{\mathrm{2}}}$ and a sort $s$ such that $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau_{{\mathrm{2}}}$, $\Gamma  \vdash  \tau_{{\mathrm{1}}}  \ottsym{:}  \ottnt{s}$, $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}$ and $\sigma  \equiv  \tau_{{\mathrm{1}}}$.
-	\item If $\Gamma  \vdash  \ottsym{(}  \kw{cast}_{\downarrow} \, \ottnt{e}  \ottsym{)}  \ottsym{:}  \sigma$, then there exist expressions $\tau_{{\mathrm{1}}},\tau_{{\mathrm{2}}}$ and a sort $s$ such that $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau_{{\mathrm{1}}}$, $\Gamma  \vdash  \tau_{{\mathrm{2}}}  \ottsym{:}  \ottnt{s}$, $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}$ and $\sigma  \equiv  \tau_{{\mathrm{2}}}$.
+	\item If $\Gamma  \vdash  \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \ottnt{e}  \ottsym{)}  \ottsym{:}  \sigma$, then there exist a sort $\star$ and an expression $\tau_{{\mathrm{2}}}$ such that $\sigma  \equiv  \Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}$ where $\Gamma  \vdash  \ottsym{(}  \Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}  \ottsym{)}  \ottsym{:}  \star$ and $\Gamma  \ottsym{,}  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \vdash  \ottnt{e}  \ottsym{:}  \tau_{{\mathrm{2}}}$.
+	% \item If $\Gamma  \vdash  \ottsym{(}  \Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}  \ottsym{)}  \ottsym{:}  \sigma$, then there exist sorts $\star_{{\mathrm{1}}}$ and $\star_{{\mathrm{2}}}$ such that $\sigma  \equiv  \star_{{\mathrm{2}}}$, $\Gamma  \vdash  \tau_{{\mathrm{1}}}  \ottsym{:}  \star_{{\mathrm{1}}}$ and $\Gamma  \ottsym{,}  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \vdash  \tau_{{\mathrm{2}}}  \ottsym{:}  \star_{{\mathrm{2}}}$.
+    \item If $\Gamma  \vdash  \ottsym{(}  \Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}  \ottsym{)}  \ottsym{:}  \sigma$, then $\sigma  \equiv  \star$, $\Gamma  \vdash  \tau_{{\mathrm{1}}}  \ottsym{:}  \star$ and $\Gamma  \ottsym{,}  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \vdash  \tau_{{\mathrm{2}}}  \ottsym{:}  \star$.
+	\item If $\Gamma  \vdash  \ottsym{(}  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{)}  \ottsym{:}  \sigma$, then there exists a sort $\star$ such that $\Gamma  \vdash  \tau  \ottsym{:}  \star$, $\sigma  \equiv  \tau$ and $\Gamma  \ottsym{,}  \ottmv{x}  \ottsym{:}  \tau  \vdash  \ottnt{e}  \ottsym{:}  \tau$.
+	\item If $\Gamma  \vdash  \ottsym{(}  \kw{cast}^{\uparrow} \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]}  \ottnt{e}  \ottsym{)}  \ottsym{:}  \sigma$, then there exist an expression $\tau_{{\mathrm{2}}}$ and a sort $\star$ such that $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau_{{\mathrm{2}}}$, $\Gamma  \vdash  \tau_{{\mathrm{1}}}  \ottsym{:}  \star$, $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}$ and $\sigma  \equiv  \tau_{{\mathrm{1}}}$.
+	\item If $\Gamma  \vdash  \ottsym{(}  \kw{cast}_{\downarrow} \, \ottnt{e}  \ottsym{)}  \ottsym{:}  \sigma$, then there exist expressions $\tau_{{\mathrm{1}}},\tau_{{\mathrm{2}}}$ and a sort $\star$ such that $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau_{{\mathrm{1}}}$, $\Gamma  \vdash  \tau_{{\mathrm{2}}}  \ottsym{:}  \star$, $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}$ and $\sigma  \equiv  \tau_{{\mathrm{2}}}$.
 \end{enumerate}
 \end{lem}
 
 \begin{proof}
-    Consider a derivation of $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \sigma$ for one of cases in the lemma. Note that rule \ruleref{T\_Weak} does not change $e$, then we can follow the process of derivation until expression $e$ is introduced the first time. The last step of derivation can be done by
+    Consider a derivation of $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \sigma$ for one of cases in the lemma. Note that rule \ruleref{T\_Weak} does not change $\ottnt{e}$, then we can follow the process of derivation until expression $\ottnt{e}$ is introduced the first time. The last step of derivation can be done by
     \begin{itemize}
         \item rule \ruleref{T\_Var} for case 1;
         \item rule \ruleref{T\_App} for case 2;
@@ -133,7 +134,7 @@ $\quad$
 \end{proof}
 
 \begin{lem}[Correctness of types]\label{lem:corrtyp}
-    If $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$ then there exists a sort $s$ such that $\tau  \equiv  \ottnt{s}$ or $\Gamma  \vdash  \tau  \ottsym{:}  \ottnt{s}$.
+    If $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$ then there exists a sort $\star$ such that $\tau  \equiv  \star$ or $\Gamma  \vdash  \tau  \ottsym{:}  \star$.
 \end{lem}
 
 \begin{proof}
@@ -151,11 +152,11 @@ $\quad$
 \end{lem}
 
 \begin{proof}
-	Suppose $\Gamma$ is the initial context which is well-formed. To safely extend $\Gamma$ with a variable $x:\tau$, one should have $\Gamma  \vdash  \tau  \ottsym{:}  \ottnt{s}$ due to rule \ruleref{Env\_Var}. Note that when applying typing rules of $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$, rule \ruleref{T\_Pi}, \ruleref{T\_Mu} and \ruleref{T\_Lam} will extend the context. We show that these rules cover the condition $\Gamma  \vdash  \tau  \ottsym{:}  \ottnt{s}$ with respect to $x:\tau$ as follows:
+	Suppose $\Gamma$ is the initial context which is well-formed. To safely extend $\Gamma$ with a variable $\ottmv{x}:\tau$, one should have $\Gamma  \vdash  \tau  \ottsym{:}  \star$ due to rule \ruleref{Env\_Var}. Note that when applying typing rules of $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$, rule \ruleref{T\_Pi}, \ruleref{T\_Mu} and \ruleref{T\_Lam} will extend the context. We show that these rules cover the condition $\Gamma  \vdash  \tau  \ottsym{:}  \star$ with respect to $\ottmv{x}:\tau$ as follows:
 	\begin{description}
-		\item[Case \ruleref{T\_Pi}:] To extend $\Gamma$ with $x:\tau_{{\mathrm{1}}}$, $\Gamma  \vdash  \tau_{{\mathrm{1}}}  \ottsym{:}  \ottnt{s}$ is already the premise of the rule.
-		\item[Case \ruleref{T\_Mu}:] To extend $\Gamma$ with $x:\tau$, $\Gamma  \vdash  \tau  \ottsym{:}  \ottnt{s}$ is already the premise of the rule.
-		\item[Case \ruleref{T\_Lam}:] To extend $\Gamma$ with $x:\tau_{{\mathrm{1}}}$, note that the premise $\Gamma  \vdash  \ottsym{(}  \Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}  \ottsym{)}  \ottsym{:}  \ottnt{s}$ can be derived from rule \ruleref{T\_Pi}, which has the premise $\Gamma  \vdash  \tau_{{\mathrm{1}}}  \ottsym{:}  \ottnt{s}$.
+		\item[Case \ruleref{T\_Pi}:] To extend $\Gamma$ with $\ottmv{x}:\tau_{{\mathrm{1}}}$, $\Gamma  \vdash  \tau_{{\mathrm{1}}}  \ottsym{:}  \star$ is already the premise of the rule.
+		\item[Case \ruleref{T\_Mu}:] To extend $\Gamma$ with $\ottmv{x}:\tau$, $\Gamma  \vdash  \tau  \ottsym{:}  \star$ is already the premise of the rule.
+		\item[Case \ruleref{T\_Lam}:] To extend $\Gamma$ with $\ottmv{x}:\tau_{{\mathrm{1}}}$, note that the premise $\Gamma  \vdash  \ottsym{(}  \Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}  \ottsym{)}  \ottsym{:}  \star$ can be derived from rule \ruleref{T\_Pi}, which has the premise $\Gamma  \vdash  \tau_{{\mathrm{1}}}  \ottsym{:}  \star$.
 	\end{description}
 \end{proof}
 
@@ -164,34 +165,34 @@ $\quad$
 \end{lem}
 
 \begin{proof}
-	By Lemma \ref{lem:wfc}, the context $\Gamma$ remains well-formed if it is initially well-formed. Thus, the well-formedness of $\Gamma$ keeps without checking by rule \ruleref{T\_Var} and \ruleref{T\_Weak}. By Lemma \ref{lem:gen}, if $\Gamma  \vdash  \ottmv{x}  \ottsym{:}  \tau$, then $\ottmv{x}  \ottsym{:}  \tau \, \in \, \Gamma$. Thus, in order to check the type of a variable $x$, it is sufficient to check its bound type $\tau$ in the context, which is simply rule \ruleref{T\_VarEnv}.
+	By Lemma \ref{lem:wfc}, the context $\Gamma$ remains well-formed if it is initially well-formed. Thus, the well-formedness of $\Gamma$ keeps without checking by rule \ruleref{T\_Var} and \ruleref{T\_Weak}. By Lemma \ref{lem:gen}, if $\Gamma  \vdash  \ottmv{x}  \ottsym{:}  \tau$, then $\ottmv{x}  \ottsym{:}  \tau \, \in \, \Gamma$. Thus, in order to check the type of a variable $\ottmv{x}$, it is sufficient to check its bound type $\tau$ in the context, which is simply rule \ruleref{T\_VarEnv}.
 \end{proof}
 
 \subsection{Decidability of type checking}
 \begin{lem}[Uniqueness of one-step reduction]\label{lem:unired}
-	The relation $ \longrightarrow $, i.e. one-step reduction, is \textbf{unique} in the sense that given $e$ there is at most one $e'$ such that $\ottnt{e}  \longrightarrow  \ottnt{e'}$.
+	The relation $ \longrightarrow $, i.e. one-step reduction, is \textbf{unique} in the sense that given $\ottnt{e}$ there is at most one $\ottnt{e'}$ such that $\ottnt{e}  \longrightarrow  \ottnt{e'}$.
 \end{lem}
 
 \begin{proof}
-	By induction on the structure of $e$:
+	By induction on the structure of $\ottnt{e}$:
 	\begin{description}
-	    \item[Case $e=s$, or $e=x$]: No such $e'$ exists since it is impossible to reduce a sort or a variable.
-		\item[Case $e=v$:] $e$ has one of the following forms:
+	    \item[Case $\ottnt{e}  \ottsym{=}  \star$, or $\ottnt{e}  \ottsym{=}  \ottmv{x}$]: No such $\ottnt{e'}$ exists since it is impossible to reduce a sort or a variable.
+		\item[Case $\ottnt{e}  \ottsym{=}  \ottnt{v}$:] $\ottnt{e}$ has one of the following forms:
 		\begin{inparaenum}[(1)]
 			\item $\lambda  \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$,
 			\item $\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}$,
 			\item $\kw{cast}^{\uparrow} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}$,
 		\end{inparaenum}
-		which cannot match any rules of $ \longrightarrow $. Thus there is no $e'$ such that $\ottnt{e}  \longrightarrow  \ottnt{e'}$.
-		\item[Case $e=\ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}  \ottsym{)} \, \ottnt{e_{{\mathrm{2}}}}$:] There is a unique $e'=\ottnt{e_{{\mathrm{1}}}}  \ottsym{[}  \ottmv{x}  \mapsto  \ottnt{e_{{\mathrm{2}}}}  \ottsym{]}$ by rule \ruleref{S\_Beta}.
-		\item[Case $e=\kw{cast}_{\downarrow} \, \ottsym{(}  \kw{cast}^{\uparrow} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}  \ottsym{)}$:] There is a unique $e'=e$ by rule \ruleref{S\_CastDownUp}.
-		\item[Case $e=\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$:] There is a unique $e'=\ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]}$ by rule \ruleref{S\_Mu}.
-		\item[Case $e=\ottnt{e_{{\mathrm{1}}}} \, \ottnt{e_{{\mathrm{2}}}}$ and $\ottnt{e_{{\mathrm{1}}}}$ is not a $\lambda$-term:] If $\ottnt{e_{{\mathrm{1}}}}=v$, there is no $\ottnt{e'_{{\mathrm{1}}}}$ such that $\ottnt{e_{{\mathrm{1}}}}  \longrightarrow  \ottnt{e'_{{\mathrm{1}}}}$. Since $\ottnt{e_{{\mathrm{1}}}}$ is not a $\lambda$-term, there is no rule to reduce $e$. Thus there is no $e'$ such that $\ottnt{e}  \longrightarrow  \ottnt{e'}$.
+		which cannot match any rules of $ \longrightarrow $. Thus there is no $\ottnt{e}'$ such that $\ottnt{e}  \longrightarrow  \ottnt{e'}$.
+		\item[Case $\ottnt{e}=\ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}  \ottsym{)} \, \ottnt{e_{{\mathrm{2}}}}$:] There is a unique $\ottnt{e}'=\ottnt{e_{{\mathrm{1}}}}  \ottsym{[}  \ottmv{x}  \mapsto  \ottnt{e_{{\mathrm{2}}}}  \ottsym{]}$ by rule \ruleref{S\_Beta}.
+		\item[Case $\ottnt{e}=\kw{cast}_{\downarrow} \, \ottsym{(}  \kw{cast}^{\uparrow} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}  \ottsym{)}$:] There is a unique $\ottnt{e}'=e$ by rule \ruleref{S\_CastDownUp}.
+		\item[Case $\ottnt{e}=\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$:] There is a unique $\ottnt{e}'=\ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]}$ by rule \ruleref{S\_Mu}.
+		\item[Case $\ottnt{e}=\ottnt{e_{{\mathrm{1}}}} \, \ottnt{e_{{\mathrm{2}}}}$ and $\ottnt{e_{{\mathrm{1}}}}$ is not a $\lambda$-term:] If $\ottnt{e_{{\mathrm{1}}}}=v$, there is no $\ottnt{e'_{{\mathrm{1}}}}$ such that $\ottnt{e_{{\mathrm{1}}}}  \longrightarrow  \ottnt{e'_{{\mathrm{1}}}}$. Since $\ottnt{e_{{\mathrm{1}}}}$ is not a $\lambda$-term, there is no rule to reduce $\ottnt{e}$. Thus there is no $\ottnt{e}'$ such that $\ottnt{e}  \longrightarrow  \ottnt{e'}$.
 		
-		Otherwise, there exists some $\ottnt{e'_{{\mathrm{1}}}}$ such that $\ottnt{e_{{\mathrm{1}}}}  \longrightarrow  \ottnt{e'_{{\mathrm{1}}}}$. By the induction hypothesis, $\ottnt{e'_{{\mathrm{1}}}}$ is unique reduction of $\ottnt{e_{{\mathrm{1}}}}$. Thus by rule \ruleref{S\_App}, $e'=\ottnt{e'_{{\mathrm{1}}}} \, \ottnt{e_{{\mathrm{2}}}}$ is the unique reduction for $e$.
-		\item[Case $e=\kw{cast}_{\downarrow} \, \ottnt{e_{{\mathrm{1}}}}$ and $\ottnt{e_{{\mathrm{1}}}}$ is not a $ \kw{cast}^{\uparrow} $-term:] If $\ottnt{e_{{\mathrm{1}}}}=v$, there is no $\ottnt{e'_{{\mathrm{1}}}}$ such that $\ottnt{e_{{\mathrm{1}}}}  \longrightarrow  \ottnt{e'_{{\mathrm{1}}}}$. Since $\ottnt{e_{{\mathrm{1}}}}$ is not a $ \kw{cast}^{\uparrow} $-term, there is no rule to reduce $e$. Thus there is no $e'$ such that $\ottnt{e}  \longrightarrow  \ottnt{e'}$.
+		Otherwise, there exists some $\ottnt{e'_{{\mathrm{1}}}}$ such that $\ottnt{e_{{\mathrm{1}}}}  \longrightarrow  \ottnt{e'_{{\mathrm{1}}}}$. By the induction hypothesis, $\ottnt{e'_{{\mathrm{1}}}}$ is unique reduction of $\ottnt{e_{{\mathrm{1}}}}$. Thus by rule \ruleref{S\_App}, $\ottnt{e}'=\ottnt{e'_{{\mathrm{1}}}} \, \ottnt{e_{{\mathrm{2}}}}$ is the unique reduction for $\ottnt{e}$.
+		\item[Case $\ottnt{e}=\kw{cast}_{\downarrow} \, \ottnt{e_{{\mathrm{1}}}}$ and $\ottnt{e_{{\mathrm{1}}}}$ is not a $ \kw{cast}^{\uparrow} $-term:] If $\ottnt{e_{{\mathrm{1}}}}=v$, there is no $\ottnt{e'_{{\mathrm{1}}}}$ such that $\ottnt{e_{{\mathrm{1}}}}  \longrightarrow  \ottnt{e'_{{\mathrm{1}}}}$. Since $\ottnt{e_{{\mathrm{1}}}}$ is not a $ \kw{cast}^{\uparrow} $-term, there is no rule to reduce $\ottnt{e}$. Thus there is no $\ottnt{e}'$ such that $\ottnt{e}  \longrightarrow  \ottnt{e'}$.
 		
-		Otherwise, there exists some $\ottnt{e'_{{\mathrm{1}}}}$ such that $\ottnt{e_{{\mathrm{1}}}}  \longrightarrow  \ottnt{e'_{{\mathrm{1}}}}$. By the induction hypothesis, $\ottnt{e'_{{\mathrm{1}}}}$ is unique reduction of $\ottnt{e_{{\mathrm{1}}}}$. Thus by rule \ruleref{S\_CastDown}, $e'=\kw{cast}_{\downarrow} \, \ottnt{e'_{{\mathrm{1}}}}$ is the unique reduction for $e$.
+		Otherwise, there exists some $\ottnt{e'_{{\mathrm{1}}}}$ such that $\ottnt{e_{{\mathrm{1}}}}  \longrightarrow  \ottnt{e'_{{\mathrm{1}}}}$. By the induction hypothesis, $\ottnt{e'_{{\mathrm{1}}}}$ is unique reduction of $\ottnt{e_{{\mathrm{1}}}}$. Thus by rule \ruleref{S\_CastDown}, $\ottnt{e}'=\kw{cast}_{\downarrow} \, \ottnt{e'_{{\mathrm{1}}}}$ is the unique reduction for $\ottnt{e}$.
 	\end{description}
 \end{proof}
 
@@ -200,14 +201,14 @@ $\quad$
 \end{lem}
 
 \begin{proof}
-	By induction on the structure of $e$:
+	By induction on the structure of $\ottnt{e}$:
 	\begin{description}
-	    \item[Case $e= \Box $:] Impossible case and report error.
-	    \item[Case $e= \star $:] Trivial by applying \ruleref{T\_Ax} and $\tau  \equiv  \Box$.
-		\item[Case $e=x$:] By Lemma \ref{lem:wfcopt}, we only need to consider context $\Gamma$ that is well-formed. By rule \ruleref{TS\_Var}, if $\ottmv{x}  \ottsym{:}  \tau \, \in \, \Gamma$, $\tau$ is the unique type of $x$.
-		\item[Case $e=\ottnt{e_{{\mathrm{1}}}} \, \ottnt{e_{{\mathrm{2}}}}$, or $\lambda  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}$, or $\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}$, or $\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}$:] Trivial according to Lemma \ref{lem:gen} by using rule \ruleref{T\_App}, \ruleref{T\_Lam}, \ruleref{T\_Pi}, or \ruleref{T\_Mu} respectively.
-		\item[Case $e=\kw{cast}^{\uparrow} \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]}  \ottnt{e_{{\mathrm{1}}}}$:] From the premises of rule \ruleref{T\_CastUp}, by induction hypothesis, we can derive the type of $\ottnt{e_{{\mathrm{1}}}}$ as $\tau_{{\mathrm{2}}}$, and check whether $\tau_{{\mathrm{1}}}$ is legal, i.e. its sorts is either $ \star $ or $ \Box $. If $\tau_{{\mathrm{1}}}$ is legal, by Lemma \ref{lem:unired}, there is at most one $\tau'_{{\mathrm{1}}}$ such that $\tau_{{\mathrm{1}}}  \longrightarrow  \tau'_{{\mathrm{1}}}$. If such $\tau'_{{\mathrm{1}}}$ does not exist, then we report the type checking is failed. Otherwise, we examine if $\tau'_{{\mathrm{1}}}$ is syntactically equal to $\tau_{{\mathrm{2}}}$, i.e. $\tau'_{{\mathrm{1}}}  \equiv  \tau_{{\mathrm{2}}}$. If the equality holds, we obtain the unique type of $\ottnt{e}$ which is $\tau_{{\mathrm{1}}}$. Otherwise, we report $\ottnt{e}$ fails to type check.
-		\item[Case $e=\kw{cast}_{\downarrow} \, \ottnt{e_{{\mathrm{1}}}}$:] From the premises of rule \ruleref{T\_CastDown}, by induction hypothesis, we can derive the type of $\ottnt{e_{{\mathrm{1}}}}$ as $\tau_{{\mathrm{1}}}$. By Lemma \ref{lem:unired}, there is at most one $\tau_{{\mathrm{2}}}$ such that $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}$. If such $\tau_{{\mathrm{2}}}$ exists and its sorts is either $ \star $ or $ \Box $, we have found the unique type of $\ottnt{e}$ is $\tau_{{\mathrm{2}}}$. Otherwise, we report $\ottnt{e}$ fails to type check.
+	    % \item[Case $\ottnt{e}= \star $:] Impossible case and report error.
+	    \item[Case $\ottnt{e}  \ottsym{=}  \star$:] Trivial by applying \ruleref{T\_Ax} and $\tau  \equiv  \star$.
+		\item[Case $\ottnt{e}  \ottsym{=}  \ottmv{x}$:] By Lemma \ref{lem:wfcopt}, we only need to consider context $\Gamma$ that is well-formed. By rule \ruleref{TS\_Var}, if $\ottmv{x}  \ottsym{:}  \tau \, \in \, \Gamma$, $\tau$ is the unique type of $\ottmv{x}$.
+		\item[Case $\ottnt{e}=\ottnt{e_{{\mathrm{1}}}} \, \ottnt{e_{{\mathrm{2}}}}$, or $\lambda  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}$, or $\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}$, or $\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}$:] Trivial according to Lemma \ref{lem:gen} by using rule \ruleref{T\_App}, \ruleref{T\_Lam}, \ruleref{T\_Pi}, or \ruleref{T\_Mu} respectively.
+		\item[Case $\ottnt{e}=\kw{cast}^{\uparrow} \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]}  \ottnt{e_{{\mathrm{1}}}}$:] From the premises of rule \ruleref{T\_CastUp}, by induction hypothesis, we can derive the type of $\ottnt{e_{{\mathrm{1}}}}$ as $\tau_{{\mathrm{2}}}$, and check whether $\tau_{{\mathrm{1}}}$ is legal, i.e. its sorts is either $ \star $ or $ \star $. If $\tau_{{\mathrm{1}}}$ is legal, by Lemma \ref{lem:unired}, there is at most one $\tau'_{{\mathrm{1}}}$ such that $\tau_{{\mathrm{1}}}  \longrightarrow  \tau'_{{\mathrm{1}}}$. If such $\tau'_{{\mathrm{1}}}$ does not exist, then we report the type checking is failed. Otherwise, we examine if $\tau'_{{\mathrm{1}}}$ is syntactically equal to $\tau_{{\mathrm{2}}}$, i.e. $\tau'_{{\mathrm{1}}}  \equiv  \tau_{{\mathrm{2}}}$. If the equality holds, we obtain the unique type of $\ottnt{e}$ which is $\tau_{{\mathrm{1}}}$. Otherwise, we report $\ottnt{e}$ fails to type check.
+		\item[Case $\ottnt{e}=\kw{cast}_{\downarrow} \, \ottnt{e_{{\mathrm{1}}}}$:] From the premises of rule \ruleref{T\_CastDown}, by induction hypothesis, we can derive the type of $\ottnt{e_{{\mathrm{1}}}}$ as $\tau_{{\mathrm{1}}}$. By Lemma \ref{lem:unired}, there is at most one $\tau_{{\mathrm{2}}}$ such that $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}$. If such $\tau_{{\mathrm{2}}}$ exists and its sorts is either $ \star $ or $ \star $, we have found the unique type of $\ottnt{e}$ is $\tau_{{\mathrm{2}}}$. Otherwise, we report $\ottnt{e}$ fails to type check.
 	\end{description}
 \end{proof}
 
@@ -217,11 +218,11 @@ $\quad$
 \end{dfn}
 
 \begin{lem}[Subject reduction]
-If $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \sigma$ and $e  \twoheadrightarrow  e'$ then $\Gamma  \vdash  \ottnt{e'}  \ottsym{:}  \sigma$.
+If $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \sigma$ and $\ottnt{e}  \twoheadrightarrow  e'$ then $\Gamma  \vdash  \ottnt{e'}  \ottsym{:}  \sigma$.
 \end{lem}
 
 \begin{proof}
-    We prove the case for one-step reduction, i.e. $\ottnt{e}  \longrightarrow  \ottnt{e'}$. The lemma can follow by induction on the number of one-step reductions of $e  \twoheadrightarrow  e'$.
+    We prove the case for one-step reduction, i.e. $\ottnt{e}  \longrightarrow  \ottnt{e'}$. The lemma can follow by induction on the number of one-step reductions of $\ottnt{e}  \twoheadrightarrow  \ottnt{e'}$.
     The proof is by induction with respect to the definition of one-step reduction $ \longrightarrow $ as follows:
     \begin{description}
         \item[Case $\ottdruleSXXBeta{}$:] $\quad$ \\
@@ -248,9 +249,9 @@ If $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \sigma$ and $e  \twoheadrightarrow  e
         By induction hypothesis, we have $\Gamma  \vdash  \ottnt{e'_{{\mathrm{1}}}}  \ottsym{:}  \ottsym{(}  \Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}  \ottsym{)}$. By rule \ruleref{T\_App}, we obtain $\Gamma  \vdash  \ottnt{e'_{{\mathrm{1}}}} \, \ottnt{e_{{\mathrm{2}}}}  \ottsym{:}  \tau_{{\mathrm{2}}}  \ottsym{[}  \ottmv{x}  \mapsto  \ottnt{e_{{\mathrm{2}}}}  \ottsym{]}$. Therefore, $\sigma'  \equiv  \tau_{{\mathrm{2}}}  \ottsym{[}  \ottmv{x}  \mapsto  \ottnt{e_{{\mathrm{2}}}}  \ottsym{]}  \equiv  \sigma$.
         
         \item[Case $\ottdruleSXXCastDown{}$:] $\quad$ \\
-        Suppose $\Gamma  \vdash  \kw{cast}_{\downarrow} \, \ottnt{e}  \ottsym{:}  \sigma$ and $\Gamma  \vdash  \kw{cast}_{\downarrow} \, \ottnt{e'}  \ottsym{:}  \sigma'$. By Lemma \ref{lem:gen}(7), there exist expressions $\tau_{{\mathrm{1}}}, \tau_{{\mathrm{2}}}$ and a sort $s$ such that 
+        Suppose $\Gamma  \vdash  \kw{cast}_{\downarrow} \, \ottnt{e}  \ottsym{:}  \sigma$ and $\Gamma  \vdash  \kw{cast}_{\downarrow} \, \ottnt{e'}  \ottsym{:}  \sigma'$. By Lemma \ref{lem:gen}(7), there exist expressions $\tau_{{\mathrm{1}}}, \tau_{{\mathrm{2}}}$ and a sort $\star$ such that 
         \begin{align*}
-            &\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau_{{\mathrm{1}}} \qquad \Gamma  \vdash  \tau_{{\mathrm{2}}}  \ottsym{:}  \ottnt{s} \\
+            &\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau_{{\mathrm{1}}} \qquad \Gamma  \vdash  \tau_{{\mathrm{2}}}  \ottsym{:}  \star \\
             &\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}} \qquad \sigma  \equiv  \tau_{{\mathrm{2}}}
         \end{align*}
         By induction hypothesis, we have $\Gamma  \vdash  \ottnt{e'}  \ottsym{:}  \tau_{{\mathrm{1}}}$. By rule \ruleref{T\_CastDown}, we obtain $\Gamma  \vdash  \kw{cast}_{\downarrow} \, \ottnt{e'}  \ottsym{:}  \tau_{{\mathrm{2}}}$. Therefore, $\sigma'  \equiv  \tau_{{\mathrm{2}}}  \equiv  \sigma$.
@@ -273,36 +274,36 @@ If $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \sigma$ and $e  \twoheadrightarrow  e
         \item[Case $\ottdruleSXXMu{}$:] $\quad$ \\
         Suppose $\Gamma  \vdash  \ottsym{(}  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{)}  \ottsym{:}  \sigma$ and $\Gamma  \vdash  \ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]}  \ottsym{:}  \sigma'$. By Lemma \ref{lem:gen}(5), we have $\sigma  \equiv  \tau$ and $\Gamma  \ottsym{,}  \ottmv{x}  \ottsym{:}  \tau  \vdash  \ottnt{e}  \ottsym{:}  \tau$. Then we obtain $\Gamma  \vdash  \ottsym{(}  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{)}  \ottsym{:}  \tau$. Thus by Lemma \ref{lem:subst}, we have $\Gamma  \vdash  \ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]}  \ottsym{:}  \tau  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]}$.
         
-        Note that $x:\tau$, i.e. the type of $x$ is $\tau$, then $x \notin \FV(\tau)$ holds implicitly. Hence, by the definition of substitution, we obtain $\tau  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]}  \equiv  \tau$. Therefore, $\sigma'  \equiv  \tau  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]}  \equiv  \tau  \equiv  \sigma$.
+        Note that $\ottmv{x}:\tau$, i.e. the type of $\ottmv{x}$ is $\tau$, then $\ottmv{x} \notin \FV(\tau)$ holds implicitly. Hence, by the definition of substitution, we obtain $\tau  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]}  \equiv  \tau$. Therefore, $\sigma'  \equiv  \tau  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]}  \equiv  \tau  \equiv  \sigma$.
     \end{description}
 \end{proof}
 
 \begin{lem}[Progress]
-If $\vdash  \ottnt{e}  \ottsym{:}  \sigma$ then either $e$ is a value $v$ or there exists $e'$ such that $\ottnt{e}  \longrightarrow  \ottnt{e'}$.
+If $\vdash  \ottnt{e}  \ottsym{:}  \sigma$ then either $\ottnt{e}$ is a value $v$ or there exists $\ottnt{e}'$ such that $\ottnt{e}  \longrightarrow  \ottnt{e'}$.
 \end{lem}
 
 \begin{proof}
     By induction on the derivation of $\vdash  \ottnt{e}  \ottsym{:}  \sigma$ as follows:
     \begin{description}
-        \item[Case $e= \star $:] Trivial by rule \ruleref{T\_Ax} where $\sigma  \equiv  \Box$.
-        \item[Case $e=x$:] Impossible, since the context is empty.
-        \item[Case $e=v$:] Trivial, since $e$ is already a value that has one of the following forms:
+        \item[Case $\ottnt{e}  \ottsym{=}  \star$:] Trivial by rule \ruleref{T\_Ax} where $\sigma  \equiv  \star$.
+        \item[Case $\ottnt{e}  \ottsym{=}  \ottmv{x}$:] Impossible, since the context is empty.
+        \item[Case $\ottnt{e}  \ottsym{=}  \ottnt{v}$:] Trivial, since $\ottnt{e}$ is already a value that has one of the following forms:
 		\begin{inparaenum}[(1)]
 			\item $\lambda  \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$,
 			\item $\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}$,
 			\item $\kw{cast}^{\uparrow} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}$.
 		\end{inparaenum}
-		\item[Case $e=\ottnt{e_{{\mathrm{1}}}} \, \ottnt{e_{{\mathrm{2}}}}$:] By Lemma \ref{lem:gen}(2), there exist expressions $\tau_{{\mathrm{1}}}$ and $\tau_{{\mathrm{2}}}$ such that $\vdash  \ottnt{e_{{\mathrm{1}}}}  \ottsym{:}  \ottsym{(}  \Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}  \ottsym{)}$ and $\vdash  \ottnt{e_{{\mathrm{2}}}}  \ottsym{:}  \tau_{{\mathrm{1}}}$. Consider whether $\ottnt{e_{{\mathrm{1}}}}$ is a value:
+		\item[Case $\ottnt{e}=\ottnt{e_{{\mathrm{1}}}} \, \ottnt{e_{{\mathrm{2}}}}$:] By Lemma \ref{lem:gen}(2), there exist expressions $\tau_{{\mathrm{1}}}$ and $\tau_{{\mathrm{2}}}$ such that $\vdash  \ottnt{e_{{\mathrm{1}}}}  \ottsym{:}  \ottsym{(}  \Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}  \ottsym{)}$ and $\vdash  \ottnt{e_{{\mathrm{2}}}}  \ottsym{:}  \tau_{{\mathrm{1}}}$. Consider whether $\ottnt{e_{{\mathrm{1}}}}$ is a value:
     		\begin{itemize}
     		    \item If $\ottnt{e_{{\mathrm{1}}}}=v$, by Lemma \ref{lem:gen}(3), it must be a $\lambda$-term such that $\ottnt{e_{{\mathrm{1}}}}  \equiv  \lambda  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \ottnt{e'_{{\mathrm{1}}}}$ for some $\ottnt{e'_{{\mathrm{1}}}}$ satisfying $\vdash  \ottnt{e'_{{\mathrm{1}}}}  \ottsym{:}  \tau_{{\mathrm{2}}}$. Then by rule \ruleref{S\_Beta}, we have $\ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \ottnt{e'_{{\mathrm{1}}}}  \ottsym{)} \, \ottnt{e_{{\mathrm{2}}}}  \longrightarrow  \ottnt{e'_{{\mathrm{1}}}}  \ottsym{[}  \ottmv{x}  \mapsto  \ottnt{e_{{\mathrm{2}}}}  \ottsym{]}$. Thus, there exists $\ottnt{e'}  \equiv  \ottnt{e'_{{\mathrm{1}}}}  \ottsym{[}  \ottmv{x}  \mapsto  \ottnt{e_{{\mathrm{2}}}}  \ottsym{]}$ such that $\ottnt{e}  \longrightarrow  \ottnt{e'}$.
     		    \item Otherwise, by induction hypothesis, there exists $\ottnt{e'_{{\mathrm{1}}}}$ such that $\ottnt{e_{{\mathrm{1}}}}  \longrightarrow  \ottnt{e'_{{\mathrm{1}}}}$. Then by rule \ruleref{S\_App}, we have $\ottnt{e_{{\mathrm{1}}}} \, \ottnt{e_{{\mathrm{2}}}}  \longrightarrow  \ottnt{e'_{{\mathrm{1}}}} \, \ottnt{e_{{\mathrm{2}}}}$. Thus, there exists $\ottnt{e'}  \equiv  \ottnt{e'_{{\mathrm{1}}}} \, \ottnt{e_{{\mathrm{2}}}}$ such that $\ottnt{e}  \longrightarrow  \ottnt{e'}$.
     		\end{itemize}
-		\item[Case $e=\kw{cast}_{\downarrow} \, \ottnt{e_{{\mathrm{1}}}}$:] By Lemma \ref{lem:gen}(7), there exist expressions $\tau_{{\mathrm{1}}}$ and $\tau_{{\mathrm{2}}}$ such that $\vdash  \ottnt{e_{{\mathrm{1}}}}  \ottsym{:}  \tau_{{\mathrm{1}}}$ and $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}$. Consider whether $\ottnt{e_{{\mathrm{1}}}}$ is a value:
+		\item[Case $\ottnt{e}=\kw{cast}_{\downarrow} \, \ottnt{e_{{\mathrm{1}}}}$:] By Lemma \ref{lem:gen}(7), there exist expressions $\tau_{{\mathrm{1}}}$ and $\tau_{{\mathrm{2}}}$ such that $\vdash  \ottnt{e_{{\mathrm{1}}}}  \ottsym{:}  \tau_{{\mathrm{1}}}$ and $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}$. Consider whether $\ottnt{e_{{\mathrm{1}}}}$ is a value:
 		     \begin{itemize}
     		    \item If $\ottnt{e_{{\mathrm{1}}}}=v$, by Lemma \ref{lem:gen}(6), it must be a $ \kw{cast}^{\uparrow} $-term such that $\ottnt{e_{{\mathrm{1}}}}  \equiv  \kw{cast}^{\uparrow} \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]}  \ottnt{e'_{{\mathrm{1}}}}$ for some $\ottnt{e'_{{\mathrm{1}}}}$ satisfying $\vdash  \ottnt{e'_{{\mathrm{1}}}}  \ottsym{:}  \tau_{{\mathrm{2}}}$. Then by rule \ruleref{S\_CastDownUp}, we can obtain $\kw{cast}_{\downarrow} \, \ottsym{(}  \kw{cast}^{\uparrow} \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]}  \ottnt{e'_{{\mathrm{1}}}}  \ottsym{)}  \longrightarrow  \ottnt{e'_{{\mathrm{1}}}}$. Thus, there exists $\ottnt{e'}  \equiv  \ottnt{e'_{{\mathrm{1}}}}$ such that $\ottnt{e}  \longrightarrow  \ottnt{e'}$.
     		    \item Otherwise, by induction hypothesis, there exists $\ottnt{e'_{{\mathrm{1}}}}$ such that $\ottnt{e_{{\mathrm{1}}}}  \longrightarrow  \ottnt{e'_{{\mathrm{1}}}}$. Then by rule \ruleref{S\_CastDown}, we have $\kw{cast}_{\downarrow} \, \ottnt{e_{{\mathrm{1}}}}  \longrightarrow  \kw{cast}_{\downarrow} \, \ottnt{e'_{{\mathrm{1}}}}$. Thus, there exists $\ottnt{e'}  \equiv  \kw{cast}_{\downarrow} \, \ottnt{e'_{{\mathrm{1}}}}$ such that $\ottnt{e}  \longrightarrow  \ottnt{e'}$.
     		\end{itemize}
-		\item[Case $e=\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}$:] By rule \ruleref{S\_Mu}, there always exists $\ottnt{e'}  \equiv  \ottnt{e_{{\mathrm{1}}}}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}  \ottsym{]}$.
+		\item[Case $\ottnt{e}=\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}$:] By rule \ruleref{S\_Mu}, there always exists $\ottnt{e'}  \equiv  \ottnt{e_{{\mathrm{1}}}}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}  \ottsym{]}$.
     \end{description}
 \end{proof}
 

@@ -15,7 +15,7 @@ grammar
 %% Expressions
 e, t {{ tex \tau }}, T {{ tex \sigma }} :: 'e_' ::=       {{ com Expressions    }}
   | x                         ::  :: Var        {{ com Variable }}
-  | s                         ::  :: Sort       {{ com Sort }}
+  | star                      ::  :: Star       {{ com Type of types }}
   | e1 e2                     ::  :: App        {{ com Application }}
   | \ x : t . e               ::  :: Lam        {{ com Abstraction }}
   | Pi x : t1 . t2            ::  :: Pi         {{ com Product }}
@@ -39,6 +39,8 @@ e, t {{ tex \tau }}, T {{ tex \sigma }} :: 'e_' ::=       {{ com Expressions    
   | \\\ e                     :: M:: LineHack
   | & e                       :: M:: AlignHack
   | @@                        :: M:: DummyExpr
+  | let x * : t = e2 in e1    :: M:: StarBinding
+  | s                         :: M:: Sort
 
 %% Literals
 lit :: 'lit_' ::=
@@ -47,7 +49,7 @@ lit :: 'lit_' ::=
   | three               :: M:: Number
 
 %% Sorts
-s, r {{ tex t }} :: 's_' ::= {{ com Sorts }}
+s {{ tex \star }}, r {{ tex \star }} :: 's_' ::= {{ com Sorts }}
   | star                ::  :: Star                  {{ com Star }}
   | square              ::  :: Square                {{ com Square }}
 
@@ -75,7 +77,7 @@ v :: 'v_' ::=                               {{ com Values   }}
 %% Core without mu
 ee {{ tex e }} , tt {{ tex \tau }} :: 'ee_' ::=       {{ com Expressions    }}
   | x                              ::  :: eVar        {{ com Variable }}
-  | s                              ::  :: eSort       {{ com Sort }}
+  | star                           ::  :: eStar       {{ com Type of types }}
   | ee1 ee2                        ::  :: eApp        {{ com Application }}
   | \ x : tt . ee                  ::  :: eLam        {{ com Abstraction }}
   | Pi x : tt1 . tt2               ::  :: ePi         {{ com Product }}
@@ -88,7 +90,7 @@ terminals :: 'terminals_' ::=
   | Pi       ::  :: pi        {{ tex \Pi }}
   | mu       ::  :: mu        {{ tex \mu }}
   | star     ::  :: star      {{ tex \star }}
-  | square   ::  :: square    {{ tex \Box }}
+  | square   ::  :: square    {{ tex \star }}
   | empty    ::  :: empty     {{ tex \varnothing }}
   | ->       ::  :: to        {{ tex \rightarrow }}
   | -->      ::  :: steps     {{ tex \longrightarrow }}
@@ -193,7 +195,7 @@ defn G  |- e : t ::  :: expr :: 'T_' {{ com Expression typing }}
 by
 
 ---------------------- :: Ax
-empty |- star : square
+empty |- star : star
 
 G |- t : s
 ----------------- :: Var
