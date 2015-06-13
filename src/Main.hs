@@ -7,7 +7,7 @@ import TypeCheck
 import Translation
 import Syntax
 import Parser
-import Predef
+-- import Predef
 
 -- Note: 1. datatypes first, then record
 --       2. first `desugar` to get rid of record, second desugar to get rid of let expression
@@ -29,7 +29,7 @@ main = runInputT defaultSettings (loop [] [])
       in case cmd of
         ":clr" -> do
           outputStrLn "Environment cleaned up!"
-          loop initalBEnv initalEnv
+          loop [] [] -- initalBEnv initalEnv
         ":env" -> do
           outputStrLn $ "Typing environment: " ++ show env
           outputStrLn $ "Binding environment: " ++ show (map fst benv)
@@ -37,11 +37,11 @@ main = runInputT defaultSettings (loop [] [])
         ":add" -> delegate progm "Command parse error - :add name type" $
           \name xs -> do
             outputStrLn "Added!"
-            loop benv (extend name (repFreeVar env (head xs)) env)
+            loop benv (extend name (head xs) env)
         ":let" -> delegate progm "Command parse error - :let name expr" $
           \name xs -> do
             outputStrLn "Added new term!"
-            loop ((name, repFreeVar benv (head xs)) : benv) env
+            loop ((name, head xs) : benv) env
         ":e" -> processCMD progm $
           \xs -> do
             if length xs == 1

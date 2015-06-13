@@ -3,7 +3,7 @@ module Predef where
 import Expr
 import Parser
 import Syntax
-import TypeCheck
+-- import TypeCheck
 
 initenv :: BEnv
 initenv = [ ("nat", nat)
@@ -19,25 +19,25 @@ initenv = [ ("nat", nat)
           , ("false", false)
           ]
 
-initalBEnv :: BEnv
-initalBEnv = foldl (\env (n, e) -> (n, repFreeVar env e) : env) [] initenv
+-- initalBEnv :: BEnv
+-- initalBEnv = foldl (\env (n, e) -> (n, repFreeVar e) : env) [] initenv
 
-initalEnv :: Env
-initalEnv = [("vec", vec), ("cons", cons), ("nil", nil)]
+-- initalEnv :: Env
+-- initalEnv = [("vec", vec), ("cons", cons), ("nil", nil)]
 
 parse :: String -> Expr
 parse str =
   let Right (Progm [expr]) = parseExpr str
   in expr
 
-cons :: Expr
-cons = repFreeVar initalBEnv (parse "pi a : * . pi b : a . pi n : nat . vec a n -> vec a (suc n)")
+-- cons :: Expr
+-- cons = repFreeVar initalBEnv (parse "pi a : * . pi b : a . pi n : nat . vec a n -> vec a (suc n)")
 
-nil :: Expr
-nil = repFreeVar initalBEnv (parse "pi a : * . vec a zero")
+-- nil :: Expr
+-- nil = repFreeVar initalBEnv (parse "pi a : * . vec a zero")
 
-vec :: Expr
-vec = repFreeVar initalBEnv (parse "* -> nat -> *")
+-- vec :: Expr
+-- vec = repFreeVar initalBEnv (parse "* -> nat -> *")
 
 bool :: Expr
 bool = parse "mu x : * . pi a : * . a -> a -> a"

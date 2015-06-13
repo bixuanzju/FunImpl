@@ -5,17 +5,17 @@ import Expr
 import Parser
 import Syntax
 import TypeCheck
-import Predef
+-- import Predef
 import Translation
 
-env1 :: Env
-env1 = extend "a" (Kind Star) initalEnv
+-- env1 :: Env
+-- env1 = extend "a" (Kind Star) initalEnv
 
 main :: IO ()
 main = defaultMain tests
 
 tests :: TestTree
-tests = testGroup "Tests" [substTest, tcheckTest, datatypeTest, patternTest, recordTest, recurTest]
+tests = testGroup "Tests" [substTest, datatypeTest, patternTest, recordTest, recurTest]
 
 -- natdt :: String
 -- natdt = "data nat = zero | suc nat;"
@@ -84,14 +84,14 @@ patternTest =
     [testCase "case analysis" $
       (trans [] (desugar pattest) >>= (\(t, _) -> return t)) @?= Right (Pi "x" (App (Var "list") Nat) Nat)]
 
-tcheckTest :: TestTree
-tcheckTest =
-  testGroup "Type check"
-    [testCase "type depend on term" $
-      tcheck env1 (Pi "" (Var "a") (Kind Star)) @?=
-      Right (Kind Box), testCase "A simple term with a type that depends on a term" $
-                          tcheck env1 (Lam "x" (Var "a") (Var "a")) @?=
-                          Right (Pi "x" (Var "a") (Kind Star))]
+-- tcheckTest :: TestTree
+-- tcheckTest =
+--   testGroup "Type check"
+--     [testCase "type depend on term" $
+--       tcheck env1 (Pi "" (Var "a") (Kind Star)) @?=
+--       Right (Kind Box), testCase "A simple term with a type that depends on a term" $
+--                           tcheck env1 (Lam "x" (Var "a") (Var "a")) @?=
+--                           Right (Pi "x" (Var "a") (Kind Star))]
 
 substTest :: TestTree
 substTest =

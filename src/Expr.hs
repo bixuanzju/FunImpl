@@ -1,7 +1,7 @@
 module Expr where
 
 import Data.List ((\\), union)
-import Data.Maybe (fromMaybe)
+-- import Data.Maybe (fromMaybe)
 
 import Syntax
 import Utils
@@ -71,18 +71,18 @@ alphaEq (Lit n) (Lit m) = n == m
 alphaEq (Add e1 e2) (Add e1' e2') = alphaEq e1 e1' && alphaEq e2 e2'
 alphaEq _ _ = False
 
-repFreeVar :: BEnv -> Expr -> Expr
-repFreeVar env = repl
-  where
-    repl :: Expr -> Expr
-    repl (App f a) = App (repl f) (repl a)
-    repl (Lam n t e) = Lam n (repl t) (repl e)
-    repl (Pi n t e) = Pi n (repl t) (repl e)
-    repl (Mu n t1 t2) = Mu n (repl t1) (repl t2)
-    repl (F t e) = F (repl t) (repl e)
-    repl (U t) = U (repl t)
-    repl (Kind s) = Kind s
-    repl (Var n) = fromMaybe (Var n) (lookup n env)
+-- repFreeVar :: BEnv -> Expr -> Expr
+-- repFreeVar env = repl
+--   where
+--     repl :: Expr -> Expr
+--     repl (App f a) = App (repl f) (repl a)
+--     repl (Lam n t e) = Lam n (repl t) (repl e)
+--     repl (Pi n t e) = Pi n (repl t) (repl e)
+--     repl (Mu n t1 t2) = Mu n (repl t1) (repl t2)
+--     repl (F t e) = F (repl t) (repl e)
+--     repl (U t) = U (repl t)
+--     repl (Kind s) = Kind s
+--     repl (Var n) = fromMaybe (Var n) (lookup n env)
 
 -- TODO: Generalize
 desugar :: Expr -> Expr
@@ -158,11 +158,11 @@ eval = loop
          Left err -> Left err
 
 -- | Definitional equality
-equate :: BEnv -> Expr -> Expr -> Bool
-equate benv e1 e2 =
-  let Right e1' = eval . repFreeVar benv $ e1
-      Right e2' = eval . repFreeVar benv $ e2
-  in alphaEq e1' e2'
+-- equate :: BEnv -> Expr -> Expr -> Bool
+-- equate benv e1 e2 =
+--   let Right e1' = eval . repFreeVar benv $ e1
+--       Right e2' = eval . repFreeVar benv $ e2
+--   in alphaEq e1' e2'
 --   in case (e1',e2') of
 --        (App a1 b1,App a2 b2) ->
 --          equate benv a1 a2 &&

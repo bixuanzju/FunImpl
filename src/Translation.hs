@@ -86,35 +86,35 @@ trans env (Data db@(DB tc tca constrs) e) = do
 
   let tct = chainType (Kind Star) . map snd $ tca
   let du = foldl App (Var tc) (map (Var . fst) tca)
-  let dcArgs = map constrParams constrs
-  let dcArgChains = map (chainType (Var "B")) dcArgs
-  let dcArgsAndSubst = map
+  let tcArgs = map constrParams constrs
+  let tcArgChains = map (chainType (Var "B")) tcArgs
+  let tcArgsAndSubst = map
                          (chainType (Var "B") . map
                                                   (\tau -> if tau == du
                                                              then Var "X"
                                                              else tau))
-                         dcArgs
-  let transD = (tc, (tct, genLambdas tca
-                            (Mu "X" (Kind Star)
-                               (Pi "B" (Kind Star) (chainType (Var "B") dcArgsAndSubst)))))
+                         tcArgs
+  let transTC = (tc, (tct, genLambdas tca
+                             (Mu "X" (Kind Star)
+                                (Pi "B" (Kind Star) (chainType (Var "B") tcArgsAndSubst)))))
 
   let tduList = map (chainType du . constrParams) constrs
   let dctList = map (\tdu -> foldr (\(u, k) tau -> Pi u k tau) tdu tca) tduList
 
-  let transKs = zip (map constrName constrs)
+  let transDC = zip (map constrName constrs)
                   (zip dctList
                      (map
                         (\(i, taus) ->
                            let xs = genVarsAndTypes 'x' taus
-                               cs = genVarsAndTypes 'c' dcArgChains
+                               cs = genVarsAndTypes 'c' tcArgChains
                            in genLambdas tca
                                 (genLambdas xs
                                    (F du
                                       (Lam "B" (Kind Star)
                                          (genLambdas cs
                                             (foldl App (Var ('c' : show i)) (map (Var . fst) xs)))))))
-                        (zip [0 :: Int ..] dcArgs)))
-  return (t, foldr (\(n, (kt, ke)) body -> Let n kt ke body) e' (transD : transKs))
+                        (zip [0 :: Int ..] tcArgs)))
+  return (t, foldr (\(n, (kt, ke)) body -> Let n kt ke body) e' (transTC : transDC))
 
 trans _ Nat = return (Kind Star, Nat)
 trans _ n@(Lit _) = return (Nat, n)
@@ -133,8 +133,13 @@ trans _ _ = throwError "Trans: Impossible happened"
 --        in e
 
 
--- test2 = let Right (Progm [e]) = parseExpr "data Bool = True | False; data Nat = Zero | Suc Nat; (\\ y : Bool . case y of True => 1 | False => 2) True"
+-- test2 = let Right (Progm [e]) = parseExpr "data Bool = True | False; data Nat = Zero | Suc Nat; data List (a : *) = Nil | Cons a (List a); Cons"
 --        in e
+
+-- tt :: Expr -> Expr
+-- tt e = case trans [] e of
+--   Left _ -> error "error"
+--   Right (_, e') -> e'
 
 -- test3 = let Right (Progm [e]) = parseExpr "data List (a : *) = Nil | Cons a (List a); Cons"
 --         in e
