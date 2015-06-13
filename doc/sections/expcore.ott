@@ -33,7 +33,9 @@ e, t {{ tex \tau }}, T {{ tex \sigma }} :: 'e_' ::=       {{ com Expressions    
   | ( << u : t1 >> ) -> t2    :: M:: FuncTypeVec
   | ( u : t1 ) -> t2          :: M:: DepFuncType
   | \ << u : t >> . e         :: M:: LamVec
-  | e1 [ << e2 |-> t2 >> ]    :: M:: SubstVec
+  | e1 [ << u |-> e2 >> ]     :: M:: SubstVec
+  | e [ << u1 |-> u2 >> ]     :: M:: SubstAtom
+  | e1 [ << D @ <<u>> |-> e2 >> ] :: M:: SubstDT
   | D @ << u >>               :: M:: Datatype
   | e1 [ D @ << u >> |-> e3 ] :: M:: ExprSubst
   | \\\ e                     :: M:: LineHack
