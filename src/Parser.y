@@ -46,11 +46,11 @@ import Syntax
 
 
 %right ';'
-%right '.'
-%right '->'
-%right '=>'
-%right ']'
 %right in
+%right '.'
+%right '=>'
+%right '->'
+%right ']'
 %right ONEALT
 %right '|'
 %left '+'

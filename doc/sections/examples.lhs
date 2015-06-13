@@ -48,7 +48,7 @@ in
 let example : plambda value =
   app value
       (lam value (\ x : value . var value x))
-      (num value 4)
+      (num value 42)
 in
-show (eval example) -- return 4
+show (eval example) -- return 42
 \end{code}

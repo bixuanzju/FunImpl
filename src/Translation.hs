@@ -25,8 +25,8 @@ trans env (Lam s t e) = do
   let env' = extend s t env
   (te, e') <- trans env' e
   let lt = Pi s t te
-  tcheck env lt
-  return (lt, Lam s t e')
+  (_, Pi _ t' _) <- trans env lt
+  return (lt, Lam s t' e')
 trans env (Pi x a b) = do
   (s, a') <- trans env a
   let env' = extend x a env
@@ -35,21 +35,23 @@ trans env (Pi x a b) = do
   return (t, Pi x a' b')
 trans env (Mu i t e) = do
   let env' = extend i t env
-  (t', e') <- trans env' e
-  tcheck env t'
-  unless (alphaEq t t') $ throwError "Bad recursive type"
-  return (t, Mu i t e')
+  (te, e') <- trans env' e
+  unless (alphaEq t te) $ throwError "Bad recursive type"
+  (_, t') <- trans env t
+  return (t, Mu i t' e')
 trans env (F t1 e) = do
   (t2, e') <- trans env e
-  tcheck env t1
+  (_, t1') <- trans env t1
   t2' <- reduct t1
   unless (alphaEq t2 t2') $ throwError "Bad fold expression"
-  return (t1, F t1 e')
+  return (t1, F t1' e')
 trans env (U e) = do
   (t1, e') <- trans env e
   t2 <- reduct t1
-  tcheck env t2
+  trans env t2
   return (t2, U e')
+
+-- TODO: Lack 1) exhaustive test 2) overlap test
 trans env (Case e alts) = do
   (dv, e') <- trans env e
   actualTypes <- fmap reverse (getActualTypes dv)
@@ -66,10 +68,11 @@ trans env (Case e alts) = do
     transPattern :: Type -> [Type] -> Alt -> TC (Type, Expr)
     transPattern dv tys (Alt (PConstr constr params) body) = do
       let k = constrName constr
-      kt <- tcheck env (Var k)
+      (kt, _) <- trans env (Var k)
 
+      -- check patterns, quite hacky
       let tcApp = foldl App (Var "dummy$") (tys ++ map (Var . fst) params)
-      typ <- tcheck (("dummy$", kt) : params ++ env) tcApp
+      (typ, _) <- trans (("dummy$", kt) : params ++ env) tcApp
       unless (alphaEq typ dv) $ throwError "Bad patterns"
 
       (bodyType, body') <- trans (params ++ env) body
@@ -126,12 +129,16 @@ trans _ _ = throwError "Trans: Impossible happened"
 -- recordTest2 = let Right (Progm [e]) = parseExpr "rec monad (m : * -> *) = mo { return : pi a : * . m a, bind : pi a : *. pi b : *. m a -> (a -> m b) -> m b}; lam x : * . x"
 --              in e
 
--- test = let Right (Progm [e]) = parseExpr "data nat = zero | suc nat; data list (a : *) = nil | cons a (list a); "
+-- test = let Right (Progm [e]) = parseExpr "data Bool = True | False; data Nat = Zero | Suc Nat; \\ y : (\\ x : Bool . case x of True => Nat | False => Bool) True . unfold y"
 --        in e
 
--- test2 = let Right (Progm [e]) = parseExpr "data nat = zero | suc nat; data list (a : *) = nil | cons a (list a); rec person = p { name : nat, add : list nat}; lam x : nat . x"
+
+-- test2 = let Right (Progm [e]) = parseExpr "data Bool = True | False; data Nat = Zero | Suc Nat; (\\ y : Bool . case y of True => 1 | False => 2) True"
 --        in e
 
--- test3 = let Right (Progm [e]) = parseExpr "data nat = zero | suc nat; data list (a : *) = nil | cons a (list a); data person  = p nat ; (lam n : person -> nat . n) (lam l : person . case l of p (x : nat) => x)"
---        in e
+-- test3 = let Right (Progm [e]) = parseExpr "data List (a : *) = Nil | Cons a (List a); Cons"
+--         in e
 
+
+-- test2 = let Right (Progm [e]) = parseExpr "data Bool = True | False; data Nat = Zero | Suc Nat; \\ y : ((\\ (x : Bool). (((unfold(x) ⋆) Nat) Bool))) True . unfold y"
+--        in e

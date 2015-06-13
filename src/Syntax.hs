@@ -49,6 +49,7 @@ isVal (Lam{}) = True
 isVal (Pi{}) = True
 isVal (F{}) = True
 isVal (Lit _) = True
+isVal Nat = True
 isVal _ = False
 
 type Type = Expr
@@ -75,7 +76,7 @@ instance Pretty Expr where
     if n == ""
     then parens $ pretty t <+> char '→' <+> pretty e
     else parens $ char 'Π' <> parens (pretty n <+> colon <+> pretty t) <> dot <+> pretty e
-  pretty (Mu n t e) = char 'μ' <> parens (pretty n <+> colon <+> pretty t) <> dot <+> pretty e
+  pretty (Mu n t e) = parens $ char 'μ' <+> pretty n <+> colon <+> pretty t <> dot <+> pretty e
   pretty (F t e) = text "fold" <> brackets (pretty t) <+> parens (pretty e)
   pretty (U e) = text "unfold" <> parens (pretty e)
   pretty (Kind k) = pretty k
