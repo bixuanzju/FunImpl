@@ -125,13 +125,13 @@ G |- (Pi x:A1.A2):r
 
 G |- E : A2
 G |- A1 : s
-A1 --> A2
+A1 -->> A2
 ---------------------- :: CastUp
 G |- (castup[A1] E):A1
 
 G |- E : A1
 G |- A2 : s
-A1 --> A2
+A1 -->> A2
 ---------------------- :: CastDown
 G |- (castdown E) : A2
 
@@ -204,13 +204,13 @@ G |- (Pi x:A1.A2):r ~> Pi x:t1.t2
 
 G |- E : A2 ~> e
 G |- A1 : s ~> t1
-A1 --> A2
+A1 -->> A2
 ---------------------- :: CastUp
 G |- (castup[A1] E):A1 ~> castup[t1] e
 
 G |- E : A1 ~> e
 G |- A2 : s ~> t2
-A1 --> A2
+A1 -->> A2
 ------------------------------------ :: CastDown
 G |- (castdown E) : A2 ~> castdown e
 
