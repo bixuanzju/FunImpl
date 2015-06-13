@@ -238,7 +238,7 @@
 \newcommand{\ottdruleTXXCastUp}[1]{\ottdrule[#1]{%
 {\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau_{{\mathrm{2}}}}%
 \\ {\Gamma  \vdash  \tau_{{\mathrm{1}}}  \ottsym{:}  \ottnt{s}}%
-\\ {\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}}%
+\\ {\tau_{{\mathrm{1}}}  \longrightarrow_n  \tau_{{\mathrm{2}}}}%
 }{
 \Gamma  \vdash  \ottsym{(}  \kw{cast}^{\uparrow} \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]}  \ottnt{e}  \ottsym{)}  \ottsym{:}  \tau_{{\mathrm{1}}}}{%
 {\ottdrulename{T\_CastUp}}{}%
@@ -248,7 +248,7 @@
 \newcommand{\ottdruleTXXCastDown}[1]{\ottdrule[#1]{%
 {\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau_{{\mathrm{1}}}}%
 \\ {\Gamma  \vdash  \tau_{{\mathrm{2}}}  \ottsym{:}  \ottnt{s}}%
-\\ {\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}}%
+\\ {\tau_{{\mathrm{1}}}  \longrightarrow_n  \tau_{{\mathrm{2}}}}%
 }{
 \Gamma  \vdash  \ottsym{(}  \kw{cast}_{\downarrow} \, \ottnt{e}  \ottsym{)}  \ottsym{:}  \tau_{{\mathrm{2}}}}{%
 {\ottdrulename{T\_CastDown}}{}%
@@ -432,7 +432,7 @@
 \newcommand{\ottdruleTSXXCastUp}[1]{\ottdrule[#1]{%
 {\Gamma  \vdash  \ottnt{E}  \ottsym{:}  T_{{\mathrm{2}}}}%
 \\ {\Gamma  \vdash  T_{{\mathrm{1}}}  \ottsym{:}  \ottnt{s}}%
-\\ {T_{{\mathrm{1}}}  \longrightarrow  T_{{\mathrm{2}}}}%
+\\ {T_{{\mathrm{1}}}  \longrightarrow_n  T_{{\mathrm{2}}}}%
 }{
 \Gamma  \vdash  \ottsym{(}  \kw{cast}^{\uparrow} \, \ottsym{[}  T_{{\mathrm{1}}}  \ottsym{]}  \ottnt{E}  \ottsym{)}  \ottsym{:}  T_{{\mathrm{1}}}}{%
 {\ottdrulename{TS\_CastUp}}{}%
@@ -442,7 +442,7 @@
 \newcommand{\ottdruleTSXXCastDown}[1]{\ottdrule[#1]{%
 {\Gamma  \vdash  \ottnt{E}  \ottsym{:}  T_{{\mathrm{1}}}}%
 \\ {\Gamma  \vdash  T_{{\mathrm{2}}}  \ottsym{:}  \ottnt{s}}%
-\\ {T_{{\mathrm{1}}}  \longrightarrow  T_{{\mathrm{2}}}}%
+\\ {T_{{\mathrm{1}}}  \longrightarrow_n  T_{{\mathrm{2}}}}%
 }{
 \Gamma  \vdash  \ottsym{(}  \kw{cast}_{\downarrow} \, \ottnt{E}  \ottsym{)}  \ottsym{:}  T_{{\mathrm{2}}}}{%
 {\ottdrulename{TS\_CastDown}}{}%
@@ -567,7 +567,7 @@
 \newcommand{\ottdruleTRXXCastUp}[1]{\ottdrule[#1]{%
 {\Gamma  \vdash  \ottnt{E}  \ottsym{:}  T_{{\mathrm{2}}}  \rightsquigarrow  \ottnt{e}}%
 \\ {\Gamma  \vdash  T_{{\mathrm{1}}}  \ottsym{:}  \ottnt{s}  \rightsquigarrow  \tau_{{\mathrm{1}}}}%
-\\ {T_{{\mathrm{1}}}  \longrightarrow  T_{{\mathrm{2}}}}%
+\\ {T_{{\mathrm{1}}}  \longrightarrow_n  T_{{\mathrm{2}}}}%
 }{
 \Gamma  \vdash  \ottsym{(}  \kw{cast}^{\uparrow} \, \ottsym{[}  T_{{\mathrm{1}}}  \ottsym{]}  \ottnt{E}  \ottsym{)}  \ottsym{:}  T_{{\mathrm{1}}}  \rightsquigarrow  \kw{cast}^{\uparrow} \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]}  \ottnt{e}}{%
 {\ottdrulename{TR\_CastUp}}{}%
@@ -577,7 +577,7 @@
 \newcommand{\ottdruleTRXXCastDown}[1]{\ottdrule[#1]{%
 {\Gamma  \vdash  \ottnt{E}  \ottsym{:}  T_{{\mathrm{1}}}  \rightsquigarrow  \ottnt{e}}%
 \\ {\Gamma  \vdash  T_{{\mathrm{2}}}  \ottsym{:}  \ottnt{s}  \rightsquigarrow  \tau_{{\mathrm{2}}}}%
-\\ {T_{{\mathrm{1}}}  \longrightarrow  T_{{\mathrm{2}}}}%
+\\ {T_{{\mathrm{1}}}  \longrightarrow_n  T_{{\mathrm{2}}}}%
 }{
 \Gamma  \vdash  \ottsym{(}  \kw{cast}_{\downarrow} \, \ottnt{E}  \ottsym{)}  \ottsym{:}  T_{{\mathrm{2}}}  \rightsquigarrow  \kw{cast}_{\downarrow} \, \ottnt{e}}{%
 {\ottdrulename{TR\_CastDown}}{}%
