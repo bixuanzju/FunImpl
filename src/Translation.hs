@@ -39,28 +39,29 @@ trans env (Mu i t e) = do
   unless (alphaEq t te) $ throwError "Bad recursive type"
   (_, t') <- trans env t
   return (t, Mu i t' e')
-trans env (F t1 e) = do
+trans env (F n t1 e) = do
   (t2, e') <- trans env e
   (_, t1') <- trans env t1
-  t2' <- reduct t1
+  t2' <- reductN n t1
   unless (alphaEq t2 t2') $ throwError "Bad fold expression"
-  return (t1, F t1' e')
-trans env (U e) = do
+  return (t1, F n t1' e')
+trans env (U n e) = do
   (t1, e') <- trans env e
-  t2 <- reduct t1
+  t2 <- reductN n t1
   trans env t2
-  return (t2, U e')
+  return (t2, U n e')
 
 -- TODO: Lack 1) exhaustive test 2) overlap test
 trans env (Case e alts) = do
   (dv, e') <- trans env e
   actualTypes <- fmap reverse (getActualTypes dv)
+  let arity = length actualTypes
 
   (altTypeList, e2List) <- mapAndUnzipM (transPattern dv actualTypes) alts
   unless (all (== head altTypeList) (tail altTypeList)) $ throwError "Bad pattern expressions"
 
   let (Pi "" _ t) = head altTypeList
-  let genExpr = foldl App (App (U e') t) e2List
+  let genExpr = foldl App (App (U (arity + 1)e') t) e2List
 
   return (t, genExpr)
 
@@ -88,19 +89,21 @@ trans env (Data db@(DB tc tca constrs) e) = do
   let du = foldl App (Var tc) (map (Var . fst) tca)
   let tcArgs = map constrParams constrs
   let tcArgChains = map (chainType (Var "B")) tcArgs
+  let xu = foldl App (Var "X") (map (Var . fst) tca)
   let tcArgsAndSubst = map
                          (chainType (Var "B") . map
                                                   (\tau -> if tau == du
-                                                             then Var "X"
+                                                             then xu
                                                              else tau))
                          tcArgs
-  let transTC = (tc, (tct, genLambdas tca
-                             (Mu "X" (Kind Star)
+  let transTC = (tc, (tct, Mu "X" tct
+                             (genLambdas tca
                                 (Pi "B" (Kind Star) (chainType (Var "B") tcArgsAndSubst)))))
 
   let tduList = map (chainType du . constrParams) constrs
   let dctList = map (\tdu -> foldr (\(u, k) tau -> Pi u k tau) tdu tca) tduList
 
+  let arity = length tca
   let transDC = zip (map constrName constrs)
                   (zip dctList
                      (map
@@ -109,7 +112,7 @@ trans env (Data db@(DB tc tca constrs) e) = do
                                cs = genVarsAndTypes 'c' tcArgChains
                            in genLambdas tca
                                 (genLambdas xs
-                                   (F du
+                                   (F (arity + 1) du
                                       (Lam "B" (Kind Star)
                                          (genLambdas cs
                                             (foldl App (Var ('c' : show i)) (map (Var . fst) xs)))))))
@@ -124,26 +127,15 @@ trans env (Add e1 e2) = do
   unless (t1 == Nat && t2 == Nat) $ throwError "Addition is only allowed for numbers!"
   return (Nat, Add e1' e2')
 
-trans _ _ = throwError "Trans: Impossible happened"
-
--- recordTest2 = let Right (Progm [e]) = parseExpr "rec monad (m : * -> *) = mo { return : pi a : * . m a, bind : pi a : *. pi b : *. m a -> (a -> m b) -> m b}; lam x : * . x"
---              in e
+trans _ e = throwError $ "Trans: Impossible happened, trying to translate: " ++ show e
 
 -- test = let Right (Progm [e]) = parseExpr "data Bool = True | False; data Nat = Zero | Suc Nat; \\ y : (\\ x : Bool . case x of True => Nat | False => Bool) True . unfold y"
 --        in e
 
-
--- test2 = let Right (Progm [e]) = parseExpr "data Bool = True | False; data Nat = Zero | Suc Nat; data List (a : *) = Nil | Cons a (List a); Cons"
+-- test2 = let Right (Progm [e]) = parseExpr "data Bool = True | False; data Nat = Zero | Suc Nat; data List (a : *) = Nil | Cons a (List a); \\ x : List Nat . case x of Nil => 0 | Cons (x : Nat) (xs : List Nat) => 1"
 --        in e
 
 -- tt :: Expr -> Expr
 -- tt e = case trans [] e of
---   Left _ -> error "error"
+--   Left err -> error err
 --   Right (_, e') -> e'
-
--- test3 = let Right (Progm [e]) = parseExpr "data List (a : *) = Nil | Cons a (List a); Cons"
---         in e
-
-
--- test2 = let Right (Progm [e]) = parseExpr "data Bool = True | False; data Nat = Zero | Suc Nat; \\ y : ((\\ (x : Bool). (((unfold(x) ⋆) Nat) Bool))) True . unfold y"
---        in e

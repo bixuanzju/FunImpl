@@ -14,8 +14,8 @@ data Expr = Var Sym
           | Lam Sym Type Expr
           | Pi Sym Type Type
           | Mu Sym Type Type
-          | F Type Expr
-          | U Expr
+          | F Int Type Expr
+          | U Int Expr
           | Kind Kinds
           -- Surface language
           | Data DataBind Expr
@@ -77,8 +77,8 @@ instance Pretty Expr where
     then parens $ pretty t <+> char '→' <+> pretty e
     else parens $ char 'Π' <> parens (pretty n <+> colon <+> pretty t) <> dot <+> pretty e
   pretty (Mu n t e) = parens $ char 'μ' <+> pretty n <+> colon <+> pretty t <> dot <+> pretty e
-  pretty (F t e) = text "fold" <> brackets (pretty t) <+> parens (pretty e)
-  pretty (U e) = text "unfold" <> parens (pretty e)
+  pretty (F n t e) = text "fold" <+> pretty n <> brackets (pretty t) <+> parens (pretty e)
+  pretty (U n e) = text "unfold" <+> pretty n <> parens (pretty e)
   pretty (Kind k) = pretty k
   pretty (Data datatypes e) = text "data" <+> pretty datatypes <$> pretty e
   pretty (Case e alts) = hang 2 (text "case" <+> pretty e <+> text "of" <$> text " " <+> intersperseBar (map pretty alts))

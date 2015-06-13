@@ -5,6 +5,7 @@ import Data.List ((\\), union)
 
 import Syntax
 import Utils
+-- import Parser
 
 subst :: Sym -> Expr -> Expr -> Expr
 subst v x = sub
@@ -13,8 +14,8 @@ subst v x = sub
         sub (Lam i t e) = abstr Lam i t e
         sub (Pi i t e) = abstr Pi i t e
         sub (Mu i t1 t2) = abstr Mu i t1 t2
-        sub (F t e) = F (sub t) (sub e)
-        sub (U e) = U (sub e)
+        sub (F n t e) = F n (sub t) (sub e)
+        sub (U n e) = U n (sub e)
         sub (Kind k) = Kind k
         -- surface language
         sub Nat = Nat
@@ -47,8 +48,8 @@ freeVars (App f a) = freeVars f `union` freeVars a
 freeVars (Lam i t e) = freeVars t `union` (freeVars e \\ [i])
 freeVars (Pi i k t) = freeVars k `union` (freeVars t \\ [i])
 freeVars (Mu i t1 t2) = freeVars t1 `union` (freeVars t2 \\ [i])
-freeVars (F t e) = freeVars t `union` freeVars e
-freeVars (U e) = freeVars e
+freeVars (F _ t e) = freeVars t `union` freeVars e
+freeVars (U _ e) = freeVars e
 freeVars (Kind _) = []
 freeVars (Case e _) = freeVars e
 freeVars (Data _ e) = freeVars e
@@ -63,9 +64,10 @@ alphaEq (App f a) (App f' a') = alphaEq f f' && alphaEq a a'
 alphaEq (Lam s t e) (Lam s' t' e') = alphaEq e (substVar s' s e') && alphaEq t t'
 alphaEq (Pi s t e) (Pi s' t' e') = alphaEq e (substVar s' s e') && alphaEq t t'
 alphaEq (Mu i t1 t2) (Mu i' t1' t2') = alphaEq t2 (substVar i' i t2') && alphaEq t1 t1'
-alphaEq (F t e) (F t' e') = alphaEq t t' && alphaEq e e'
-alphaEq (U t) (U t') = alphaEq t t'
+alphaEq (F n t e) (F n' t' e') = n == n' && alphaEq t t' && alphaEq e e'
+alphaEq (U n t) (U n' t') = alphaEq t t' && n == n'
 alphaEq (Kind k) (Kind k') = k == k'
+-- primitive types
 alphaEq Nat Nat = True
 alphaEq (Lit n) (Lit m) = n == m
 alphaEq (Add e1 e2) (Add e1' e2') = alphaEq e1 e1' && alphaEq e2 e2'
@@ -91,8 +93,8 @@ desugar (App e1 e2) = App (desugar e1) (desugar e2)
 desugar (Lam n t e) = Lam n (desugar t) (desugar e)
 desugar (Pi n t e) = Pi n (desugar t) (desugar e)
 desugar (Mu n t1 t2) = Mu n (desugar t1) (desugar t2)
-desugar (F t e) = F (desugar t) (desugar e)
-desugar (U t) = U (desugar t)
+desugar (F n t e) = F n (desugar t) (desugar e)
+desugar (U n t) = U n (desugar t)
 desugar e@(Kind _) = e
 desugar (Let n _ e1 e2) = subst n (desugar e1) (desugar e2)
 desugar (Rec (RB n params field) e) =
@@ -116,7 +118,12 @@ desugar (Rec (RB n params field) e) =
                    (desugar (foldr (\(name, (kt, ke)) body -> Let name kt ke body) e selExprs))
   in lastExpr
 desugar (Data bind e) = Data bind (desugar e)
+desugar (Case e alts) = Case (desugar e) (map deAlt alts)
+  where
+    deAlt :: Alt -> Alt
+    deAlt (Alt p body) = Alt p (desugar body)
 desugar e = e
+
 
 type BEnv = [(Sym, Expr)]
 
@@ -138,8 +145,8 @@ type BEnv = [(Sym, Expr)]
 reduct :: Expr -> Either String Expr
 reduct (App (Lam s _ e1) e2) = Right $ subst s e2 e1      -- (R-AppLAm)
 reduct (App e1 e2) = reduct e1 >>= \e -> Right (App e e2) -- (R-AppL)
-reduct (U (F _ e)) = Right e                              -- (R-Unfold-Fold)
-reduct (U e) = reduct e >>= Right . U                     -- (R-unfold)
+reduct (U _ (F _ _ e)) = Right e                              -- (R-Unfold-Fold)
+reduct (U n e) = reduct e >>= Right . U n                     -- (R-unfold)
 reduct m@(Mu x _ t2) = Right $ subst x m t2               -- (R-Mu)
 -- surface language
 reduct (Add (Lit n) (Lit m)) = Right (Lit (n + m))
@@ -147,6 +154,11 @@ reduct (Add (Lit n) m) = reduct m >>= \m' -> Right $ Add (Lit n) m'
 reduct (Add n m) = reduct n >>= \n' -> Right (Add n' m)
 reduct Nat = return Nat
 reduct e = Left $ "Not reducible: " ++ show e
+
+-- multiple reduction
+reductN :: Int -> Expr -> Either String Expr
+reductN 0 e = return e
+reductN n e = reduct e >>= \e' -> reductN (n-1) e'
 
 eval :: Expr -> Either String Expr
 eval = loop

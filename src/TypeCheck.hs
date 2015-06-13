@@ -53,15 +53,15 @@ tcheck env (Mu i t e) =                  -- (T_MU)
      tcheck env t'
      unless (alphaEq t t') $ throwError "Bad recursive type"
      return t
-tcheck env (F t1 e) =                    -- (T_CASTUP)
+tcheck env (F n t1 e) =                    -- (T_CASTUP)
   do t2 <- tcheck env e
      tcheck env t1
-     t2' <- reduct t1
+     t2' <- reductN n t1
      unless (alphaEq t2 t2') $ throwError "Bad fold expression"
      return t1
-tcheck env (U e) =                       -- (T_CASTDOWN)
+tcheck env (U n e) =                       -- (T_CASTDOWN)
   do t1 <- tcheck env e
-     t2 <- reduct t1
+     t2 <- reductN n t1
      tcheck env t2
      return t2
 

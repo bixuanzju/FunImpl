@@ -8,14 +8,11 @@ import TypeCheck
 -- import Predef
 import Translation
 
--- env1 :: Env
--- env1 = extend "a" (Kind Star) initalEnv
-
 main :: IO ()
 main = defaultMain tests
 
 tests :: TestTree
-tests = testGroup "Tests" [substTest, datatypeTest, patternTest, recordTest, recurTest]
+tests = testGroup "Tests" [substTest, patternTest, recordTest, recurTest]
 
 -- natdt :: String
 -- natdt = "data nat = zero | suc nat;"
@@ -29,20 +26,13 @@ maybedt = "data maybe (a : *) = nothing | just a;"
 monad :: String
 monad = "rec monad (m : * -> *) = mo { return : pi a : * . a -> m a, bind : pi a : *. pi b : *. m a -> (a -> m b) -> m b};"
 
--- nattest1 :: Expr
--- nattest1 = let Right (Progm [e]) =  parseExpr $ natdt ++ "\\ x : nat . x"
---            in e
-
--- nattest2 :: Expr
--- nattest2 = let Right (Progm [e]) =  parseExpr $ natdt ++ "\\ x : nat . 0"
---            in e
 
 listtest :: Expr
 listtest = let Right (Progm [e]) = parseExpr $ listdt ++ "\\ x : (list nat) . cons nat 0 x"
            in e
 
 pattest :: Expr
-pattest = let Right (Progm [e]) = parseExpr $ listdt ++ "\\ x : list nat . case x of nil => 0 | cons (x : nat) (xs : list nat) => x + 2"
+pattest = let Right (Progm [e]) = parseExpr $ listdt ++ "let alist : list nat = cons nat 1 (cons nat 2 (nil nat)) in let head : list nat -> nat = \\ x : list nat . case x of nil => 1000 | cons (x : nat) (xs : list nat) => x in head alist"
               in e
 recordtest :: Expr
 recordtest = let Right (Progm [e]) = parseExpr $ listdt ++ "rec person = p { name : nat, addr : list nat}; addr (p 0 (cons nat 0 (nil nat)))"
@@ -71,27 +61,14 @@ recordTest =
       (trans [] (desugar recordtest2) >>= (\(t, _) -> return t)) @?= Right (App (Var "maybe") Nat)
     ]
 
-datatypeTest :: TestTree
-datatypeTest =
-  testGroup "Datatype check"
-    [ testCase "list of natural numbers" $
-      (trans [] (desugar listtest) >>= (\(t, _) -> return t)) @?= Right (Pi "x" (App (Var "list") Nat) (App (Var "list") Nat))
-    ]
-
 patternTest :: TestTree
 patternTest =
   testGroup "Pattern matching check"
-    [testCase "case analysis" $
-      (trans [] (desugar pattest) >>= (\(t, _) -> return t)) @?= Right (Pi "x" (App (Var "list") Nat) Nat)]
-
--- tcheckTest :: TestTree
--- tcheckTest =
---   testGroup "Type check"
---     [testCase "type depend on term" $
---       tcheck env1 (Pi "" (Var "a") (Kind Star)) @?=
---       Right (Kind Box), testCase "A simple term with a type that depends on a term" $
---                           tcheck env1 (Lam "x" (Var "a") (Var "a")) @?=
---                           Right (Pi "x" (Var "a") (Kind Star))]
+    [testCase "typecheck: case analysis" $
+      (trans [] (desugar pattest) >>= (\(_, e) -> tcheck [] (desugar e))) @?= Right Nat
+    , testCase "evaluation: case analysis" $
+      (trans [] (desugar pattest) >>= (\(_, e) -> eval (desugar e))) @?= Right (Lit 1)
+    ]
 
 substTest :: TestTree
 substTest =
@@ -101,10 +78,3 @@ substTest =
       Lam "x" (Kind Star) (Var "x"), testCase "free vars" $
                                        subst "x" (Var "y") (Lam "y" (Kind Star) (App (Var "y") (Var "x"))) @?=
                                        Lam "y$" (Kind Star) (App (Var "y$") (Var "y"))]
-
--- natTest :: TestTree
--- natTest =
---   testGroup "Natural number"
---     [testCase "one plus two" $
---       equate initalBEnv (App (App plus one) two) three @?=
---       True]
