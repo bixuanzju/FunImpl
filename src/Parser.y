@@ -118,7 +118,8 @@ types : {- empty -}                             { [] }
       | ftype types                             { $1:$2 }
 
 ftype : '(' expr ')'                            { $2 }
-        | id                                    { Var $1 }
+      | nat                                     { Nat }
+      | id                                      { Var $1 }
 
 alts : alt                                      { [$1] }
      | alt '|' alts                             { $1:$3 }

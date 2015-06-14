@@ -32,8 +32,15 @@ listtest = let Right (Progm [e]) = parseExpr $ listdt ++ "\\ x : (list nat) . co
            in e
 
 pattest :: Expr
-pattest = let Right (Progm [e]) = parseExpr $ listdt ++ "let alist : list nat = cons nat 1 (cons nat 2 (nil nat)) in let head : list nat -> nat = \\ x : list nat . case x of nil => 1000 | cons (x : nat) (xs : list nat) => x in head alist"
-              in e
+pattest =
+  let Right (Progm [e]) = parseExpr $ listdt ++ "let alist : list nat = cons nat 1 (cons nat 2 (nil nat)) in let head : list nat -> nat = \\ x : list nat . case x of nil => 1000 | cons (x : nat) (xs : list nat) => x in head alist"
+  in e
+
+phoas :: Expr
+phoas =
+  let Right (Progm [e]) = parseExpr $ "data PLambda (a : *) = Var a | Num nat | Lam (a -> PLambda a) | App (PLambda a) (PLambda a); data Value = VI nat | VF (Value -> Value); let eval : PLambda Value -> Value = mu ev : PLambda Value -> Value . \\ e : PLambda Value . case e of Var (v : Value) => v | Num (n : nat) => VI n | Lam (f : Value -> PLambda Value) => VF (\\x : Value . ev (f x)) | App (a : PLambda Value) (b : PLambda Value) => case (ev a) of VI (n : nat) => VI n | VF (f : Value -> Value) => f (ev b) in let show : Value -> nat = \\ e : Value . case e of VI (n : nat) => n | VF (f : Value -> Value) => 10000 in let example : PLambda Value = App Value (Lam Value (\\ x : Value . Var Value x)) (Num Value 42) in show (eval example)"
+  in e
+
 recordtest :: Expr
 recordtest = let Right (Progm [e]) = parseExpr $ listdt ++ "rec person = p { name : nat, addr : list nat}; addr (p 0 (cons nat 0 (nil nat)))"
              in e
@@ -64,10 +71,14 @@ recordTest =
 patternTest :: TestTree
 patternTest =
   testGroup "Pattern matching check"
-    [testCase "typecheck: case analysis" $
+    [ testCase "typecheck: case analysis" $
       (trans [] (desugar pattest) >>= (\(_, e) -> tcheck [] (desugar e))) @?= Right Nat
     , testCase "evaluation: case analysis" $
       (trans [] (desugar pattest) >>= (\(_, e) -> eval (desugar e))) @?= Right (Lit 1)
+    , testCase "typecheck: PHOAS" $
+      (trans [] (desugar phoas) >>= (\(_, e) -> tcheck [] (desugar e))) @?= Right Nat
+    , testCase "evaluation: PHOAS" $
+      (trans [] (desugar phoas) >>= (\(_, e) -> eval (desugar e))) @?= Right (Lit 42)
     ]
 
 substTest :: TestTree
