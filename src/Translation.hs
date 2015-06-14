@@ -61,7 +61,7 @@ trans env (Case e alts) = do
   unless (all (== head altTypeList) (tail altTypeList)) $ throwError "Bad pattern expressions"
 
   let (Pi "" _ t) = head altTypeList
-  let genExpr = foldl App (App (U (arity + 1)e') t) e2List
+  let genExpr = foldl App (App (U (arity + 1) e') t) e2List
 
   return (t, genExpr)
 
@@ -87,18 +87,11 @@ trans env (Data db@(DB tc tca constrs) e) = do
 
   let tct = chainType (Kind Star) . map snd $ tca
   let du = foldl App (Var tc) (map (Var . fst) tca)
-  let tcArgs = map constrParams constrs
-  let tcArgChains = map (chainType (Var "B")) tcArgs
-  let xu = foldl App (Var "X") (map (Var . fst) tca)
-  let tcArgsAndSubst = map
-                         (chainType (Var "B") . map
-                                                  (\tau -> if tau == du
-                                                             then xu
-                                                             else tau))
-                         tcArgs
+  let dcArgs = map constrParams constrs
+  let dcArgChains = map (chainType (Var "B")) dcArgs
+  let transTC' = map (chainType (Var "B") . map (substVar tc "X")) dcArgs
   let transTC = (tc, (tct, Mu "X" tct
-                             (genLambdas tca
-                                (Pi "B" (Kind Star) (chainType (Var "B") tcArgsAndSubst)))))
+                             (genLambdas tca (Pi "B" (Kind Star) (chainType (Var "B") transTC')))))
 
   let tduList = map (chainType du . constrParams) constrs
   let dctList = map (\tdu -> foldr (\(u, k) tau -> Pi u k tau) tdu tca) tduList
@@ -109,14 +102,14 @@ trans env (Data db@(DB tc tca constrs) e) = do
                      (map
                         (\(i, taus) ->
                            let xs = genVarsAndTypes 'x' taus
-                               cs = genVarsAndTypes 'c' tcArgChains
+                               cs = genVarsAndTypes 'c' dcArgChains
                            in genLambdas tca
                                 (genLambdas xs
                                    (F (arity + 1) du
                                       (Lam "B" (Kind Star)
                                          (genLambdas cs
                                             (foldl App (Var ('c' : show i)) (map (Var . fst) xs)))))))
-                        (zip [0 :: Int ..] tcArgs)))
+                        (zip [0 :: Int ..] dcArgs)))
   return (t, foldr (\(n, (kt, ke)) body -> Let n kt ke body) e' (transTC : transDC))
 
 trans _ Nat = return (Kind Star, Nat)
@@ -128,6 +121,7 @@ trans env (Add e1 e2) = do
   return (Nat, Add e1' e2')
 
 trans _ e = throwError $ "Trans: Impossible happened, trying to translate: " ++ show e
+
 
 -- test = let Right (Progm [e]) = parseExpr "data Bool = True | False; data Nat = Zero | Suc Nat; \\ y : (\\ x : Bool . case x of True => Nat | False => Bool) True . unfold y"
 --        in e
