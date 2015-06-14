@@ -53,49 +53,50 @@ tcheck env (Mu i t e) =                  -- (T_MU)
      tcheck env t'
      unless (alphaEq t t') $ throwError "Bad recursive type"
      return t
-tcheck env (F t1 e) =                    -- (T_CASTUP)
+tcheck env (F n t1 e) =                    -- (T_CASTUP)
   do t2 <- tcheck env e
      tcheck env t1
-     t2' <- reduct t1
+     t2' <- reductN n t1
      unless (alphaEq t2 t2') $ throwError "Bad fold expression"
      return t1
-tcheck env (U e) =                       -- (T_CASTDOWN)
+tcheck env (U n e) =                       -- (T_CASTDOWN)
   do t1 <- tcheck env e
-     t2 <- reduct t1
+     t2 <- reductN n t1
      tcheck env t2
      return t2
 
--- type checking surface language
+-- Type checking surface language
+
 -- TODO: Lack 1) exhaustive test 2) overlap test
-tcheck env (Case e alts) = do
-  dv <- tcheck env e
-  actualTypes <- fmap reverse (getActualTypes dv)
+-- tcheck env (Case e alts) = do
+--   dv <- tcheck env e
+--   actualTypes <- fmap reverse (getActualTypes dv)
 
-  -- check patterns
-  altTypeList <- mapM (tcp dv actualTypes) alts
-  unless (all (== head altTypeList) (tail altTypeList)) $ throwError "Bad pattern expressions"
+--   -- check patterns
+--   altTypeList <- mapM (tcp dv actualTypes) alts
+--   unless (all (== head altTypeList) (tail altTypeList)) $ throwError "Bad pattern expressions"
 
-  let (Pi "" _ t) = head altTypeList
-  return t
+--   let (Pi "" _ t) = head altTypeList
+--   return t
 
-  where
-    tcp :: Type -> [Type] -> Alt -> TC Type
-    tcp dv atys (Alt (PConstr constr params) body) = do
-      let k = constrName constr
-      kt <- tcheck env (Var k)
+--   where
+--     tcp :: Type -> [Type] -> Alt -> TC Type
+--     tcp dv atys (Alt (PConstr constr params) body) = do
+--       let k = constrName constr
+--       kt <- tcheck env (Var k)
 
-      -- check patterns, quit hacky
-      let tcApp = foldl App (Var "dummy$") (atys ++ map (Var . fst) params)
-      typ <- tcheck (("dummy$", kt) : params ++ env) tcApp
-      unless (alphaEq typ dv) $ throwError "Bad patterns"
+--       -- check patterns, quite hacky
+--       let tcApp = foldl App (Var "dummy$") (atys ++ map (Var . fst) params)
+--       typ <- tcheck (("dummy$", kt) : params ++ env) tcApp
+--       unless (alphaEq typ dv) $ throwError "Bad patterns"
 
-      bodyType <- tcheck (params ++ env) body
-      return (arr dv bodyType)
+--       bodyType <- tcheck (params ++ env) body
+--       return (arr dv bodyType)
 
-tcheck env (Data databinds e) = do
-  env' <- tcdatatypes env databinds
-  let nenv = env' ++ env
-  tcheck nenv e
+-- tcheck env (Data databinds e) = do
+--   env' <- tcdatatypes env databinds
+--   let nenv = env' ++ env
+--   tcheck nenv e
 
 tcheck _ Nat = return (Kind Star)
 tcheck _ (Lit _) = return Nat
@@ -105,7 +106,7 @@ tcheck env (Add e1 e2) = do
   unless (t1 == Nat && t2 == Nat) $ throwError "Addition is only allowed for numbers!"
   return Nat
 
-tcheck _ _ = throwError "TypeCheck: Impossible happened!"
+tcheck _ e = throwError $ "TypeCheck: Impossible happened, trying to type check:\n" ++ show e
 
 tcdatatypes :: Env -> DataBind -> TC Env
 tcdatatypes env (DB tc tca constrs) = do

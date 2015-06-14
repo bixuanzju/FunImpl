@@ -46,11 +46,11 @@ import Syntax
 
 
 %right ';'
-%right '.'
-%right '->'
-%right '=>'
-%right ']'
 %right in
+%right '.'
+%right '=>'
+%right '->'
+%right ']'
 %left '+'
 %left UNFOLD
 
@@ -64,28 +64,28 @@ progm : exprs                                   { Progm $1 }
 exprs : expr                                    { [$1] }
       | exprs '&' expr                          { $1 ++ [$3] }
 
-expr : '\\' id ':' expr '.' expr                 { Lam $2 $4 $6 }
+expr : '\\' id ':' expr '.' expr                { Lam $2 $4 $6 }
      | pi id ':' expr '.' expr                  { Pi $2 $4 $6 }
      | mu id ':' expr '.' expr                  { Mu $2 $4 $6}
-     | fold '[' expr ']' expr                   { F $3 $5 }
-     | unfold expr %prec UNFOLD                 { U $2 }
+     | fold digits '[' expr ']' expr            { F $2 $4 $6 }
+     | unfold digits expr %prec UNFOLD          { U $2 $3}
      | data databind ';' expr                   { Data $2 $4 }
      | rec recbind ';' expr                     { Rec $2 $4 }
      | case expr of alts                        { Case $2 $4}
      -- surface language
-     | expr '+' expr   { Add $1 $3 }
+     | expr '+' expr                            { Add $1 $3 }
      | expr '->' expr                           { Pi "" $1 $3 }
      | let id ':' expr '=' expr in expr         { Let $2 $4 $6 $8 }
      | aexp                                     { $1 }
 
 aexp : aexp term                                { App $1 $2 }
-     | term                                      { $1 }
+     | term                                     { $1 }
 
-term : nat   { Nat }
+term : nat                                      { Nat }
      | id                                       { Var $1 }
-     | digits     { Lit $1 }
-     | '*'                                       { Kind Star }
-     | '(' expr ')'                              { $2 }
+     | digits                                   { Lit $1 }
+     | '*'                                      { Kind Star }
+     | '(' expr ')'                             { $2 }
 
 recbind : id ty_param_list_or_empty '=' records { RB $1 $2 $4 }
 
@@ -118,7 +118,8 @@ types : {- empty -}                             { [] }
       | ftype types                             { $1:$2 }
 
 ftype : '(' expr ')'                            { $2 }
-        | id                                    { Var $1 }
+      | nat                                     { Nat }
+      | id                                      { Var $1 }
 
 alts : alt                                      { [$1] }
      | alt '|' alts                             { $1:$3 }

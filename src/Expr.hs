@@ -1,10 +1,11 @@
 module Expr where
 
 import Data.List ((\\), union)
-import Data.Maybe (fromMaybe)
+-- import Data.Maybe (fromMaybe)
 
 import Syntax
 import Utils
+-- import Parser
 
 subst :: Sym -> Expr -> Expr -> Expr
 subst v x = sub
@@ -13,13 +14,14 @@ subst v x = sub
         sub (Lam i t e) = abstr Lam i t e
         sub (Pi i t e) = abstr Pi i t e
         sub (Mu i t1 t2) = abstr Mu i t1 t2
-        sub (F t e) = F (sub t) (sub e)
-        sub (U e) = U (sub e)
+        sub (F n t e) = F n (sub t) (sub e)
+        sub (U n e) = U n (sub e)
         sub (Kind k) = Kind k
         -- surface language
         sub Nat = Nat
         sub (Lit n) = Lit n
         sub (Add e1 e2) = Add (sub e1) (sub e2)
+        sub (Case e alts) = Case (sub e) (map subAlt alts)
         abstr con i t e
           | v == i = con i (sub t) e -- type is also expression, need substitution
           | i `elem` fvx =
@@ -34,6 +36,8 @@ subst v x = sub
                      else i'
                 vars = fvx ++ freeVars e
         fvx = freeVars x
+        subAlt :: Alt -> Alt
+        subAlt (Alt p e) = Alt p (sub e)
 
 substVar :: Sym -> Sym -> Expr -> Expr
 substVar s s' = subst s (Var s')
@@ -44,8 +48,8 @@ freeVars (App f a) = freeVars f `union` freeVars a
 freeVars (Lam i t e) = freeVars t `union` (freeVars e \\ [i])
 freeVars (Pi i k t) = freeVars k `union` (freeVars t \\ [i])
 freeVars (Mu i t1 t2) = freeVars t1 `union` (freeVars t2 \\ [i])
-freeVars (F t e) = freeVars t `union` freeVars e
-freeVars (U e) = freeVars e
+freeVars (F _ t e) = freeVars t `union` freeVars e
+freeVars (U _ e) = freeVars e
 freeVars (Kind _) = []
 freeVars (Case e _) = freeVars e
 freeVars (Data _ e) = freeVars e
@@ -60,26 +64,27 @@ alphaEq (App f a) (App f' a') = alphaEq f f' && alphaEq a a'
 alphaEq (Lam s t e) (Lam s' t' e') = alphaEq e (substVar s' s e') && alphaEq t t'
 alphaEq (Pi s t e) (Pi s' t' e') = alphaEq e (substVar s' s e') && alphaEq t t'
 alphaEq (Mu i t1 t2) (Mu i' t1' t2') = alphaEq t2 (substVar i' i t2') && alphaEq t1 t1'
-alphaEq (F t e) (F t' e') = alphaEq t t' && alphaEq e e'
-alphaEq (U t) (U t') = alphaEq t t'
+alphaEq (F n t e) (F n' t' e') = n == n' && alphaEq t t' && alphaEq e e'
+alphaEq (U n t) (U n' t') = alphaEq t t' && n == n'
 alphaEq (Kind k) (Kind k') = k == k'
+-- primitive types
 alphaEq Nat Nat = True
 alphaEq (Lit n) (Lit m) = n == m
 alphaEq (Add e1 e2) (Add e1' e2') = alphaEq e1 e1' && alphaEq e2 e2'
 alphaEq _ _ = False
 
-repFreeVar :: BEnv -> Expr -> Expr
-repFreeVar env = repl
-  where
-    repl :: Expr -> Expr
-    repl (App f a) = App (repl f) (repl a)
-    repl (Lam n t e) = Lam n (repl t) (repl e)
-    repl (Pi n t e) = Pi n (repl t) (repl e)
-    repl (Mu n t1 t2) = Mu n (repl t1) (repl t2)
-    repl (F t e) = F (repl t) (repl e)
-    repl (U t) = U (repl t)
-    repl (Kind s) = Kind s
-    repl (Var n) = fromMaybe (Var n) (lookup n env)
+-- repFreeVar :: BEnv -> Expr -> Expr
+-- repFreeVar env = repl
+--   where
+--     repl :: Expr -> Expr
+--     repl (App f a) = App (repl f) (repl a)
+--     repl (Lam n t e) = Lam n (repl t) (repl e)
+--     repl (Pi n t e) = Pi n (repl t) (repl e)
+--     repl (Mu n t1 t2) = Mu n (repl t1) (repl t2)
+--     repl (F t e) = F (repl t) (repl e)
+--     repl (U t) = U (repl t)
+--     repl (Kind s) = Kind s
+--     repl (Var n) = fromMaybe (Var n) (lookup n env)
 
 -- TODO: Generalize
 desugar :: Expr -> Expr
@@ -88,10 +93,10 @@ desugar (App e1 e2) = App (desugar e1) (desugar e2)
 desugar (Lam n t e) = Lam n (desugar t) (desugar e)
 desugar (Pi n t e) = Pi n (desugar t) (desugar e)
 desugar (Mu n t1 t2) = Mu n (desugar t1) (desugar t2)
-desugar (F t e) = F (desugar t) (desugar e)
-desugar (U t) = U (desugar t)
+desugar (F n t e) = F n (desugar t) (desugar e)
+desugar (U n t) = U n (desugar t)
 desugar e@(Kind _) = e
-desugar (Let n t e1 e2) = App (Lam n t (desugar e2)) (desugar e1)
+desugar (Let n _ e1 e2) = subst n (desugar e1) (desugar e2)
 desugar (Rec (RB n params field) e) =
   let selNames = map fst . selector $ field
       taus = map snd . selector $ field
@@ -113,7 +118,12 @@ desugar (Rec (RB n params field) e) =
                    (desugar (foldr (\(name, (kt, ke)) body -> Let name kt ke body) e selExprs))
   in lastExpr
 desugar (Data bind e) = Data bind (desugar e)
+desugar (Case e alts) = Case (desugar e) (map deAlt alts)
+  where
+    deAlt :: Alt -> Alt
+    deAlt (Alt p body) = Alt p (desugar body)
 desugar e = e
+
 
 type BEnv = [(Sym, Expr)]
 
@@ -135,14 +145,20 @@ type BEnv = [(Sym, Expr)]
 reduct :: Expr -> Either String Expr
 reduct (App (Lam s _ e1) e2) = Right $ subst s e2 e1      -- (R-AppLAm)
 reduct (App e1 e2) = reduct e1 >>= \e -> Right (App e e2) -- (R-AppL)
-reduct (U (F _ e)) = Right e                              -- (R-Unfold-Fold)
-reduct (U e) = reduct e >>= Right . U                     -- (R-unfold)
+reduct (U _ (F _ _ e)) = Right e                              -- (R-Unfold-Fold)
+reduct (U n e) = reduct e >>= Right . U n                     -- (R-unfold)
 reduct m@(Mu x _ t2) = Right $ subst x m t2               -- (R-Mu)
 -- surface language
 reduct (Add (Lit n) (Lit m)) = Right (Lit (n + m))
 reduct (Add (Lit n) m) = reduct m >>= \m' -> Right $ Add (Lit n) m'
 reduct (Add n m) = reduct n >>= \n' -> Right (Add n' m)
+reduct Nat = return Nat
 reduct e = Left $ "Not reducible: " ++ show e
+
+-- multiple reduction
+reductN :: Int -> Expr -> Either String Expr
+reductN 0 e = return e
+reductN n e = reduct e >>= \e' -> reductN (n-1) e'
 
 eval :: Expr -> Either String Expr
 eval = loop
@@ -154,11 +170,11 @@ eval = loop
          Left err -> Left err
 
 -- | Definitional equality
-equate :: BEnv -> Expr -> Expr -> Bool
-equate benv e1 e2 =
-  let Right e1' = eval . repFreeVar benv $ e1
-      Right e2' = eval . repFreeVar benv $ e2
-  in alphaEq e1' e2'
+-- equate :: BEnv -> Expr -> Expr -> Bool
+-- equate benv e1 e2 =
+--   let Right e1' = eval . repFreeVar benv $ e1
+--       Right e2' = eval . repFreeVar benv $ e2
+--   in alphaEq e1' e2'
 --   in case (e1',e2') of
 --        (App a1 b1,App a2 b2) ->
 --          equate benv a1 a2 &&

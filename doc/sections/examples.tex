@@ -94,7 +94,7 @@
 \section{Applications}
 \label{sec:app}
 
-In this section, we show how some large examples using \name
+In this section, we show some large examples using \name.
 
 \subsection{Parametric HOAS}
 \label{sec:phoas}
@@ -104,18 +104,18 @@ Parametric Higher Order Abstract Syntax (PHOAS) is a higher order approach to re
 \begingroup\par\noindent\advance\leftskip\mathindent\(
 \begin{pboxed}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{4}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[B]{}\mathbf{data}\;\Varid{plambda}\;(\Varid{a}\mathbin{:}\mathbin{*})\mathrel{=}\Varid{var}\;\Varid{a}{}\<[E]%
+\>[B]{}\mathbf{data}\;\Conid{PLambda}\;(\Varid{a}\mathbin{:}\mathbin{*})\mathrel{=}\Conid{Var}\;\Varid{a}{}\<[E]%
 \\
-\>[B]{}\hsindent{3}{}\<[3]%
-\>[3]{}\mid \Varid{num}\;\Varid{nat}{}\<[E]%
+\>[B]{}\hsindent{4}{}\<[4]%
+\>[4]{}\mid \Conid{Num}\;\Varid{nat}{}\<[E]%
 \\
-\>[B]{}\hsindent{3}{}\<[3]%
-\>[3]{}\mid \Varid{lam}\;(\Varid{a}\to (\Varid{plambda}\;\Varid{a})){}\<[E]%
+\>[B]{}\hsindent{4}{}\<[4]%
+\>[4]{}\mid \Conid{Lam}\;(\Varid{a}\to \Conid{PLambda}\;\Varid{a}){}\<[E]%
 \\
-\>[B]{}\hsindent{3}{}\<[3]%
-\>[3]{}\mid \Varid{app}\;(\Varid{plambda}\;\Varid{a})\;(\Varid{plambda}\;\Varid{a}){}\<[E]%
+\>[B]{}\hsindent{4}{}\<[4]%
+\>[4]{}\mid \Conid{App}\;(\Conid{PLambda}\;\Varid{a})\;(\Conid{PLambda}\;\Varid{a});{}\<[E]%
 \ColumnHook
 \end{pboxed}
 \)\par\noindent\endgroup\resethooks
@@ -125,7 +125,6 @@ Next we define the evaluator for our lambda calculus. One advantage of PHOAS is 
 \begingroup\par\noindent\advance\leftskip\mathindent\(
 \begin{pboxed}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{4}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{6}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{8}{@{}>{\hspre}l<{\hspost}@{}}%
@@ -133,44 +132,48 @@ Next we define the evaluator for our lambda calculus. One advantage of PHOAS is 
 \column{10}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{11}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{13}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{24}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{35}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[B]{}\mathbf{data}\;\Varid{value}{}\<[13]%
-\>[13]{}\mathrel{=}\Varid{vi}\;\Varid{nat}{}\<[E]%
-\\
-\>[B]{}\hsindent{3}{}\<[3]%
-\>[3]{}\mid \Varid{vf}\;(\Varid{value}\to \Varid{value});{}\<[E]%
-\\
-\>[B]{}\mathbf{let}\;\Varid{eval}\mathbin{:}\Varid{plambda}\;\Varid{value}\to \Varid{value}\mathrel{=}{}\<[E]%
+\>[B]{}\mathbf{data}\;\Conid{Value}{}\<[13]%
+\>[13]{}\mathrel{=}\Conid{VI}\;\Varid{nat}{}\<[E]%
 \\
 \>[B]{}\hsindent{4}{}\<[4]%
-\>[4]{}\Varid{mu}\;\Varid{ev}\mathbin{:}\Varid{plambda}\;\Varid{value}\to \Varid{value}\mathbin{\circ}{}\<[E]%
+\>[4]{}\mid \Conid{VF}\;(\Conid{Value}\to \Conid{Value});{}\<[E]%
+\\
+\>[B]{}\mathbf{let}\;\Varid{eval}\mathbin{:}\Conid{PLambda}\;\Conid{Value}\to \Conid{Value}\mathrel{=}{}\<[E]%
+\\
+\>[B]{}\hsindent{4}{}\<[4]%
+\>[4]{}\Varid{mu}\;\Varid{ev}\mathbin{:}\Conid{PLambda}\;\Conid{Value}\to \Conid{Value}\mathbin{\circ}{}\<[E]%
 \\
 \>[4]{}\hsindent{2}{}\<[6]%
-\>[6]{}\lambda \Varid{e}\mathbin{:}\Varid{plambda}\;\Varid{value}\mathbin{\circ}\mathbf{case}\;\Varid{e}\;\mathbf{of}{}\<[E]%
+\>[6]{}\lambda \Varid{e}\mathbin{:}\Conid{PLambda}\;\Conid{Value}\mathbin{\circ}\mathbf{case}\;\Varid{e}\;\mathbf{of}{}\<[E]%
 \\
 \>[6]{}\hsindent{2}{}\<[8]%
-\>[8]{}\Varid{var}\;(\Varid{v}\mathbin{:}\Varid{value})\Rightarrow \Varid{v}{}\<[E]%
+\>[8]{}\Conid{Var}\;(\Varid{v}\mathbin{:}\Conid{Value})\Rightarrow \Varid{v}{}\<[E]%
 \\
 \>[4]{}\hsindent{2}{}\<[6]%
-\>[6]{}\mid \Varid{num}\;(\Varid{n}\mathbin{:}\Varid{nat})\Rightarrow (\Varid{vi}\;\Varid{n}){}\<[E]%
+\>[6]{}\mid \Conid{Num}\;(\Varid{n}\mathbin{:}\Varid{nat}){}\<[24]%
+\>[24]{}\Rightarrow \Conid{VI}\;\Varid{n}{}\<[E]%
 \\
 \>[4]{}\hsindent{2}{}\<[6]%
-\>[6]{}\mid \Varid{lam}\;(\Varid{f}\mathbin{:}\Varid{value}\to \Varid{plambda}\;\Varid{value})\Rightarrow {}\<[E]%
+\>[6]{}\mid \Conid{Lam}\;(\Varid{f}\mathbin{:}\Conid{Value}\to \Conid{PLambda}\;\Conid{Value})\Rightarrow {}\<[E]%
 \\
 \>[6]{}\hsindent{4}{}\<[10]%
-\>[10]{}\Varid{vf}\;(\lambda \Varid{x}\mathbin{:}\Varid{value}\mathbin{\circ}\Varid{ev}\;(\Varid{f}\;\Varid{x})){}\<[E]%
+\>[10]{}\Conid{VF}\;(\lambda \Varid{x}\mathbin{:}\Conid{Value}\mathbin{\circ}\Varid{ev}\;(\Varid{f}\;\Varid{x})){}\<[E]%
 \\
 \>[4]{}\hsindent{2}{}\<[6]%
-\>[6]{}\mid \Varid{app}\;(\Varid{a}\mathbin{:}\Varid{plambda}\;\Varid{value})\;(\Varid{b}\mathbin{:}\Varid{plambda}\;\Varid{value})\Rightarrow {}\<[E]%
+\>[6]{}\mid \Conid{App}\;(\Varid{a}\mathbin{:}\Conid{PLambda}\;\Conid{Value})\;(\Varid{b}\mathbin{:}\Conid{PLambda}\;\Conid{Value})\Rightarrow {}\<[E]%
 \\
 \>[6]{}\hsindent{3}{}\<[9]%
 \>[9]{}\mathbf{case}\;(\Varid{ev}\;\Varid{a})\;\mathbf{of}{}\<[E]%
 \\
 \>[9]{}\hsindent{2}{}\<[11]%
-\>[11]{}\Varid{vi}\;(\Varid{n}\mathbin{:}\Varid{nat})\Rightarrow \Varid{vi}\;\Varid{n}\mbox{\onelinecomment  absurd value}{}\<[E]%
+\>[11]{}\Conid{VI}\;(\Varid{n}\mathbin{:}\Varid{nat}){}\<[35]%
+\>[35]{}\Rightarrow \Conid{VI}\;\Varid{n}\mbox{\onelinecomment  impossible to reach}{}\<[E]%
 \\
 \>[6]{}\hsindent{3}{}\<[9]%
-\>[9]{}\mid \Varid{vf}\;(\Varid{f}\mathbin{:}\Varid{value}\to \Varid{value})\Rightarrow \Varid{f}\;(\Varid{ev}\;\Varid{b}){}\<[E]%
+\>[9]{}\mid \Conid{VF}\;(\Varid{f}\mathbin{:}\Conid{Value}\to \Conid{Value})\Rightarrow \Varid{f}\;(\Varid{ev}\;\Varid{b}){}\<[E]%
 \\
 \>[B]{}\mathbf{in}{}\<[E]%
 \ColumnHook
@@ -185,34 +188,36 @@ Now we can evaluate some lambda expression and get the result back:
 \column{3}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{5}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{7}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{29}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[B]{}\mathbf{let}\;\Varid{show}\mathbin{:}\Varid{value}\to \Varid{nat}\mathrel{=}{}\<[E]%
+\>[B]{}\mathbf{let}\;\Varid{show}\mathbin{:}\Conid{Value}\to \Varid{nat}\mathrel{=}{}\<[E]%
 \\
 \>[B]{}\hsindent{3}{}\<[3]%
-\>[3]{}\lambda \Varid{e}\mathbin{:}\Varid{value}\mathbin{\circ}\mathbf{case}\;\Varid{e}\;\mathbf{of}{}\<[E]%
+\>[3]{}\lambda \Varid{e}\mathbin{:}\Conid{Value}\mathbin{\circ}\mathbf{case}\;\Varid{e}\;\mathbf{of}{}\<[E]%
 \\
 \>[3]{}\hsindent{2}{}\<[5]%
-\>[5]{}\Varid{vi}\;(\Varid{n}\mathbin{:}\Varid{nat})\Rightarrow \Varid{n}{}\<[E]%
+\>[5]{}\Conid{VI}\;(\Varid{n}\mathbin{:}\Varid{nat}){}\<[29]%
+\>[29]{}\Rightarrow \Varid{n}{}\<[E]%
 \\
 \>[B]{}\hsindent{3}{}\<[3]%
-\>[3]{}\mid \Varid{vf}\;(\Varid{f}\mathbin{:}\Varid{value}\to \Varid{value})\Rightarrow \mathrm{10000}\mbox{\onelinecomment  absurd value}{}\<[E]%
+\>[3]{}\mid \Conid{VF}\;(\Varid{f}\mathbin{:}\Conid{Value}\to \Conid{Value})\Rightarrow \mathrm{10000}\mbox{\onelinecomment  impossible to reach}{}\<[E]%
 \\
 \>[B]{}\mathbf{in}{}\<[E]%
 \\
-\>[B]{}\mathbf{let}\;\Varid{example}\mathbin{:}\Varid{plambda}\;\Varid{value}\mathrel{=}{}\<[E]%
+\>[B]{}\mathbf{let}\;\Varid{example}\mathbin{:}\Conid{PLambda}\;\Conid{Value}\mathrel{=}{}\<[E]%
 \\
 \>[B]{}\hsindent{3}{}\<[3]%
-\>[3]{}\Varid{app}\;\Varid{value}\;{}\<[E]%
+\>[3]{}\Conid{App}\;\Conid{Value}\;{}\<[E]%
 \\
 \>[3]{}\hsindent{4}{}\<[7]%
-\>[7]{}(\Varid{lam}\;\Varid{value}\;(\lambda \Varid{x}\mathbin{:}\Varid{value}\mathbin{\circ}\Varid{var}\;\Varid{value}\;\Varid{x}))\;{}\<[E]%
+\>[7]{}(\Conid{Lam}\;\Conid{Value}\;(\lambda \Varid{x}\mathbin{:}\Conid{Value}\mathbin{\circ}\Conid{Var}\;\Conid{Value}\;\Conid{X}))\;{}\<[E]%
 \\
 \>[3]{}\hsindent{4}{}\<[7]%
-\>[7]{}(\Varid{num}\;\Varid{value}\;\mathrm{4}){}\<[E]%
+\>[7]{}(\Conid{Num}\;\Conid{Value}\;\mathrm{42}){}\<[E]%
 \\
 \>[B]{}\mathbf{in}{}\<[E]%
 \\
-\>[B]{}\Varid{show}\;(\Varid{eval}\;\Varid{example})\mbox{\onelinecomment  return 4}{}\<[E]%
+\>[B]{}\Varid{show}\;(\Varid{eval}\;\Varid{example})\mbox{\onelinecomment  return 42}{}\<[E]%
 \ColumnHook
 \end{pboxed}
 \)\par\noindent\endgroup\resethooks
