@@ -101,6 +101,7 @@ In this section, we show some large examples using \name.
 
 Parametric Higher Order Abstract Syntax (PHOAS) is a higher order approach to represent binders, in which the function space of the meta-language is used to encode the binders of the object language. We show that \name can handle PHOAS by encoding lambda calculus as below:
 
+
 \begingroup\par\noindent\advance\leftskip\mathindent\(
 \begin{pboxed}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
@@ -144,10 +145,10 @@ Next we define the evaluator for our lambda calculus. One advantage of PHOAS is 
 \>[B]{}\mathbf{let}\;\Varid{eval}\mathbin{:}\Conid{PLambda}\;\Conid{Value}\to \Conid{Value}\mathrel{=}{}\<[E]%
 \\
 \>[B]{}\hsindent{4}{}\<[4]%
-\>[4]{}\Varid{mu}\;\Varid{ev}\mathbin{:}\Conid{PLambda}\;\Conid{Value}\to \Conid{Value}\mathbin{\circ}{}\<[E]%
+\>[4]{}\mu\;\Varid{ev}\mathbin{:}\Conid{PLambda}\;\Conid{Value}\to \Conid{Value}.{}\<[E]%
 \\
 \>[4]{}\hsindent{2}{}\<[6]%
-\>[6]{}\lambda \Varid{e}\mathbin{:}\Conid{PLambda}\;\Conid{Value}\mathbin{\circ}\mathbf{case}\;\Varid{e}\;\mathbf{of}{}\<[E]%
+\>[6]{}\lambda \Varid{e}\mathbin{:}\Conid{PLambda}\;\Conid{Value}.\mathbf{case}\;\Varid{e}\;\mathbf{of}{}\<[E]%
 \\
 \>[6]{}\hsindent{2}{}\<[8]%
 \>[8]{}\Conid{Var}\;(\Varid{v}\mathbin{:}\Conid{Value})\Rightarrow \Varid{v}{}\<[E]%
@@ -160,7 +161,7 @@ Next we define the evaluator for our lambda calculus. One advantage of PHOAS is 
 \>[6]{}\mid \Conid{Lam}\;(\Varid{f}\mathbin{:}\Conid{Value}\to \Conid{PLambda}\;\Conid{Value})\Rightarrow {}\<[E]%
 \\
 \>[6]{}\hsindent{4}{}\<[10]%
-\>[10]{}\Conid{VF}\;(\lambda \Varid{x}\mathbin{:}\Conid{Value}\mathbin{\circ}\Varid{ev}\;(\Varid{f}\;\Varid{x})){}\<[E]%
+\>[10]{}\Conid{VF}\;(\lambda \Varid{x}\mathbin{:}\Conid{Value}.\Varid{ev}\;(\Varid{f}\;\Varid{x})){}\<[E]%
 \\
 \>[4]{}\hsindent{2}{}\<[6]%
 \>[6]{}\mid \Conid{App}\;(\Varid{a}\mathbin{:}\Conid{PLambda}\;\Conid{Value})\;(\Varid{b}\mathbin{:}\Conid{PLambda}\;\Conid{Value})\Rightarrow {}\<[E]%
@@ -193,7 +194,7 @@ Now we can evaluate some lambda expression and get the result back:
 \>[B]{}\mathbf{let}\;\Varid{show}\mathbin{:}\Conid{Value}\to \Varid{nat}\mathrel{=}{}\<[E]%
 \\
 \>[B]{}\hsindent{3}{}\<[3]%
-\>[3]{}\lambda \Varid{e}\mathbin{:}\Conid{Value}\mathbin{\circ}\mathbf{case}\;\Varid{e}\;\mathbf{of}{}\<[E]%
+\>[3]{}\lambda \Varid{e}\mathbin{:}\Conid{Value}.\mathbf{case}\;\Varid{e}\;\mathbf{of}{}\<[E]%
 \\
 \>[3]{}\hsindent{2}{}\<[5]%
 \>[5]{}\Conid{VI}\;(\Varid{n}\mathbin{:}\Varid{nat}){}\<[29]%
@@ -210,7 +211,7 @@ Now we can evaluate some lambda expression and get the result back:
 \>[3]{}\Conid{App}\;\Conid{Value}\;{}\<[E]%
 \\
 \>[3]{}\hsindent{4}{}\<[7]%
-\>[7]{}(\Conid{Lam}\;\Conid{Value}\;(\lambda \Varid{x}\mathbin{:}\Conid{Value}\mathbin{\circ}\Conid{Var}\;\Conid{Value}\;\Conid{X}))\;{}\<[E]%
+\>[7]{}(\Conid{Lam}\;\Conid{Value}\;(\lambda \Varid{x}\mathbin{:}\Conid{Value}.\Conid{Var}\;\Conid{Value}\;\Conid{X}))\;{}\<[E]%
 \\
 \>[3]{}\hsindent{4}{}\<[7]%
 \>[7]{}(\Conid{Num}\;\Conid{Value}\;\mathrm{42}){}\<[E]%
@@ -218,6 +219,184 @@ Now we can evaluate some lambda expression and get the result back:
 \>[B]{}\mathbf{in}{}\<[E]%
 \\
 \>[B]{}\Varid{show}\;(\Varid{eval}\;\Varid{example})\mbox{\onelinecomment  return 42}{}\<[E]%
+\ColumnHook
+\end{pboxed}
+\)\par\noindent\endgroup\resethooks
+
+\subsection{Perfect binary trees}
+\label{sec:binTree}
+
+A perfect binary tree is a binary tree whose size is exactly a power of two. In Haskell, perfect binary trees are usually represented using nested datatypes. We show that \name is able to encode nested datatypes.
+
+First we define a pair datatype as follows:
+
+\begingroup\par\noindent\advance\leftskip\mathindent\(
+\begin{pboxed}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[3]{}\mathbf{data}\;\Conid{PairT}\;(\Varid{a}\mathbin{:}\mathbin{*})\;(\Varid{b}\mathbin{:}\mathbin{*})\mathrel{=}\Conid{Pair}\;\Varid{a}\;\Varid{b};{}\<[E]%
+\ColumnHook
+\end{pboxed}
+\)\par\noindent\endgroup\resethooks
+
+Using pairs, perfect binary trees are easily defined as:
+
+\begingroup\par\noindent\advance\leftskip\mathindent\(
+\begin{pboxed}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{4}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[3]{}\mathbf{data}\;\Conid{B}\;(\Varid{a}\mathbin{:}\mathbin{*})\mathrel{=}\Conid{One}\;\Varid{a}{}\<[E]%
+\\
+\>[3]{}\hsindent{1}{}\<[4]%
+\>[4]{}\mid \Conid{Two}\;(\Conid{B}\;(\Conid{PairT}\;\Varid{a}\;\Varid{a}));{}\<[E]%
+\ColumnHook
+\end{pboxed}
+\)\par\noindent\endgroup\resethooks
+
+Notice that the recursive use of \emph{B} does not hold \emph{a}, but \emph{PairT a a}. This means every time we use a \emph{Two} constructor, the size of the pairs doubles. In case you are curious about the encoding of \emph{B}, here is the one:
+
+\begingroup\par\noindent\advance\leftskip\mathindent\(
+\begin{pboxed}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{7}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[3]{}\mathbf{let}\;\Conid{B}\mathbin{:}\mathbin{*}\to \mathbin{*}\mathrel{=}{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\mu\;\Conid{X}\mathbin{:}\mathbin{*}\to \mathbin{*}.{}\<[E]%
+\\
+\>[5]{}\hsindent{2}{}\<[7]%
+\>[7]{}\lambda \Varid{a}\mathbin{:}\mathbin{*}.\lambda \Conid{B}\mathbin{:}\mathbin{*}.(\Varid{a}\to \Conid{B})\to (\Conid{X}\;(\Conid{PairT}\;\Varid{a}\;\Varid{a})\to \Conid{B})\to \Conid{B}\;\mathbf{in}{}\<[E]%
+\ColumnHook
+\end{pboxed}
+\)\par\noindent\endgroup\resethooks
+
+Because of the polymorphic recursive type ($\mu X : \star \rightarrow \star $) being used, it is fairly straightforward to encode nested datatypes.
+
+To easily construct a perfect binary tree from a list, we define a help function:
+
+\begingroup\par\noindent\advance\leftskip\mathindent\(
+\begin{pboxed}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{7}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{9}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{11}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{13}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{15}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{17}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[3]{}\mathbf{let}\;\Varid{pairs}\mathbin{:}(\Varid{a}\mathbin{:}\mathbin{*})\to \Conid{List}\;\Varid{a}\to \Conid{List}\;(\Conid{PairT}\;\Varid{a}\;\Varid{a})\mathrel{=}{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\mu\;\Varid{pairs'}\mathbin{:}(\Varid{a}\mathbin{:}\mathbin{*})\to \Conid{List}\;\Varid{a}\to \Conid{List}\;(\Conid{PairT}\;\Varid{a}\;\Varid{a}).{}\<[E]%
+\\
+\>[5]{}\hsindent{2}{}\<[7]%
+\>[7]{}\lambda \Varid{a}\mathbin{:}\mathbin{*}.\lambda \Varid{xs}\mathbin{:}\Conid{List}\;\Varid{a}.{}\<[E]%
+\\
+\>[7]{}\hsindent{2}{}\<[9]%
+\>[9]{}\mathbf{case}\;\Varid{xs}\;\mathbf{of}{}\<[E]%
+\\
+\>[9]{}\hsindent{2}{}\<[11]%
+\>[11]{}\Conid{Nil}\Rightarrow \Conid{Nil}\;(\Conid{PairT}\;\Varid{a}\;\Varid{a}){}\<[E]%
+\\
+\>[7]{}\hsindent{2}{}\<[9]%
+\>[9]{}\mid \Conid{Cons}\;(\Varid{y}\mathbin{:}\Varid{a})\;(\Varid{ys}\mathbin{:}\Conid{List}\;\Varid{a})\Rightarrow {}\<[E]%
+\\
+\>[9]{}\hsindent{4}{}\<[13]%
+\>[13]{}\mathbf{case}\;\Varid{ys}\;\mathbf{of}\;\Conid{Nil}\Rightarrow {}\<[E]%
+\\
+\>[13]{}\hsindent{2}{}\<[15]%
+\>[15]{}\Conid{Nil}\;(\Conid{PairT}\;\Varid{a}\;\Varid{a}){}\<[E]%
+\\
+\>[9]{}\hsindent{4}{}\<[13]%
+\>[13]{}\mid \Conid{Cons}\;(\Varid{y'}\mathbin{:}\Varid{a})\;(\Varid{ys'}\mathbin{:}\Conid{List}\;\Varid{a})\Rightarrow {}\<[E]%
+\\
+\>[13]{}\hsindent{4}{}\<[17]%
+\>[17]{}\Conid{Cons}\;(\Conid{PairT}\;\Varid{a}\;\Varid{a})\;(\Conid{Pair}\;\Varid{a}\;\Varid{a}\;\Varid{y}\;\Varid{y'})\;(\Varid{pairs'}\;\Varid{a}\;\Varid{ys'}){}\<[E]%
+\\
+\>[3]{}\mathbf{in}{}\<[E]%
+\\
+\>[3]{}\mathbf{let}\;\Varid{fromList}\mathbin{:}(\Varid{a}\mathbin{:}\mathbin{*})\to \Conid{List}\;\Varid{a}\to \Conid{B}\;\Varid{a}\mathrel{=}{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\mu\;\Varid{from'}\mathbin{:}(\Varid{a}\mathbin{:}\mathbin{*})\to \Conid{List}\;\Varid{a}\to \Conid{B}\;\Varid{a}.{}\<[E]%
+\\
+\>[5]{}\hsindent{2}{}\<[7]%
+\>[7]{}\lambda \Varid{a}\mathbin{:}\mathbin{*}.\lambda \Varid{xs}\mathbin{:}\Conid{List}\;\Varid{a}.{}\<[E]%
+\\
+\>[7]{}\hsindent{2}{}\<[9]%
+\>[9]{}\mathbf{case}\;\Varid{xs}\;\mathbf{of}{}\<[E]%
+\\
+\>[9]{}\hsindent{2}{}\<[11]%
+\>[11]{}\Conid{Nil}\Rightarrow \Conid{Two}\;\Varid{a}\;(\Varid{from'}\;(\Conid{PairT}\;\Varid{a}\;\Varid{a})\;(\Varid{pairs}\;\Varid{a}\;(\Conid{Nil}\;\Varid{a}))){}\<[E]%
+\\
+\>[7]{}\hsindent{2}{}\<[9]%
+\>[9]{}\mid \Conid{Cons}\;(\Varid{x}\mathbin{:}\Varid{a})\;(\Varid{xs'}\mathbin{:}\Conid{List}\;\Varid{a})\Rightarrow {}\<[E]%
+\\
+\>[9]{}\hsindent{2}{}\<[11]%
+\>[11]{}\mathbf{case}\;\Varid{xs'}\;\mathbf{of}{}\<[E]%
+\\
+\>[11]{}\hsindent{2}{}\<[13]%
+\>[13]{}\Conid{Nil}\Rightarrow \Conid{One}\;\Varid{a}\;\Varid{x}{}\<[E]%
+\\
+\>[9]{}\hsindent{2}{}\<[11]%
+\>[11]{}\mid \Conid{Cons}\;(\Varid{y}\mathbin{:}\Varid{a})\;(\Varid{zs}\mathbin{:}\Conid{List}\;\Varid{a})\Rightarrow {}\<[E]%
+\\
+\>[11]{}\hsindent{4}{}\<[15]%
+\>[15]{}\Conid{Two}\;\Varid{a}\;(\Varid{from'}\;(\Conid{PairT}\;\Varid{a}\;\Varid{a})\;(\Varid{pairs}\;\Varid{a}\;\Varid{xs})){}\<[E]%
+\\
+\>[3]{}\mathbf{in}{}\<[E]%
+\ColumnHook
+\end{pboxed}
+\)\par\noindent\endgroup\resethooks
+
+Now we can define an interesting function \emph{powerTwo}. Given a natural number $n$, it compute the largest natural number $m$, such that $2^{m} < n$:
+
+\begingroup\par\noindent\advance\leftskip\mathindent\(
+\begin{pboxed}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{7}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{9}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{11}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{13}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[3]{}\mathbf{let}\;\Varid{twos}\mathbin{:}(\Varid{a}\mathbin{:}\mathbin{*})\to \Conid{B}\;\Varid{a}\to \Varid{nat}\mathrel{=}{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\mu\;\Varid{twos'}\mathbin{:}(\Varid{a}\mathbin{:}\mathbin{*})\to \Conid{B}\;\Varid{a}\to \Varid{nat}.{}\<[E]%
+\\
+\>[5]{}\hsindent{2}{}\<[7]%
+\>[7]{}\lambda \Varid{a}\mathbin{:}\mathbin{*}.\lambda \Varid{x}\mathbin{:}\Conid{B}\;\Varid{a}.{}\<[E]%
+\\
+\>[7]{}\hsindent{2}{}\<[9]%
+\>[9]{}\mathbf{case}\;\Varid{x}\;\mathbf{of}{}\<[E]%
+\\
+\>[9]{}\hsindent{2}{}\<[11]%
+\>[11]{}\Conid{One}\;(\Varid{y}\mathbin{:}\Varid{a})\Rightarrow \mathrm{0}{}\<[E]%
+\\
+\>[7]{}\hsindent{2}{}\<[9]%
+\>[9]{}\mid \Conid{Two}\;(\Varid{c}\mathbin{:}\Conid{B}\;(\Conid{PairT}\;\Varid{a}\;\Varid{a}))\Rightarrow {}\<[E]%
+\\
+\>[9]{}\hsindent{4}{}\<[13]%
+\>[13]{}\mathrm{1}\mathbin{+}\Varid{twos'}\;(\Conid{PairT}\;\Varid{a}\;\Varid{a})\;\Varid{c}{}\<[E]%
+\\
+\>[3]{}\mathbf{in}{}\<[E]%
+\\
+\>[3]{}\mathbf{let}\;\Varid{powerTwo}\mathbin{:}\Conid{Nat}\to \Varid{nat}\mathrel{=}{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\lambda \Varid{n}\mathbin{:}\Conid{Nat}.\Varid{twos}\;\Varid{nat}\;(\Varid{fromList}\;\Varid{nat}\;(\Varid{take}\;\Varid{n}\;(\Varid{repeat}\;\mathrm{1}))){}\<[E]%
+\\
+\>[3]{}\mathbf{in}\;\Varid{powerTwo}\;(\Conid{S}\;(\Conid{S}\;(\Conid{S}\;(\Conid{S}\;\Conid{Z}))))\mbox{\onelinecomment  return 2}{}\<[E]%
 \ColumnHook
 \end{pboxed}
 \)\par\noindent\endgroup\resethooks
