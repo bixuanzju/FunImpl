@@ -2,7 +2,7 @@ MAIN = main
 
 all: $(MAIN).pdf
 
-$(MAIN).pdf: $(wildcard sections/*.tex) $(wildcard sections/*.ott) $(MAIN).tex $(MAIN).bib
+$(MAIN).pdf: $(wildcard sections/*.tex) $(wildcard sections/*.lhs) $(wildcard sections/*.ott) $(MAIN).tex $(MAIN).bib
 	make -C sections
 	pdflatex $(@:.pdf=.tex)
 	bibtex $(@:.pdf=)
