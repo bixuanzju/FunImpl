@@ -41,6 +41,11 @@ phoas =
   let Right (Progm [e]) = parseExpr $ "data PLambda (a : *) = Var a | Num nat | Lam (a -> PLambda a) | App (PLambda a) (PLambda a); data Value = VI nat | VF (Value -> Value); let eval : PLambda Value -> Value = mu ev : PLambda Value -> Value . \\ e : PLambda Value . case e of Var (v : Value) => v | Num (n : nat) => VI n | Lam (f : Value -> PLambda Value) => VF (\\x : Value . ev (f x)) | App (a : PLambda Value) (b : PLambda Value) => case (ev a) of VI (n : nat) => VI n | VF (f : Value -> Value) => f (ev b) in let show : Value -> nat = \\ e : Value . case e of VI (n : nat) => n | VF (f : Value -> Value) => 10000 in let example : PLambda Value = App Value (Lam Value (\\ x : Value . Var Value x)) (Num Value 42) in show (eval example)"
   in e
 
+perfectBinaryTree :: Expr
+perfectBinaryTree =
+  let Right (Progm [e]) = parseExpr $ "data Nat = Z | S Nat; data PairT (a : *) (b : *) = Pair a b; data B (a : *) = One a | Two (B (PairT a a)); data List (a : *) = Nil | Cons a (List a); let pairs : (a : *) -> List a -> List (PairT a a) = mu pairs' : (a : *) -> List a -> List (PairT a a) . \\ a : * . \\ xs : List a . case xs of Nil => Nil (PairT a a) | Cons (y : a) (ys : List a) => case ys of Nil => Nil (PairT a a) | Cons (y' : a) (ys' : List a) => Cons (PairT a a) (Pair a a y y') (pairs' a ys') in let fromList : (a : *) -> List a -> B a = mu from' : (a : *) -> List a -> B a . \\ a : * . \\xs : List a . case xs of Nil => Two a (from' (PairT a a) (pairs a (Nil a))) | Cons (x : a) (xs' : List a) => case xs' of Nil => One a x | Cons (y : a) (zs : List a) => Two a (from' (PairT a a) (pairs a xs)) in let take : Nat -> List nat -> List nat = mu take' : Nat -> List nat -> List nat . \\ n : Nat . \\ l : List nat . case n of Z => Nil nat | S (m : Nat) => case l of Nil => Nil nat | Cons (x : nat) (xs : List nat) => Cons nat x (take' m xs) in let repeat : nat -> List nat = mu rep : nat -> List nat . \\ x : nat . Cons nat x (rep x) in let twos : (a : *) -> B a -> nat = mu twos' : (a : *) -> B a -> nat . \\ a : * . \\x : B a . case x of One (y : a) => 0 | Two (c : B (PairT a a)) => 1 + twos' (PairT a a) c in let powerTwo : Nat -> nat = \\ n : Nat . twos nat (fromList nat (take n (repeat 1))) in powerTwo (S (S (S (S Z))))"
+  in e
+
 recordtest :: Expr
 recordtest = let Right (Progm [e]) = parseExpr $ listdt ++ "rec person = p { name : nat, addr : list nat}; addr (p 0 (cons nat 0 (nil nat)))"
              in e
@@ -79,6 +84,8 @@ patternTest =
       (trans [] (desugar phoas) >>= (\(_, e) -> tcheck [] (desugar e))) @?= Right Nat
     , testCase "evaluation: PHOAS" $
       (trans [] (desugar phoas) >>= (\(_, e) -> eval (desugar e))) @?= Right (Lit 42)
+    , testCase "evaluation: Perfect binary tree" $
+      (trans [] (desugar perfectBinaryTree) >>= (\(_, e) -> eval (desugar e))) @?= Right (Lit 2)
     ]
 
 substTest :: TestTree
