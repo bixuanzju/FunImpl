@@ -16,6 +16,8 @@
 
 \newcommand{\name}{{\bf $\lambda C_{\beta}$}\xspace}
 \newcommand{\coc}{{\bf $\lambda C$}\xspace}
+\newcommand{\expcc}{$\lambda C_{\mathsf{exp}}$\xspace}
+\newcommand{\cc}{$\lambda C$\xspace}
 
 \newcommand{\fold}[2]{\mathsf{cast}^\uparrow[#1]\,#2}
 \newcommand{\unfold}[2][dummy]{\mathsf{cast}_\downarrow\,#2}
@@ -64,6 +66,8 @@
 % Hack to use mathpartir for ott
 \newcommand{\ottlinebreak}{}
 \renewcommand{\ottdrule}[4][]{{\inferrule{#2 }{#3}\quad\ottdrulename{#4}}}
+\newcommand{\gram}[1]{\ottgrammartabular{#1\ottafterlastrule}}
+\newcommand{\ruleref}[1]{\ottdrulename{#1}}
 
 % lhs2tex
 \usepackage{mylhs2tex}

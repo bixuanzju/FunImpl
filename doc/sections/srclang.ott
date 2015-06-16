@@ -10,7 +10,7 @@ pgm                                         :: 'pgm_' ::=      {{ com Program }}
   | ( pgm )                                 :: M :: ParenPgm
 
 decl                                        :: 'decl_' ::=     {{ com Declarations }}
-  | data D << u : k >> = << or K << A >> >> ::   :: DataDecl   {{ com Datatype declaration }}
+  | data D << u : k >> = << K << A >> >> ::   :: DataDecl   {{ com Datatype declaration }}
   | data D << u : k >> = K << A >>          :: M :: SDataDecl  {{ com Datatype single }}
   | data R << u : k >> = K { << N : A >> }  :: M :: RecordDecl {{ com Record declaration }}
   | ( decl )                                :: M :: ParenDecl
@@ -35,9 +35,9 @@ E , A {{ tex T }}, B {{ tex S }}, k {{ tex \kappa }} :: 'es_' ::=       {{ com E
   | castdown E             ::  :: CastDown   {{ com Cast down by reduction }}
   | mu x : A . E           ::  :: Mu         {{ com General recursion }}
   | case E1 of << p => E2 >> ::  :: Case     {{ com Case analysis }}
+  | let x : A = E2 in E1   ::  :: LetBinding {{ com Let binding }}
   | E1 [ x |-> E2 ]        :: M:: Sub        {{ com Substitution }}
   | ( E )                  :: M:: Parens     {{ com Parenthesized expression }}
-  | let x : A = E2 in E1   :: M:: LetBinding {{ com Let binding }}
   | A1 -> A2               :: M:: FuncType   {{ com Function type }}
   | ( x : A1 ) -> A2       :: M:: DepFunType {{ com Dependent function type }}
   | << E >>                :: M:: VectorForm
@@ -81,10 +81,10 @@ G0 |- (<<decl>>;E) :A
 defn G  |- decl : G' ::  :: declsrc :: 'Tdecl_' {{ com Datatype declaration }}
 by
 
-G |- <<k>> -> star : square
+G |- <<k>> -> star : star
 << G, D : <<k>> -> star, << u:k >> |- <<A>> -> D@<<u>> : star >>
 ------------------------------------------------------------------ :: Data
-G |- (data D << u:k >> = << or K <<A>> >>) : (D : <<k>> -> star, << K : (<<u:k>>) -> <<A>> -> D@<<u>> >>)
+G |- (data D << u:k >> = << K <<A>> >>) : (D : <<k>> -> star, << K : (<<u:k>>) -> <<A>> -> D@<<u>> >>)
 
 defn G  |- p => E : B -> A ::  :: patsrc :: 'Tpat_' {{ com Pattern typing }}
 by
@@ -125,13 +125,13 @@ G |- (Pi x:A1.A2):r
 
 G |- E : A2
 G |- A1 : s
-A1 -->> A2
+A1 --> A2
 ---------------------- :: CastUp
 G |- (castup[A1] E):A1
 
 G |- E : A1
 G |- A2 : s
-A1 -->> A2
+A1 --> A2
 ---------------------- :: CastDown
 G |- (castdown E) : A2
 
@@ -146,6 +146,10 @@ G |- E1 : B
 ---------------------------------- :: Case
 G |- case E1 of << p => E2 >> : A
 
+G |- E2 : A
+G |- E1 [x |-> E2] : B
+---------------------------------- :: Let
+G |- let x : A = E2 in E1 : B
 
 %%% Translation rules
 defn G  |- pgm : A ~> e ::  :: pgmtrans :: 'TRpgm_' {{ com Program translation }}
@@ -161,10 +165,10 @@ G0 |- (<<decl>>;E) :A ~> <<e1>> (+) e
 defn G  |- decl : G' ~> e ::  :: decltrans :: 'TRdecl_' {{ com Datatype translation }}
 by
 
-G |- <<k>> -> star : square ~> <<T>> -> star
+G |- <<k>> -> star : star ~> <<T>> -> star
 << G, D : <<k>> -> star, << u:k >> |- <<A>> -> D@<<u>> : star ~> <<t>> -> D@<<u>> >>
 ------------------------------------------------------------------ :: Data
-G |- (data D << u:k >> = << or K <<A>> >>) : (D : <<k>> -> star, << K : (<<u:k>>) -> <<A>> -> D@<<u>> >>) ~> e
+G |- (data D << u:k >> = << K <<A>> >>) : (D : <<k>> -> star, << K : (<<u:k>>) -> <<A>> -> D@<<u>> >>) ~> e
 
 defn G  |- p => E : B -> A ~> e ::  :: pattrans :: 'TRpat_' {{ com Pattern translation }}
 by
@@ -197,20 +201,20 @@ G |- (Pi x:A1.A2) : s ~> Pi x:t1.t2
 ------------------------------------ :: Lam
 G |- (\x:A1.E):(Pi x:A1.A2) ~> \x:t1.e
 
-G |- A1 : s ~> t1
-G, x:A1 |- A2:r ~> t2
+G |- A1 : s1 ~> t1
+G, x:A1 |- A2:s2 ~> t2
 ---------------------- :: Pi
-G |- (Pi x:A1.A2):r ~> Pi x:t1.t2
+G |- (Pi x:A1.A2):s2 ~> Pi x:t1.t2
 
 G |- E : A2 ~> e
 G |- A1 : s ~> t1
-A1 -->> A2
+A1 --> A2
 ---------------------- :: CastUp
 G |- (castup[A1] E):A1 ~> castup[t1] e
 
 G |- E : A1 ~> e
 G |- A2 : s ~> t2
-A1 -->> A2
+A1 --> A2
 ------------------------------------ :: CastDown
 G |- (castdown E) : A2 ~> castdown e
 
@@ -224,3 +228,8 @@ G |- E1 : B ~> e1
 << G |- B -> A : s ~> T -> t >>
 ---------------------------------------- :: Case
 G |- case E1 of << p => E2 >> : A ~> (castdown e1) t <<e2>>
+
+G |- E2 : A ~> e2
+G |- E1 [x |-> E2] : B ~> e1 [x |-> e2]
+---------------------------------------- :: Let
+G |- let x : A = E2 in E1 : B ~> e1 [x |-> e2]

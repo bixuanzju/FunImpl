@@ -5,15 +5,13 @@
 
 \subsection{Syntax}
 \gram{\otte\ottinterrule
-        % \otts\ottinterrule % for sorts
         \ottG\ottinterrule
         \ottv}
 
 \subsection{Operational semantics and expression typing}
 \ottdefnstep{}
-\ottusedrule{\ottdruleSXXMu{}}
+\ottdefnctx{}
 \ottdefnexpr{}
-\ottusedrule{\ottdruleTXXMu{}}
 
 \section{Specification of source language}
 \subsection{Syntax}
@@ -24,7 +22,6 @@ See Figure \ref{fig:appendix:syntax}.
 \ottdecl\ottinterrule
 \ottu\ottinterrule
 \ottp\ottinterrule
-% \otts\ottinterrule % for sorts
 \ottE\ottinterrule
 \ottGs}
     \[
@@ -140,32 +137,32 @@ $\quad$
     Trivial induction on the derivation of $[[G |- e:t]]$ using Lemma \ref{lem:gen}.
 \end{proof}
 
-\begin{dfn}[Well-formed context]
-	A \textbf{well-formed} context $[[G]]$ is defined by the following rules:
+% \begin{dfn}[Well-formed context]
+% 	A \textbf{well-formed} context $[[G]]$ is defined by the following rules:
 	
-	\textnormal{\ottdefnctx{}}
-\end{dfn}
+% 	\textnormal{\ottdefnctx{}}
+% \end{dfn}
 
-\begin{lem}[Consistency of well-formed context]\label{lem:wfc}
-	Given a well-formed initial context $[[G]]$, it remains well-formed through type checking.
-\end{lem}
+% \begin{lem}[Consistency of well-formed context]\label{lem:wfc}
+% 	Given a well-formed initial context $[[G]]$, it remains well-formed through type checking.
+% \end{lem}
 
-\begin{proof}
-	Suppose $[[G]]$ is the initial context which is well-formed. To safely extend $[[G]]$ with a variable $[[x]]:[[t]]$, one should have $[[G |- t:s]]$ due to rule \ruleref{Env\_Var}. Note that when applying typing rules of $[[G |- e:t]]$, rule \ruleref{T\_Pi}, \ruleref{T\_Mu} and \ruleref{T\_Lam} will extend the context. We show that these rules cover the condition $[[G |- t:s]]$ with respect to $[[x]]:[[t]]$ as follows:
-	\begin{description}
-		\item[Case \ruleref{T\_Pi}:] To extend $[[G]]$ with $[[x]]:[[t1]]$, $[[G |- t1:s]]$ is already the premise of the rule.
-		\item[Case \ruleref{T\_Mu}:] To extend $[[G]]$ with $[[x]]:[[t]]$, $[[G |- t:s]]$ is already the premise of the rule.
-		\item[Case \ruleref{T\_Lam}:] To extend $[[G]]$ with $[[x]]:[[t1]]$, note that the premise $[[G |- (Pi x:t1.t2):s]]$ can be derived from rule \ruleref{T\_Pi}, which has the premise $[[G |- t1:s]]$.
-	\end{description}
-\end{proof}
+% \begin{proof}
+% 	Suppose $[[G]]$ is the initial context which is well-formed. To safely extend $[[G]]$ with a variable $[[x]]:[[t]]$, one should have $[[G |- t:s]]$ due to rule \ruleref{Env\_Var}. Note that when applying typing rules of $[[G |- e:t]]$, rule \ruleref{T\_Pi}, \ruleref{T\_Mu} and \ruleref{T\_Lam} will extend the context. We show that these rules cover the condition $[[G |- t:s]]$ with respect to $[[x]]:[[t]]$ as follows:
+% 	\begin{description}
+% 		\item[Case \ruleref{T\_Pi}:] To extend $[[G]]$ with $[[x]]:[[t1]]$, $[[G |- t1:s]]$ is already the premise of the rule.
+% 		\item[Case \ruleref{T\_Mu}:] To extend $[[G]]$ with $[[x]]:[[t]]$, $[[G |- t:s]]$ is already the premise of the rule.
+% 		\item[Case \ruleref{T\_Lam}:] To extend $[[G]]$ with $[[x]]:[[t1]]$, note that the premise $[[G |- (Pi x:t1.t2):s]]$ can be derived from rule \ruleref{T\_Pi}, which has the premise $[[G |- t1:s]]$.
+% 	\end{description}
+% \end{proof}
 
-\begin{lem}[Valid context optimization]\label{lem:wfcopt}
-	With a well-formed initial context $[[G]]$, the \ruleref{T\_Var} and \ruleref{T\_Weak} can be replaced by the following rule: \ottusedrule{\ottdruleTXXVarEnv{}}
-\end{lem}
+% \begin{lem}[Valid context optimization]\label{lem:wfcopt}
+% 	With a well-formed initial context $[[G]]$, the \ruleref{T\_Var} and \ruleref{T\_Weak} can be replaced by the following rule: \ottusedrule{\ottdruleTXXVar{}}
+% \end{lem}
 
-\begin{proof}
-	By Lemma \ref{lem:wfc}, the context $[[G]]$ remains well-formed if it is initially well-formed. Thus, the well-formedness of $[[G]]$ keeps without checking by rule \ruleref{T\_Var} and \ruleref{T\_Weak}. By Lemma \ref{lem:gen}, if $[[G |- x:t]]$, then $[[x:t elt G]]$. Thus, in order to check the type of a variable $[[x]]$, it is sufficient to check its bound type $[[t]]$ in the context, which is simply rule \ruleref{T\_VarEnv}.
-\end{proof}
+% \begin{proof}
+% 	By Lemma \ref{lem:wfc}, the context $[[G]]$ remains well-formed if it is initially well-formed. Thus, the well-formedness of $[[G]]$ keeps without checking by rule \ruleref{T\_Var} and \ruleref{T\_Weak}. By Lemma \ref{lem:gen}, if $[[G |- x:t]]$, then $[[x:t elt G]]$. Thus, in order to check the type of a variable $[[x]]$, it is sufficient to check its bound type $[[t]]$ in the context, which is simply rule \ruleref{T\_VarEnv}.
+% \end{proof}
 
 \subsection{Decidability of type checking}
 \begin{lem}[Uniqueness of one-step reduction]\label{lem:unired}
@@ -202,12 +199,11 @@ $\quad$
 \begin{proof}
 	By induction on the structure of $[[e]]$:
 	\begin{description}
-	    % \item[Case $[[e]]=[[square]]$:] Impossible case and report error.
-	    \item[Case $[[e=star]]$:] Trivial by applying \ruleref{T\_Ax} and $[[t == square]]$.
+	    \item[Case $[[e=star]]$:] Trivial by applying \ruleref{T\_Ax} and $[[t == star]]$.
 		\item[Case $[[e=x]]$:] By Lemma \ref{lem:wfcopt}, we only need to consider context $[[G]]$ that is well-formed. By rule \ruleref{TS\_Var}, if $[[x:t elt G]]$, $[[t]]$ is the unique type of $[[x]]$.
 		\item[Case $[[e]]=[[e1 e2]]$, or $[[\x:t1.e1]]$, or $[[Pi x:t1.t2]]$, or $[[mu x:t.e1]]$:] Trivial according to Lemma \ref{lem:gen} by using rule \ruleref{T\_App}, \ruleref{T\_Lam}, \ruleref{T\_Pi}, or \ruleref{T\_Mu} respectively.
-		\item[Case $[[e]]=[[castup [t1] e1]]$:] From the premises of rule \ruleref{T\_CastUp}, by induction hypothesis, we can derive the type of $[[e1]]$ as $[[t2]]$, and check whether $[[t1]]$ is legal, i.e. its sorts is either $[[star]]$ or $[[square]]$. If $[[t1]]$ is legal, by Lemma \ref{lem:unired}, there is at most one $[[t1']]$ such that $[[t1 --> t1']]$. If such $[[t1']]$ does not exist, then we report the type checking is failed. Otherwise, we examine if $[[t1']]$ is syntactically equal to $[[t2]]$, i.e. $[[t1' =a t2]]$. If the equality holds, we obtain the unique type of $[[e]]$ which is $[[t1]]$. Otherwise, we report $[[e]]$ fails to type check.
-		\item[Case $[[e]]=[[castdown e1]]$:] From the premises of rule \ruleref{T\_CastDown}, by induction hypothesis, we can derive the type of $[[e1]]$ as $[[t1]]$. By Lemma \ref{lem:unired}, there is at most one $[[t2]]$ such that $[[t1 --> t2]]$. If such $[[t2]]$ exists and its sorts is either $[[star]]$ or $[[square]]$, we have found the unique type of $[[e]]$ is $[[t2]]$. Otherwise, we report $[[e]]$ fails to type check.
+		\item[Case $[[e]]=[[castup [t1] e1]]$:] From the premises of rule \ruleref{T\_CastUp}, by induction hypothesis, we can derive the type of $[[e1]]$ as $[[t2]]$, and check whether $[[t1]]$ is legal, i.e. its sorts is $[[star]]$. If $[[t1]]$ is legal, by Lemma \ref{lem:unired}, there is at most one $[[t1']]$ such that $[[t1 --> t1']]$. If such $[[t1']]$ does not exist, then we report the type checking is failed. Otherwise, we examine if $[[t1']]$ is syntactically equal to $[[t2]]$, i.e. $[[t1' =a t2]]$. If the equality holds, we obtain the unique type of $[[e]]$ which is $[[t1]]$. Otherwise, we report $[[e]]$ fails to type check.
+		\item[Case $[[e]]=[[castdown e1]]$:] From the premises of rule \ruleref{T\_CastDown}, by induction hypothesis, we can derive the type of $[[e1]]$ as $[[t1]]$. By Lemma \ref{lem:unired}, there is at most one $[[t2]]$ such that $[[t1 --> t2]]$. If such $[[t2]]$ exists and its sorts is $[[star]]$, we have found the unique type of $[[e]]$ is $[[t2]]$. Otherwise, we report $[[e]]$ fails to type check.
 	\end{description}
 \end{proof}
 
@@ -284,7 +280,7 @@ If $[[|- e:T]]$ then either $[[e]]$ is a value $v$ or there exists $[[e]]'$ such
 \begin{proof}
     By induction on the derivation of $[[|- e:T]]$ as follows:
     \begin{description}
-        \item[Case $[[e=star]]$:] Trivial by rule \ruleref{T\_Ax} where $[[T == square]]$.
+        \item[Case $[[e=star]]$:] Trivial by rule \ruleref{T\_Ax} where $[[T == star]]$.
         \item[Case $[[e=x]]$:] Impossible, since the context is empty.
         \item[Case $[[e=v]]$:] Trivial, since $[[e]]$ is already a value that has one of the following forms:
 		\begin{inparaenum}[(1)]

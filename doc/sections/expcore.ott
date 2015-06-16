@@ -51,38 +51,26 @@ lit :: 'lit_' ::=
 %% Sorts
 s {{ tex \star }}, r {{ tex \star }} :: 's_' ::= {{ com Sorts }}
   | star                ::  :: Star                  {{ com Star }}
-  | square              ::  :: Square                {{ com Square }}
 
 %% Contexts
 G {{ tex \Gamma }} :: 'G_' ::= {{ com Contexts }}
   | empty          ::  :: Empty       {{ com Empty }}
   | G , x : t      ::  :: Binding     {{ com Variable binding }}
   | G , G'         :: M:: CtxBind     {{ com Context binding }}
-  | G , x : t , G' :: M:: MixBind     {{ com Context-var binding }}
   | G [ x |-> e ]  :: M:: CtxSubst    {{ com Context substitution }}
   | G *            :: M:: CtxStar     {{ com Starred context }}
   | << u : A >>    :: M:: SrcBindVec
   | u : A          :: M:: SrcBind
   | ( G )          :: M:: ParenCtx
   | << G >>        :: M:: CtxVec
+  | ee : tt        :: M:: BindCoC
 
 %% Values
 v :: 'v_' ::=                               {{ com Values   }}
   | \ x : t . e          ::  :: Lam        {{ com Abstraction  }}
   | Pi x : t1 . t2       ::  :: Pi         {{ com Product }}
   | castup [ t ] e       ::  :: CastUp     {{ com Cast up }}
-  | let x : t = e2 in e1 :: M:: LetBinding {{ com Let binding }}
   | t1 -> t2             :: M:: FuncType   {{ com Function Type }}
-
-%% Core without mu
-ee {{ tex e }} , tt {{ tex \tau }} :: 'ee_' ::=       {{ com Expressions    }}
-  | x                              ::  :: eVar        {{ com Variable }}
-  | star                           ::  :: eStar       {{ com Type of types }}
-  | ee1 ee2                        ::  :: eApp        {{ com Application }}
-  | \ x : tt . ee                  ::  :: eLam        {{ com Abstraction }}
-  | Pi x : tt1 . tt2               ::  :: ePi         {{ com Product }}
-  | castup [ tt ] ee               ::  :: eCastUp     {{ com Cast up to type}}
-  | castdown ee                    ::  :: eCastDown   {{ com Cast down by reduction }}
 
 %%% Terminals
 terminals :: 'terminals_' ::=
@@ -90,7 +78,7 @@ terminals :: 'terminals_' ::=
   | Pi       ::  :: pi        {{ tex \Pi }}
   | mu       ::  :: mu        {{ tex \mu }}
   | star     ::  :: star      {{ tex \star }}
-  | square   ::  :: square    {{ tex \star }}
+  | square   ::  :: square    {{ tex \Box }}
   | empty    ::  :: empty     {{ tex \varnothing }}
   | ->       ::  :: to        {{ tex \rightarrow }}
   | -->      ::  :: steps     {{ tex \longrightarrow }}
@@ -114,7 +102,6 @@ terminals :: 'terminals_' ::=
   | =>       ::  :: match     {{ tex \Rightarrow }}
   | /=       ::  :: ineq      {{ tex \not \eq }}
   | data     ::  :: data      {{ tex \kw{data} }}
-  | or       ::  :: or        {{ tex \mid }}
   | case     ::  :: case      {{ tex \kw{case} }}
   | of       ::  :: of        {{ tex \kw{of} }}
   | <<       ::  :: vecl      {{ tex \overline{ }}
@@ -148,39 +135,17 @@ formula :: 'formula_' ::=
   | << formula >>                      ::   :: formula_vector
   | E1 = E2                            ::   :: rewrite_src
   | e1 := e2                           ::   :: definition
-  | e1 -->> e2                         ::   :: reduction_n
-  | E1 -->> E2                         ::   :: reduction_n_src
+  | x fresh G                          ::   :: freshment
+    {{ tex [[x]] \not \in \kw{dom}([[G]]) }}
+  | ee1 =b ee2                         ::   :: beta_equality_coc
 
 %%% Subrule
 subrules
   v <:: e
-  ee <:: e
 
 %%% Typing rules
 defns
 LintCore :: '' ::=
-
-defn G  |- e : t ::  :: coc :: 'T_' {{ com CoC typing }}
-by
-
-G |- e : t1
-G |- t2 : s
-t1 =b t2
------------ :: Conv
-G |- e : t2
-
-defn G  |- e : t ::  :: ext :: 'T_' {{ com Extended expression typing }}
-by
-
-G, x:t |- e:t
-G |- t:s
-------------------- :: Mu
-G |- (mu x:t . e):t
-
-|- G
-x:t elt G
----------- :: VarEnv
-G |- x:t
 
 defn |- G        ::  :: ctx :: 'Env_' {{ com Well-formed context }}
 by
@@ -194,20 +159,15 @@ G |- t : s
 |- G, x : t
 
 defn G  |- e : t ::  :: expr :: 'T_' {{ com Expression typing }}
-%{{ tex [[G]] \labeledjudge{e} [[e]] : [[t]] }}
 by
 
 ---------------------- :: Ax
 empty |- star : star
 
-G |- t : s
------------------ :: Var
-G, x : t |- x : t
-
-G |- e : t2
-G |- t1 : s
-------------------- :: Weak
-G, x : t1 |- e : t2
+|- G
+x:t elt G
+---------- :: Var
+G |- x:t
 
 G |- e1 : (Pi x:t2.t1)
 G |- e2 : t2
@@ -226,25 +186,24 @@ G |- (Pi x:t1.t2):r
 
 G |- e : t2
 G |- t1 : s
-t1 -->> t2
+t1 --> t2
 ---------------------- :: CastUp
 G |- (castup[t1] e):t1
 
 G |- e : t1
 G |- t2 : s
-t1 -->> t2
+t1 --> t2
 ---------------------- :: CastDown
 G |- (castdown e) : t2
+
+G, x:t |- e:t
+G |- t:s
+------------------- :: Mu
+G |- (mu x:t . e):t
 
 %%% Dynamic semantics
 defns
 OpSem :: '' ::=
-
-defn e --> e' ::  :: extstep :: 'S_' {{ com One-step reduction }}
-by
-
-------------------------------- :: Mu
-mu x:t.e --> e [x |-> mu x:t.e]
 
 defn e --> e' ::  :: step :: 'S_' {{ com One-step reduction }}
 by
@@ -262,4 +221,7 @@ castdown e --> castdown e'
 
 ---------------------------- :: CastDownUp
 castdown (castup[t] e) --> e
+
+------------------------------- :: Mu
+mu x:t.e --> e [x |-> mu x:t.e]
 
