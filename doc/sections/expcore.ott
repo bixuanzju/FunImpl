@@ -92,6 +92,7 @@ terminals :: 'terminals_' ::=
   | empty    ::  :: empty     {{ tex \varnothing }}
   | ->       ::  :: to        {{ tex \rightarrow }}
   | -->      ::  :: steps     {{ tex \longrightarrow }}
+  | -->>     ::  :: nsteps    {{ tex \longrightarrow_n }}
   | ->>      ::  :: msteps    {{ tex \twoheadrightarrow }}
   | |->      ::  :: mapsto    {{ tex \mapsto }}
   | castup   ::  :: castup    {{ tex \kw{cast}^{\uparrow} }}
@@ -145,6 +146,8 @@ formula :: 'formula_' ::=
   | << formula >>                      ::   :: formula_vector
   | E1 = E2                            ::   :: rewrite_src
   | e1 := e2                           ::   :: definition
+  | e1 -->> e2                         ::   :: reduction_n
+  | E1 -->> E2                         ::   :: reduction_n_src
 
 %%% Subrule
 subrules
@@ -221,13 +224,13 @@ G |- (Pi x:t1.t2):r
 
 G |- e : t2
 G |- t1 : s
-t1 --> t2
+t1 -->> t2
 ---------------------- :: CastUp
 G |- (castup[t1] e):t1
 
 G |- e : t1
 G |- t2 : s
-t1 --> t2
+t1 -->> t2
 ---------------------- :: CastDown
 G |- (castdown e) : t2
 
