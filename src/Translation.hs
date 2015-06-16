@@ -88,10 +88,10 @@ trans env (Data db@(DB tc tca constrs) e) = do
   let tct = chainType (Kind Star) . map snd $ tca
   let du = foldl App (Var tc) (map (Var . fst) tca)
   let dcArgs = map constrParams constrs
-  let dcArgChains = map (chainType (Var "B")) dcArgs
-  let transTC' = map (chainType (Var "B") . map (substVar tc "X")) dcArgs
+  let dcArgChains = map (chainType (Var "B0")) dcArgs
+  let transTC' = map (chainType (Var "B0") . map (substVar tc "X")) dcArgs
   let transTC = (tc, (tct, Mu "X" tct
-                             (genLambdas tca (Pi "B" (Kind Star) (chainType (Var "B") transTC')))))
+                             (genLambdas tca (Pi "B0" (Kind Star) (chainType (Var "B0") transTC')))))
 
   let tduList = map (chainType du . constrParams) constrs
   let dctList = map (\tdu -> foldr (\(u, k) tau -> Pi u k tau) tdu tca) tduList
@@ -106,7 +106,7 @@ trans env (Data db@(DB tc tca constrs) e) = do
                            in genLambdas tca
                                 (genLambdas xs
                                    (F (arity + 1) du
-                                      (Lam "B" (Kind Star)
+                                      (Lam "B0" (Kind Star)
                                          (genLambdas cs
                                             (foldl App (Var ('c' : show i)) (map (Var . fst) xs)))))))
                         (zip [0 :: Int ..] dcArgs)))
