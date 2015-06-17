@@ -11,8 +11,9 @@ In this section, we show some large examples using \name.
 
 Parametric Higher Order Abstract Syntax (PHOAS) is a higher order approach to represent binders, in which the function space of the meta-language is used to encode the binders of the object language. We show that \name can handle PHOAS by encoding lambda calculus as below:
 
-%format . = "."
+%format . = ".\,"
 %format mu = "\mu"
+%format * = "\star"
 
 \begin{code}
 data PLambda (a : *) = Var a
@@ -52,8 +53,7 @@ let example : PLambda Value =
   App Value
       (Lam Value (\ x : Value . Var Value X))
       (Num Value 42)
-in
-show (eval example) -- return 42
+in show (eval example) -- return 42
 \end{code}
 
 \subsection{Perfect binary trees}
@@ -67,18 +67,16 @@ First we define a pair datatype as follows:
   data PairT (a : *) (b : *) = Pair a b;
 \end{code}
 
-Using pairs, perfect binary trees are easily defined as:
+Using pairs, perfect binary trees are easily defined as below:
 
 \begin{code}
-  data B (a : *) = One a
-   | Two (B (PairT a a));
+  data B (a : *) = One a | Two (B (PairT a a));
 \end{code}
 
 Notice that the recursive use of \emph{B} does not hold \emph{a}, but \emph{PairT a a}. This means every time we use a \emph{Two} constructor, the size of the pairs doubles. In case you are curious about the encoding of \emph{B}, here is the one:
 
 \begin{code}
-  let B : * -> * =
-    mu X : * -> * .
+  let B : * -> * = mu X : * -> * .
       \ a : * . \ B : * . (a -> B) -> (X (PairT a a) -> B) -> B in
 \end{code}
 

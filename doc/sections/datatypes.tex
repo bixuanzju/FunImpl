@@ -15,6 +15,10 @@ In this section, we present the surface language (\sufcc) that supports simple d
 
 \subsection{Extended Syntax}
 
+\newcommand{\case}{\mathbf{case}} \newcommand{\of}{\mathbf{of}}
+\newcommand{\data}{\mathbf{data}} \newcommand{\where}{\mathbf{where}}
+\newcommand{\letbb}{\mathbf{let}} \newcommand{\inb}{\mathbf{in}}
+
 The syntax of \sufcc is shown in Figure~\ref{fig:datasyn}. Compared with \name, \sufcc has a new syntax category: a program, consisting of a list of datatype declarations, followed by a expression. An \emph{algebraic data type} $D$ is introduced as a top-level \textbf{data} declaration with its \emph{data constructors}. The type of a data constructor $K$ has the form: \[K : \Pi\overline{u : \kappa}^{n}.\Pi\overline{x}:\overline{\tau} \rightarrow D\,\overline{u}^{n} \] The first $n$ quantified type variables $\overline{u}$ appear in the same order in the return type $D\,\overline{u}$. \textcolor{red}{Note that the use of $\Pi$ to tie together the data constructor arguments makes it possible to let the types of some data constructor arguments depend on other data constructor arguments.} The \textbf{case} expression is conventional, used to break up values built with data constructors. The patterns of a case expression are flat (no nested patterns), and bind value variables.
 
 \begin{figure}[ht]

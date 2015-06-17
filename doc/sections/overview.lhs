@@ -1,94 +1,4 @@
-%% ODER: format ==         = "\mathrel{==}"
-%% ODER: format /=         = "\neq "
-%
-%
-\makeatletter
-\@ifundefined{lhs2tex.lhs2tex.sty.read}%
-  {\@namedef{lhs2tex.lhs2tex.sty.read}{}%
-   \newcommand\SkipToFmtEnd{}%
-   \newcommand\EndFmtInput{}%
-   \long\def\SkipToFmtEnd#1\EndFmtInput{}%
-  }\SkipToFmtEnd
-
-\newcommand\ReadOnlyOnce[1]{\@ifundefined{#1}{\@namedef{#1}{}}\SkipToFmtEnd}
-\usepackage{amstext}
-\usepackage{amssymb}
-\usepackage{stmaryrd}
-\DeclareFontFamily{OT1}{cmtex}{}
-\DeclareFontShape{OT1}{cmtex}{m}{n}
-  {<5><6><7><8>cmtex8
-   <9>cmtex9
-   <10><10.95><12><14.4><17.28><20.74><24.88>cmtex10}{}
-\DeclareFontShape{OT1}{cmtex}{m}{it}
-  {<-> ssub * cmtt/m/it}{}
-\newcommand{\texfamily}{\fontfamily{cmtex}\selectfont}
-\DeclareFontShape{OT1}{cmtt}{bx}{n}
-  {<5><6><7><8>cmtt8
-   <9>cmbtt9
-   <10><10.95><12><14.4><17.28><20.74><24.88>cmbtt10}{}
-\DeclareFontShape{OT1}{cmtex}{bx}{n}
-  {<-> ssub * cmtt/bx/n}{}
-\newcommand{\tex}[1]{\text{\texfamily#1}}	% NEU
-
-\newcommand{\Sp}{\hskip.33334em\relax}
-
-
-\newcommand{\Conid}[1]{\mathit{#1}}
-\newcommand{\Varid}[1]{\mathit{#1}}
-\newcommand{\anonymous}{\kern0.06em \vbox{\hrule\@width.5em}}
-\newcommand{\plus}{\mathbin{+\!\!\!+}}
-\newcommand{\bind}{\mathbin{>\!\!\!>\mkern-6.7mu=}}
-\newcommand{\rbind}{\mathbin{=\mkern-6.7mu<\!\!\!<}}% suggested by Neil Mitchell
-\newcommand{\sequ}{\mathbin{>\!\!\!>}}
-\renewcommand{\leq}{\leqslant}
-\renewcommand{\geq}{\geqslant}
-\usepackage{polytable}
-
-%mathindent has to be defined
-\@ifundefined{mathindent}%
-  {\newdimen\mathindent\mathindent\leftmargini}%
-  {}%
-
-\def\resethooks{%
-  \global\let\SaveRestoreHook\empty
-  \global\let\ColumnHook\empty}
-\newcommand*{\savecolumns}[1][default]%
-  {\g@addto@macro\SaveRestoreHook{\savecolumns[#1]}}
-\newcommand*{\restorecolumns}[1][default]%
-  {\g@addto@macro\SaveRestoreHook{\restorecolumns[#1]}}
-\newcommand*{\aligncolumn}[2]%
-  {\g@addto@macro\ColumnHook{\column{#1}{#2}}}
-
-\resethooks
-
-\newcommand{\onelinecommentchars}{\quad-{}- }
-\newcommand{\commentbeginchars}{\enskip\{-}
-\newcommand{\commentendchars}{-\}\enskip}
-
-\newcommand{\visiblecomments}{%
-  \let\onelinecomment=\onelinecommentchars
-  \let\commentbegin=\commentbeginchars
-  \let\commentend=\commentendchars}
-
-\newcommand{\invisiblecomments}{%
-  \let\onelinecomment=\empty
-  \let\commentbegin=\empty
-  \let\commentend=\empty}
-
-\visiblecomments
-
-\newlength{\blanklineskip}
-\setlength{\blanklineskip}{0.66084ex}
-
-\newcommand{\hsindent}[1]{\quad}% default is fixed indentation
-\let\hspre\empty
-\let\hspost\empty
-\newcommand{\NB}{\textbf{NB}}
-\newcommand{\Todo}[1]{$\langle$\textbf{To do:}~#1$\rangle$}
-
-\EndFmtInput
-\makeatother
-%
+%include lhs2TeX.fmt
 
 \section{Overview}
 
@@ -155,45 +65,33 @@ Due to the unification, the \emph{call-by-value} evaluation strategy does not fi
 \bruno{Informally explain how to encode recursive datatypes and recursive functions
 using datatypes.}
 
+%format . = ".\,"
+%format mu = "\mu"
+%format pi = "\Pi"
+%format * = "\star"
+%format castup = "\mathsf{cast}^\uparrow"
+%format castdown = "\mathsf{cast}_\downarrow"
 
 With the explicit type conversion rules and the $\mu$ primitive, it is straightforward to encode recursive datatypes and recusive functions using datatypes. While inductive datatypes can be encoded using either the Church or the Scott encoding, we adopt the Scott encoding as it is bear some resemblance to case analysis, making it more convenient to encode pattern matching. We demonstrate the encoding method using a simple datatype as a running example: the natural numbers.
 
 The datatype declaration for natural numbers is:
-\begingroup\par\noindent\advance\leftskip\mathindent\(
-\begin{pboxed}\SaveRestoreHook
-\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[3]{}\mathbf{data}\;\Conid{Nat}\mathrel{=}\Conid{Z}\mid \Conid{S}\;\Conid{Nat};{}\<[E]%
-\ColumnHook
-\end{pboxed}
-\)\par\noindent\endgroup\resethooks
+\begin{code}
+  data Nat = Z | S Nat;
+\end{code}
 
-In the Scoot encoding, the encoding of the \emph{Nat} type reflects how its two constructors are going to be used. Since \emph{Nat} is a recursive datatype, we have to use recursive types at some point to reflect its recursive nature. As it turns out, the \emph{Nat} type can be simply represented as \ensuremath{\mu\;\Conid{X}\mathbin{:}\star.\,\Pi\;\Conid{B}\mathbin{:}\star.\,\Conid{B}\to (\Conid{X}\to \Conid{B})\to \Conid{B}}.
+In the Scoot encoding, the encoding of the \emph{Nat} type reflects how its two constructors are going to be used. Since \emph{Nat} is a recursive datatype, we have to use recursive types at some point to reflect its recursive nature. As it turns out, the \emph{Nat} type can be simply represented as |mu X : * . pi B : * . B -> (X -> B) -> B|.
 
-As can be seen, in the function type \ensuremath{\Conid{B}\to (\Conid{X}\to \Conid{B})\to \Conid{B}}, $B$ corresponds to the type of the \emph{Z} constructor, and \ensuremath{\Conid{X}\to \Conid{B}} corresponds to the type of the \emph{S} constructor. The intuition is that any use of the datatype being defined in the constructors is replaced with the recursive type, except for the return type, which is a type variable for use in the recursive functions.
+As can be seen, in the function type |B -> (X -> B) -> B|, $B$ corresponds to the type of the \emph{Z} constructor, and |X -> B| corresponds to the type of the \emph{S} constructor. The intuition is that any use of the datatype being defined in the constructors is replaced with the recursive type, except for the return type, which is a type variable for use in the recursive functions.
 
 Now its two constructors can be encoded correspondingly as below:
 
-\begingroup\par\noindent\advance\leftskip\mathindent\(
-\begin{pboxed}\SaveRestoreHook
-\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[3]{}\mathbf{let}\;\Conid{Z}\mathbin{:}\Conid{Nat}\mathrel{=}\mathsf{cast}^\uparrow\;[\mskip1.5mu \Conid{Nat}\mskip1.5mu]\;(\lambda \Conid{B}\mathbin{:}\star.\,\lambda \Varid{z}\mathbin{:}\Conid{B}.\,\lambda \Varid{f}\mathbin{:}\Conid{Nat}\to \Conid{B}.\,\Varid{z}){}\<[E]%
-\\
-\>[3]{}\mathbf{in}{}\<[E]%
-\\
-\>[3]{}\mathbf{let}\;\Conid{S}\mathbin{:}\Conid{Nat}\to \Conid{Nat}\mathrel{=}\lambda \Varid{n}\mathbin{:}\Conid{Nat}.\,{}\<[E]%
-\\
-\>[3]{}\hsindent{2}{}\<[5]%
-\>[5]{}\mathsf{cast}^\uparrow\;[\mskip1.5mu \Conid{Nat}\mskip1.5mu]\;(\lambda \Conid{B}\mathbin{:}\star.\,\lambda \Varid{z}\mathbin{:}\Conid{B}.\,\lambda \Varid{f}\mathbin{:}\Conid{Nat}\to \Conid{B}.\,\Varid{f}\;\Varid{n}){}\<[E]%
-\\
-\>[3]{}\mathbf{in}{}\<[E]%
-\ColumnHook
-\end{pboxed}
-\)\par\noindent\endgroup\resethooks
+\begin{code}
+  let Z : Nat = castup[Nat] (\ B : * . \ z : B . \ f : Nat -> B . z)
+  in
+  let S : Nat -> Nat = \ n : Nat .
+    castup[Nat] (\ B : * . \ z : B . \ f : Nat -> B . f n) 
+  in
+\end{code}
 
 % \begin{align*}
 %   \letbb\,&\zero : \Nat = \fold{\Nat}{(\lambda (b : \star) (z : b) (f : \Nat \rightarrow b).\,z)}\,\inb \\
@@ -202,23 +100,11 @@ Now its two constructors can be encoded correspondingly as below:
 Thanks to the explicit type conversion rules, we can make use of the $[[castup]]$ operation to do type conversion between the recursive type and its unfolding.
 
 As the last example, let us see how we can define recursive functions using the \emph{Nat} datatype. A simple example would be recursively adding two natural numbers, which can be defined as below:
-\begingroup\par\noindent\advance\leftskip\mathindent\(
-\begin{pboxed}\SaveRestoreHook
-\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{7}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[3]{}\mathbf{let}\;\Varid{add}\mathbin{:}\Conid{Nat}\to \Conid{Nat}\to \Conid{Nat}\mathrel{=}\mu\;\Varid{f}\mathbin{:}\Conid{Nat}\to \Conid{Nat}\to \Conid{Nat}.\,{}\<[E]%
-\\
-\>[3]{}\hsindent{2}{}\<[5]%
-\>[5]{}\lambda \Varid{n}\mathbin{:}\Conid{Nat}.\,\lambda \Varid{m}\mathbin{:}\Conid{Nat}.\,{}\<[E]%
-\\
-\>[5]{}\hsindent{2}{}\<[7]%
-\>[7]{}(\mathsf{cast}_\downarrow\;\Varid{n})\;\Conid{Nat}\;\Varid{m}\;(\lambda \Varid{n'}\mathbin{:}\Conid{Nat}.\,\Conid{S}\;(\Varid{f}\;\Varid{n'}\;\Varid{m})){}\<[E]%
-\ColumnHook
-\end{pboxed}
-\)\par\noindent\endgroup\resethooks
+\begin{code}
+  let add : Nat -> Nat -> Nat = mu f : Nat -> Nat -> Nat .
+    \ n : Nat . \ m : Nat .
+      (castdown n) Nat m (\ n' : Nat . S (f n' m))
+\end{code}
 % \begin{align*}
 %   \mu f &: \Nat \rightarrow \Nat \rightarrow \Nat.\,\lambda n : \Nat.\,\lambda m : \Nat.\\
 %   &(\unfold{n})\,\Nat\,m\,(\lam{n'}{\Nat}{\suc\,(f\,n'\,m)})
