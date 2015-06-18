@@ -159,6 +159,7 @@ using datatypes.}
 With the explicit type conversion rules and the $\mu$ primitive, it is straightforward to encode recursive datatypes and recusive functions using datatypes. While inductive datatypes can be encoded using either the Church or the Scott encoding, we adopt the Scott encoding as it is bear some resemblance to case analysis, making it more convenient to encode pattern matching. We demonstrate the encoding method using a simple datatype as a running example: the natural numbers.
 
 The datatype declaration for natural numbers is:
+\begin{figure}[h!]
 \begingroup\par\noindent\advance\leftskip\mathindent\(
 \begin{pboxed}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
@@ -168,13 +169,14 @@ The datatype declaration for natural numbers is:
 \ColumnHook
 \end{pboxed}
 \)\par\noindent\endgroup\resethooks
+\end{figure}
 
 In the Scoot encoding, the encoding of the \emph{Nat} type reflects how its two constructors are going to be used. Since \emph{Nat} is a recursive datatype, we have to use recursive types at some point to reflect its recursive nature. As it turns out, the \emph{Nat} type can be simply represented as \ensuremath{\mu\;\Conid{X}\mathbin{:}\star.\,\Pi\;\Conid{B}\mathbin{:}\star.\,\Conid{B}\to (\Conid{X}\to \Conid{B})\to \Conid{B}}.
 
 As can be seen, in the function type \ensuremath{\Conid{B}\to (\Conid{X}\to \Conid{B})\to \Conid{B}}, $B$ corresponds to the type of the \emph{Z} constructor, and \ensuremath{\Conid{X}\to \Conid{B}} corresponds to the type of the \emph{S} constructor. The intuition is that any use of the datatype being defined in the constructors is replaced with the recursive type, except for the return type, which is a type variable for use in the recursive functions.
 
 Now its two constructors can be encoded correspondingly as below:
-
+\begin{figure}[h!]
 \begingroup\par\noindent\advance\leftskip\mathindent\(
 \begin{pboxed}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
@@ -194,14 +196,13 @@ Now its two constructors can be encoded correspondingly as below:
 \ColumnHook
 \end{pboxed}
 \)\par\noindent\endgroup\resethooks
+\end{figure}
 
-% \begin{align*}
-%   \letbb\,&\zero : \Nat = \fold{\Nat}{(\lambda (b : \star) (z : b) (f : \Nat \rightarrow b).\,z)}\,\inb \\
-%   \letbb\,&\suc : \Nat \rightarrow \Nat = \lambda (n : \Nat).\,\fold{\Nat}{(\lambda (b : \star) (z : b)\\ &(f : \Nat \rightarrow b).\,f\,n)}\,\inb
-% \end{align*}
 Thanks to the explicit type conversion rules, we can make use of the $[[castup]]$ operation to do type conversion between the recursive type and its unfolding.
 
 As the last example, let us see how we can define recursive functions using the \emph{Nat} datatype. A simple example would be recursively adding two natural numbers, which can be defined as below:
+
+\begin{figure}[h!]
 \begingroup\par\noindent\advance\leftskip\mathindent\(
 \begin{pboxed}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
@@ -219,10 +220,8 @@ As the last example, let us see how we can define recursive functions using the 
 \ColumnHook
 \end{pboxed}
 \)\par\noindent\endgroup\resethooks
-% \begin{align*}
-%   \mu f &: \Nat \rightarrow \Nat \rightarrow \Nat.\,\lambda n : \Nat.\,\lambda m : \Nat.\\
-%   &(\unfold{n})\,\Nat\,m\,(\lam{n'}{\Nat}{\suc\,(f\,n'\,m)})
-% \end{align*}
+\end{figure}
+
 As we can see, the above definition quite resembles case analysis common in modern functional programming languages. (Actually we formalize the encoding of case analysis in \S\ref{sec:surface}.)
 
 Due to the unification of recursive types and recursion, we can use the same $\mu$ primitive to write both recursive types and recursion with ease.

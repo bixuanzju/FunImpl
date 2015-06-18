@@ -83,7 +83,7 @@ main = runInputT defaultSettings (loop [] [])
               loop benv env
         _ -> processCMD e $
           \xs -> do
-            outputStrLn $ concatMap show xs
+            outputStrLn ("\n--- Pretty printing ---\n\n" ++ concatMap show xs ++ "\n")
             loop benv env
       where
         processCMD expr func =

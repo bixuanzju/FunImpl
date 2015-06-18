@@ -75,40 +75,39 @@ using datatypes.}
 With the explicit type conversion rules and the $\mu$ primitive, it is straightforward to encode recursive datatypes and recusive functions using datatypes. While inductive datatypes can be encoded using either the Church or the Scott encoding, we adopt the Scott encoding as it is bear some resemblance to case analysis, making it more convenient to encode pattern matching. We demonstrate the encoding method using a simple datatype as a running example: the natural numbers.
 
 The datatype declaration for natural numbers is:
-\begin{code}
+\begin{figure}[h!]
+\begin{spec}
   data Nat = Z | S Nat;
-\end{code}
+\end{spec}
+\end{figure}
 
 In the Scoot encoding, the encoding of the \emph{Nat} type reflects how its two constructors are going to be used. Since \emph{Nat} is a recursive datatype, we have to use recursive types at some point to reflect its recursive nature. As it turns out, the \emph{Nat} type can be simply represented as |mu X : * . pi B : * . B -> (X -> B) -> B|.
 
 As can be seen, in the function type |B -> (X -> B) -> B|, $B$ corresponds to the type of the \emph{Z} constructor, and |X -> B| corresponds to the type of the \emph{S} constructor. The intuition is that any use of the datatype being defined in the constructors is replaced with the recursive type, except for the return type, which is a type variable for use in the recursive functions.
 
 Now its two constructors can be encoded correspondingly as below:
-
-\begin{code}
+\begin{figure}[h!]
+\begin{spec}
   let Z : Nat = castup[Nat] (\ B : * . \ z : B . \ f : Nat -> B . z)
   in
   let S : Nat -> Nat = \ n : Nat .
-    castup[Nat] (\ B : * . \ z : B . \ f : Nat -> B . f n) 
+    castup[Nat] (\ B : * . \ z : B . \ f : Nat -> B . f n)
   in
-\end{code}
+\end{spec}
+\end{figure}
 
-% \begin{align*}
-%   \letbb\,&\zero : \Nat = \fold{\Nat}{(\lambda (b : \star) (z : b) (f : \Nat \rightarrow b).\,z)}\,\inb \\
-%   \letbb\,&\suc : \Nat \rightarrow \Nat = \lambda (n : \Nat).\,\fold{\Nat}{(\lambda (b : \star) (z : b)\\ &(f : \Nat \rightarrow b).\,f\,n)}\,\inb
-% \end{align*}
 Thanks to the explicit type conversion rules, we can make use of the $[[castup]]$ operation to do type conversion between the recursive type and its unfolding.
 
 As the last example, let us see how we can define recursive functions using the \emph{Nat} datatype. A simple example would be recursively adding two natural numbers, which can be defined as below:
-\begin{code}
+
+\begin{figure}[h!]
+\begin{spec}
   let add : Nat -> Nat -> Nat = mu f : Nat -> Nat -> Nat .
     \ n : Nat . \ m : Nat .
       (castdown n) Nat m (\ n' : Nat . S (f n' m))
-\end{code}
-% \begin{align*}
-%   \mu f &: \Nat \rightarrow \Nat \rightarrow \Nat.\,\lambda n : \Nat.\,\lambda m : \Nat.\\
-%   &(\unfold{n})\,\Nat\,m\,(\lam{n'}{\Nat}{\suc\,(f\,n'\,m)})
-% \end{align*}
+\end{spec}
+\end{figure}
+
 As we can see, the above definition quite resembles case analysis common in modern functional programming languages. (Actually we formalize the encoding of case analysis in \S\ref{sec:surface}.)
 
 Due to the unification of recursive types and recursion, we can use the same $\mu$ primitive to write both recursive types and recursion with ease.

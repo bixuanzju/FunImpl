@@ -102,6 +102,7 @@ In this section, we show some large examples using \name.
 Parametric Higher Order Abstract Syntax (PHOAS) is a higher order approach to represent binders, in which the function space of the meta-language is used to encode the binders of the object language. We show that \name can handle PHOAS by encoding lambda calculus as below:
 
 
+\begin{figure}[h!]
 \begingroup\par\noindent\advance\leftskip\mathindent\(
 \begin{pboxed}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
@@ -120,9 +121,11 @@ Parametric Higher Order Abstract Syntax (PHOAS) is a higher order approach to re
 \ColumnHook
 \end{pboxed}
 \)\par\noindent\endgroup\resethooks
+\end{figure}
 
-Next we define the evaluator for our lambda calculus. One advantage of PHOAS is that, environments are implicitly handled by the meta-language, thus the type of the evaluator is simply \ensuremath{\Varid{plambda}\;\Varid{value}\to \Varid{value}}. The code is presented as below:
+Next we define the evaluator for our lambda calculus. One advantage of PHOAS is that, environments are implicitly handled by the meta-language, thus the type of the evaluator is simply \ensuremath{\Varid{plambda}\;\Varid{value}\to \Varid{value}}. The code is presented in Figure~\ref{fig:phoas}.
 
+\begin{figure}[ht]
 \begingroup\par\noindent\advance\leftskip\mathindent\(
 \begin{pboxed}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
@@ -180,9 +183,13 @@ Next we define the evaluator for our lambda calculus. One advantage of PHOAS is 
 \ColumnHook
 \end{pboxed}
 \)\par\noindent\endgroup\resethooks
+  \caption{Lambda Calculus in PHAOS}
+  \label{fig:phoas}
+\end{figure}
 
-Now we can evaluate some lambda expression and get the result back:
+Now we can evaluate some lambda expression and get the result back as in Figure~\ref{fig:pex}
 
+\begin{figure}[ht]
 \begingroup\par\noindent\advance\leftskip\mathindent\(
 \begin{pboxed}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
@@ -220,6 +227,9 @@ Now we can evaluate some lambda expression and get the result back:
 \ColumnHook
 \end{pboxed}
 \)\par\noindent\endgroup\resethooks
+\caption{Example of using PHOAS}
+\label{fig:pex}
+\end{figure}
 
 \subsection{Perfect binary trees}
 \label{sec:binTree}
@@ -228,6 +238,7 @@ A perfect binary tree is a binary tree whose size is exactly a power of two. In 
 
 First we define a pair datatype as follows:
 
+\begin{figure}[H]
 \begingroup\par\noindent\advance\leftskip\mathindent\(
 \begin{pboxed}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
@@ -237,9 +248,11 @@ First we define a pair datatype as follows:
 \ColumnHook
 \end{pboxed}
 \)\par\noindent\endgroup\resethooks
+\end{figure}
 
 Using pairs, perfect binary trees are easily defined as below:
 
+\begin{figure}[h!]
 \begingroup\par\noindent\advance\leftskip\mathindent\(
 \begin{pboxed}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
@@ -249,9 +262,11 @@ Using pairs, perfect binary trees are easily defined as below:
 \ColumnHook
 \end{pboxed}
 \)\par\noindent\endgroup\resethooks
+\end{figure}
 
 Notice that the recursive use of \emph{B} does not hold \emph{a}, but \emph{PairT a a}. This means every time we use a \emph{Two} constructor, the size of the pairs doubles. In case you are curious about the encoding of \emph{B}, here is the one:
 
+\begin{figure}[h!]
 \begingroup\par\noindent\advance\leftskip\mathindent\(
 \begin{pboxed}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
@@ -265,11 +280,13 @@ Notice that the recursive use of \emph{B} does not hold \emph{a}, but \emph{Pair
 \ColumnHook
 \end{pboxed}
 \)\par\noindent\endgroup\resethooks
+\end{figure}
 
 Because of the polymorphic recursive type ($\mu X : \star \rightarrow \star $) being used, it is fairly straightforward to encode nested datatypes.
 
-To easily construct a perfect binary tree from a list, we define a help function:
+To easily construct a perfect binary tree from a list, we define a help function that transform a list to a perfect binary tree as shown in Figure~\ref{fig:perfectB}.
 
+\begin{figure}[ht]
 \begingroup\par\noindent\advance\leftskip\mathindent\(
 \begin{pboxed}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
@@ -346,9 +363,13 @@ To easily construct a perfect binary tree from a list, we define a help function
 \ColumnHook
 \end{pboxed}
 \)\par\noindent\endgroup\resethooks
+  \caption{Construct a perfect binary tree from a list}
+  \label{fig:perfectB}
+\end{figure}
 
 Now we can define an interesting function \emph{powerTwo}. Given a natural number $n$, it compute the largest natural number $m$, such that $2^{m} < n$:
 
+\begin{figure}[H]
 \begingroup\par\noindent\advance\leftskip\mathindent\(
 \begin{pboxed}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
@@ -390,3 +411,4 @@ Now we can define an interesting function \emph{powerTwo}. Given a natural numbe
 \ColumnHook
 \end{pboxed}
 \)\par\noindent\endgroup\resethooks
+\end{figure}
