@@ -92,8 +92,10 @@
 \titlebanner{DRAFT} % Only for preprint
 \preprintfooter{} % Only for preprint
 
-\title{A Dependently-typed Intermediate Language with General Recursion}
-\subtitle{}
+\title{Type-Level Computation One Step at a Time}
+%\title{A Dependently-typed Intermediate Language with General Recursion}
+\subtitle{Or: Decidable Type-Checking in the presence of
+  Type-Level General Recursion}
 
 \authorinfo{Foo \and Bar \and Baz}
            {The University of Foo}
@@ -103,7 +105,21 @@
 
 % Abstract
 \begin{abstract}
-\emph{This is gonna to be written later.}
+Many type systems support a conversion rule that allows type-level
+computation. However, to ensure the \emph{decidability} of the type
+system it is crutial that the type-level computation
+terminates. Therefore, for calculi where the syntax of types and
+terms is the same, the decidability of type-checking is dependent on
+the strong normalization of the calculus.  An unfortunate
+consequence of this coupling between decidability and strong
+normalization is that adding (unrestricted) general recursion to
+such calculi is not possible.
+
+This paper presents a variant of the calculus of constructions that
+supports general recursion and retains decidable type-checking. 
+In the calculus of constructions the conversion rule, which allows
+arbitrary programs to be run during type-checking.  TODO
+
 \end{abstract}
 
 % Category, terms & keywords
