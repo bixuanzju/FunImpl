@@ -1,20 +1,8 @@
 %%% !!! WARNING: AUTO GENERATED. DO NOT MODIFY !!! %%%
-\section{Specification of core language}
-
 \newcommand{\FV}{\mathsf{FV}}
 \newcommand{\dom}{\mathsf{dom}}
 
-\subsection{Syntax}
-\gram{\otte\ottinterrule
-        \ottG\ottinterrule
-        \ottv}
-
-\subsection{Operational semantics and expression typing}
-\ottdefnstep{}
-\ottdefnctx{}
-\ottdefnexpr{}
-
-\section{Specification of source language}
+\section{Full specification of source language}
 \subsection{Syntax}
 See Figure \ref{fig:appendix:syntax}.
 \begin{figure*}[ht]
@@ -28,7 +16,6 @@ See Figure \ref{fig:appendix:syntax}.
     \[
     \begin{array}{lllll}
      &&&& \text{Syntactic Sugar} \\
-     \kw{let} \, \ottmv{x}  \ottsym{:}  T  \ottsym{=}  \ottnt{E_{{\mathrm{2}}}} \, \kw{in} \, \ottnt{E_{{\mathrm{1}}}} & \triangleq & \ottnt{E_{{\mathrm{1}}}}  \ottsym{[}  \ottmv{x}  \mapsto  \ottnt{E_{{\mathrm{2}}}}  \ottsym{]} && \quad\text{Let binding} \\
      T_{{\mathrm{1}}}  \rightarrow  T_{{\mathrm{2}}} & \triangleq & \Pi \, \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{.}  T_{{\mathrm{2}}} & x \not \in \FV(T_{{\mathrm{2}}}) & \quad\text{Function type} \\
      \ottsym{(}  \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{)}  \rightarrow  T_{{\mathrm{2}}} & \triangleq & \Pi \, \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{.}  T_{{\mathrm{2}}} & x \in \FV(T_{{\mathrm{2}}}) & \quad\text{Dependent function type} \\
      \kw{data} \, \ottmv{R}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{=}  \ottmv{K}  \ottsym{\{}  \overline{  \ottmv{N}  \ottsym{:}  T  }  \ottsym{\}} & \triangleq &

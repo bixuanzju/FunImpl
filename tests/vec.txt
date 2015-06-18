@@ -1,27 +1,32 @@
-:let Nat mu X . pi a : * . a -> (a -> a) -> a
-:let Zero fold[Nat] lam a : * . lam fzero : a . lam fsucc : a -> a . fzero
-:let Succ lam n : Nat . fold[Nat] lam a : * . lam fzero : a . lam fsucc : a -> a . fsucc ((unfold n) a fzero fsucc)
+data Nat = Zero | Succ Nat; let Vec : * -> Nat -> * = mu t : * -> Nat -> * . \a : * . \m : Nat . (b : * -> Nat -> *) -> b a Zero -> ((n : Nat) -> a -> t a n -> b a (Succ n)) -> b a m in let Nil : * -> (Vec a Zero) = \a : * . fold 3 [Vec a Zero] (\b : * -> Nat -> * . \nil : (b a Zero) . \cons :((n : Nat) -> a -> Vec a n -> b a (Succ n)) . nil) in let Cons : (a : *) -> (n : Nat) -> a -> (Vec a n) = \a : * . \n : Nat . \x : a . \xs : (Vec a n) . fold 3 [Vec a (Succ n)] (\b : * -> Nat -> * . \nil : (b a Zero) . \cons :((n : Nat) -> a -> Vec a n -> b a (Succ n)) . cons n x xs) in unfold 3 (Cons nat (Succ Zero) 2 (Cons nat Zero 1 (Nil nat)))
 
-:let P lam x : Nat . Nat
-:let VecAN mu X . (P Zero) -> (pi n : Nat . a -> P n -> P (Succ n)) -> P (Succ n)
-:let VecA lam n : Nat . VecAN
-:let Vec lam a : * . VecA
+data Nat = Zero | Succ Nat; let Vec : * -> Nat -> * = mu t : * -> Nat -> * . \a : * . \m : Nat . (b : * -> Nat -> *) -> b a Zero -> ((n : Nat) -> a -> t a n -> b a (Succ n)) -> b a m in Vec nat (Succ (Succ Zero))
 
-:let VecAZ mu X . (P Zero) -> (pi n : Nat . a -> P n -> P (Succ n)) -> P (Succ Zero)
-:let VecASN mu X . (P Zero) -> (pi n : Nat . a -> P n -> P (Succ n)) -> P (Succ (Succ n))
+-- Pretty version
+data Nat = Zero | Succ Nat; 
+let Vec : * -> Nat -> * = 
+    mu t : * -> Nat -> * . \a : * . \m : Nat . (b : * -> Nat -> *) -> 
+    b a Zero -> 
+    ((n : Nat) -> a -> t a n -> b a (Succ n)) -> 
+    b a m 
+in 
+let Nil : * -> (Vec a Zero) = 
+    \a : * . 
+    fold 3 [Vec a Zero] (\b : * -> Nat -> * . 
+    \nil : (b a Zero) . 
+    \cons :((n : Nat) -> a -> Vec a n -> b a (Succ n)) . nil) 
+in
+let Cons : (a : *) -> (n : Nat) -> a -> (Vec a n) = 
+    \a : * . \n : Nat . \x : a . \xs : (Vec a n) . 
+    fold 3 [Vec a (Succ n)] (\b : * -> Nat -> * . 
+    \nil : (b a Zero) . 
+    \cons :((n : Nat) -> a -> Vec a n -> b a (Succ n)) . cons n x xs)
+in 
+Cons nat (Succ Zero) 2 (Cons nat Zero 1 (Nil nat))
 
-:let Nil lam a : * . fold[Vec a Zero] fold[VecA Zero] fold[VecAZ] lam fnil : P Zero . lam fcons : (pi n : Nat . a -> P n -> P (Succ n)) . fold[P (Succ Zero)] Zero
-:let Cons lam a : * . lam n : Nat . lam x : a . lam v : (Vec a n). fold[Vec a (Succ n)] fold[VecA (Succ n)] fold[VecASN] lam fnil : P Zero . lam fcons : (pi n : Nat . a -> P n -> P (Succ n)) . (fcons (Succ n)) x ((unfold (unfold (unfold v))) fnil fcons)
+-- Will have the type: Vec nat (Succ (Succ Zero))
 
-:teq Nil ; pi a : * . Vec a Zero
-:teq Cons ; pi a : * . pi n : Nat . a -> Vec a n -> Vec a (Succ n)
+-- Failed encoding `append` :(
+data Nat = Zero | Succ Nat; let Vec : * -> Nat -> * = mu t : * -> Nat -> * . \a : * . \m : Nat . (b : * -> Nat -> *) -> b a Zero -> ((n : Nat) -> a -> t a n -> b a (Succ n)) -> b a m in let Nil : * -> (Vec a Zero) = \a : * . fold 3 [Vec a Zero] (\b : * -> Nat -> * . \nil : (b a Zero) . \cons :((n : Nat) -> a -> Vec a n -> b a (Succ n)) . nil) in let Cons : (a : *) -> (n : Nat) -> a -> (Vec a n) = \a : * . \n : Nat . \x : a . \xs : (Vec a n) . fold 3 [Vec a (Succ n)] (\b : * -> Nat -> * . \nil : (b a Zero) . \cons :((n : Nat) -> a -> Vec a n -> b a (Succ n)) . cons n x xs) in let plus : Nat -> Nat -> Nat = mu p : Nat -> Nat -> Nat . \a : Nat . \b : Nat . case a of Zero => b | Succ (n : Nat) => Succ (p n b) in let append : (a : *) -> (m : Nat) -> (n : Nat) -> (Vec a m) -> (Vec a n) -> (Vec a (plus m n)) = mu f : (a : *) -> (m : Nat) -> (n : Nat) -> (Vec a m) -> (Vec a n) -> (Vec a (plus m n)) . \a : * . \m : Nat . \n : Nat . \l : (Vec a m) . \t : (Vec a n) . (unfold 3 l) (\a : * . \n' : Nat . Vec a (plus n' n)) t (\r : Nat . \x : a . \y : Vec a r . Cons a (plus r n) x (f a r n y t)) in append
 
-:let One Succ Zero
-:let Two Succ One
-:let Three Succ Two
-
-:add Yes Bool
-:add No Bool
-:add Bool *
-
-:teq Cons Bool One Yes (Cons Bool Zero Yes (Nil Bool)) ; Vec Bool Two
+data Nat = Zero | Succ Nat; let ntoi: Nat -> nat = mu f : Nat -> nat . \a : Nat . case a of Zero => 0 | Succ (n : Nat) => 1 + f n in ntoi (Succ (Succ Zero))

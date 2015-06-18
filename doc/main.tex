@@ -30,6 +30,7 @@
 \newcommand\bruno[1]{\authornote{bruno}{red}{#1}}
 \newcommand\jeremy[1]{\authornote{jeremy}{blue}{#1}}
 \newcommand\linus[1]{\authornote{linus}{green}{#1}}
+\newcommand{\fixme}[1]{{\color{red} #1}}
 
 % Hyper links
 \usepackage{hyperref}
@@ -72,6 +73,10 @@
 % lhs2tex
 \usepackage{mylhs2tex}
 
+% Subsection style
+\usepackage{titlesec}
+\titleformat{\subsubsection}[runin]{\bfseries\itshape\normalsize}{}{0em}{}[$\;$]
+
 %% -- Packages Imports --
 
 % Main
@@ -92,7 +97,7 @@
 \titlebanner{DRAFT} % Only for preprint
 \preprintfooter{} % Only for preprint
 
-\title{A Dependently-typed Intermediate Language with General Recursion}
+\title{Type-Level Computation One Step at a Time}
 \subtitle{}
 
 \authorinfo{Foo \and Bar \and Baz}

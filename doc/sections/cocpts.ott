@@ -11,6 +11,7 @@ ee {{ tex e }} , tt {{ tex \tau }} :: 'ee_' ::=       {{ com Expressions    }}
   | Pi x : tt1 . tt2               ::  :: cPi         {{ com Product }}
   | ee1 [ x |-> ee2 ]              :: M:: cSub        {{ com Substitution }}
   | ( ee )                         :: M:: cParens     {{ com Parenthesized expression }}
+  | ee1 -> ee2                     :: M:: cFunType
 
 ss {{ tex s }}, rr {{ tex t }} :: 'ss_' ::= {{ com Sorts }}
   | star                ::  :: cStar                  {{ com Star }}

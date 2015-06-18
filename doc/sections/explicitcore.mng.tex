@@ -1,106 +1,57 @@
-\section{Explicit Calculus of Constructions with Recursion}
-\label{sec:formal}
+\section{Explicit Calculus of Constructions with Recursion}\label{sec:core}
 
-% \bruno{Linus: can you write up this section? I think this section should be your priority.
-% First bring in all results and formalization: syntax; semantics; proofs ... then write text}
-
-% This section formalizes the syntax and semantics of the explicit calculus 
-% of constructions. This section also shows that how in the explicit 
-% calculus of constructions decidability of the type system does not 
-% depend on strong normalization.
-
-% \begin{itemize}
-% \item Give an overview of the core language and its syntax.
-% \item Show the typing rules and operational semantics.
-% \item The original formalization is suggested to rewrite using \textsf{ott}\footnote{\url{http://www.cl.cam.ac.uk/~pes20/ott/}} which is a standard in academia. For example, the formalization of GHC \url{https://github.com/ghc/ghc/tree/master/docs/core-spec}.
-% \item Give formal proof of the soundness of the core language.
-% \item Subject reduction and progress theorems will be proved.
-% \end{itemize}
-
-In this section, we present our core language, the explicit Calculus of Constructions with recursion (\name). Based on the Calculus of Constructions (\cc), \name enjoys the concise syntax with a uniform representation of terms, types and kinds, as well as the expressiveness of dependent types. In order to support general recursion, we bring the fixpoint and recursive type to term and type level respectively, expressed in the same polymorphic $\mu$-notation. Since general recursion on the type level breaks the strong normalizing property, the type checker can be stuck by the original implicit conversion rule in \cc when evaluating recursive types. In \name, type conversion is no longer inferred automatically but explicitly driven by two new $\kw{cast}$ primitives. With such explicit type casting semantics, type-level computation becomes deterministic and type checking of \name can be decidable without requiring strong normalization.
+In this section, we present the core language \name, namely the explicit Calculus of Constructions with recursion, a dependently typed intermediate language with general recursion. \name is carefully designed to be minimal enough for simplifying type checking and meta-theoretic studying, while still keeps the expressiveness to represent rich high-level constructions (\S \ref{sec:src}). By explicitly controlling the type-level computation with $\kw{cast}$ primitives, \name can safely allow non-termination without breaking the decidability of type checking. In rest of this section, we demonstrate the syntax (\S \ref{sec:core:syn}), type system (\S \ref{sec:core:type}) and meta-theories (\S \ref{sec:core:meta}) of \name.
 
 \subsection{Syntax}\label{sec:core:syn}
-The basic syntax of \name is shown in Figure \ref{fig:core:syntax}, including abstract syntax of expressions, contexts and values. Inherited from \cc, \name uses a single syntactic level to represent terms, types and kinds, while other typed intermediate languages based on System $F$ or $F_\omega$ usually distinguish them, e.g. System $F_c$ of GHC, or $\mu F^*$ of $F^*$. This brings the economy that a single set of rules can be used for terms, types and kinds uniformly so that significantly simplifies the implementation of type checker. We use metavariables $[[e]]$ and $[[t]]$ when referring to a "term" and a "type" respectively. Note that without distinction of syntactic levels, we still informally use words term, type and kind. For a certain typing judgement $[[G |- e:t]]$, we call the left-hand-side $[[e]]$ as a term-level expression, and the right-hand-side $[[t]]$ as a type-level expression. For example, in $[[T]] : [[star]]$, the term-level expression $[[T]]$ is traditionally a type with kind $[[star]]$.
+Figure \ref{fig:core:syntax} shows the syntax of \name, including expressions, contexts and values. The syntax is similar to \cc and straightforward to understand, while there are still some differences that embody the simplicity and expressiveness of \name:
 
-Similar to \cc, \name uses a product form $[[Pi x:t1.t2]]$ to represent both traditional and dependent function types. We interchangeably use the arrow form $[[(x:t1)->t2]]$ of the product in the source language for brevity. By convention, we also use the syntactic sugar $[[t1 --> t2]]$ to represent the product if $[[x]]$ does not occur free in $[[t2]]$.
+\subsubsection{Unified syntactic levels}
+\name uses a unified syntactic representation for different levels of expressions by following the \emph{pure type system} (PTS) representation of \cc. Traditionally in \cc, there are two distinct sorts $[[star]]$ and $[[square]]$ representing the type of \emph{types} and \emph{sorts} respectively, and an axiom $[[star]]:[[square]]$ specifying the relation. In \name, we further merge types and kinds together by including only a single sort $[[star]]$ and an impredicative axiom $[[star]]:[[star]]$. 
 
-The syntax difference of from \cc is that \expcc introduces two new explicit type conversion primitives, namely $[[castup]]$ and $[[castdown]]$ (pronounced as "cast up" and "cast down"), in order to replace the implicit conversion rule of \cc. They represent two directions of type conversion operations: $[[castdown]]$ stands for the reduction of types while $[[castup]]$ is the inverse. Specifically speaking, suppose we have $e:\sigma$, i.e. the type of expression $e$ is $\sigma$. $[[castup [t] e]]$ converts the type of $[[e]]$ to $[[t]]$, if there exists a type $[[t]]$ such that it can be reduced to $\sigma$ in a single step, i.e. $[[t]] [[-->]] \sigma$. $[[castdown e]]$ represents the one-step-reduced type of $e$, i.e. $([[castdown e]]) : \sigma'$ if $\sigma [[-->]] \sigma'$.
+Therefore, there is no syntactic distinction between terms, types or kinds. This design brings the economy for type checking, since one set of rules can cover all syntactic levels. By convention, we use metavariables $[[t]]$ and $[[T]]$ for an expression on the type-level position and $e$ for one on the term level.
 
-The intention of introducing two explicit cast primitives is that we can gain full control of computation at the type level by manually managing the type conversions. Later in \S \ref{sec:ecc:type} we will see dropping the implicit conversion rule of \cc simplifies the type checking and leads to syntax-directed typing rules. This also influences the requirements of decidable type checking, that strong normalization is no long necessary.
+\subsubsection{Dependent function types}
+In the context of \cc, if a term $[[x]]$ has the type $[[t1]]$, and $[[t2]]$ is a type, i.e. $[[x]]:[[t1]]:[[star]]$ and $[[t2]]:[[square]]$, we call the type $[[Pi x:t1.t2]]$ a \emph{dependent product}. \name follows \cc to use the same $[[Pi]]$-notation to represent dependent function types.
 
-\begin{figure}[ht]
-	\gram{\otte\ottinterrule
-		\ottG\ottinterrule
-		\ottv}
-	\caption{Syntax of \name}
-	\label{fig:core:syntax}
+However, a higher-kind polymorphic function type such as $[[Pi x:square.x->x]]$ is not allowed in \cc, because $[[square]]$ does not have a type and $[[t1]]=[[square]]$ can not be typed in $[[Pi x:t1.t2]]$.  $[[Pi]]$-notation in \name is more expressive and does not have such limitation because of the axiom $[[star]]:[[star]]$. Moreover, we interchangeably use the arrow form $[[(x:t1)->t2]]$ for the product in the source language for distinction. By convention, we also use the syntactic sugar $[[t1 --> t2]]$ to represent the product if $[[x]]$ does not occur free in $[[t2]]$.
+
+\subsubsection{General recursion}
+We use the polymorphic recursion operator $[[mu]]$ to represent general recursion on both term and type level in the same form $[[mu x:t.e]]$. On the term level, a $[[mu]]$-term has the similar functionality as a fixpoint, that its unfolding $[[e [x |-> mu x:t.e] ]]$ can be achieved by $\beta$-reduction \fixme{(See examples in \S \ref{sec:})}. On the type level, $[[mu x:t.e]]$ represents recursive types and uses the \emph{iso-recursive} approach, that the recursive type is not equal but only isomorphic to its unfolding.
+
+\subsubsection{Explicit type conversion}
+We introduce two new primitives $[[castup]]$ and $[[castdown]]$ (pronounced as "cast up" and "cast down") to replace implicit conversion rule of \cc with explicit type conversion. They represent two directions of type conversion: $[[castdown]]$ stands for the $\beta$-reduction of types, while $[[castup]]$ is the inverse \fixme{(See examples in \S \ref{sec:})}. $[[castup]]$ and $[[castdown]]$ also serve as the $\kw{fold}$ and $\kw{unfold}$ for iso-recursive types to map back and forth between the original and unrolled form (\S \ref{sec:core:type}).
+
+Though $\kw{cast}$ primitives make the syntax verbose when type conversion is heavily used, the implementation of type checking is simplified because typing rules of \name are type-directed without \cc's implicit conversion rule. Considering the core language is compiler-oriented and \fixme{source language does not include $\kw{cast}$ primitives}, end-users will not directly use them. Some type conversions can be generated through the translation of the source language \fixme{(\S \ref{sec:src})}.
+
+\begin{figure}
+    \gram{\otte\ottinterrule
+        \ottG\ottinterrule
+        \ottv}
+    \caption{Syntax of \name}
+    \label{fig:core:syntax}
 \end{figure}
 
-\subsection{Type system}\label{sec:ecc:type}
-The type system for \expcc contains typing judgements and operational semantics. Figure \ref{fig:ecc:dynsem} lists operational semantics for \expcc that defines rules for one-step reduction, including the $\beta$-reduction rule and $[[castdown]]$ rules. The expressions will be reduced by applying rules one or more times. Rule \ruleref{S\_CastDown} prevents the reduction from stalling with $[[castdown]]$ and continues to reduce the inner expression. Rule \ruleref{S\_CastDownUp} states that $[[castdown]]$ cancels the $[[castup]]$ of an expression.
+\subsection{Type system}\label{sec:core:type}
+The type system for the core language includes operational semantics and typing judgements. Typing judgements include rules of context well-formedness $[[|- G]]$ and expression typing $[[G |- e : t]]$. Note that there is only a single set of rules for expression typing, because of no distinction of different syntactic levels.
 
-\begin{figure}[ht]
-	\ottdefnstep{}
-	\caption{Operational semantics of \expcc}
-	\label{fig:ecc:dynsem}
+\subsubsection{Operational semantics}
+The operational semantics is given by Figure \ref{fig:core:opsem}. Because of the polymorphic recursive term, the \emph{call-by-name}   style of reduction rules.
+
+\begin{figure}
+    \ottdefnstep{}
+    \caption{Operational semantics of \name}
+    \label{fig:core:opsem}
 \end{figure}
 
-Figure \ref{fig:ecc:typerule} lists the typing judgements to check the validity of expressions. Most rules are straightforward and similar with the ones in \cc. For example, rule \ruleref{T\_Ax} states that the "type" of sort $[[star]]$ is a kind. This is derived from an axiom in \cc, that the highest sort is $[[square]]$, making the type system predicative. Rule \ruleref{T\_Pi} allows us to type dependent products. There are four possible combinations of types of $[[t1]]$ and $[[t2]]$ in a product $[[Pi x:t1.t2]]$, i.e. $(s,t) \in \{[[star]], [[square]]\} \times \{[[star]], [[square]]\}$. For some $([[\x:t1.e]]):([[Pi x:t1.t2]])$, when $(s,t)=([[star]],[[square]])$, $x:[[t1]]:[[star]]$, $e:[[t2]]:[[square]]$, so $x$ is a term and $e$ is a type. Thus, we have a type depending on a term which means the product is a dependent type.
+\subsubsection{Expression typing}
+Figure \ref{fig:core:typing} gives the typing rules of expressions. 
 
-The difference from \cc for typing rules of \expcc is that rule \ruleref{T\_CastUp} and \ruleref{T\_CastDown} are added to check the type conversion primitives $[[castup]]$ and $[[castdown]]$, and the implicit type conversion rule of \cc is removed, which is the rule as follows:
-\ottusedrule{\ottdruleTccXXConv{}}
-This rule is necessary for \cc because of the premise requirements of the application rule \ruleref{T\_App}:
-\ottusedrule{\ottdruleTXXApp{}}
-Consider the following two cases of the term $[[e1 e2]]$:
-\begin{itemize}
-\item $[[e2]]$ can be an arbitrary term so its type $[[t2]]$ is not necessary in normal form which might break the type checking of $[[e1]]$, e.g. suppose $[[e1]]:\sigma [[->]] [[t]]$ and $[[e2]] : [[t2]]$, where $[[t2]]$ is an application $([[\x:star.x]])~\sigma$. By \ruleref{Tcc\_Conv}, $([[\x:star.x]])~\sigma$ is $\beta$-equivalent to $\sigma$, thus $[[e2]] : \sigma$ and we can further use \ruleref{T\_App} to achieve $[[e1 e2]] : [[t]]$.
-\item The type of $[[e1]]$ should be a product expression according to the premise. But without the conversion rule, the term fails to type check if the type of $[[e1]]$ is an expression which can further evaluate to a product, e.g. $[[Pi]] y:([[(\x : star . x) t2]]).[[t1]]$. After applying \ruleref{Tcc\_Conv}, the type of $[[e1]]$ is converted to its $\beta$-equivalence $[[Pi]] x:[[t2]].[[t1]]$. Thus we can further apply the \ruleref{T\_App}.
-\end{itemize}
 
-We need to show that explicit type conversion rules with cast primitives can also satisfy the premises of rule \ruleref{T\_App}. Still consider the above two cases:
-\begin{itemize}
-\item Given $[[e1]]:\sigma [[->]] [[t]]$ and $[[e2]] : ([[\x:star.x]])~\sigma$, we do the application by term $[[e1 (castdown e2)]]$. Since $([[\x:star.x]])~\sigma [[-->]] \sigma$, $[[castdown e2]] : \sigma$, the term $[[e1 (castdown e2)]]$ type-checks with the rule \ruleref{T\_App}.
-\item Given $[[e1]] : ([[Pi]] y:([[(\x : star . x) t2]]).[[t1]])$ and $[[e2]] : [[t2]]$, we do the application by term $[[e1 (castup [ (\x : star . x) t2 ] e2)]]$. Noting that $[[(\x : star . x) t2]] [[-->]] [[t2]]$, the term conforms to rule \ruleref{T\_CastUp}. Thus $[[castup [ (\x : star . x) t2 ] e2]] : [[((\x : star . x) t2)]]$ and the term $[[e1 (castup [ (\x : star . x) t2 ] e2)]]$ can be type-checked by the rule \ruleref{T\_App}.
-\end{itemize}
-
-Therefore, it is feasible to replace implicit conversion rules of \cc with explicit type conversion rules.
-
-\begin{figure}[ht]
-	\ottdefnexprcoc{}
-	\caption{Typing rules of \cc}
-	\label{fig:ecc:typerule}
+\begin{figure}
+    \ottdefnctx{}
+    \ottdefnexpr{}
+    \caption{Typing rules of \name}
+    \label{fig:core:typing}
 \end{figure}
 
-\subsection{Decidability and soundness without strong normalization}\label{sec:ecc:sound}
-The conversion rule of \cc is not syntax-directed because it can be implicitly applied at any time in a derivation. The $\beta$-equality premise of the rule also leads to the decidability of type checking relying on the strong normalization property of \cc. Suppose strong normalization does not hold in the type system, then we can find a type $[[t1]]$ such that there exists at least one reduction sequence which does not terminate. Notice that any type $[[t2]]$ in such reduction sequence holds for $[[t1 =b t2]]$. Thus we can constantly apply the conversion rule without termination and the type checking will not stop, which means the type checking is undecidable.
-
-Requiring strong normalization to achieve the decidability of type checking makes it impossible to combine general recursion with \cc, because general recursion might cause nontermination which simply breaks the strong normalization property. So we use explicit type conversion rules by cast operations to relax the constraints of achieving decidable type checking. We have the following theorem:
-
-\begin{thm}[Decidability of type checking for \expcc]
-Let $[[G]]$ be an environment, $[[e]]$ and $[[t]]$ be expressions of \expcc such that $[[G |- t : s]]$. Then the problem of knowing if one has $[[G |- e : t]]$ is decidable.
-\end{thm}
-
-\begin{proof}
-By induction on typing rules in Figure \ref{fig:ecc:typerule}.
-\end{proof}
-
-Notice that new explicit type conversion rules are syntax-directed and do not include the $\beta$-equality premise but one-step reduction instead. Because checking if one term is one-step-reducible to the other is always decidable by enumerating the reduction rules, type checking using these rules are always decidable. Therefore the proof of decidability for \expcc does not rely on the strong normalization. This also implies the possibility of introducing general recursion into the system with decidable type checking.
-
-Also for obtaining the soundness of \expcc, the proof does not need the strong normalization by combining the following two theorems:
-
-\begin{thm}[Subject Reduction]
-  If $[[G |- e:t]]$ and $e [[-->]] e'$ then $[[G |- e':t]]$.
-\end{thm}
-
-\begin{proof}
-	By induction on rules in Figure \ref{fig:ecc:dynsem}.
-\end{proof}
-
-\begin{thm}[Progress]
-  If $[[empty |- e:t]]$ then either $e$ is a value $v$ or there exists
-  $e'$ such that $e [[-->]] e'$.
-\end{thm}
-
-\begin{proof}
-	By induction on rules in Figure \ref{fig:ecc:typerule}.
-\end{proof}
+\subsection{Meta-theories}\label{sec:core:meta}

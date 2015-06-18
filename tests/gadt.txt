@@ -1,40 +1,6 @@
-:add Zero Int
-:add One Int
-:add Yes Bool
-:add No Bool
-:add Int *
-:add Bool *
+data Expr a where
+  Zero :: Expr Int
+  Succ :: Expr Int -> Expr Int
+  Pair :: x -> y -> Expr (x, y)
 
-:let PairAB mu X . pi p : * . (a -> b -> p) -> p
-:let PairA lam b : * . PairAB
-:let Pair lam a : * . PairA
-:let MkPair lam a : * . lam b : * . lam fst : a . lam snd : b . fold[Pair a b] fold[PairA b] fold[PairAB] lam p : * . lam f : a -> b -> p . f fst snd
-:let fst lam a : * . lam b : * . lam p : (Pair a b) . (unfold (unfold (unfold p))) a (lam x : a . lam y : b . x)
-:let snd lam a : * . lam b : * . lam p : (Pair a b) . (unfold (unfold (unfold p))) b (lam x : a . lam y : b . y)
-
-:let Expr lam c : * . mu X . Int -> (Int -> Int) -> (Bool -> Bool) -> (pi a : * . pi b : * . a -> b -> (Pair a b)) -> c
-:let ExprInt mu X . Int -> (Int -> Int) -> (Bool -> Bool) -> (pi a : * . pi b : * . a -> b -> (Pair a b)) -> Int
-:let ExprBool mu X . Int -> (Int -> Int) -> (Bool -> Bool) -> (pi a : * . pi b : * . a -> b -> (Pair a b)) -> Bool
-:let ExprPairAB mu X . Int -> (Int -> Int) -> (Bool -> Bool) -> (pi a : * . pi b : * . a -> b -> (Pair a b)) -> (Pair a b)
-
-:let ZeroE fold[Expr Int] fold[ExprInt] lam fz : Int . lam fs : Int -> Int . lam fb : Bool -> Bool . lam fp : (pi a : * . pi b : * . a -> b -> (Pair a b)) . fz
-:let SuccE lam e : Expr Int . fold[Expr Int] fold[ExprInt] lam fz : Int . lam fs : Int -> Int . lam fb : Bool -> Bool . lam fp : (pi a : * . pi b : * . a -> b -> (Pair a b)) . fs ((unfold (unfold e)) fz fs fb fp)
-:let BoolE lam x : Bool . fold[Expr Bool] fold[ExprBool] lam fz : Int . lam fs : Int -> Int . lam fb : Bool -> Bool . lam fp : (pi a : * . pi b : * . a -> b -> (Pair a b)) . fb x
-:let PairE lam a : * . lam b : * . lam ex : Expr a . lam ey : Expr b . fold[Expr (Pair a b)] fold[ExprPairAB] lam fz : Int . lam fs : Int -> Int . lam fb : Bool -> Bool . lam fp : (pi a : * . pi b : * . a -> b -> (Pair a b)) . (fp a b) ((unfold (unfold ex)) fz fs fb fp) ((unfold (unfold ey)) fz fs fb fp)
-
-:let eval lam a : * . lam e : Expr a . (unfold (unfold (e))) Zero (lam x : Int . One) (lam x : Bool . x) (lam a : * . lam b : * . lam x : a . lam y : b . MkPair a b x y)
-
-:teq ZeroE ; Expr Int
-:teq SuccE ; Expr Int -> Expr Int
-:teq BoolE ; Bool -> Expr Bool
-:teq PairE ; pi x : * . pi y : * . Expr x -> Expr y -> Expr (Pair x y)
-
-:e eval Int ZeroE
-:e eval Int (SuccE ZeroE)
-:e eval Bool (BoolE Yes)
-:e eval Bool (BoolE No)
-
-:let testPair PairE Int Bool (SuccE ZeroE) (BoolE Yes)
-:teq testPair ; Expr (Pair Int Bool)
-:e fst Int Bool (eval (Pair Int Bool) testPair)
-:e snd Int Bool (eval (Pair Int Bool) testPair)
+data PairT (a : *) (b : *) = P a b ; let Int : * = nat in let fst : (a : *) -> (b : *) -> PairT a b -> a = \a : * . \b : * . \p : PairT a b . case p of P (x : a) (y : b) => x in let snd : (a : *) -> (b : *) -> PairT a b -> b = \a : * . \b : * . \p : PairT a b . case p of P (x : a) (y : b) => y in let Expr : * -> * = mu t : * -> * . \a : * . (b : * -> *) -> b Int -> (t Int -> b Int) -> ((x : *) -> (y : *) -> t x -> t y -> b (PairT x y)) -> b a in let Zero : Expr Int = fold 2 [Expr Int] (\b : * -> * . \cx : b Int . \cy : Expr Int -> b Int . \cz : (x : *) -> (y : *) -> Expr x -> Expr y -> b (PairT x y) . cx) in let Succ : Expr Int -> Expr Int = \e : Expr Int . fold 2 [Expr Int] (\b : * -> * . \cx : b Int . \cy : Expr Int -> b Int . \cz : (x : *) -> (y : *) -> Expr x -> Expr y -> b (PairT x y) . cy e) in let Pair : (x : *) -> (y : *) -> Expr x -> Expr y -> Expr (PairT x y) = \x : * . \y : * . \ex : Expr x . \ey : Expr y . fold 2 [Expr (PairT x y)] (\b : * -> * . \cx : b Int . \cy : Expr Int -> b Int . \cz : (x : *) -> (y : *) -> Expr x -> Expr y -> b (PairT x y) . cz x y ex ey) in let eval : (a : *) -> Expr a -> a = mu f : (a : *) -> Expr a -> a . \a : * . \e : Expr a . unfold 1 ((unfold 2 e) (\x : * . x) (fold 1 [(\x : * . x) Int] 0) (\e' : Expr Int . fold 1 [(\x : * . x) Int] (1 + (f Int e'))) (\x : * . \y : * . \ex : Expr x . \ey : Expr y . fold 1 [(\x : * . x) (PairT x y)] (P x y (f x ex) (f y ey)))) in let testPair : Expr (PairT Int Int) = Pair Int Int (Succ (Succ Zero)) (Succ Zero) in fst Int Int (eval (PairT Int Int) testPair)

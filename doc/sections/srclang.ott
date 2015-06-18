@@ -31,8 +31,6 @@ E , A {{ tex T }}, B {{ tex S }}, k {{ tex \kappa }} :: 'es_' ::=       {{ com E
   | E1 E2                  ::  :: App        {{ com Application }}
   | \ x : A . E            ::  :: Lam        {{ com Abstraction }}
   | Pi x : A1 . A2         ::  :: Pi         {{ com Product }}
-  | castup [ A ] E         ::  :: CastUp     {{ com Cast up to type}}
-  | castdown E             ::  :: CastDown   {{ com Cast down by reduction }}
   | mu x : A . E           ::  :: Mu         {{ com General recursion }}
   | case E1 of << p => E2 >> ::  :: Case     {{ com Case analysis }}
   | let x : A = E2 in E1   ::  :: LetBinding {{ com Let binding }}
@@ -123,18 +121,6 @@ G, x:A1 |- A2:r
 ------------------- :: Pi
 G |- (Pi x:A1.A2):r
 
-G |- E : A2
-G |- A1 : s
-A1 --> A2
----------------------- :: CastUp
-G |- (castup[A1] E):A1
-
-G |- E : A1
-G |- A2 : s
-A1 --> A2
----------------------- :: CastDown
-G |- (castdown E) : A2
-
 G, x:A |- E:A
 G |- A:s
 ------------------- :: Mu
@@ -205,18 +191,6 @@ G |- A1 : s1 ~> t1
 G, x:A1 |- A2:s2 ~> t2
 ---------------------- :: Pi
 G |- (Pi x:A1.A2):s2 ~> Pi x:t1.t2
-
-G |- E : A2 ~> e
-G |- A1 : s ~> t1
-A1 --> A2
----------------------- :: CastUp
-G |- (castup[A1] E):A1 ~> castup[t1] e
-
-G |- E : A1 ~> e
-G |- A2 : s ~> t2
-A1 --> A2
------------------------------------- :: CastDown
-G |- (castdown E) : A2 ~> castdown e
 
 G, x:A |- E:A ~> e
 G |- A:s ~> t

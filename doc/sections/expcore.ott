@@ -131,7 +131,6 @@ formula :: 'formula_' ::=
   | formula \\                         ::   :: lbhack {{ tex [[formula]] \ottlinebreak }}
   | u : A elt G                        ::   :: context_inclusion_src
   | |- E : A                           ::   :: empty_context_src
-  | E1 --> E2                          ::   :: reduction_src
   | << formula >>                      ::   :: formula_vector
   | E1 = E2                            ::   :: rewrite_src
   | e1 := e2                           ::   :: definition

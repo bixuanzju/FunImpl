@@ -1,19 +1,7 @@
-\section{Specification of core language}
-
 \newcommand{\FV}{\mathsf{FV}}
 \newcommand{\dom}{\mathsf{dom}}
 
-\subsection{Syntax}
-\gram{\otte\ottinterrule
-        \ottG\ottinterrule
-        \ottv}
-
-\subsection{Operational semantics and expression typing}
-\ottdefnstep{}
-\ottdefnctx{}
-\ottdefnexpr{}
-
-\section{Specification of source language}
+\section{Full specification of source language}
 \subsection{Syntax}
 See Figure \ref{fig:appendix:syntax}.
 \begin{figure*}[ht]
@@ -27,7 +15,6 @@ See Figure \ref{fig:appendix:syntax}.
     \[
     \begin{array}{lllll}
      &&&& \text{Syntactic Sugar} \\
-     [[let x : A = E2 in E1]] & \triangleq & [[E1[x |-> E2] ]] && \quad\text{Let binding} \\
      [[A1->A2]] & \triangleq & [[Pi x:A1.A2]] & x \not \in \FV([[A2]]) & \quad\text{Function type} \\
      [[(x:A1)->A2]] & \triangleq & [[Pi x:A1.A2]] & x \in \FV([[A2]]) & \quad\text{Dependent function type} \\
      [[data R <<u:k>> = K { <<N:A>> }]] & \triangleq &
