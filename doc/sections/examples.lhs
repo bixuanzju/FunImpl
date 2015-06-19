@@ -92,7 +92,8 @@ Notice that the recursive use of \emph{B} does not hold \emph{a}, but \emph{Pair
 \begin{figure}[h!]
 \begin{spec}
   let B : * -> * = mu X : * -> * .
-      \ a : * . \ B : * . (a -> B) -> (X (PairT a a) -> B) -> B in
+      \ a : * . \ B : * . (a -> B) -> (X (PairT a a) -> B) -> B
+  in
 \end{spec}
 \end{figure}
 
@@ -129,7 +130,7 @@ To easily construct a perfect binary tree from a list, we define a help function
   \label{fig:perfectB}
 \end{figure}
 
-Now we can define an interesting function \emph{powerTwo}. Given a natural number $n$, it compute the largest natural number $m$, such that $2^{m} < n$:
+Now we can define an interesting function \emph{powerTwo}. Given a natural number $n$, it computes the largest natural number $m$, such that $2^{m} < n$:
 
 \begin{figure}[H]
 \begin{spec}

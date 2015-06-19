@@ -276,7 +276,9 @@ Notice that the recursive use of \emph{B} does not hold \emph{a}, but \emph{Pair
 \>[3]{}\mathbf{let}\;\Conid{B}\mathbin{:}\star\to \star\mathrel{=}\mu\;\Conid{X}\mathbin{:}\star\to \star.\,{}\<[E]%
 \\
 \>[3]{}\hsindent{4}{}\<[7]%
-\>[7]{}\lambda \Varid{a}\mathbin{:}\star.\,\lambda \Conid{B}\mathbin{:}\star.\,(\Varid{a}\to \Conid{B})\to (\Conid{X}\;(\Conid{PairT}\;\Varid{a}\;\Varid{a})\to \Conid{B})\to \Conid{B}\;\mathbf{in}{}\<[E]%
+\>[7]{}\lambda \Varid{a}\mathbin{:}\star.\,\lambda \Conid{B}\mathbin{:}\star.\,(\Varid{a}\to \Conid{B})\to (\Conid{X}\;(\Conid{PairT}\;\Varid{a}\;\Varid{a})\to \Conid{B})\to \Conid{B}{}\<[E]%
+\\
+\>[3]{}\mathbf{in}{}\<[E]%
 \ColumnHook
 \end{pboxed}
 \)\par\noindent\endgroup\resethooks
@@ -367,7 +369,7 @@ To easily construct a perfect binary tree from a list, we define a help function
   \label{fig:perfectB}
 \end{figure}
 
-Now we can define an interesting function \emph{powerTwo}. Given a natural number $n$, it compute the largest natural number $m$, such that $2^{m} < n$:
+Now we can define an interesting function \emph{powerTwo}. Given a natural number $n$, it computes the largest natural number $m$, such that $2^{m} < n$:
 
 \begin{figure}[H]
 \begingroup\par\noindent\advance\leftskip\mathindent\(
