@@ -112,14 +112,14 @@ tcdatatypes :: Env -> DataBind -> TC Env
 tcdatatypes env (DB tc tca constrs) = do
 
   -- check type constructor
-  let tct = chainType (Kind Star) . map snd $ tca
+  let tct = mkProdType (Kind Star) tca
   tcs <- tcheck env tct
   unless (tcs == Kind Star) $ throwError "Bad type constructor arguments"
 
   -- check data constructors
   let du = foldl App (Var tc) (map (Var . fst) tca)
   let tduList = map (chainType du . constrParams) constrs
-  dcts <- mapM (tcheck ((tc, tct) : tca ++ env)) tduList
+  dcts <- mapM (tcheck (reverse tca ++ ((tc, tct) : env))) tduList -- Note: reverse type parameters list (tca)
   unless (all (== Kind Star) dcts) $ throwError "Bad data constructor arguments"
 
   -- return environment containing type constructor and data constructors
@@ -133,6 +133,9 @@ getActualTypes _ = throwError "Bad scrutinee type"
 
 chainType :: Type -> [Type] -> Type
 chainType = foldr (Pi "")
+
+mkProdType :: Type -> [(Sym, Type)] -> Type
+mkProdType = foldr (\(n, t1) t2 -> Pi n t1 t2)
 
 allowedKinds :: [(Type, Type)]
 allowedKinds =

@@ -325,10 +325,10 @@
 
 %% defn declsrc
 \newcommand{\ottdruleTdeclXXData}[1]{\ottdrule[#1]{%
-{\Gamma  \vdash  \overline{  \kappa  }  \rightarrow  \star  \ottsym{:}  \star}%
-\\ {\overline{  \Gamma  \ottsym{,}  \ottmv{D}  \ottsym{:}  \overline{  \kappa  }  \rightarrow  \star  \ottsym{,}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \vdash  \overline{  T  }  \rightarrow  \ottmv{D}    \overline{  \ottnt{u}  }  \ottsym{:}  \star  }}%
+{\Gamma  \vdash  \ottsym{(}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{)}  \rightarrow  \star  \ottsym{:}  \star}%
+\\ {\overline{  \Gamma  \ottsym{,}  \ottmv{D}  \ottsym{:}  \ottsym{(}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{)}  \rightarrow  \star  \ottsym{,}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \vdash  \overline{  T  }  \rightarrow  \ottmv{D}    \overline{  \ottnt{u}  }  \ottsym{:}  \star  }}%
 }{
-\Gamma  \vdash  \ottsym{(}  \kw{data} \, \ottmv{D}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{=}  \overline{  \ottmv{K}  \overline{  T  }  }  \ottsym{)}  \ottsym{:}  \ottsym{(}  \ottmv{D}  \ottsym{:}  \overline{  \kappa  }  \rightarrow  \star  \ottsym{,}  \overline{  \ottmv{K}  \ottsym{:}  \ottsym{(}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{)}  \rightarrow  \overline{  T  }  \rightarrow  \ottmv{D}    \overline{  \ottnt{u}  }  }  \ottsym{)}}{%
+\Gamma  \vdash  \ottsym{(}  \kw{data} \, \ottmv{D}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{=}  \overline{  \ottmv{K}  \overline{  T  }  }  \ottsym{)}  \ottsym{:}  \ottsym{(}  \ottmv{D}  \ottsym{:}  \ottsym{(}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{)}  \rightarrow  \star  \ottsym{,}  \overline{  \ottmv{K}  \ottsym{:}  \ottsym{(}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{)}  \rightarrow  \overline{  T  }  \rightarrow  \ottmv{D}    \overline{  \ottnt{u}  }  }  \ottsym{)}}{%
 {\ottdrulename{Tdecl\_Data}}{}%
 }}
 
@@ -470,10 +470,10 @@
 
 %% defn decltrans
 \newcommand{\ottdruleTRdeclXXData}[1]{\ottdrule[#1]{%
-{\Gamma  \vdash  \overline{  \kappa  }  \rightarrow  \star  \ottsym{:}  \star  \rightsquigarrow  \overline{  \sigma  }  \rightarrow  \star}%
-\\ {\overline{  \Gamma  \ottsym{,}  \ottmv{D}  \ottsym{:}  \overline{  \kappa  }  \rightarrow  \star  \ottsym{,}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \vdash  \overline{  T  }  \rightarrow  \ottmv{D}    \overline{  \ottnt{u}  }  \ottsym{:}  \star  \rightsquigarrow  \overline{  \tau  }  \rightarrow  \ottmv{D}    \overline{  \ottnt{u}  }  }}%
+{\Gamma  \vdash  \ottsym{(}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{)}  \rightarrow  \star  \ottsym{:}  \star  \rightsquigarrow  \ottsym{(}  \overline{  \ottnt{u}  \ottsym{:}  \sigma  }  \ottsym{)}  \rightarrow  \star}%
+\\ {\overline{  \Gamma  \ottsym{,}  \ottmv{D}  \ottsym{:}  \ottsym{(}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{)}  \rightarrow  \star  \ottsym{,}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \vdash  \overline{  T  }  \rightarrow  \ottmv{D}    \overline{  \ottnt{u}  }  \ottsym{:}  \star  \rightsquigarrow  \overline{  \tau  }  \rightarrow  \ottmv{D}    \overline{  \ottnt{u}  }  }}%
 }{
-\Gamma  \vdash  \ottsym{(}  \kw{data} \, \ottmv{D}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{=}  \overline{  \ottmv{K}  \overline{  T  }  }  \ottsym{)}  \ottsym{:}  \ottsym{(}  \ottmv{D}  \ottsym{:}  \overline{  \kappa  }  \rightarrow  \star  \ottsym{,}  \overline{  \ottmv{K}  \ottsym{:}  \ottsym{(}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{)}  \rightarrow  \overline{  T  }  \rightarrow  \ottmv{D}    \overline{  \ottnt{u}  }  }  \ottsym{)}  \rightsquigarrow  \ottnt{e}}{%
+\Gamma  \vdash  \ottsym{(}  \kw{data} \, \ottmv{D}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{=}  \overline{  \ottmv{K}  \overline{  T  }  }  \ottsym{)}  \ottsym{:}  \ottsym{(}  \ottmv{D}  \ottsym{:}  \ottsym{(}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{)}  \rightarrow  \star  \ottsym{,}  \overline{  \ottmv{K}  \ottsym{:}  \ottsym{(}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{)}  \rightarrow  \overline{  T  }  \rightarrow  \ottmv{D}    \overline{  \ottnt{u}  }  }  \ottsym{)}  \rightsquigarrow  \ottnt{e}}{%
 {\ottdrulename{TRdecl\_Data}}{}%
 }}
 

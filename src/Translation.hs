@@ -85,7 +85,7 @@ trans env (Data db@(DB tc tca constrs) e) = do
   let nenv = env' ++ env
   (t, e') <- trans nenv e
 
-  let tct = chainType (Kind Star) . map snd $ tca
+  let tct = mkProdType (Kind Star) tca
   let du = foldl App (Var tc) (map (Var . fst) tca)
   let dcArgs = map constrParams constrs
   let dcArgChains = map (chainType (Var "B0")) dcArgs
