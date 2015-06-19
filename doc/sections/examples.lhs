@@ -75,7 +75,7 @@ First we define a pair datatype as follows:
 
 \begin{figure}[H]
 \begin{spec}
-  data PairT (a : *) (b : *) = Pair a b;
+  data PairT (a : *) (b : *) = P a b;
 \end{spec}
 \end{figure}
 
@@ -92,7 +92,7 @@ Notice that the recursive use of \emph{B} does not hold \emph{a}, but \emph{Pair
 \begin{figure}[h!]
 \begin{spec}
   let B : * -> * = mu X : * -> * .
-      \ a : * . \ B : * . (a -> B) -> (X (PairT a a) -> B) -> B
+      \ a : * . (B : *) -> (a -> B) -> (X (PairT a a) -> B) -> B
   in
 \end{spec}
 \end{figure}
@@ -112,7 +112,7 @@ To easily construct a perfect binary tree from a list, we define a help function
             case ys of Nil =>
               Nil (PairT a a)
             | Cons (y' : a) (ys' : List a) =>
-                Cons (PairT a a) (Pair a a y y') (pairs' a ys')
+                Cons (PairT a a) (P a a y y') (pairs' a ys')
   in
   let fromList : (a : *) -> List a -> B a =
     mu from' : (a : *) -> List a -> B a .

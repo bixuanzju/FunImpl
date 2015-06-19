@@ -244,7 +244,7 @@ First we define a pair datatype as follows:
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{3}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[3]{}\mathbf{data}\;\Conid{PairT}\;(\Varid{a}\mathbin{:}\star)\;(\Varid{b}\mathbin{:}\star)\mathrel{=}\Conid{Pair}\;\Varid{a}\;\Varid{b};{}\<[E]%
+\>[3]{}\mathbf{data}\;\Conid{PairT}\;(\Varid{a}\mathbin{:}\star)\;(\Varid{b}\mathbin{:}\star)\mathrel{=}\Conid{P}\;\Varid{a}\;\Varid{b};{}\<[E]%
 \ColumnHook
 \end{pboxed}
 \)\par\noindent\endgroup\resethooks
@@ -276,7 +276,7 @@ Notice that the recursive use of \emph{B} does not hold \emph{a}, but \emph{Pair
 \>[3]{}\mathbf{let}\;\Conid{B}\mathbin{:}\star\to \star\mathrel{=}\mu\;\Conid{X}\mathbin{:}\star\to \star.\,{}\<[E]%
 \\
 \>[3]{}\hsindent{4}{}\<[7]%
-\>[7]{}\lambda \Varid{a}\mathbin{:}\star.\,\lambda \Conid{B}\mathbin{:}\star.\,(\Varid{a}\to \Conid{B})\to (\Conid{X}\;(\Conid{PairT}\;\Varid{a}\;\Varid{a})\to \Conid{B})\to \Conid{B}{}\<[E]%
+\>[7]{}\lambda \Varid{a}\mathbin{:}\star.\,(\Conid{B}\mathbin{:}\star)\to (\Varid{a}\to \Conid{B})\to (\Conid{X}\;(\Conid{PairT}\;\Varid{a}\;\Varid{a})\to \Conid{B})\to \Conid{B}{}\<[E]%
 \\
 \>[3]{}\mathbf{in}{}\<[E]%
 \ColumnHook
@@ -328,7 +328,7 @@ To easily construct a perfect binary tree from a list, we define a help function
 \>[13]{}\mid \Conid{Cons}\;(\Varid{y'}\mathbin{:}\Varid{a})\;(\Varid{ys'}\mathbin{:}\Conid{List}\;\Varid{a})\Rightarrow {}\<[E]%
 \\
 \>[13]{}\hsindent{4}{}\<[17]%
-\>[17]{}\Conid{Cons}\;(\Conid{PairT}\;\Varid{a}\;\Varid{a})\;(\Conid{Pair}\;\Varid{a}\;\Varid{a}\;\Varid{y}\;\Varid{y'})\;(\Varid{pairs'}\;\Varid{a}\;\Varid{ys'}){}\<[E]%
+\>[17]{}\Conid{Cons}\;(\Conid{PairT}\;\Varid{a}\;\Varid{a})\;(\Conid{P}\;\Varid{a}\;\Varid{a}\;\Varid{y}\;\Varid{y'})\;(\Varid{pairs'}\;\Varid{a}\;\Varid{ys'}){}\<[E]%
 \\
 \>[3]{}\mathbf{in}{}\<[E]%
 \\
