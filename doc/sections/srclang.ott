@@ -187,10 +187,10 @@ G |- (Pi x:A1.A2) : s ~> Pi x:t1.t2
 ------------------------------------ :: Lam
 G |- (\x:A1.E):(Pi x:A1.A2) ~> \x:t1.e
 
-G |- A1 : s1 ~> t1
-G, x:A1 |- A2:s2 ~> t2
+G |- A1 : s ~> t1
+G, x:A1 |- A2:r ~> t2
 ---------------------- :: Pi
-G |- (Pi x:A1.A2):s2 ~> Pi x:t1.t2
+G |- (Pi x:A1.A2):r ~> Pi x:t1.t2
 
 G, x:A |- E:A ~> e
 G |- A:s ~> t
@@ -201,7 +201,7 @@ G |- E1 : B ~> e1
 << G |- p => E2 : B -> A ~> e2 >>
 << G |- B -> A : s ~> T -> t >>
 ---------------------------------------- :: Case
-G |- case E1 of << p => E2 >> : A ~> (castdown e1) t <<e2>>
+G |- case E1 of << p => E2 >> : A ~> (unfoldn e1) t <<e2>>
 
 G |- E2 : A ~> e2
 G |- E1 [x |-> E2] : B ~> e1 [x |-> e2]

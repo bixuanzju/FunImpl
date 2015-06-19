@@ -1,10 +1,10 @@
 %%% !!! WARNING: AUTO GENERATED. DO NOT MODIFY !!! %%%
-\section{Explicit Calculus of Constructions with Recursion}\label{sec:core}
+\section{The core language}\label{sec:core}
 
-In this section, we present the core language \name, namely the explicit Calculus of Constructions with recursion, a dependently typed intermediate language with general recursion. \name is carefully designed to be minimal enough for simplifying type checking and meta-theoretic studying, while still keeps the expressiveness to represent rich high-level constructions (\S \ref{sec:src}). By explicitly controlling the type-level computation with $\kw{cast}$ primitives, \name can safely allow non-termination without breaking the decidability of type checking. In rest of this section, we demonstrate the syntax (\S \ref{sec:core:syn}), type system (\S \ref{sec:core:type}) and meta-theories (\S \ref{sec:core:meta}) of \name.
+In this section, we present \name calculus, the core language with explicit type-level computation. \name is carefully designed to be minimal enough for simplifying type checking and meta-theoretic studying, while still keeps the expressiveness to represent rich high-level constructions (\S \ref{sec:src}). By explicitly controlling the type-level computation with $\kw{cast}$ operators, \name can safely allow non-termination without breaking the decidability of type checking. In rest of this section, we demonstrate the syntax (\S \ref{sec:core:syn}), type system (\S \ref{sec:core:type}) and meta-theories (\S \ref{sec:core:meta}) of \name.
 
 \subsection{Syntax}\label{sec:core:syn}
-Figure \ref{fig:core:syntax} shows the syntax of \name, including expressions, contexts and values. The syntax is similar to \cc and straightforward to understand, while there are still some differences that embody the simplicity and expressiveness of \name:
+Figure \ref{fig:core:syntax} shows the syntax of \name, including expressions, contexts and values. The syntax follows \cc and straightforward to understand, while there are still some differences that embody the simplicity and expressiveness of \name.
 
 \subsubsection{Unified syntactic levels}
 \name uses a unified syntactic representation for different levels of expressions by following the \emph{pure type system} (PTS) representation of \cc. Traditionally in \cc, there are two distinct sorts $\star$ and $\Box$ representing the type of \emph{types} and \emph{sorts} respectively, and an axiom $\star:\Box$ specifying the relation. In \name, we further merge types and kinds together by including only a single sort $\star$ and an impredicative axiom $\star:\star$. 
@@ -14,15 +14,15 @@ Therefore, there is no syntactic distinction between terms, types or kinds. This
 \subsubsection{Dependent function types}
 In the context of \cc, if a term $\ottmv{x}$ has the type $\tau_{{\mathrm{1}}}$, and $\tau_{{\mathrm{2}}}$ is a type, i.e. $\ottmv{x}:\tau_{{\mathrm{1}}}:\star$ and $\tau_{{\mathrm{2}}}:\Box$, we call the type $\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}$ a \emph{dependent product}. \name follows \cc to use the same $ \Pi $-notation to represent dependent function types.
 
-However, a higher-kind polymorphic function type such as $\Pi \, \ottmv{x}  \ottsym{:}  \Box  \ottsym{.}  \ottmv{x}  \rightarrow  \ottmv{x}$ is not allowed in \cc, because $\Box$ does not have a type and $\tau_{{\mathrm{1}}}=\Box$ can not be typed in $\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}$.  $ \Pi $-notation in \name is more expressive and does not have such limitation because of the axiom $\star:\star$. Moreover, we interchangeably use the arrow form $\ottsym{(}  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{)}  \rightarrow  \tau_{{\mathrm{2}}}$ for the product in the source language for distinction. By convention, we also use the syntactic sugar $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}$ to represent the product if $\ottmv{x}$ does not occur free in $\tau_{{\mathrm{2}}}$.
+However, a higher-kind polymorphic function type such as $\Pi \, \ottmv{x}  \ottsym{:}  \Box  \ottsym{.}  \ottmv{x}  \rightarrow  \ottmv{x}$ is not allowed in \cc, because $\Box$ is the highest sort that can not be typed. While $ \Pi $-notation in \name is more expressive and does not have such limitation because of the axiom $\star:\star$. In the source language, we interchangeably use the arrow form $\ottsym{(}  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{)}  \rightarrow  \tau_{{\mathrm{2}}}$ of the product for clarity. By convention, we also use the syntactic sugar $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}$ to represent the product if $\ottmv{x}$ does not occur free in $\tau_{{\mathrm{2}}}$.
 
 \subsubsection{General recursion}
-We use the polymorphic recursion operator $ \mu $ to represent general recursion on both term and type level in the same form $\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$. On the term level, a $ \mu $-term has the similar functionality as a fixpoint, that its unfolding $\ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]}$ can be achieved by $\beta$-reduction \fixme{(See examples in \S \ref{sec:})}. On the type level, $\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$ represents recursive types and uses the \emph{iso-recursive} approach, that the recursive type is not equal but only isomorphic to its unfolding.
+We use the polymorphic recursion operator $ \mu $ to represent general recursion on both term and type level in the same form $\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$. On the term level, a $ \mu $-term has the similar functionality as a fixpoint, that its unfolding $\ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]}$ can be achieved by one-step reduction \fixme{(See examples in \S \ref{sec:})}. On the type level, $\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$ represents recursive types and uses the \emph{iso-recursive} approach, that the recursive type is not equal but only isomorphic to its unrolling.
 
 \subsubsection{Explicit type conversion}
-We introduce two new primitives $ \kw{cast}^{\uparrow} $ and $ \kw{cast}_{\downarrow} $ (pronounced as "cast up" and "cast down") to replace implicit conversion rule of \cc with explicit type conversion. They represent two directions of type conversion: $ \kw{cast}_{\downarrow} $ stands for the $\beta$-reduction of types, while $ \kw{cast}^{\uparrow} $ is the inverse \fixme{(See examples in \S \ref{sec:})}. $ \kw{cast}^{\uparrow} $ and $ \kw{cast}_{\downarrow} $ also serve as the $\kw{fold}$ and $\kw{unfold}$ for iso-recursive types to map back and forth between the original and unrolled form (\S \ref{sec:core:type}).
+We introduce two new primitives $ \kw{cast}^{\uparrow} $ and $ \kw{cast}_{\downarrow} $ (pronounced as "cast up" and "cast down") to replace implicit conversion rule of \cc with one-step explicit type conversion. They represent two directions of type conversion: $ \kw{cast}_{\downarrow} $ stands for the $\beta$-reduction of types, while $ \kw{cast}^{\uparrow} $ is the inverse \fixme{(see examples in \S \ref{sec:})}. $ \kw{cast}^{\uparrow} $ and $ \kw{cast}_{\downarrow} $ also serve as the $\kw{fold}$ and $\kw{unfold}$ for iso-recursive types to map back and forth between the original and unrolled form (\S \ref{sec:core:type}).
 
-Though $\kw{cast}$ primitives make the syntax verbose when type conversion is heavily used, the implementation of type checking is simplified because typing rules of \name are type-directed without \cc's implicit conversion rule. Considering the core language is compiler-oriented and \fixme{source language does not include $\kw{cast}$ primitives}, end-users will not directly use them. Some type conversions can be generated through the translation of the source language \fixme{(\S \ref{sec:src})}.
+Though $\kw{cast}$ primitives make the syntax verbose when type conversion is heavily used, the implementation of type checking is simplified because typing rules of \name become type-directed without \cc's implicit conversion rule. Considering the core language is compiler-oriented and \fixme{source language does not include $\kw{cast}$ primitives}, end-users will not directly use them. Some type conversions can be generated through the translation of the source language \fixme{(\S \ref{sec:src})}.
 
 \begin{figure}
     \gram{\otte\ottinterrule
@@ -33,16 +33,39 @@ Though $\kw{cast}$ primitives make the syntax verbose when type conversion is he
 \end{figure}
 
 \subsection{Type system}\label{sec:core:type}
-The type system for the core language includes operational semantics and typing judgements. Typing judgements include rules of context wellformedness $\vdash  \Gamma$ and expression typing $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$. Note that there is only a single set of rules for expression typing, because of no distinction of different syntactic levels.
+The type system for the core language includes operational semantics and typing judgements. Typing judgements include rules of context well-formedness $\vdash  \Gamma$ and expression typing $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$. Note that there is only a single set of rules for expression typing, because of no distinction of different syntactic levels.
 
-\subsubsection{Weak reduction}
-The operational semantics is given in Figure \ref{fig:core:opsem}. 
+\subsubsection{Operational semantics}
+Figure \ref{fig:core:opsem} shows the \emph{call-by-name} operational semantics, defined by one-step reduction relations, namely $ \longrightarrow $. Three base cases include \ruleref{S\_Beta} for $\beta$-reduction, \ruleref{S\_Mu} for recursion unrolling and \ruleref{S\_CastDownUp} for cast canceling. Two inductive case, \ruleref{S\_App} and \ruleref{S\_CastDown}, define reduction in the head position of an application, and in the $ \kw{cast}_{\downarrow} $ inner expression respectively.
+
+The reduction rules are \emph{weak} in the sense that it is not allowed to reduce inside a $\lambda$-term or $ \kw{cast}^{\uparrow} $-term which are viewed as a value (see Figure \ref{fig:core:syntax}) that ends the reduction. Note that we do not treat the $ \mu $-term as a value, which is different from conventional iso-recursive types. Because on the term level, the $ \mu $ operator is treated as a fixpoint. The $ \mu $-term is equivalent to a recursive function that should be allowed to unroll without restriction.
 
 \begin{figure}
     \ottdefnstep{}
     \caption{Operational semantics of \name}
     \label{fig:core:opsem}
 \end{figure}
+
+\subsubsection{Expression typing}
+Figure \ref{fig:core:typing} gives the \emph{syntax-directed} typing rules of valid context and expression. Most typing rules are quite standard. We write $\vdash  \Gamma$ if a context $\Gamma$ is well-formed. Since there is only a single sort $\star$, $\Gamma  \vdash  \tau  \ottsym{:}  \star$ is used in rules to check if $\tau$ is a well-formed type. Rule \ruleref{T\_Ax} is the "type-in-type" axiom. Rule \ruleref{T\_Var} checks the type of variable $\ottmv{x}$ from the valid context. Rules \ruleref{T\_App} and \ruleref{T\_Lam} check the validity of application and abstraction. Rules \ruleref{T\_Pi} and \ruleref{T\_Mu} check the type well-formedness of the dependent function and polymorphic recursion. Rule \ruleref{T\_Mu} indicates that the polymorphic recursion $\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$ should have the same type $\tau$ as the binder $\ottmv{x}$ and the body $\ottnt{e}$.
+
+Rules \ruleref{T\_CastUp} and \ruleref{T\_CastDown} deal with the explicit type conversion. They differ from the conventional implicit type conversion rule (see \ref{}) in \cc: $\kw{cast}$ rules are syntax-directed and only perform \emph{one-step} type conversion for every $\kw{cast}$ operator. Specifically speaking, if given $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau_{{\mathrm{2}}}$ and $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}  \longrightarrow  \tau_{{\mathrm{3}}}$, then $\kw{cast}^{\uparrow} \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]}  \ottnt{e}$ expands the type of $\ottnt{e}$ from $\tau_{{\mathrm{2}}}$ to $\tau_{{\mathrm{1}}}$, while $\kw{cast}_{\downarrow} \, \ottnt{e}$ reduces the type of $\ottnt{e}$ from $\tau_{{\mathrm{2}}}$ to $\tau_{{\mathrm{3}}}$. 
+
+Giving up the implicit conversion rule means that we do not have $\beta$-equality but only have \emph{syntactical equality} (or $\alpha$-equality) for types in \name. By limiting the reduction relation to only one step, evaluating type-level recursive terms is fully controlled by the $\kw{cast}$ operators: the number of evaluation steps of is equal to the number of $\kw{cast}$ operators, which is finite. Thus, this prevents the type checker from looping forever when evaluating recursive terms.
+
+Finally, we look back at the polymorphic recursion $\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$ again. If it appears on the term level, the reduction rule \ruleref{S\_Mu} makes the $ \mu $-operator behave like a fixpoint. Because evaluating $\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$ obtains its unrolling $\ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]}$, i.e. substituting all $\ottmv{x}$ in $e$ with the whole $ \mu $-term itself, just like a fixpoint. If the recursion appears on the type level, assume there exist expressions $\ottnt{e_{{\mathrm{1}}}}$ and $\ottnt{e_{{\mathrm{2}}}}$ such that 
+\[\begin{array}{lll}
+	&\ottnt{e_{{\mathrm{1}}}} &: \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}\\
+	&\ottnt{e_{{\mathrm{2}}}} &: \ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]}
+\end{array}\]
+Note that $\ottnt{e_{{\mathrm{1}}}}$ and $\ottnt{e_{{\mathrm{2}}}}$ have distinct types but the type of $\ottnt{e_{{\mathrm{2}}}}$ is the unrolling of $\ottnt{e_{{\mathrm{1}}}}$'s type, which follows the one-step reduction relation by rule \ruleref{S\_Mu}:
+\[ \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \longrightarrow  \ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]} \]
+ Thus, by applying rules \ruleref{T\_CastUp} and \ruleref{T\_CastDown}, we can obtain the following typing results:
+\[\begin{array}{lll}
+	&\kw{cast}_{\downarrow} \, \ottnt{e_{{\mathrm{1}}}} &: \ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]}\\
+	&\kw{cast}^{\uparrow} \, \ottsym{[}  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]}  \ottnt{e_{{\mathrm{2}}}} &: \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}
+\end{array}\]
+Thus, $ \kw{cast}^{\uparrow} $ and $ \kw{cast}_{\downarrow} $ witness the isomorphism between the original recursive type and its unrolling, which behave the same as $\kw{fold}$ and $\kw{unfold}$ operations in iso-recursive types.
 
 \begin{figure}
     \ottdefnctx{}
@@ -51,4 +74,9 @@ The operational semantics is given in Figure \ref{fig:core:opsem}.
     \label{fig:core:typing}
 \end{figure}
 
-\subsection{Meta-theories}\label{sec:core:meta}
+\subsection{Meta-theory}\label{sec:core:meta}
+We now discuss the meta-theory of \name. We focus on two properties: the decidability of type checking and the type-safety of the language. First, we want to show type checking \name is decidable without normalizing property. And the type checker will never be stuck by type-level non-termination. Second, the core language is type safe, or sound, proven by standard subject reduction and progress lemmas.
+
+\subsubsection{Decidability of type checking}
+
+\subsubsection{Type safety}

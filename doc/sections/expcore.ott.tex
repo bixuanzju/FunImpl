@@ -30,7 +30,7 @@
 
 \newcommand{\ottmetavars}{
 \ottmetavartabular{
- $ \ottmv{x} ,\, \ottmv{y} ,\, \ottmv{z} ,\, \ottmv{d} ,\, \ottmv{X} ,\, \ottmv{D} ,\, \ottmv{K} ,\, \ottmv{N} ,\, \ottmv{R} ,\, \theta ,\, \alpha ,\, b $ & \ottcom{Variable names} \\
+ $ \ottmv{x} ,\, \ottmv{y} ,\, \ottmv{z} ,\, \ottmv{d} ,\, \ottmv{X} ,\, \ottmv{D} ,\, \ottmv{K} ,\, \ottmv{N} ,\, \ottmv{R} ,\, \theta ,\, \alpha ,\, b ,\, n $ & \ottcom{Variable names} \\
  $ \ottmv{i} ,\, \ottmv{j} $ & \ottcom{Index variables} \\
 }}
 
@@ -41,9 +41,11 @@
 \ottprodline{|}{\ottnt{e_{{\mathrm{1}}}} \, \ottnt{e_{{\mathrm{2}}}}}{}{}{}{\ottcom{Application}}\ottprodnewline
 \ottprodline{|}{\lambda  \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}}{}{}{}{\ottcom{Abstraction}}\ottprodnewline
 \ottprodline{|}{\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}}{}{}{}{\ottcom{Product}}\ottprodnewline
-\ottprodline{|}{\kw{cast}^{\uparrow} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}}{}{}{}{\ottcom{Cast up to type}}\ottprodnewline
+\ottprodline{|}{\kw{cast}^{\uparrow} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}}{}{}{}{\ottcom{Cast up by expansion}}\ottprodnewline
 \ottprodline{|}{\kw{cast}_{\downarrow} \, \ottnt{e}}{}{}{}{\ottcom{Cast down by reduction}}\ottprodnewline
-\ottprodline{|}{\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}}{}{}{}{\ottcom{General recursion}}}
+\ottprodline{|}{\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}}{}{}{}{\ottcom{General recursion}}\ottprodnewline
+\ottprodline{|}{\kw{cast}_{\uparrow}^n \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}}{}{}{}{}\ottprodnewline
+\ottprodline{|}{\kw{cast}_{\downarrow}^n \, \ottnt{e}}{}{}{}{}}
 
 \newcommand{\ottlit}{
 \ottrulehead{\ottnt{lit}}{::=}{}}
@@ -59,9 +61,11 @@
 
 \newcommand{\ottv}{
 \ottrulehead{\ottnt{v}}{::=}{\ottcom{Values}}\ottprodnewline
-\ottfirstprodline{|}{\lambda  \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}}{}{}{}{\ottcom{Abstraction}}\ottprodnewline
+\ottfirstprodline{|}{\ottmv{x}}{}{}{}{\ottcom{Variable}}\ottprodnewline
+\ottprodline{|}{\star}{}{}{}{\ottcom{Type of types}}\ottprodnewline
+\ottprodline{|}{\lambda  \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}}{}{}{}{\ottcom{Abstraction}}\ottprodnewline
 \ottprodline{|}{\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}}{}{}{}{\ottcom{Product}}\ottprodnewline
-\ottprodline{|}{\kw{cast}^{\uparrow} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}}{}{}{}{\ottcom{Cast up}}}
+\ottprodline{|}{\kw{cast}^{\uparrow} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}}{}{}{}{\ottcom{Cast up by expansion}}}
 
 \newcommand{\ottpgm}{
 \ottrulehead{\ottnt{pgm}}{::=}{\ottcom{Program}}\ottprodnewline
@@ -192,6 +196,15 @@
 }}
 
 
+\newcommand{\ottdruleTXXMu}[1]{\ottdrule[#1]{%
+{\Gamma  \ottsym{,}  \ottmv{x}  \ottsym{:}  \tau  \vdash  \ottnt{e}  \ottsym{:}  \tau}%
+\\ {\Gamma  \vdash  \tau  \ottsym{:}  \star}%
+}{
+\Gamma  \vdash  \ottsym{(}  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{)}  \ottsym{:}  \tau}{%
+{\ottdrulename{T\_Mu}}{}%
+}}
+
+
 \newcommand{\ottdruleTXXCastUp}[1]{\ottdrule[#1]{%
 {\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau_{{\mathrm{2}}}}%
 \\ {\Gamma  \vdash  \tau_{{\mathrm{1}}}  \ottsym{:}  \star}%
@@ -211,24 +224,15 @@
 {\ottdrulename{T\_CastDown}}{}%
 }}
 
-
-\newcommand{\ottdruleTXXMu}[1]{\ottdrule[#1]{%
-{\Gamma  \ottsym{,}  \ottmv{x}  \ottsym{:}  \tau  \vdash  \ottnt{e}  \ottsym{:}  \tau}%
-\\ {\Gamma  \vdash  \tau  \ottsym{:}  \star}%
-}{
-\Gamma  \vdash  \ottsym{(}  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{)}  \ottsym{:}  \tau}{%
-{\ottdrulename{T\_Mu}}{}%
-}}
-
 \newcommand{\ottdefnexpr}[1]{\begin{ottdefnblock}[#1]{$\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$}{\ottcom{Expression typing}}
 \ottusedrule{\ottdruleTXXAx{}}
 \ottusedrule{\ottdruleTXXVar{}}
 \ottusedrule{\ottdruleTXXApp{}}
 \ottusedrule{\ottdruleTXXLam{}}
 \ottusedrule{\ottdruleTXXPi{}}
+\ottusedrule{\ottdruleTXXMu{}}
 \ottusedrule{\ottdruleTXXCastUp{}}
 \ottusedrule{\ottdruleTXXCastDown{}}
-\ottusedrule{\ottdruleTXXMu{}}
 \end{ottdefnblock}}
 
 
@@ -241,6 +245,20 @@
 }{
 \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}  \ottsym{)} \, \ottnt{e_{{\mathrm{2}}}}  \longrightarrow  \ottnt{e_{{\mathrm{1}}}}  \ottsym{[}  \ottmv{x}  \mapsto  \ottnt{e_{{\mathrm{2}}}}  \ottsym{]}}{%
 {\ottdrulename{S\_Beta}}{}%
+}}
+
+
+\newcommand{\ottdruleSXXMu}[1]{\ottdrule[#1]{%
+}{
+\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \longrightarrow  \ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]}}{%
+{\ottdrulename{S\_Mu}}{}%
+}}
+
+
+\newcommand{\ottdruleSXXCastDownUp}[1]{\ottdrule[#1]{%
+}{
+\kw{cast}_{\downarrow} \, \ottsym{(}  \kw{cast}^{\uparrow} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}  \ottsym{)}  \longrightarrow  \ottnt{e}}{%
+{\ottdrulename{S\_CastDownUp}}{}%
 }}
 
 
@@ -259,26 +277,12 @@
 {\ottdrulename{S\_CastDown}}{}%
 }}
 
-
-\newcommand{\ottdruleSXXCastDownUp}[1]{\ottdrule[#1]{%
-}{
-\kw{cast}_{\downarrow} \, \ottsym{(}  \kw{cast}^{\uparrow} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}  \ottsym{)}  \longrightarrow  \ottnt{e}}{%
-{\ottdrulename{S\_CastDownUp}}{}%
-}}
-
-
-\newcommand{\ottdruleSXXMu}[1]{\ottdrule[#1]{%
-}{
-\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \longrightarrow  \ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]}}{%
-{\ottdrulename{S\_Mu}}{}%
-}}
-
 \newcommand{\ottdefnstep}[1]{\begin{ottdefnblock}[#1]{$\ottnt{e}  \longrightarrow  \ottnt{e'}$}{\ottcom{One-step reduction}}
 \ottusedrule{\ottdruleSXXBeta{}}
+\ottusedrule{\ottdruleSXXMu{}}
+\ottusedrule{\ottdruleSXXCastDownUp{}}
 \ottusedrule{\ottdruleSXXApp{}}
 \ottusedrule{\ottdruleSXXCastDown{}}
-\ottusedrule{\ottdruleSXXCastDownUp{}}
-\ottusedrule{\ottdruleSXXMu{}}
 \end{ottdefnblock}}
 
 
@@ -507,10 +511,10 @@
 
 
 \newcommand{\ottdruleTRXXPi}[1]{\ottdrule[#1]{%
-{\Gamma  \vdash  T_{{\mathrm{1}}}  \ottsym{:}  \star_{{\mathrm{1}}}  \rightsquigarrow  \tau_{{\mathrm{1}}}}%
-\\ {\Gamma  \ottsym{,}  \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \vdash  T_{{\mathrm{2}}}  \ottsym{:}  \star_{{\mathrm{2}}}  \rightsquigarrow  \tau_{{\mathrm{2}}}}%
+{\Gamma  \vdash  T_{{\mathrm{1}}}  \ottsym{:}  \star  \rightsquigarrow  \tau_{{\mathrm{1}}}}%
+\\ {\Gamma  \ottsym{,}  \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \vdash  T_{{\mathrm{2}}}  \ottsym{:}  \star  \rightsquigarrow  \tau_{{\mathrm{2}}}}%
 }{
-\Gamma  \vdash  \ottsym{(}  \Pi \, \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{.}  T_{{\mathrm{2}}}  \ottsym{)}  \ottsym{:}  \star_{{\mathrm{2}}}  \rightsquigarrow  \Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}}{%
+\Gamma  \vdash  \ottsym{(}  \Pi \, \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{.}  T_{{\mathrm{2}}}  \ottsym{)}  \ottsym{:}  \star  \rightsquigarrow  \Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}}{%
 {\ottdrulename{TR\_Pi}}{}%
 }}
 
@@ -529,7 +533,7 @@
 \\ {\overline{  \Gamma  \vdash  \ottnt{p}  \Rightarrow  \ottnt{E_{{\mathrm{2}}}}  \ottsym{:}  S  \rightarrow  T  \rightsquigarrow  \ottnt{e_{{\mathrm{2}}}}  }}%
 \\ {\overline{  \Gamma  \vdash  S  \rightarrow  T  \ottsym{:}  \star  \rightsquigarrow  \sigma  \rightarrow  \tau  }}%
 }{
-\Gamma  \vdash  \kw{case} \, \ottnt{E_{{\mathrm{1}}}} \, \kw{of} \, \overline{  \ottnt{p}  \Rightarrow  \ottnt{E_{{\mathrm{2}}}}  }  \ottsym{:}  T  \rightsquigarrow  \ottsym{(}  \kw{cast}_{\downarrow} \, \ottnt{e_{{\mathrm{1}}}}  \ottsym{)} \, \tau \, \overline{  \ottnt{e_{{\mathrm{2}}}}  }}{%
+\Gamma  \vdash  \kw{case} \, \ottnt{E_{{\mathrm{1}}}} \, \kw{of} \, \overline{  \ottnt{p}  \Rightarrow  \ottnt{E_{{\mathrm{2}}}}  }  \ottsym{:}  T  \rightsquigarrow  \ottsym{(}  \kw{cast}_{\downarrow}^n \, \ottnt{e_{{\mathrm{1}}}}  \ottsym{)} \, \tau \, \overline{  \ottnt{e_{{\mathrm{2}}}}  }}{%
 {\ottdrulename{TR\_Case}}{}%
 }}
 

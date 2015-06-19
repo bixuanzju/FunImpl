@@ -30,7 +30,7 @@ See Figure \ref{fig:appendix:syntax}.
 \subsection{Expression typing}
 See Figure \ref{fig:appendix:typing}.
 \begin{figure*}[ht]
-$\;$\ottdefnctxsrc{}
+\ottdefnctxsrc{}
 \ottdefnpgmsrc{}
 \ottdefndeclsrc{}
 \ottdefnpatsrc{}
@@ -42,11 +42,10 @@ $\;$\ottdefnctxsrc{}
 \subsection{Translation to the core}
 See Figure \ref{fig:appendix:translate}.
 \begin{figure*}[ht]
-$\,$
 \ottdefnpgmtrans{}
 \ottdefndecltrans{}
 \begin{align*}
-[[ e := & let D : <<T>> -> star = mu X : <<T>> -> star . \ <<u:T>> . (aa:star) -> << (<<t>>[D |-> X] -> aa) >> -> aa in \\\let Ki : (<<u:T>>) -> <<t>> -> D@<<u>> = \ <<u:T>> . \<<x:t>> . castup [D@<<u>>] (\aa:star.\<<bb : <<t>> -> aa >> . bbi <<x>>) in @@ ]]
+[[ e := & let D : <<T>> -> star = mu X : <<T>> -> star . \ <<u:T>> . (aa:star) -> << (<<t>>[D |-> X] -> aa) >> -> aa in \\\let Ki : (<<u:T>>) -> <<t>> -> D@<<u>> = \ <<u:T>> . \<<x:t>> . foldn [D@<<u>>] (\aa:star.\<<bb : <<t>> -> aa >> . bbi <<x>>) in @@ ]]
 \end{align*}
 \ottdefnpattrans{}
 \ottdefnexprtrans{}
@@ -78,27 +77,26 @@ $\,$
     \begin{description}
         \item[Case \ruleref{T\_Mu}:] $\inferrule{[[G1, x:T, G2 |- e1:t]] \\ [[G1, x:T, G2 |- t:s]]}{[[G1, x:T, G2 |- (mu y:t.e1): t]]}$ 
         
-        By induction hypothesis, we have $[[G1, G2* |- e1* : t*]]$ and $[[G1, G2* |- t* : s*]]$. Then by the deviation rule, $[[G1, G2* |- (mu y:t*.e1*):t*]]$. Thus we have $[[G1, G2* |- (mu y:t.e1)*:t*]]$ which is just the result.
+        By induction hypothesis, we have $[[G1, G2* |- e1* : t*]]$ and $[[G1, G2* |- t* : star]]$. Then by the deviation rule, $[[G1, G2* |- (mu y:t*.e1*):t*]]$. Thus we have $[[G1, G2* |- (mu y:t.e1)*:t*]]$ which is just the result.
         \item[Case \ruleref{T\_CastUp}:] $\inferrule{[[G1, x:T, G2 |- e1:t2]] \\ [[G1, x:T, G2 |- t1:s]] \\ [[t1 --> t2]]}{[[G1, x:T, G2 |- (castup [t1] e1):t1]]}$ 
         
-        By induction hypothesis, we have $[[G1, G2* |- e1*:t2*]]$, $[[G1, G2* |- t1*:s*]]$ and $[[t1 --> t2]]$. By the definition of substitution, we can obtain $[[t1* --> t2*]]$ by $[[t1 --> t2]]$. Then by the deviation rule, $[[G1, G2* |- (castup [t1*] e1*):t1*]]$. Thus we have $[[G1, G2* |- (castup [t1] e1)*:t1*]]$ which is just the result.
+        By induction hypothesis, we have $[[G1, G2* |- e1*:t2*]]$, $[[G1, G2* |- t1*:star]]$ and $[[t1 --> t2]]$. By the definition of substitution, we can obtain $[[t1* --> t2*]]$ by $[[t1 --> t2]]$. Then by the deviation rule, $[[G1, G2* |- (castup [t1*] e1*):t1*]]$. Thus we have $[[G1, G2* |- (castup [t1] e1)*:t1*]]$ which is just the result.
         \item[Case \ruleref{T\_CastDown}:] $\inferrule{[[G1, x:T, G2 |- e1:t1]] \\ [[G1, x:T, G2 |- t2:s]] \\ [[t1 --> t2]]}{[[G1, x:T, G2 |- (castdown e1):t2]]}$ 
         
-        By induction hypothesis, we have $[[G1, G2* |- e1*:t1*]]$, $[[G1, G2* |- t2*:s*]]$ and $[[t1 --> t2]]$ thus $[[t1* --> t2*]]$. Then by the deviation rule, $[[G1, G2* |- (castdown e1*):t2*]]$. Thus we have $[[G1, G2* |- (castdown e1)*:t2*]]$ which is just the result.
+        By induction hypothesis, we have $[[G1, G2* |- e1*:t1*]]$, $[[G1, G2* |- t2*:star]]$ and $[[t1 --> t2]]$ thus $[[t1* --> t2*]]$. Then by the deviation rule, $[[G1, G2* |- (castdown e1*):t2*]]$. Thus we have $[[G1, G2* |- (castdown e1)*:t2*]]$ which is just the result.
     \end{description}
 \end{proof}
 
 \begin{lem}[Generation lemma]\label{lem:gen}
 $\quad$
 \begin{enumerate}[(1)]
-	\item If $[[G |- x:T]]$, then there exist an expression $[[t]]$ and a sort $[[s]]$ such that $[[t =a T]]$, $[[G |- t:s]]$ and $[[x:t elt G]]$.
+	\item If $[[G |- x:T]]$, then there exist an expression $[[t]]$ such that $[[t =a T]]$, $[[G |- t:s]]$ and $[[x:t elt G]]$.
 	\item If $[[G |- e1 e2:T]]$, then there exist expressions $[[t1]]$ and $[[t2]]$ such that $[[G |- e1 : (Pi x:t1.t2)]]$, $[[G |- e2:t1]]$ and $[[T =a t2[x |-> e2] ]]$.
-	\item If $[[G |- (\x:t1.e):T]]$, then there exist a sort $[[s]]$ and an expression $[[t2]]$ such that $[[T =a Pi x:t1.t2]]$ where $[[G |- (Pi x:t1.t2):s]]$ and $[[G,x:t1 |- e:t2]]$.
-	% \item If $[[G |- (Pi x:t1.t2):T]]$, then there exist sorts $[[s1]]$ and $[[s2]]$ such that $[[T == s2]]$, $[[G |- t1:s1]]$ and $[[G, x:t1 |- t2:s2]]$.
+	\item If $[[G |- (\x:t1.e):T]]$, then there exist an expression $[[t2]]$ such that $[[T =a Pi x:t1.t2]]$ where $[[G |- (Pi x:t1.t2):s]]$ and $[[G,x:t1 |- e:t2]]$.
     \item If $[[G |- (Pi x:t1.t2):T]]$, then $[[T == s]]$, $[[G |- t1:s]]$ and $[[G, x:t1 |- t2:s]]$.
-	\item If $[[G |- (mu x:t.e):T]]$, then there exists a sort $[[s]]$ such that $[[G |- t:s]]$, $[[T =a t]]$ and $[[G, x:t|-e:t]]$.
-	\item If $[[G |- (castup [t1] e):T]]$, then there exist an expression $[[t2]]$ and a sort $[[s]]$ such that $[[G |- e:t2]]$, $[[G |- t1:s]]$, $[[t1 --> t2]]$ and $[[T =a t1]]$.
-	\item If $[[G |- (castdown e):T]]$, then there exist expressions $[[t1]],[[t2]]$ and a sort $[[s]]$ such that $[[G |- e:t1]]$, $[[G |- t2:s]]$, $[[t1 --> t2]]$ and $[[T =a t2]]$.
+	\item If $[[G |- (mu x:t.e):T]]$, then $[[G |- t:s]]$, $[[T =a t]]$ and $[[G, x:t|-e:t]]$.
+	\item If $[[G |- (castup [t1] e):T]]$, then there exist an expression $[[t2]]$ such that $[[G |- e:t2]]$, $[[G |- t1:s]]$, $[[t1 --> t2]]$ and $[[T =a t1]]$.
+	\item If $[[G |- (castdown e):T]]$, then there exist expressions $[[t1]],[[t2]]$ such that $[[G |- e:t1]]$, $[[G |- t2:s]]$, $[[t1 --> t2]]$ and $[[T =a t2]]$.
 \end{enumerate}
 \end{lem}
 
@@ -117,39 +115,12 @@ $\quad$
 \end{proof}
 
 \begin{lem}[Correctness of types]\label{lem:corrtyp}
-    If $[[G |- e:t]]$ then there exists a sort $[[s]]$ such that $[[t == s]]$ or $[[G |- t : s]]$.
+    If $[[G |- e:t]]$ then $[[t == s]]$ or $[[G |- t : s]]$.
 \end{lem}
 
 \begin{proof}
     Trivial induction on the derivation of $[[G |- e:t]]$ using Lemma \ref{lem:gen}.
 \end{proof}
-
-% \begin{dfn}[Well-formed context]
-% 	A \textbf{well-formed} context $[[G]]$ is defined by the following rules:
-	
-% 	\textnormal{\ottdefnctx{}}
-% \end{dfn}
-
-% \begin{lem}[Consistency of well-formed context]\label{lem:wfc}
-% 	Given a well-formed initial context $[[G]]$, it remains well-formed through type checking.
-% \end{lem}
-
-% \begin{proof}
-% 	Suppose $[[G]]$ is the initial context which is well-formed. To safely extend $[[G]]$ with a variable $[[x]]:[[t]]$, one should have $[[G |- t:s]]$ due to rule \ruleref{Env\_Var}. Note that when applying typing rules of $[[G |- e:t]]$, rule \ruleref{T\_Pi}, \ruleref{T\_Mu} and \ruleref{T\_Lam} will extend the context. We show that these rules cover the condition $[[G |- t:s]]$ with respect to $[[x]]:[[t]]$ as follows:
-% 	\begin{description}
-% 		\item[Case \ruleref{T\_Pi}:] To extend $[[G]]$ with $[[x]]:[[t1]]$, $[[G |- t1:s]]$ is already the premise of the rule.
-% 		\item[Case \ruleref{T\_Mu}:] To extend $[[G]]$ with $[[x]]:[[t]]$, $[[G |- t:s]]$ is already the premise of the rule.
-% 		\item[Case \ruleref{T\_Lam}:] To extend $[[G]]$ with $[[x]]:[[t1]]$, note that the premise $[[G |- (Pi x:t1.t2):s]]$ can be derived from rule \ruleref{T\_Pi}, which has the premise $[[G |- t1:s]]$.
-% 	\end{description}
-% \end{proof}
-
-% \begin{lem}[Valid context optimization]\label{lem:wfcopt}
-% 	With a well-formed initial context $[[G]]$, the \ruleref{T\_Var} and \ruleref{T\_Weak} can be replaced by the following rule: \ottusedrule{\ottdruleTXXVar{}}
-% \end{lem}
-
-% \begin{proof}
-% 	By Lemma \ref{lem:wfc}, the context $[[G]]$ remains well-formed if it is initially well-formed. Thus, the well-formedness of $[[G]]$ keeps without checking by rule \ruleref{T\_Var} and \ruleref{T\_Weak}. By Lemma \ref{lem:gen}, if $[[G |- x:t]]$, then $[[x:t elt G]]$. Thus, in order to check the type of a variable $[[x]]$, it is sufficient to check its bound type $[[t]]$ in the context, which is simply rule \ruleref{T\_VarEnv}.
-% \end{proof}
 
 \subsection{Decidability of type checking}
 \begin{lem}[Uniqueness of one-step reduction]\label{lem:unired}
@@ -159,9 +130,10 @@ $\quad$
 \begin{proof}
 	By induction on the structure of $[[e]]$:
 	\begin{description}
-	    \item[Case $[[e=s]]$, or $[[e=x]]$]: No such $[[e']]$ exists since it is impossible to reduce a sort or a variable.
 		\item[Case $[[e=v]]$:] $[[e]]$ has one of the following forms:
 		\begin{inparaenum}[(1)]
+		    \item $[[star]]$,
+		    \item $[[x]]$,
 			\item $[[\x:t.e]]$,
 			\item $[[Pi x:t1.t2]]$,
 			\item $[[castup [t] e]]$,
@@ -231,7 +203,7 @@ If $[[G |- e:T]]$ and $[[e]] [[->>]] e'$ then $[[G |- e':T]]$.
         By induction hypothesis, we have $[[G |- e1':(Pi x:t1.t2)]]$. By rule \ruleref{T\_App}, we obtain $[[G |- e1' e2 : t2[x |-> e2] ]]$. Therefore, $[[T' =a t2[x |-> e2] ]] [[=a]] [[T]]$.
         
         \item[Case $\ottdruleSXXCastDown{}$:] $\quad$ \\
-        Suppose $[[G |- castdown e :T]]$ and $[[G |- castdown e' :T']]$. By Lemma \ref{lem:gen}(7), there exist expressions $[[t1]], [[t2]]$ and a sort $[[s]]$ such that 
+        Suppose $[[G |- castdown e :T]]$ and $[[G |- castdown e' :T']]$. By Lemma \ref{lem:gen}(7), there exist expressions $[[t1]], [[t2]]$ such that 
         \begin{align*}
             &[[G |- e:t1]] \qquad [[G |- t2:s]] \\
             &[[t1 --> t2]] \qquad [[T =a t2 ]]
@@ -267,10 +239,10 @@ If $[[|- e:T]]$ then either $[[e]]$ is a value $v$ or there exists $[[e]]'$ such
 \begin{proof}
     By induction on the derivation of $[[|- e:T]]$ as follows:
     \begin{description}
-        \item[Case $[[e=star]]$:] Trivial by rule \ruleref{T\_Ax} where $[[T == star]]$.
-        \item[Case $[[e=x]]$:] Impossible, since the context is empty.
         \item[Case $[[e=v]]$:] Trivial, since $[[e]]$ is already a value that has one of the following forms:
 		\begin{inparaenum}[(1)]
+		    \item $[[star]]$,
+		    \item $[[x]]$,
 			\item $[[\x:t.e]]$,
 			\item $[[Pi x:t1.t2]]$,
 			\item $[[castup [t] e]]$.

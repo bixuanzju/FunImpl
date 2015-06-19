@@ -6,7 +6,7 @@ embed {{ tex-preamble
 }}
 
 %%% Metavariables
-metavar x, y, z, d, X, D, K, N, R, th {{ tex \theta }}, aa {{ tex \alpha }}, bb {{ tex b }} ::= {{ com Variable names }}
+metavar x, y, z, d, X, D, K, N, R, th {{ tex \theta }}, aa {{ tex \alpha }}, bb {{ tex b }}, nn {{ tex n }} ::= {{ com Variable names }}
 indexvar i, j ::= {{ com Index variables }}
 
 %%% Syntax
@@ -19,7 +19,7 @@ e, t {{ tex \tau }}, T {{ tex \sigma }} :: 'e_' ::=       {{ com Expressions    
   | e1 e2                     ::  :: App        {{ com Application }}
   | \ x : t . e               ::  :: Lam        {{ com Abstraction }}
   | Pi x : t1 . t2            ::  :: Pi         {{ com Product }}
-  | castup [ t ] e            ::  :: CastUp     {{ com Cast up to type}}
+  | castup [ t ] e            ::  :: CastUp     {{ com Cast up by expansion}}
   | castdown e                ::  :: CastDown   {{ com Cast down by reduction }}
   | mu x : t . e              ::  :: Mu         {{ com General recursion }}
   | e1 [ x |-> e2 ]           :: M:: Sub        {{ com Substitution }}
@@ -41,6 +41,8 @@ e, t {{ tex \tau }}, T {{ tex \sigma }} :: 'e_' ::=       {{ com Expressions    
   | @@                        :: M:: DummyExpr
   | let x * : t = e2 in e1    :: M:: StarBinding
   | s                         :: M:: Sort
+  | foldn [ t ] e             ::  :: CastUpMulti
+  | unfoldn e                 ::  :: CastDownMulti
 
 %% Literals
 lit :: 'lit_' ::=
@@ -67,10 +69,11 @@ G {{ tex \Gamma }} :: 'G_' ::= {{ com Contexts }}
 
 %% Values
 v :: 'v_' ::=                               {{ com Values   }}
+  | x                    ::  :: Var        {{ com Variable }}
+  | star                 ::  :: Star       {{ com Type of types }}
   | \ x : t . e          ::  :: Lam        {{ com Abstraction  }}
   | Pi x : t1 . t2       ::  :: Pi         {{ com Product }}
-  | castup [ t ] e       ::  :: CastUp     {{ com Cast up }}
-  | t1 -> t2             :: M:: FuncType   {{ com Function Type }}
+  | castup [ t ] e       ::  :: CastUp     {{ com Cast up by expansion }}
 
 %%% Terminals
 terminals :: 'terminals_' ::=
@@ -113,6 +116,8 @@ terminals :: 'terminals_' ::=
   | &        ::  :: align     {{ tex & }}
   | \\\      ::  :: newline   {{ tex \\ & }}
   | @@       ::  :: dummy     {{ tex }}
+  | foldn    ::  :: foldn      {{ tex \kw{cast}_{\uparrow}^n }}
+  | unfoldn  ::  :: unfoldn    {{ tex \kw{cast}_{\downarrow}^n }}
 
 %%% Fomulae
 formula :: 'formula_' ::=
@@ -183,6 +188,11 @@ G, x:t1 |- t2:r
 ------------------- :: Pi
 G |- (Pi x:t1.t2):r
 
+G, x:t |- e:t
+G |- t:s
+------------------- :: Mu
+G |- (mu x:t . e):t
+
 G |- e : t2
 G |- t1 : s
 t1 --> t2
@@ -195,11 +205,6 @@ t1 --> t2
 ---------------------- :: CastDown
 G |- (castdown e) : t2
 
-G, x:t |- e:t
-G |- t:s
-------------------- :: Mu
-G |- (mu x:t . e):t
-
 %%% Dynamic semantics
 defns
 OpSem :: '' ::=
@@ -210,6 +215,12 @@ by
 ----------------------------  :: Beta
 (\x:t.e1) e2 --> e1 [x|->e2]
 
+------------------------------- :: Mu
+mu x:t.e --> e [x |-> mu x:t.e]
+
+---------------------------- :: CastDownUp
+castdown (castup[t] e) --> e
+
 e1 --> e1'
 ---------------- :: App
 e1 e2 --> e1' e2
@@ -217,10 +228,4 @@ e1 e2 --> e1' e2
 e --> e'
 -------------------------- :: CastDown
 castdown e --> castdown e'
-
----------------------------- :: CastDownUp
-castdown (castup[t] e) --> e
-
-------------------------------- :: Mu
-mu x:t.e --> e [x |-> mu x:t.e]
 
