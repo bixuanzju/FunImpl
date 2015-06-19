@@ -16,6 +16,9 @@ expcore.ott.tex: $(OTT_FILES)
 examples.tex: examples.lhs
 	lhs2tex -o $@ $^ --poly
 
+overview.mng.tex: overview.lhs
+	lhs2tex -o $@ $^ --poly
+
 %.tex: %.mng.tex $(OTT_FILES)
 	ott $(OTT_OPTS) -tex_filter $< $@ $(OTT_FILES)
 	@perl -pi -e 'print $(WARN_MSG) if $$. == 1' $@

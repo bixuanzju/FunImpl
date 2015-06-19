@@ -97,6 +97,9 @@ desugar (F n t e) = F n (desugar t) (desugar e)
 desugar (U n t) = U n (desugar t)
 desugar e@(Kind _) = e
 desugar (Let n _ e1 e2) = subst n (desugar e1) (desugar e2)
+desugar (Letrec n t e1 e2) =
+  let n' = n ++ "^"
+  in desugar (Let n t (Mu n' t (desugar (substVar n n' e1))) (desugar e2))
 desugar (Rec (RB n params field) e) =
   let selNames = map fst . selector $ field
       taus = map snd . selector $ field

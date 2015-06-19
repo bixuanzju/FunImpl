@@ -79,10 +79,10 @@ G0 |- (<<decl>>;E) :A
 defn G  |- decl : G' ::  :: declsrc :: 'Tdecl_' {{ com Datatype declaration }}
 by
 
-G |- <<k>> -> star : star
-<< G, D : <<k>> -> star, << u:k >> |- <<A>> -> D@<<u>> : star >>
+G |- (<<u:k>>) -> star : star
+<< G, D : (<<u:k>>) -> star, << u:k >> |- <<A>> -> D@<<u>> : star >>
 ------------------------------------------------------------------ :: Data
-G |- (data D << u:k >> = << K <<A>> >>) : (D : <<k>> -> star, << K : (<<u:k>>) -> <<A>> -> D@<<u>> >>)
+G |- (data D << u:k >> = << K <<A>> >>) : (D : (<<u:k>>) -> star, << K : (<<u:k>>) -> <<A>> -> D@<<u>> >>)
 
 defn G  |- p => E : B -> A ::  :: patsrc :: 'Tpat_' {{ com Pattern typing }}
 by
@@ -151,10 +151,10 @@ G0 |- (<<decl>>;E) :A ~> <<e1>> (+) e
 defn G  |- decl : G' ~> e ::  :: decltrans :: 'TRdecl_' {{ com Datatype translation }}
 by
 
-G |- <<k>> -> star : star ~> <<T>> -> star
-<< G, D : <<k>> -> star, << u:k >> |- <<A>> -> D@<<u>> : star ~> <<t>> -> D@<<u>> >>
+G |- (<<u:k>>) -> star : star ~> (<<u:T>>) -> star
+<< G, D : (<<u:k>>) -> star, << u:k >> |- <<A>> -> D@<<u>> : star ~> <<t>> -> D@<<u>> >>
 ------------------------------------------------------------------ :: Data
-G |- (data D << u:k >> = << K <<A>> >>) : (D : <<k>> -> star, << K : (<<u:k>>) -> <<A>> -> D@<<u>> >>) ~> e
+G |- (data D << u:k >> = << K <<A>> >>) : (D : (<<u:k>>) -> star, << K : (<<u:k>>) -> <<A>> -> D@<<u>> >>) ~> e
 
 defn G  |- p => E : B -> A ~> e ::  :: pattrans :: 'TRpat_' {{ com Pattern translation }}
 by
