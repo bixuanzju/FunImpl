@@ -124,7 +124,7 @@ $\quad$
 
 \subsection{Decidability of type checking}
 \begin{lem}[Uniqueness of one-step reduction]\label{lem:unired}
-	The relation $[[-->]]$, i.e. one-step reduction, is \textbf{unique} in the sense that given $[[e]]$ there is at most one $[[e']]$ such that $[[e --> e']]$.
+	The relation $[[-->]]$, i.e. one-step reduction, is unique in the sense that given $[[e]]$ there is at most one $[[e']]$ such that $[[e --> e']]$.
 \end{lem}
 
 \begin{proof}
@@ -159,7 +159,7 @@ $\quad$
 	By induction on the structure of $[[e]]$:
 	\begin{description}
 	    \item[Case $[[e=star]]$:] Trivial by applying \ruleref{T\_Ax} and $[[t == star]]$.
-		\item[Case $[[e=x]]$:] By Lemma \ref{lem:wfcopt}, we only need to consider context $[[G]]$ that is well-formed. By rule \ruleref{TS\_Var}, if $[[x:t elt G]]$, $[[t]]$ is the unique type of $[[x]]$.
+		\item[Case $[[e=x]]$:] Trivial by rule \ruleref{TS\_Var} and $[[t]]$ is the unique type of $[[x]]$ if $[[x:t elt G]]$.
 		\item[Case $[[e]]=[[e1 e2]]$, or $[[\x:t1.e1]]$, or $[[Pi x:t1.t2]]$, or $[[mu x:t.e1]]$:] Trivial according to Lemma \ref{lem:gen} by using rule \ruleref{T\_App}, \ruleref{T\_Lam}, \ruleref{T\_Pi}, or \ruleref{T\_Mu} respectively.
 		\item[Case $[[e]]=[[castup [t1] e1]]$:] From the premises of rule \ruleref{T\_CastUp}, by induction hypothesis, we can derive the type of $[[e1]]$ as $[[t2]]$, and check whether $[[t1]]$ is legal, i.e. its sorts is $[[star]]$. If $[[t1]]$ is legal, by Lemma \ref{lem:unired}, there is at most one $[[t1']]$ such that $[[t1 --> t1']]$. If such $[[t1']]$ does not exist, then we report the type checking is failed. Otherwise, we examine if $[[t1']]$ is syntactically equal to $[[t2]]$, i.e. $[[t1' =a t2]]$. If the equality holds, we obtain the unique type of $[[e]]$ which is $[[t1]]$. Otherwise, we report $[[e]]$ fails to type check.
 		\item[Case $[[e]]=[[castdown e1]]$:] From the premises of rule \ruleref{T\_CastDown}, by induction hypothesis, we can derive the type of $[[e1]]$ as $[[t1]]$. By Lemma \ref{lem:unired}, there is at most one $[[t2]]$ such that $[[t1 --> t2]]$. If such $[[t2]]$ exists and its sorts is $[[star]]$, we have found the unique type of $[[e]]$ is $[[t2]]$. Otherwise, we report $[[e]]$ fails to type check.

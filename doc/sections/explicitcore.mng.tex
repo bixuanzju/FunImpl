@@ -1,9 +1,9 @@
 \section{The core language}\label{sec:core}
 
-In this section, we present \name calculus, the core language with explicit type-level computation. \name is carefully designed to be minimal enough for simplifying type checking and meta-theoretic studying, while still keeps the expressiveness to represent rich high-level constructions (\S \ref{sec:src}). By explicitly controlling the type-level computation with $\kw{cast}$ operators, \name can safely allow non-termination without breaking the decidability of type checking. In rest of this section, we demonstrate the syntax (\S \ref{sec:core:syn}), type system (\S \ref{sec:core:type}) and meta-theories (\S \ref{sec:core:meta}) of \name.
+In this section, we present \name calculus, the core language with explicit type-level computation. \name is carefully designed to be minimal enough for simplifying type checking and meta-theoretic studying, while still keeps the expressiveness to represent rich high-level constructions (\S \ref{sec:src}). By explicitly controlling the type-level computation with $\kw{cast}$ operators, \name can safely allow non-termination without breaking the decidability of type checking. In rest of this section, we demonstrate the syntax, type system and meta-theory of \name.
 
 \subsection{Syntax}\label{sec:core:syn}
-Figure \ref{fig:core:syntax} shows the syntax of \name, including expressions, contexts and values. The syntax follows \cc and straightforward to understand, while there are still some differences that embody the simplicity and expressiveness of \name.
+Figure \ref{fig:core:syntax} shows the syntax of \name, including expressions, contexts and values. The syntax follows \cc and straightforward to understand, while there are some differences that embody the simplicity and expressiveness of \name.
 
 \subsubsection{Unified syntactic levels}
 \name uses a unified syntactic representation for different levels of expressions by following the \emph{pure type system} (PTS) representation of \cc. Traditionally in \cc, there are two distinct sorts $[[star]]$ and $[[square]]$ representing the type of \emph{types} and \emph{sorts} respectively, and an axiom $[[star]]:[[square]]$ specifying the relation. In \name, we further merge types and kinds together by including only a single sort $[[star]]$ and an impredicative axiom $[[star]]:[[star]]$. 
@@ -35,9 +35,9 @@ Though $\kw{cast}$ primitives make the syntax verbose when type conversion is he
 The type system for the core language includes operational semantics and typing judgements. Typing judgements include rules of context well-formedness $[[|- G]]$ and expression typing $[[G |- e : t]]$. Note that there is only a single set of rules for expression typing, because of no distinction of different syntactic levels.
 
 \subsubsection{Operational semantics}
-Figure \ref{fig:core:opsem} shows the \emph{call-by-name} operational semantics, defined by one-step reduction relations, namely $[[-->]]$. Three base cases include \ruleref{S\_Beta} for $\beta$-reduction, \ruleref{S\_Mu} for recursion unrolling and \ruleref{S\_CastDownUp} for cast canceling. Two inductive case, \ruleref{S\_App} and \ruleref{S\_CastDown}, define reduction in the head position of an application, and in the $[[castdown]]$ inner expression respectively.
+Figure \ref{fig:core:opsem} shows the \emph{call-by-name} operational semantics, defined by one-step reduction relations. Three base cases include \ruleref{S\_Beta} for $\beta$-reduction, \ruleref{S\_Mu} for recursion unrolling and \ruleref{S\_CastDownUp} for cast canceling. Two inductive case, \ruleref{S\_App} and \ruleref{S\_CastDown}, define reduction in the head position of an application, and in the $[[castdown]]$ inner expression respectively.
 
-The reduction rules are \emph{weak} in the sense that it is not allowed to reduce inside a $\lambda$-term or $[[castup]]$-term which are viewed as a value (see Figure \ref{fig:core:syntax}) that ends the reduction. Note that we do not treat the $[[mu]]$-term as a value, which is different from conventional iso-recursive types. Because on the term level, the $[[mu]]$ operator is treated as a fixpoint. The $[[mu]]$-term is equivalent to a recursive function that should be allowed to unroll without restriction.
+The reduction rules are \emph{weak} in the sense that it is not allowed to reduce inside a $\lambda$-term or $[[castup]]$-term which is viewed as a value (see Figure \ref{fig:core:syntax}). Note that we do not treat the $[[mu]]$-term as a value, which is different from conventional iso-recursive types. Because on the term level, the $[[mu]]$ operator is treated as a fixpoint. The $[[mu]]$-term is equivalent to a recursive function that should be allowed to unroll without restriction.
 
 \begin{figure}
     \ottdefnstep{}
@@ -74,8 +74,57 @@ Thus, $[[castup]]$ and $[[castdown]]$ witness the isomorphism between the origin
 \end{figure}
 
 \subsection{Meta-theory}\label{sec:core:meta}
-We now discuss the meta-theory of \name. We focus on two properties: the decidability of type checking and the type-safety of the language. First, we want to show type checking \name is decidable without normalizing property. And the type checker will never be stuck by type-level non-termination. Second, the core language is type safe, or sound, proven by standard subject reduction and progress lemmas.
+We now discuss the meta-theory of \name. We focus on two properties: the decidability of type checking and the type-safety of the language. First, we want to show type checking \name is decidable without normalizing property. The type checker will not be stuck by type-level non-termination. Second, the core language is type safe, proven by standard subject reduction and progress lemmas.
 
 \subsubsection{Decidability of type checking}
+For the decidability, we need to show there exists a type checking algorithm, which returns a unique type for a well-formed expression and never loops forever. For most expression typing rules, it is straightforward to follow the syntax-directed judgement to derive a decidable type checking procedure. For rules \ruleref{T\_CastUp} and \ruleref{T\_CastDown}, one of premises needs to judge if two types $[[t1]]$ and $[[t2]]$ holds follows the one-step reduction relation, i.e. check if $[[t1 --> t2]]$ holds.
+
+We need to show checking such relation is decidable. An intuitive method is to reduce the type $[[t1]]$ by one step to obtain $[[t1']]$, and compare if $[[t1']]$ and $[[t2]]$ are syntactically equal. Such method is decidable only if such $[[t1']]$ is \emph{unique}, i.e. reducing $[[t1]]$ will get only a single result. Otherwise, assuming $[[e]]:[[t1]]$ with $[[t1 --> T1]]$ and $[[t1 --> T2]]$ holding at the same time, the type of $[[castdown e]]$ can be either $[[T1]]$ or $[[T2]]$, which is not decidable. Thus, we have to show the uniqueness one-step reduction:
+
+\begin{lem}[Uniqueness of one-step reduction]\label{lem:core:unique}
+	The relation $[[-->]]$, i.e. one-step reduction, is unique in the sense that given $[[e]]$ there is at most one $[[e']]$ such that $[[e --> e']]$.
+\end{lem}
+
+\begin{proof}
+	By induction on the structure of $[[e]]$.
+\end{proof}
+
+With this result, checking if $[[t1 --> t2]]$ holds is decidable and rules \ruleref{T\_CastUp} and \ruleref{T\_CastDown} are therefore decidable. We can finally conclude the decidability of type checking:
+
+\begin{lem}[Decidability of type checking]\label{lem:core:decide}
+	There is a decidable algorithm which given $[[G]], [[e]]$ computes the unique $[[t]]$ such that $[[G |- e:t]]$ or reports there is no such $[[t]]$.
+\end{lem}
+
+\begin{proof}
+	By induction on the structure of $[[e]]$.
+\end{proof}
+
+Note that when proving the decidability of type checking, we do not rely on the normalizing property. Because explicit type conversion rules of \name use one-step reduction relation, which is already decidable according to Lemma \ref{lem:core:unique}. We do not need to further require the normalization of terms. This is different from the proof for \cc which requires the language is normalizing \fixme{[cite the PTS paper]}. Because \cc's conversion rule needs to examine the $\beta$-equivalence of terms, which is decidable only if every term has a normal form.
 
 \subsubsection{Type safety}
+Proof of the type safety (or soundness) of \name is fairly standard by subject reduction (or preservation) and progress lemmas. The subject reduction proof relies on the substitution lemma. We give the proof sketch of related lemmas as follows:
+
+\begin{lem}[Substitution lemma]\label{lem:subst}
+	If $[[G1, x:T, G2 |- e1:t]]$ and $[[G1 |- e2:T]]$, then $[[G1, G2 [x |-> e2] |- e1[x |-> e2]  : t[x |-> e2] ]]$.
+\end{lem}
+
+\begin{proof}
+    By induction on the derivation of $[[G1, x:T, G2 |- e1:t]]$.
+\end{proof}
+
+\begin{lem}[Subject reduction]
+If $[[G |- e:T]]$ and $[[e]] [[->>]] e'$ then $[[G |- e':T]]$.
+\end{lem}
+
+\begin{proof}
+    (Sketch) We prove the case for one-step reduction, i.e. $[[e --> e']]$. The lemma can follow by induction on the number of one-step reductions of $[[e]] [[->>]] [[e']]$.
+    The proof is by induction with respect to the definition of one-step reduction $[[-->]]$.
+\end{proof}
+
+\begin{lem}[Progress]
+If $[[|- e:T]]$ then either $[[e]]$ is a value $v$ or there exists $[[e]]'$ such that $[[e --> e']]$.
+\end{lem}
+
+\begin{proof}
+    By induction on the derivation of $[[|- e:T]]$.
+\end{proof}

@@ -125,7 +125,7 @@ $\quad$
 
 \subsection{Decidability of type checking}
 \begin{lem}[Uniqueness of one-step reduction]\label{lem:unired}
-	The relation $ \longrightarrow $, i.e. one-step reduction, is \textbf{unique} in the sense that given $\ottnt{e}$ there is at most one $\ottnt{e'}$ such that $\ottnt{e}  \longrightarrow  \ottnt{e'}$.
+	The relation $ \longrightarrow $, i.e. one-step reduction, is unique in the sense that given $\ottnt{e}$ there is at most one $\ottnt{e'}$ such that $\ottnt{e}  \longrightarrow  \ottnt{e'}$.
 \end{lem}
 
 \begin{proof}
@@ -160,7 +160,7 @@ $\quad$
 	By induction on the structure of $\ottnt{e}$:
 	\begin{description}
 	    \item[Case $\ottnt{e}  \ottsym{=}  \star$:] Trivial by applying \ruleref{T\_Ax} and $\tau  \equiv  \star$.
-		\item[Case $\ottnt{e}  \ottsym{=}  \ottmv{x}$:] By Lemma \ref{lem:wfcopt}, we only need to consider context $\Gamma$ that is well-formed. By rule \ruleref{TS\_Var}, if $\ottmv{x}  \ottsym{:}  \tau \, \in \, \Gamma$, $\tau$ is the unique type of $\ottmv{x}$.
+		\item[Case $\ottnt{e}  \ottsym{=}  \ottmv{x}$:] Trivial by rule \ruleref{TS\_Var} and $\tau$ is the unique type of $\ottmv{x}$ if $\ottmv{x}  \ottsym{:}  \tau \, \in \, \Gamma$.
 		\item[Case $\ottnt{e}=\ottnt{e_{{\mathrm{1}}}} \, \ottnt{e_{{\mathrm{2}}}}$, or $\lambda  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}$, or $\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}$, or $\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}$:] Trivial according to Lemma \ref{lem:gen} by using rule \ruleref{T\_App}, \ruleref{T\_Lam}, \ruleref{T\_Pi}, or \ruleref{T\_Mu} respectively.
 		\item[Case $\ottnt{e}=\kw{cast}^{\uparrow} \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]}  \ottnt{e_{{\mathrm{1}}}}$:] From the premises of rule \ruleref{T\_CastUp}, by induction hypothesis, we can derive the type of $\ottnt{e_{{\mathrm{1}}}}$ as $\tau_{{\mathrm{2}}}$, and check whether $\tau_{{\mathrm{1}}}$ is legal, i.e. its sorts is $\star$. If $\tau_{{\mathrm{1}}}$ is legal, by Lemma \ref{lem:unired}, there is at most one $\tau'_{{\mathrm{1}}}$ such that $\tau_{{\mathrm{1}}}  \longrightarrow  \tau'_{{\mathrm{1}}}$. If such $\tau'_{{\mathrm{1}}}$ does not exist, then we report the type checking is failed. Otherwise, we examine if $\tau'_{{\mathrm{1}}}$ is syntactically equal to $\tau_{{\mathrm{2}}}$, i.e. $\tau'_{{\mathrm{1}}}  \equiv  \tau_{{\mathrm{2}}}$. If the equality holds, we obtain the unique type of $\ottnt{e}$ which is $\tau_{{\mathrm{1}}}$. Otherwise, we report $\ottnt{e}$ fails to type check.
 		\item[Case $\ottnt{e}=\kw{cast}_{\downarrow} \, \ottnt{e_{{\mathrm{1}}}}$:] From the premises of rule \ruleref{T\_CastDown}, by induction hypothesis, we can derive the type of $\ottnt{e_{{\mathrm{1}}}}$ as $\tau_{{\mathrm{1}}}$. By Lemma \ref{lem:unired}, there is at most one $\tau_{{\mathrm{2}}}$ such that $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}$. If such $\tau_{{\mathrm{2}}}$ exists and its sorts is $\star$, we have found the unique type of $\ottnt{e}$ is $\tau_{{\mathrm{2}}}$. Otherwise, we report $\ottnt{e}$ fails to type check.
