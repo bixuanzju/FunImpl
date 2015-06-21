@@ -135,14 +135,18 @@ evaluation strategy is call-by-name. }
 
 Recursive types arise naturally if we want to do general recursion. \name differs from other programming languages in that it unifies both recursion and recursive types by the same $\mu$ primitive.
 
-\emph{Recursive types}. In the literature on type systems, there are two approaches to recursive types. One is called \emph{equi-recursive}, the other \emph{iso-recursive}. \name takes the latter approach since it is more intuitive to us with regard to recursion. The \emph{iso-recusive} approach treats a recursive type and its unfolding as different, but isomorphic. In \name, this is witnessed by first $[[castup]]$, then $[[castdown]]$. A classic example of recursive types is the so-called ``hungry'' type: $H = \miu{\sigma}{\star}{\mathsf{Int} \rightarrow \sigma}$. A term $z$ of type $H$ can accept any number of numeric arguments and return a new function that is hungry for more, as illustrated below:
+\subsubsection{Recursive types}
+
+In the literature on type systems, there are two approaches to recursive types. One is called \emph{equi-recursive}, the other \emph{iso-recursive}. \name takes the latter approach since it is more intuitive to us with regard to recursion. The \emph{iso-recusive} approach treats a recursive type and its unfolding as different, but isomorphic. In \name, this is witnessed by first $[[castup]]$, then $[[castdown]]$. A classic example of recursive types is the so-called ``hungry'' type: $H = \miu{\sigma}{\star}{\mathsf{Int} \rightarrow \sigma}$. A term $z$ of type $H$ can accept any number of numeric arguments and return a new function that is hungry for more, as illustrated below:
 \begin{align*}
 [[castdown z]] &: [[int]][[->]]H  \\
 [[castdown(castdown z)]] &: [[int]][[->]][[int]][[->]]H \\
 [[castdown]]([[castdown]] \dots z) &: [[int]][[->]][[int]][[->]]\dots[[->]]H
 \end{align*}
 
-\emph{Recursion}. The same $\mu$ primitive can also be used to define recursive functions, e.g., the factorial function: \[\miu{f}{\mathsf{Int} \rightarrow \mathsf{Int}}{\lam{x}{\mathsf{Int}}{\mathsf{if}\,(x == 0)\,\mathsf{then}\,1\,\mathsf{else}\,x * f\,(x - 1)}}\] This is reflected by the dynamic semantics of the $\mu$ primitive:
+\subsubsection{Recursion}
+
+The same $\mu$ primitive can also be used to define recursive functions, e.g., the factorial function: \[\miu{f}{\mathsf{Int} \rightarrow \mathsf{Int}}{\lam{x}{\mathsf{Int}}{\mathsf{if}\,(x == 0)\,\mathsf{then}\,1\,\mathsf{else}\,x * f\,(x - 1)}}\] This is reflected by the dynamic semantics of the $\mu$ primitive:
 \[\miu{x}{T}{E} \longrightarrow E[x:=\miu{x}{T}{E}]\]
 which is exactly doing recursive unfolding of the same term.
 

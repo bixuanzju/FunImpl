@@ -91,147 +91,225 @@
 %
 
 
+
 \section{Applications}
 \label{sec:app}
 
-In this section, we show some large examples using \name.
+In this section, we show applications, which either Haskell needs non-trivial extensions to do that, or languages like Coq and Agda are impossible to do, whereas we can easily achieve in \name.
 
-\subsection{Parametric HOAS}
-\label{sec:phoas}
+% \subsection{Parametric HOAS}
+% \label{sec:phoas}
 
-Parametric Higher Order Abstract Syntax (PHOAS) is a higher order approach to represent binders, in which the function space of the meta-language is used to encode the binders of the object language. We show that \name can handle PHOAS by encoding lambda calculus as below:
+% Parametric Higher Order Abstract Syntax (PHOAS) is a higher order approach to represent binders, in which the function space of the meta-language is used to encode the binders of the object language. We show that \name can handle PHOAS by encoding lambda calculus as below:
 
+% \begin{figure}[h!]
+% \begin{spec}
+% data PLambda (a : *) = Var a
+%    | Num nat
+%    | Lam (a -> PLambda a)
+%    | App (PLambda a) (PLambda a);
+% \end{spec}
+% \end{figure}
+
+% Next we define the evaluator for our lambda calculus. One advantage of PHOAS is that, environments are implicitly handled by the meta-language, thus the type of the evaluator is simply |plambda value -> value|. The code is presented in Figure~\ref{fig:phoas}.
+
+% \begin{figure}[ht]
+% \begin{spec}
+% data Value  = VI nat
+%    | VF (Value -> Value);
+% let eval : PLambda Value -> Value =
+%    mu ev : PLambda Value -> Value .
+%      \ e : PLambda Value . case e of
+%        Var (v : Value) => v
+%      | Num (n : nat)   => VI n
+%      | Lam (f : Value -> PLambda Value) =>
+%          VF (\ x : Value . ev (f x))
+%      | App (a : PLambda Value) (b : PLambda Value) =>
+%         case (ev a) of
+%           VI (n : nat)            => VI n -- impossible to reach
+%         | VF (f : Value -> Value) => f (ev b)
+% in
+% \end{spec}
+%   \caption{Lambda Calculus in PHAOS}
+%   \label{fig:phoas}
+% \end{figure}
+
+% Now we can evaluate some lambda expression and get the result back as in Figure~\ref{fig:pex}
+
+% \begin{figure}[ht]
+% \begin{spec}
+% let show : Value -> nat =
+%   \ e : Value . case e of
+%     VI (n : nat)            => n
+%   | VF (f : Value -> Value) => 10000 -- impossible to reach
+% in
+% let example : PLambda Value =
+%   App Value
+%       (Lam Value (\ x : Value . Var Value X))
+%       (Num Value 42)
+% in show (eval example) -- return 42
+% \end{spec}
+% \caption{Example of using PHOAS}
+% \label{fig:pex}
+% \end{figure}
+
+\subsubsection{Conventional datatypes}
+
+Conventional datatypes like natural numbers or polymorphic lists can be easily defined in \name, as in Haskell. For example, below is the definition of polymorphic lists:
+
+\begin{figure}[H]
+\begingroup\par\noindent\advance\leftskip\mathindent\(
+\begin{pboxed}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[3]{}\mathbf{data}\;\Conid{List}\;(\Varid{a}\mathbin{:}\star)\mathrel{=}\Conid{Nil}\mid \Conid{Cons}\;\Varid{a}\;(\Conid{List}\;\Varid{a});{}\<[E]%
+\ColumnHook
+\end{pboxed}
+\)\par\noindent\endgroup\resethooks
+\end{figure}
+
+Because \name is explicitly typed, each type parameter needs to be accompanied with corresponding kind expressions. The use of the above datatype is best illustrated by the \emph{length} function:
+
+\begin{figure}[h!]
+  \begingroup\par\noindent\advance\leftskip\mathindent\(
+\begin{pboxed}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{7}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{9}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[5]{}\mathbf{letrec}\;\Varid{length}\mathbin{:}(\Varid{a}\mathbin{:}\star)\to \Conid{List}\;\Varid{a}\to \Varid{nat}\mathrel{=}{}\<[E]%
+\\
+\>[5]{}\hsindent{2}{}\<[7]%
+\>[7]{}\lambda \Varid{a}\mathbin{:}\star.\,\lambda \Varid{l}\mathbin{:}\Conid{List}\;\Varid{a}.\,\mathbf{case}\;\Varid{l}\;\mathbf{of}{}\<[E]%
+\\
+\>[7]{}\hsindent{2}{}\<[9]%
+\>[9]{}\Conid{Nil}\Rightarrow \mathrm{0}{}\<[E]%
+\\
+\>[5]{}\hsindent{2}{}\<[7]%
+\>[7]{}\mid \Conid{Cons}\;(\Varid{x}\mathbin{:}\Varid{a})\;(\Varid{xs}\mathbin{:}\Conid{List}\;\Varid{a})\Rightarrow {}\<[E]%
+\\
+\>[7]{}\hsindent{2}{}\<[9]%
+\>[9]{}\mathrm{1}\mathbin{+}\Varid{length}\;\Varid{a}\;\Varid{xs}{}\<[E]%
+\\
+\>[5]{}\mathbf{in}{}\<[E]%
+\\
+\>[5]{}\mathbf{let}\;\Varid{test}\mathbin{:}\Conid{List}\;\Varid{nat}\mathrel{=}\Conid{Cons}\;\Varid{nat}\;\mathrm{1}\;(\Conid{Cons}\;\Varid{nat}\;\mathrm{2}\;(\Conid{Nil}\;\Varid{nat})){}\<[E]%
+\\
+\>[5]{}\mathbf{in}\;\Varid{length}\;\Varid{nat}\;\Varid{test}\mbox{\onelinecomment  return 2}{}\<[E]%
+\ColumnHook
+\end{pboxed}
+\)\par\noindent\endgroup\resethooks
+\end{figure}
+
+\subsubsection{HOAS}
+
+\emph{Higher-order abstract syntax} is a generalization of representing programs where the function space of the meta-language is used to encode the binders of the object language. Because the recursive mention of the datatype can appear in a negative position, systems like Coq and Agda would reject programs using HOAS due to the restrictiveness of their termination checkers. However \name is able to express HOAS in a straightforward way. We show an example of encoding simply typed lambda calculus:
 
 \begin{figure}[h!]
 \begingroup\par\noindent\advance\leftskip\mathindent\(
 \begin{pboxed}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{4}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[B]{}\mathbf{data}\;\Conid{PLambda}\;(\Varid{a}\mathbin{:}\star)\mathrel{=}\Conid{Var}\;\Varid{a}{}\<[E]%
+\>[3]{}\mathbf{data}\;\Conid{Exp}\mathrel{=}\Conid{Num}\;\Varid{nat}{}\<[E]%
 \\
-\>[B]{}\hsindent{4}{}\<[4]%
-\>[4]{}\mid \Conid{Num}\;\Varid{nat}{}\<[E]%
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\mid \Conid{Lam}\;(\Conid{Exp}\to \Conid{Exp}){}\<[E]%
 \\
-\>[B]{}\hsindent{4}{}\<[4]%
-\>[4]{}\mid \Conid{Lam}\;(\Varid{a}\to \Conid{PLambda}\;\Varid{a}){}\<[E]%
-\\
-\>[B]{}\hsindent{4}{}\<[4]%
-\>[4]{}\mid \Conid{App}\;(\Conid{PLambda}\;\Varid{a})\;(\Conid{PLambda}\;\Varid{a});{}\<[E]%
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\mid \Conid{App}\;\Conid{Exp}\;\Conid{Exp};{}\<[E]%
 \ColumnHook
 \end{pboxed}
 \)\par\noindent\endgroup\resethooks
 \end{figure}
 
-Next we define the evaluator for our lambda calculus. One advantage of PHOAS is that, environments are implicitly handled by the meta-language, thus the type of the evaluator is simply \ensuremath{\Varid{plambda}\;\Varid{value}\to \Varid{value}}. The code is presented in Figure~\ref{fig:phoas}.
-
-\begin{figure}[ht]
-\begingroup\par\noindent\advance\leftskip\mathindent\(
-\begin{pboxed}\SaveRestoreHook
-\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{4}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{6}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{8}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{9}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{10}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{11}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{13}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{24}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{35}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[B]{}\mathbf{data}\;\Conid{Value}{}\<[13]%
-\>[13]{}\mathrel{=}\Conid{VI}\;\Varid{nat}{}\<[E]%
-\\
-\>[B]{}\hsindent{4}{}\<[4]%
-\>[4]{}\mid \Conid{VF}\;(\Conid{Value}\to \Conid{Value});{}\<[E]%
-\\
-\>[B]{}\mathbf{let}\;\Varid{eval}\mathbin{:}\Conid{PLambda}\;\Conid{Value}\to \Conid{Value}\mathrel{=}{}\<[E]%
-\\
-\>[B]{}\hsindent{4}{}\<[4]%
-\>[4]{}\mu\;\Varid{ev}\mathbin{:}\Conid{PLambda}\;\Conid{Value}\to \Conid{Value}.\,{}\<[E]%
-\\
-\>[4]{}\hsindent{2}{}\<[6]%
-\>[6]{}\lambda \Varid{e}\mathbin{:}\Conid{PLambda}\;\Conid{Value}.\,\mathbf{case}\;\Varid{e}\;\mathbf{of}{}\<[E]%
-\\
-\>[6]{}\hsindent{2}{}\<[8]%
-\>[8]{}\Conid{Var}\;(\Varid{v}\mathbin{:}\Conid{Value})\Rightarrow \Varid{v}{}\<[E]%
-\\
-\>[4]{}\hsindent{2}{}\<[6]%
-\>[6]{}\mid \Conid{Num}\;(\Varid{n}\mathbin{:}\Varid{nat}){}\<[24]%
-\>[24]{}\Rightarrow \Conid{VI}\;\Varid{n}{}\<[E]%
-\\
-\>[4]{}\hsindent{2}{}\<[6]%
-\>[6]{}\mid \Conid{Lam}\;(\Varid{f}\mathbin{:}\Conid{Value}\to \Conid{PLambda}\;\Conid{Value})\Rightarrow {}\<[E]%
-\\
-\>[6]{}\hsindent{4}{}\<[10]%
-\>[10]{}\Conid{VF}\;(\lambda \Varid{x}\mathbin{:}\Conid{Value}.\,\Varid{ev}\;(\Varid{f}\;\Varid{x})){}\<[E]%
-\\
-\>[4]{}\hsindent{2}{}\<[6]%
-\>[6]{}\mid \Conid{App}\;(\Varid{a}\mathbin{:}\Conid{PLambda}\;\Conid{Value})\;(\Varid{b}\mathbin{:}\Conid{PLambda}\;\Conid{Value})\Rightarrow {}\<[E]%
-\\
-\>[6]{}\hsindent{3}{}\<[9]%
-\>[9]{}\mathbf{case}\;(\Varid{ev}\;\Varid{a})\;\mathbf{of}{}\<[E]%
-\\
-\>[9]{}\hsindent{2}{}\<[11]%
-\>[11]{}\Conid{VI}\;(\Varid{n}\mathbin{:}\Varid{nat}){}\<[35]%
-\>[35]{}\Rightarrow \Conid{VI}\;\Varid{n}\mbox{\onelinecomment  impossible to reach}{}\<[E]%
-\\
-\>[6]{}\hsindent{3}{}\<[9]%
-\>[9]{}\mid \Conid{VF}\;(\Varid{f}\mathbin{:}\Conid{Value}\to \Conid{Value})\Rightarrow \Varid{f}\;(\Varid{ev}\;\Varid{b}){}\<[E]%
-\\
-\>[B]{}\mathbf{in}{}\<[E]%
-\ColumnHook
-\end{pboxed}
-\)\par\noindent\endgroup\resethooks
-  \caption{Lambda Calculus in PHAOS}
-  \label{fig:phoas}
-\end{figure}
-
-Now we can evaluate some lambda expression and get the result back as in Figure~\ref{fig:pex}
+Next we define the evaluator for our lambda calculus. As noted by [], the evaluation function needs an extra function \emph{reify} to invert the result of evaluation. The code is presented in Figure~\ref{fig:hoas}.
 
 \begin{figure}[ht]
 \begingroup\par\noindent\advance\leftskip\mathindent\(
 \begin{pboxed}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{3}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{6}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{7}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{29}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{8}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{9}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{10}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{11}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{13}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[B]{}\mathbf{let}\;\Varid{show}\mathbin{:}\Conid{Value}\to \Varid{nat}\mathrel{=}{}\<[E]%
+\>[B]{}\mathbf{data}\;\Conid{Value}\mathrel{=}\Conid{VI}\;\Varid{nat}\mid \Conid{VF}\;(\Conid{Value}\to \Conid{Value});{}\<[E]%
+\\
+\>[B]{}\Varid{rec}\;\Conid{Eval}\mathrel{=}\Conid{Ev}\;\{\mskip1.5mu \Varid{eval'}\mathbin{:}\Conid{Exp}\to \Conid{Value},\Varid{reify'}\mathbin{:}\Conid{Value}\to \Conid{Exp}\mskip1.5mu\};{}\<[E]%
+\\
+\>[B]{}\mathbf{let}\;\Varid{f}\mathbin{:}\Conid{Eval}\mathrel{=}\mu\;\Varid{f'}\mathbin{:}\Conid{Eval}.\,{}\<[E]%
 \\
 \>[B]{}\hsindent{3}{}\<[3]%
-\>[3]{}\lambda \Varid{e}\mathbin{:}\Conid{Value}.\,\mathbf{case}\;\Varid{e}\;\mathbf{of}{}\<[E]%
+\>[3]{}\Conid{Ev}\;(\lambda \Varid{e}\mathbin{:}\Conid{Exp}.\,\mathbf{case}\;\Varid{e}\;\mathbf{of}{}\<[E]%
 \\
-\>[3]{}\hsindent{2}{}\<[5]%
-\>[5]{}\Conid{VI}\;(\Varid{n}\mathbin{:}\Varid{nat}){}\<[29]%
-\>[29]{}\Rightarrow \Varid{n}{}\<[E]%
-\\
-\>[B]{}\hsindent{3}{}\<[3]%
-\>[3]{}\mid \Conid{VF}\;(\Varid{f}\mathbin{:}\Conid{Value}\to \Conid{Value})\Rightarrow \mathrm{10000}\mbox{\onelinecomment  impossible to reach}{}\<[E]%
-\\
-\>[B]{}\mathbf{in}{}\<[E]%
-\\
-\>[B]{}\mathbf{let}\;\Varid{example}\mathbin{:}\Conid{PLambda}\;\Conid{Value}\mathrel{=}{}\<[E]%
-\\
-\>[B]{}\hsindent{3}{}\<[3]%
-\>[3]{}\Conid{App}\;\Conid{Value}\;{}\<[E]%
+\>[3]{}\hsindent{6}{}\<[9]%
+\>[9]{}\Conid{Num}\;(\Varid{n}\mathbin{:}\Varid{nat})\Rightarrow \Conid{VI}\;\Varid{n}{}\<[E]%
 \\
 \>[3]{}\hsindent{4}{}\<[7]%
-\>[7]{}(\Conid{Lam}\;\Conid{Value}\;(\lambda \Varid{x}\mathbin{:}\Conid{Value}.\,\Conid{Var}\;\Conid{Value}\;\Conid{X}))\;{}\<[E]%
+\>[7]{}\mid \Conid{Lam}\;(\Varid{fun}\mathbin{:}\Conid{Exp}\to \Conid{Exp})\Rightarrow {}\<[E]%
+\\
+\>[7]{}\hsindent{4}{}\<[11]%
+\>[11]{}\Conid{VF}\;(\lambda \Varid{e'}\mathbin{:}\Conid{Value}.\,\Varid{eval'}\;\Varid{f'}\;(\Varid{fun}\;(\Varid{reify'}\;\Varid{f'}\;\Varid{e'}))){}\<[E]%
 \\
 \>[3]{}\hsindent{4}{}\<[7]%
-\>[7]{}(\Conid{Num}\;\Conid{Value}\;\mathrm{42}){}\<[E]%
+\>[7]{}\mid \Conid{App}\;(\Varid{a}\mathbin{:}\Conid{Exp})\;(\Varid{b}\mathbin{:}\Conid{Exp})\Rightarrow {}\<[E]%
 \\
-\>[B]{}\mathbf{in}\;\Varid{show}\;(\Varid{eval}\;\Varid{example})\mbox{\onelinecomment  return 42}{}\<[E]%
+\>[7]{}\hsindent{4}{}\<[11]%
+\>[11]{}\mathbf{case}\;\Varid{eval'}\;\Varid{f'}\;\Varid{a}\;\mathbf{of}{}\<[E]%
+\\
+\>[11]{}\hsindent{2}{}\<[13]%
+\>[13]{}\Conid{VI}\;(\Varid{n}\mathbin{:}\Varid{nat})\Rightarrow \Conid{VI}\;\Varid{n}\mbox{\onelinecomment  abnormal branch}{}\<[E]%
+\\
+\>[7]{}\hsindent{4}{}\<[11]%
+\>[11]{}\mid \Conid{VF}\;(\Varid{fun}\mathbin{:}\Conid{Value}\to \Conid{Value})\Rightarrow \Varid{fun}\;(\Varid{eval'}\;\Varid{f'}\;\Varid{b}))\;{}\<[E]%
+\\
+\>[3]{}\hsindent{3}{}\<[6]%
+\>[6]{}(\lambda \Varid{v}\mathbin{:}\Conid{Value}.\,\mathbf{case}\;\Varid{v}\;\mathbf{of}{}\<[E]%
+\\
+\>[6]{}\hsindent{2}{}\<[8]%
+\>[8]{}\Conid{VI}\;(\Varid{n}\mathbin{:}\Varid{nat})\Rightarrow \Conid{Num}\;\Varid{n}\mbox{\onelinecomment  abnormal branch}{}\<[E]%
+\\
+\>[3]{}\hsindent{3}{}\<[6]%
+\>[6]{}\mid \Conid{VF}\;(\Varid{fun}\mathbin{:}\Conid{Value}\to \Conid{Value})\Rightarrow {}\<[E]%
+\\
+\>[6]{}\hsindent{4}{}\<[10]%
+\>[10]{}\Conid{Lam}\;(\lambda \Varid{e'}\mathbin{:}\Conid{Exp}.\,(\Varid{reify'}\;\Varid{f'}\;(\Varid{fun}\;(\Varid{eval'}\;\Varid{f'}\;\Varid{e'}))))){}\<[E]%
+\\
+\>[B]{}\mathbf{in}\;\mathbf{let}\;\Varid{eval}\mathbin{:}\Conid{Exp}\to \Conid{Value}\mathrel{=}\Varid{eval'}\;\Varid{f}\;\mathbf{in}{}\<[E]%
 \ColumnHook
 \end{pboxed}
 \)\par\noindent\endgroup\resethooks
-\caption{Example of using PHOAS}
-\label{fig:pex}
+  \caption{An evaluator for the HOAS-encoded lambda calculus.}
+  \label{fig:hoas}
 \end{figure}
 
-\subsection{Perfect binary trees}
+The definition of the evaluator is quite straightforward, although it is worth noting that, because \name has yet have exception mechanism, we have to pattern match on all possibilities. (That is why we have \emph{abnormal} branches in the above code.) Thanks to the flexibility of the $\mu$ primitive, mutual recursion can be encoded by using records!
+
+Evaluation of a lambda expression proceeds as follows:
+
+\begin{figure}[h!]
+  \begingroup\par\noindent\advance\leftskip\mathindent\(
+\begin{pboxed}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[3]{}\mathbf{let}\;\Varid{test}\mathbin{:}\Conid{Exp}\mathrel{=}\Conid{App}\;(\Conid{Lam}\;(\lambda \Varid{x}\mathbin{:}\Conid{Exp}.\,\Varid{x}))\;(\Conid{Num}\;\mathrm{42}){}\<[E]%
+\\
+\>[3]{}\mathbf{in}\;\Varid{show}\;(\Varid{eval}\;\Varid{test})\mbox{\onelinecomment  return 42}{}\<[E]%
+\ColumnHook
+\end{pboxed}
+\)\par\noindent\endgroup\resethooks
+\end{figure}
+
+\subsubsection{Nested datatypes}
 \label{sec:binTree}
 
 A perfect binary tree is a binary tree whose size is exactly a power of two. In Haskell, perfect binary trees are usually represented using nested datatypes. We show that \name is able to encode nested datatypes.
