@@ -8,8 +8,8 @@ all the features of the source language can be encoded. For a simple
 polymorphic functional language it is possible, for example, to pick a
 variant of System $F$ as a core language. However, the desire for more
 expressive type system features puts pressure on the core languages,
-often requiring them to be extended to support new features. For
-example, if the source language supports \emph{higher-kinded types} or
+often requiring them to be extended to support new features. 
+For example, if the source language supports \emph{higher-kinded types} or
 \emph{type-level functions} then System $F$ is not expressive enough
 and can no longer be used as the core language. Instead another core
 language that does provide support for higher-kinded types, such as
@@ -18,7 +18,10 @@ significantly more complex than System F and thus harder to
 maintain. If later a new feature, such as \emph{kind polymorphism}, is
 desired the core language may need to be changed again to account for
 the new feature, introducing at the same time new sources of
-complexity.
+complexity. Indeed the core language for modern versions of 
+functional languages are quite complex, having multiple syntactic 
+sorts (such as terms, types and kinds), as well as dozens of 
+language constructs~\cite{}\bruno{$F_{C}$}. 
 
 The more expressive type systems become, the more types become similar
 to the terms. Therefore a natural idea is to unify terms and
@@ -44,34 +47,84 @@ decidability of type-checking is usually dependent on the strong
 normalization of the calculus, which ensures termination. An
 unfortunate consequence of this coupling between decidability and
 strong normalization is that adding (unrestricted) general recursion
-to such calculi is not possible.
+to such calculi is not possible. There is a clear tension 
+between decidability of type-checking and allowing general recursion 
+at the type-level.
 
-Tension between decidability of type-checking, logical consistency and 
-general recursion.
+%Tension between decidability of type-checking, logical consistency and 
+%general recursion.
+%Brief summary of related work
 
-Brief summary of related work
+This paper proposes \name: a variant of the calculus of constructions
+allows the same syntax for types and terms, supports type-level
+computation, and preserves decidability of type-checking under the
+presence of general recursion. In \name, each type-level computation
+step is explicit.  \bruno{emphasis on the advantages: a minimal core
+  language?}  The key idea, which is inspired by the traditional
+treatment of \emph{iso-recursive types}, is to introduce each beta
+reduction or expansion at the type-level by a \emph{type-safe
+  cast}. The
+casts allow control over the type-level computation. For example, if
+a type-level program requires two beta-reductions to reach normal
+form, then two casts are needed in the program. If a non-terminating
+program is used at the type-level, it is not possible to cause
+non-termination in the type-checker, because that would require a
+program with an infinite number of casts. Since single beta-steps are
+trivially terminating, decidability of type-checking is possible even
+in the presence of non-terminating programs at the type-level. 
+%At the type-level recursive programs are interpreted 
+%as iso-recursive types. 
 
-This paper proposes an alternative to the conversion rule that allows
-the same syntax for types and terms, type-level computation, and
-preserves decidability of type-checking under the presence of general
-recursion. The key idea, which is inspired by the traditional
-treatment of \emph{iso-recursive types}, is to make each type-level
-computation step explicit. 
+Although it may seem that forcing each step of computation 
+at the type-level to be explicit will prevent convinient use of 
+type-level computation.
 
 Point about the treatment of type-level computation in Haskell. Haskell's
 core language has type applications, but no type-level lambda. Equality 
 is syntactic modulo alpha-conversion. This design choice was rooted in the 
 desire to support Hindley-Milner type-inference... 
 
-Each beta reduction or expansion at the
-type-level is introduced by a language construct. This allows control
-over the type-level computation and ensures decidability of
-type-checking even in the presence of non-terminating programs at the
-type-level.  We realize this idea by presenting a variant of the
-calculus of constructions with general recursion and recursive types.
-Furthermore we show how many programming language features of
-state-of-the-art functional languages (such as Haskell) can be encoded
-in our minimalistic core calculus.
+The paper also shows how many of programming language features of Haskell, 
+including some of the latest extensions, can be encoded in \name via 
+a source language. In particular the source language supports 
+\emph{algebraic datatypes}, \emph{higher-kinded types}, 
+\emph{nested datatypes}, \emph{kind polymorphism} and 
+\emph{datatype promotion}. 
+This result is interesting because \name is a minimal calculus
+with only 8 language constructs and a single syntactic sort. In contrast
+the latest versions of System $F_{C}$ (Haskell's core language) 
+have multiple syntactic sorts and dozens of language constructs. 
+Even if support for equality and coercions, which 
+constitutes a significant part of System $F_{C}$, would be removed
+the resulting language would still be significantly larger and more 
+complex than \name. 
+
+
+
+
+
+In summary, the constributions of this work are:
+
+\begin{itemize}
+
+\item Decidable type checking and managed type-level computation by
+  replacing implicit conversion rule of CoC with generalized
+  \textsf{fold}/\textsf{unfold} semantics.
+
+\item A core language based on Calculus of Constructions (CoC) that
+  collapses terms, types and kinds into the same hierarchy, supports
+  general recursion...
+
+\item General recursion by introducing recursive types for both terms
+  and types by the same $\mu$ primitive.
+
+\item Surface language that supports datatypes, pattern matching and
+  other language extensions for Haskell, and can be encoded into the
+  core language.
+
+\end{itemize}
+
+
 
 
 \begin{enumerate}[a)]
