@@ -2,57 +2,20 @@
 \newcommand{\FV}{\mathsf{FV}}
 \newcommand{\dom}{\mathsf{dom}}
 
-\section{Full specification of source language}
+\section{Full specification of core language}
+
 \subsection{Syntax}
-See Figure \ref{fig:appendix:syntax}.
-\begin{figure*}[ht]
-\centering
-\gram{\ottpgm\ottinterrule
-\ottdecl\ottinterrule
-\ottu\ottinterrule
-\ottp\ottinterrule
-\ottE\ottinterrule
-\ottGs}
-    \[
-    \begin{array}{lllll}
-     &&&& \text{Syntactic Sugar} \\
-     T_{{\mathrm{1}}}  \rightarrow  T_{{\mathrm{2}}} & \triangleq & \Pi \, \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{.}  T_{{\mathrm{2}}} & x \not \in \FV(T_{{\mathrm{2}}}) & \quad\text{Function type} \\
-     \ottsym{(}  \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{)}  \rightarrow  T_{{\mathrm{2}}} & \triangleq & \Pi \, \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{.}  T_{{\mathrm{2}}} & x \in \FV(T_{{\mathrm{2}}}) & \quad\text{Dependent function type} \\
-     \kw{data} \, \ottmv{R}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{=}  \ottmv{K}  \ottsym{\{}  \overline{  \ottmv{N}  \ottsym{:}  T  }  \ottsym{\}} & \triangleq &
-                    \kw{data} \, \ottmv{R}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{=}  \ottmv{K}  \overline{  T  }; && \quad\text{Record} \\
-                  &&  \kw{let} ~\ottmv{N}_i : \ottsym{(}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{)}  \rightarrow  \ottmv{R}    \overline{  \ottnt{u}  }  \rightarrow  T_i = & \forall i &  \\
-                  && \lambda  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{.}  \lambda  \ottmv{y}  \ottsym{:}  \ottmv{R} \, \overline{  \ottnt{u}  }  \ottsym{.}  \kw{case} \, \ottmv{y} \, \kw{of} \, \ottmv{K}  \overline{  \ottmv{x}  \ottsym{:}  T  }  \Rightarrow  \ottmv{x}_i~ \kw{in}  && \\
-    \end{array}
-    \]
-\caption{Syntax of source language}
-\label{fig:appendix:syntax}
-\end{figure*}
+\gram{\otte\ottinterrule
+        \ottG\ottinterrule
+        \ottv}
+
+\subsection{Operational semantics}
+\ottdefnstep{}
+\ottusedrule{\ottdruleSXXMu{}}
 
 \subsection{Expression typing}
-See Figure \ref{fig:appendix:typing}.
-\begin{figure*}[ht]
-\ottdefnctxsrc{}
-\ottdefnpgmsrc{}
-\ottdefndeclsrc{}
-\ottdefnpatsrc{}
-\ottdefnexprsrc{}
-\caption{Typing rules of source language}
-\label{fig:appendix:typing}
-\end{figure*}
-
-\subsection{Translation to the core}
-See Figure \ref{fig:appendix:translate}.
-\begin{figure*}[ht]
-\ottdefnpgmtrans{}
-\ottdefndecltrans{}
-\begin{align*}
-\ottnt{e}  \triangleq ~  &  \kw{let} \, \ottmv{D}  \ottsym{:}  \ottsym{(}  \overline{  \ottnt{u}  \ottsym{:}  \sigma  }  \ottsym{)}  \rightarrow  \star  \ottsym{=}  \mu \, \ottmv{X}  \ottsym{:}  \ottsym{(}  \overline{  \ottnt{u}  \ottsym{:}  \sigma  }  \ottsym{)}  \rightarrow  \star  \ottsym{.}  \lambda  \overline{  \ottnt{u}  \ottsym{:}  \sigma  }  \ottsym{.}  \ottsym{(}  \alpha  \ottsym{:}  \star  \ottsym{)}  \rightarrow  \overline{  \ottsym{(}  \overline{  \tau  }  \ottsym{[}  \ottmv{D}  \mapsto  \ottmv{X}  \ottsym{]}  \rightarrow  \alpha  \ottsym{)}  }  \rightarrow  \alpha \, \kw{in} \, \\ &  \kw{let} \, \ottmv{K_{\ottmv{i}}}  \ottsym{:}  \ottsym{(}  \overline{  \ottnt{u}  \ottsym{:}  \sigma  }  \ottsym{)}  \rightarrow  \overline{  \tau  }  \rightarrow  \ottmv{D}    \overline{  \ottnt{u}  }  \ottsym{=}  \lambda  \overline{  \ottnt{u}  \ottsym{:}  \sigma  }  \ottsym{.}  \lambda  \overline{  \ottmv{x}  \ottsym{:}  \tau  }  \ottsym{.}  \kw{cast}_{\uparrow}^n \, \ottsym{[}  \ottmv{D}    \overline{  \ottnt{u}  }  \ottsym{]}  \ottsym{(}  \lambda  \alpha  \ottsym{:}  \star  \ottsym{.}  \lambda  \overline{  b  \ottsym{:}  \overline{  \tau  }  \rightarrow  \alpha  }  \ottsym{.}  b_{\ottmv{i}} \, \overline{  \ottmv{x}  }  \ottsym{)} \, \kw{in} \, 
-\end{align*}
-\ottdefnpattrans{}
-\ottdefnexprtrans{}
-\caption{Translation rules of source language}
-\label{fig:appendix:translate}
-\end{figure*}
+\ottdefnexpr{}
+\ottusedrule{\ottdruleTXXMu{}}
 
 \section{Proofs about core language}
 \subsection{Properties}
@@ -134,7 +97,6 @@ $\quad$
 		\item[Case $\ottnt{e}  \ottsym{=}  \ottnt{v}$:] $\ottnt{e}$ has one of the following forms:
 		\begin{inparaenum}[(1)]
 		    \item $\star$,
-		    \item $\ottmv{x}$,
 			\item $\lambda  \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$,
 			\item $\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}$,
 			\item $\kw{cast}^{\uparrow} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}$,
@@ -150,6 +112,14 @@ $\quad$
 		
 		Otherwise, there exists some $\ottnt{e'_{{\mathrm{1}}}}$ such that $\ottnt{e_{{\mathrm{1}}}}  \longrightarrow  \ottnt{e'_{{\mathrm{1}}}}$. By the induction hypothesis, $\ottnt{e'_{{\mathrm{1}}}}$ is unique reduction of $\ottnt{e_{{\mathrm{1}}}}$. Thus by rule \ruleref{S\_CastDown}, $\ottnt{e}'=\kw{cast}_{\downarrow} \, \ottnt{e'_{{\mathrm{1}}}}$ is the unique reduction for $\ottnt{e}$.
 	\end{description}
+\end{proof}
+
+\begin{lem}[Uniqueness of $n$-step reduction]\label{lem:ecore:uniquen}
+	The $n$-step reduction $ \longrightarrow_n $ is unique in the sense that given $\ottnt{e}$ there is at most one $\ottnt{e'}$ such that $\ottnt{e}  \longrightarrow_n  \ottnt{e'}$.
+\end{lem}
+
+\begin{proof}
+	Immediate from Lemma \ref{lem:unired}, by induction on the number of reduction steps.
 \end{proof}
 
 \begin{lem}[Decidability of type checking]
@@ -240,10 +210,10 @@ If $\vdash  \ottnt{e}  \ottsym{:}  \sigma$ then either $\ottnt{e}$ is a value $v
 \begin{proof}
     By induction on the derivation of $\vdash  \ottnt{e}  \ottsym{:}  \sigma$ as follows:
     \begin{description}
+        \item[Case $\ottnt{e}  \ottsym{=}  \ottmv{x}$:] Impossible, because the context is empty.
         \item[Case $\ottnt{e}  \ottsym{=}  \ottnt{v}$:] Trivial, since $\ottnt{e}$ is already a value that has one of the following forms:
 		\begin{inparaenum}[(1)]
 		    \item $\star$,
-		    \item $\ottmv{x}$,
 			\item $\lambda  \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$,
 			\item $\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}$,
 			\item $\kw{cast}^{\uparrow} \, \ottsym{[}  \tau  \ottsym{]}  \ottnt{e}$.
@@ -261,4 +231,56 @@ If $\vdash  \ottnt{e}  \ottsym{:}  \sigma$ then either $\ottnt{e}$ is a value $v
 		\item[Case $\ottnt{e}=\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}$:] By rule \ruleref{S\_Mu}, there always exists $\ottnt{e'}  \equiv  \ottnt{e_{{\mathrm{1}}}}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}  \ottsym{]}$.
     \end{description}
 \end{proof}
+
+\section{Full specification of source language}
+\subsection{Syntax}
+See Figure \ref{fig:appendix:syntax}.
+\begin{figure*}[ht]
+\centering
+\gram{\ottpgm\ottinterrule
+\ottdecl\ottinterrule
+\ottu\ottinterrule
+\ottp\ottinterrule
+\ottE\ottinterrule
+\ottGs}
+    \[
+    \begin{array}{lllll}
+     &&&& \text{Syntactic Sugar} \\
+     T_{{\mathrm{1}}}  \rightarrow  T_{{\mathrm{2}}} & \triangleq & \Pi \, \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{.}  T_{{\mathrm{2}}} & x \not \in \FV(T_{{\mathrm{2}}}) & \quad\text{Function type} \\
+     \ottsym{(}  \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{)}  \rightarrow  T_{{\mathrm{2}}} & \triangleq & \Pi \, \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{.}  T_{{\mathrm{2}}} & x \in \FV(T_{{\mathrm{2}}}) & \quad\text{Dependent function type} \\
+     \kw{data} \, \ottmv{R}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{=}  \ottmv{K}  \ottsym{\{}  \overline{  \ottmv{N}  \ottsym{:}  T  }  \ottsym{\}} & \triangleq &
+                    \kw{data} \, \ottmv{R}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{=}  \ottmv{K}  \overline{  T  }; && \quad\text{Record} \\
+                  &&  \kw{let} ~\ottmv{N}_i : \ottsym{(}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{)}  \rightarrow  \ottmv{R}    \overline{  \ottnt{u}  }  \rightarrow  T_i = & \forall i &  \\
+                  && \lambda  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{.}  \lambda  \ottmv{y}  \ottsym{:}  \ottmv{R} \, \overline{  \ottnt{u}  }  \ottsym{.}  \kw{case} \, \ottmv{y} \, \kw{of} \, \ottmv{K}  \overline{  \ottmv{x}  \ottsym{:}  T  }  \Rightarrow  \ottmv{x}_i~ \kw{in}  && \\
+    \end{array}
+    \]
+\caption{Syntax of source language}
+\label{fig:appendix:syntax}
+\end{figure*}
+
+\subsection{Expression typing}
+See Figure \ref{fig:appendix:typing}.
+\begin{figure*}[ht]
+\ottdefnctxsrc{}
+\ottdefnpgmsrc{}
+\ottdefndeclsrc{}
+\ottdefnpatsrc{}
+\ottdefnexprsrc{}
+\caption{Typing rules of source language}
+\label{fig:appendix:typing}
+\end{figure*}
+
+\subsection{Translation to the core}
+See Figure \ref{fig:appendix:translate}.
+\begin{figure*}[ht]
+\ottdefnpgmtrans{}
+\ottdefndecltrans{}
+\begin{align*}
+\ottnt{e}  \triangleq ~  &  \kw{let} \, \ottmv{D}  \ottsym{:}  \ottsym{(}  \overline{  \ottnt{u}  \ottsym{:}  \sigma  }  \ottsym{)}  \rightarrow  \star  \ottsym{=}  \mu \, \ottmv{X}  \ottsym{:}  \ottsym{(}  \overline{  \ottnt{u}  \ottsym{:}  \sigma  }  \ottsym{)}  \rightarrow  \star  \ottsym{.}  \lambda  \overline{  \ottnt{u}  \ottsym{:}  \sigma  }  \ottsym{.}  \ottsym{(}  \alpha  \ottsym{:}  \star  \ottsym{)}  \rightarrow  \overline{  \ottsym{(}  \overline{  \tau  }  \ottsym{[}  \ottmv{D}  \mapsto  \ottmv{X}  \ottsym{]}  \rightarrow  \alpha  \ottsym{)}  }  \rightarrow  \alpha \, \kw{in} \, \\ &  \kw{let} \, \ottmv{K_{\ottmv{i}}}  \ottsym{:}  \ottsym{(}  \overline{  \ottnt{u}  \ottsym{:}  \sigma  }  \ottsym{)}  \rightarrow  \overline{  \tau  }  \rightarrow  \ottmv{D}    \overline{  \ottnt{u}  }  \ottsym{=}  \lambda  \overline{  \ottnt{u}  \ottsym{:}  \sigma  }  \ottsym{.}  \lambda  \overline{  \ottmv{x}  \ottsym{:}  \tau  }  \ottsym{.}  \kw{cast}_{\uparrow}^n \, \ottsym{[}  \ottmv{D}    \overline{  \ottnt{u}  }  \ottsym{]}  \ottsym{(}  \lambda  \alpha  \ottsym{:}  \star  \ottsym{.}  \lambda  \overline{  b  \ottsym{:}  \overline{  \tau  }  \rightarrow  \alpha  }  \ottsym{.}  b_{\ottmv{i}} \, \overline{  \ottmv{x}  }  \ottsym{)} \, \kw{in} \, 
+\end{align*}
+\ottdefnpattrans{}
+\ottdefnexprtrans{}
+\caption{Translation rules of source language}
+\label{fig:appendix:translate}
+\end{figure*}
 

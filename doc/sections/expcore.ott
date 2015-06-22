@@ -7,7 +7,7 @@ embed {{ tex-preamble
 
 %%% Metavariables
 metavar x, y, z, d, X, D, K, N, R, th {{ tex \theta }}, aa {{ tex \alpha }}, bb {{ tex b }}, nn {{ tex n }} ::= {{ com Variable names }}
-indexvar i, j ::= {{ com Index variables }}
+indexvar i, j, n ::= {{ com Index variables }}
 
 %%% Syntax
 grammar
@@ -18,7 +18,7 @@ e, t {{ tex \tau }}, T {{ tex \sigma }} :: 'e_' ::=       {{ com Expressions    
   | star                      ::  :: Star       {{ com Type of types }}
   | e1 e2                     ::  :: App        {{ com Application }}
   | \ x : t . e               ::  :: Lam        {{ com Abstraction }}
-  | Pi x : t1 . t2            ::  :: Pi         {{ com Product }}
+  | Pi x : t  . T             ::  :: Pi         {{ com Product }}
   | castup [ t ] e            ::  :: CastUp     {{ com Cast up by expansion}}
   | castdown e                ::  :: CastDown   {{ com Cast down by reduction }}
   | mu x : t . e              ::  :: Mu         {{ com General recursion }}
@@ -41,8 +41,8 @@ e, t {{ tex \tau }}, T {{ tex \sigma }} :: 'e_' ::=       {{ com Expressions    
   | @@                        :: M:: DummyExpr
   | let x * : t = e2 in e1    :: M:: StarBinding
   | s                         :: M:: Sort
-  | foldn [ t ] e             ::  :: CastUpMulti
-  | unfoldn e                 ::  :: CastDownMulti
+  | foldn [ t ] e             :: M:: CastUpMulti
+  | unfoldn e                 :: M:: CastDownMulti
 
 %% Literals
 lit :: 'lit_' ::=
@@ -61,19 +61,24 @@ G {{ tex \Gamma }} :: 'G_' ::= {{ com Contexts }}
   | G , G'         :: M:: CtxBind     {{ com Context binding }}
   | G [ x |-> e ]  :: M:: CtxSubst    {{ com Context substitution }}
   | G *            :: M:: CtxStar     {{ com Starred context }}
-  | << u : A >>    :: M:: SrcBindVec
-  | u : A          :: M:: SrcBind
-  | ( G )          :: M:: ParenCtx
-  | << G >>        :: M:: CtxVec
-  | ee : tt        :: M:: BindCoC
+  | ee : tt         :: M:: BindCoC
 
 %% Values
 v :: 'v_' ::=                               {{ com Values   }}
-  | x                    ::  :: Var        {{ com Variable }}
   | star                 ::  :: Star       {{ com Type of types }}
   | \ x : t . e          ::  :: Lam        {{ com Abstraction  }}
   | Pi x : t1 . t2       ::  :: Pi         {{ com Product }}
   | castup [ t ] e       ::  :: CastUp     {{ com Cast up by expansion }}
+
+%% Explicit core
+ec {{ tex e }}, tc {{ tex \tau }}, Tc {{ tex \sigma }} :: 'ec_' ::=       {{ com Expressions    }}
+  | x                           ::  :: Var        {{ com Variable }}
+  | star                        ::  :: Star       {{ com Type of types }}
+  | ec1 ec2                     ::  :: App        {{ com Application }}
+  | \ x : tc . ec               ::  :: Lam        {{ com Abstraction }}
+  | Pi x : tc . Tc              ::  :: Pi         {{ com Product }}
+  | castup [ tc ] ec            ::  :: CastUp     {{ com Cast up by expansion}}
+  | castdown ec                 ::  :: CastDown   {{ com Cast down by reduction }}
 
 %%% Terminals
 terminals :: 'terminals_' ::=
@@ -123,6 +128,7 @@ terminals :: 'terminals_' ::=
 formula :: 'formula_' ::=
   | judgement                          ::   :: judgement
   | G1 = G2                            ::   :: context_rewrite
+  | Gs1 = Gs2                          ::   :: context_rewrite_src
   | e1 = e2                            ::   :: rewrite
   | e1 /= e2                           ::   :: inequality
   | e1 =b e2                           ::   :: beta_equality
@@ -130,11 +136,9 @@ formula :: 'formula_' ::=
   | e1 == e2                           ::   :: equivalence
   | ( formula )                        ::   :: parens
   | x : t elt G                        ::   :: context_inclusion
-  | G |- tylit lit : k                 ::   :: lintTyLit
-    {{ tex [[G]] \labeledjudge{tylit} [[lit]] : [[k]] }}
   | |- e : t                           ::   :: empty_context
   | formula \\                         ::   :: lbhack {{ tex [[formula]] \ottlinebreak }}
-  | u : A elt G                        ::   :: context_inclusion_src
+  | u : A elt Gs                       ::   :: context_inclusion_src
   | |- E : A                           ::   :: empty_context_src
   | << formula >>                      ::   :: formula_vector
   | E1 = E2                            ::   :: rewrite_src
@@ -146,6 +150,7 @@ formula :: 'formula_' ::=
 %%% Subrule
 subrules
   v <:: e
+  ec <:: e
 
 %%% Typing rules
 defns
@@ -161,6 +166,15 @@ by
 G |- t : s
 ----------- :: Var
 |- G, x : t
+
+defn G  |- e : t ::  :: expr_rec :: 'T_' {{ com Expression typing }}
+by
+
+G, x:t |- e:t
+G |- t:s
+------------------- :: Mu
+G |- (mu x:t . e):t
+
 
 defn G  |- e : t ::  :: expr :: 'T_' {{ com Expression typing }}
 by
@@ -188,11 +202,6 @@ G, x:t1 |- t2:r
 ------------------- :: Pi
 G |- (Pi x:t1.t2):r
 
-G, x:t |- e:t
-G |- t:s
-------------------- :: Mu
-G |- (mu x:t . e):t
-
 G |- e : t2
 G |- t1 : s
 t1 --> t2
@@ -209,14 +218,17 @@ G |- (castdown e) : t2
 defns
 OpSem :: '' ::=
 
+defn e --> e' ::  :: step_rec :: 'S_' {{ com One-step reduction }}
+by
+
+------------------------------- :: Mu
+mu x:t.e --> e [x |-> mu x:t.e]
+
 defn e --> e' ::  :: step :: 'S_' {{ com One-step reduction }}
 by
 
 ----------------------------  :: Beta
 (\x:t.e1) e2 --> e1 [x|->e2]
-
-------------------------------- :: Mu
-mu x:t.e --> e [x |-> mu x:t.e]
 
 ---------------------------- :: CastDownUp
 castdown (castup[t] e) --> e

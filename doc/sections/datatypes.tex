@@ -69,7 +69,7 @@ Rule (Pgm) type-checks a whole problem. It first type-checks the declarations, w
 \newcommand{\ctxz}[1]{\ctx[\varnothing]{#1}}
 \newcommand{\ctxw}[3][\Gamma]{#1,#2 \vdash #3}
 
-\begin{figure*}[ht]
+\begin{figure*}
   \centering \small
   \begin{tabular}{lc}
     \framebox{$\Gamma \vdash pgm : \tau$} \\
@@ -96,7 +96,7 @@ Rule (Data) does the most heavy work and deserves further explanation. First of 
 
 The rest of the translation rules hold few surprises.
 
-\begin{figure*}[ht]
+\begin{figure*}
   \renewcommand{\arraystretch}{2.5}
   \centering \small
   \begin{tabular}{lcl}

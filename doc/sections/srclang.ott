@@ -47,163 +47,176 @@ E , A {{ tex T }}, B {{ tex S }}, k {{ tex \kappa }} :: 'es_' ::=       {{ com E
   | s                      :: M:: Sort       {{ com Sort }}
 
 %% Contexts
-Gs {{ tex \Gamma }} :: 'Gs_' ::= {{ com Contexts }}
+Gs {{ tex \Sigma }} :: 'Gs_' ::= {{ com Contexts }}
   | empty           ::  :: Empty       {{ com Empty }}
   | Gs , u : A      ::  :: Binding     {{ com Atom binding }}
+  | Gs , Gs'        :: M:: CtxBind     {{ com Context binding }}
+  | << u : A >>     :: M:: SrcBindVec
+  | u : A           :: M:: SrcBind
+  | ( Gs )          :: M:: ParenCtx
+  | << Gs >>        :: M:: CtxVec
 
 %%% Typing rules
 defns
 LintSrc :: '' ::=
 
-defn |- G        ::  :: ctxsrc :: 'Ctx_' {{ com Well-formed context }}
+defn |- Gs        ::  :: ctxsrc :: 'EnvS_' {{ com Well-formed context }}
+{{ tex \labeledjudge{s} [[Gs]] }}
 by
 
 -------- :: Empty
 |- empty
 
-|- G
-G |- A : s
+|- Gs
+Gs |- A : s
 ----------- :: Var
-|- G, x : A
+|- Gs, x : A
 
-defn G  |- pgm : A ::  :: pgmsrc :: 'Tpgm_' {{ com Program context }}
+defn Gs  |- pgm : A ::  :: pgmsrc :: 'TSpgm_' {{ com Program context }}
+{{ tex [[Gs]] \labeledjudge{s} [[pgm]] : [[A]] }}
 by
 
-<< G0 |- decl : G' >>
-G = G0, <<G'>>
-G |- E : A
+<< Gs0 |- decl : Gs' >>
+Gs = Gs0, <<Gs'>>
+Gs |- E : A
 --------------------- :: Pgm
-G0 |- (<<decl>>;E) :A
+Gs0 |- (<<decl>>;E) :A
 
 
-defn G  |- decl : G' ::  :: declsrc :: 'Tdecl_' {{ com Datatype declaration }}
+defn Gs  |- decl : Gs' ::  :: declsrc :: 'TSdecl_' {{ com Datatype declaration }}
+{{ tex [[Gs]] \labeledjudge{s} [[decl]] : [[Gs']] }}
 by
 
-G |- (<<u:k>>) -> star : star
-<< G, D : (<<u:k>>) -> star, << u:k >> |- <<A>> -> D@<<u>> : star >>
+Gs |- (<<u:k>>) -> star : star
+<< Gs, D : (<<u:k>>) -> star, << u:k >> |- <<A>> -> D@<<u>> : star >>
 ------------------------------------------------------------------ :: Data
-G |- (data D << u:k >> = << K <<A>> >>) : (D : (<<u:k>>) -> star, << K : (<<u:k>>) -> <<A>> -> D@<<u>> >>)
+Gs |- (data D << u:k >> = << K <<A>> >>) : (D : (<<u:k>>) -> star, << K : (<<u:k>>) -> <<A>> -> D@<<u>> >>)
 
-defn G  |- p => E : B -> A ::  :: patsrc :: 'Tpat_' {{ com Pattern typing }}
+defn Gs  |- p => E : B -> A ::  :: patsrc :: 'Tpat_' {{ com Pattern typing }}
+{{ tex [[Gs]] \labeledjudge{s} [[p]] [[=>]] [[E]] : [[B]] [[->]] [[A]] }}
 by
 
-K : (<<u:k>>)-><<B>>->D@<<u>> elt G
-G,<<x:B[<< u |-> U >>]>> |- E:A
-G |- B[<< u |-> U >>]:s
+K : (<<u:k>>)-><<B>>->D@<<u>> elt Gs
+Gs,<<x:B[<< u |-> U >>]>> |- E:A
+Gs |- B[<< u |-> U >>]:s
 --------------------------- :: Alt
-G |- K <<x:B[<< u |-> U >>]>> => E:D@<<U>>->A
+Gs |- K <<x:B[<< u |-> U >>]>> => E:D@<<U>>->A
 
 
-defn G  |- E : A ::  :: exprsrc :: 'TS_' {{ com Expression typing }}
-%{{ tex [[G]] \labeledjudge{E} [[E]] : [[A]] }}
+defn Gs  |- E : A ::  :: exprsrc :: 'TS_' {{ com Expression typing }}
+{{ tex [[Gs]] \labeledjudge{s} [[E]] : [[A]] }}
 by
 
 ---------------------- :: Ax
 empty |- star : star
 
-|- G
-x:A elt G
+|- Gs
+x:A elt Gs
 ---------- :: Var
-G |- x:A
+Gs |- x:A
 
-G |- E1 : (Pi x:A2.A1)
-G |- E2 : A2
+Gs |- E1 : (Pi x:A2.A1)
+Gs |- E2 : A2
 ------------------------ :: App
-G |- E1 E2 : A1[x |-> E2]
+Gs |- E1 E2 : A1[x |-> E2]
 
-G, x : A1 |- E : A2
-G |- (Pi x:A1.A2) : s
+Gs, x : A1 |- E : A2
+Gs |- (Pi x:A1.A2) : s
 --------------------------- :: Lam
-G |- (\x:A1.E):(Pi x:A1.A2)
+Gs |- (\x:A1.E):(Pi x:A1.A2)
 
-G |- A1 : s
-G, x:A1 |- A2:r
+Gs |- A1 : s
+Gs, x:A1 |- A2:r
 ------------------- :: Pi
-G |- (Pi x:A1.A2):r
+Gs |- (Pi x:A1.A2):r
 
-G, x:A |- E:A
-G |- A:s
+Gs, x:A |- E:A
+Gs |- A:s
 ------------------- :: Mu
-G |- (mu x:A . E):A
+Gs |- (mu x:A . E):A
 
-G |- E1 : B
-<< G |- p => E2 : B -> A >>
-<< G |- B -> A : s >>
+Gs |- E1 : B
+<< Gs |- p => E2 : B -> A >>
+<< Gs |- B -> A : s >>
 ---------------------------------- :: Case
-G |- case E1 of << p => E2 >> : A
+Gs |- case E1 of << p => E2 >> : A
 
-G |- E2 : A
-G |- E1 [x |-> E2] : B
+Gs |- E2 : A
+Gs |- E1 [x |-> E2] : B
 ---------------------------------- :: Let
-G |- let x : A = E2 in E1 : B
+Gs |- let x : A = E2 in E1 : B
 
 %%% Translation rules
-defn G  |- pgm : A ~> e ::  :: pgmtrans :: 'TRpgm_' {{ com Program translation }}
+defn Gs  |- pgm : A ~> e ::  :: pgmtrans :: 'TRpgm_' {{ com Program translation }}
+{{ tex [[Gs]] \labeledjudge{tr} [[pgm]] : [[A]] [[~>]] [[e]] }}
 by
 
-<< G0 |- decl : G' ~> e1 >>
-G = G0, <<G'>>
-G |- E : A ~> e
+<< Gs0 |- decl : Gs' ~> e1 >>
+Gs = Gs0, <<Gs'>>
+Gs |- E : A ~> e
 ------------------------------------- :: Pgm
-G0 |- (<<decl>>;E) :A ~> <<e1>> (+) e
+Gs0 |- (<<decl>>;E) :A ~> <<e1>> (+) e
 
 
-defn G  |- decl : G' ~> e ::  :: decltrans :: 'TRdecl_' {{ com Datatype translation }}
+defn Gs  |- decl : Gs' ~> e ::  :: decltrans :: 'TRdecl_' {{ com Datatype translation }}
+{{ tex [[Gs]] \labeledjudge{tr} [[decl]] : [[Gs']] [[~>]] [[e]] }}
 by
 
-G |- (<<u:k>>) -> star : star ~> (<<u:T>>) -> star
-<< G, D : (<<u:k>>) -> star, << u:k >> |- <<A>> -> D@<<u>> : star ~> <<t>> -> D@<<u>> >>
+Gs |- (<<u:k>>) -> star : star ~> (<<u:T>>) -> star
+<< Gs, D : (<<u:k>>) -> star, << u:k >> |- <<A>> -> D@<<u>> : star ~> <<t>> -> D@<<u>> >>
 ------------------------------------------------------------------ :: Data
-G |- (data D << u:k >> = << K <<A>> >>) : (D : (<<u:k>>) -> star, << K : (<<u:k>>) -> <<A>> -> D@<<u>> >>) ~> e
+Gs |- (data D << u:k >> = << K <<A>> >>) : (D : (<<u:k>>) -> star, << K : (<<u:k>>) -> <<A>> -> D@<<u>> >>) ~> e
 
-defn G  |- p => E : B -> A ~> e ::  :: pattrans :: 'TRpat_' {{ com Pattern translation }}
+defn Gs  |- p => E : B -> A ~> e ::  :: pattrans :: 'TRpat_' {{ com Pattern translation }}
+{{ tex [[Gs]] \labeledjudge{tr} [[p]] [[=>]] [[E]] : [[B]] [[->]] [[A]] [[~>]] [[e]] }}
 by
 
-K : (<<u:k>>)-><<B>>->D@<<u>> elt G
-G,<<x:B[<< u |-> U >>]>> |- E:A ~> e
-G |- B[<< u |-> U >>]:s ~> T
+K : (<<u:k>>)-><<B>>->D@<<u>> elt Gs
+Gs,<<x:B[<< u |-> U >>]>> |- E:A ~> e
+Gs |- B[<< u |-> U >>]:s ~> T
 --------------------------- :: Alt
-G |- K <<x:B[<< u |-> U >>]>> => E:D@<<U>>->A ~> \<<x:T>>.e
+Gs |- K <<x:B[<< u |-> U >>]>> => E:D@<<U>>->A ~> \<<x:T>>.e
 
 
-defn G  |- E : A ~> e ::  :: exprtrans :: 'TR_' {{ com Expression translation }}
+defn Gs  |- E : A ~> e ::  :: exprtrans :: 'TR_' {{ com Expression translation }}
+{{ tex [[Gs]] \labeledjudge{tr} [[E]] : [[A]] [[~>]] [[e]] }}
 by
 
 ------------------------------ :: Ax
 empty |- star : star ~> star
 
-|- G
-x:A elt G
+|- Gs
+x:A elt Gs
 ------------- :: Var
-G |- x:A ~> x
+Gs |- x:A ~> x
 
-G |- E1 : (Pi x:A2.A1) ~> e1
-G |- E2 : A2 ~> e2
+Gs |- E1 : (Pi x:A2.A1) ~> e1
+Gs |- E2 : A2 ~> e2
 ---------------------------------- :: App
-G |- E1 E2 : A1[x |-> E2] ~> e1 e2
+Gs |- E1 E2 : A1[x |-> E2] ~> e1 e2
 
-G, x : A1 |- E : A2 ~> e
-G |- (Pi x:A1.A2) : s ~> Pi x:t1.t2
+Gs, x : A1 |- E : A2 ~> e
+Gs |- (Pi x:A1.A2) : s ~> Pi x:t1.t2
 ------------------------------------ :: Lam
-G |- (\x:A1.E):(Pi x:A1.A2) ~> \x:t1.e
+Gs |- (\x:A1.E):(Pi x:A1.A2) ~> \x:t1.e
 
-G |- A1 : s ~> t1
-G, x:A1 |- A2:r ~> t2
+Gs |- A1 : s ~> t1
+Gs, x:A1 |- A2:r ~> t2
 ---------------------- :: Pi
-G |- (Pi x:A1.A2):r ~> Pi x:t1.t2
+Gs |- (Pi x:A1.A2):r ~> Pi x:t1.t2
 
-G, x:A |- E:A ~> e
-G |- A:s ~> t
+Gs, x:A |- E:A ~> e
+Gs |- A:s ~> t
 ------------------------------- :: Mu
-G |- (mu x:A . E):A ~> mu x:t.e
+Gs |- (mu x:A . E):A ~> mu x:t.e
 
-G |- E1 : B ~> e1
-<< G |- p => E2 : B -> A ~> e2 >>
-<< G |- B -> A : s ~> T -> t >>
+Gs |- E1 : B ~> e1
+<< Gs |- p => E2 : B -> A ~> e2 >>
+<< Gs |- B -> A : s ~> T -> t >>
 ---------------------------------------- :: Case
-G |- case E1 of << p => E2 >> : A ~> (unfoldn e1) t <<e2>>
+Gs |- case E1 of << p => E2 >> : A ~> (unfoldn e1) t <<e2>>
 
-G |- E2 : A ~> e2
-G |- E1 [x |-> E2] : B ~> e1 [x |-> e2]
+Gs |- E2 : A ~> e2
+Gs |- E1 [x |-> E2] : B ~> e1 [x |-> e2]
 ---------------------------------------- :: Let
-G |- let x : A = E2 in E1 : B ~> e1 [x |-> e2]
+Gs |- let x : A = E2 in E1 : B ~> e1 [x |-> e2]

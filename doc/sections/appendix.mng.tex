@@ -1,57 +1,20 @@
 \newcommand{\FV}{\mathsf{FV}}
 \newcommand{\dom}{\mathsf{dom}}
 
-\section{Full specification of source language}
+\section{Full specification of core language}
+
 \subsection{Syntax}
-See Figure \ref{fig:appendix:syntax}.
-\begin{figure*}[ht]
-\centering
-\gram{\ottpgm\ottinterrule
-\ottdecl\ottinterrule
-\ottu\ottinterrule
-\ottp\ottinterrule
-\ottE\ottinterrule
-\ottGs}
-    \[
-    \begin{array}{lllll}
-     &&&& \text{Syntactic Sugar} \\
-     [[A1->A2]] & \triangleq & [[Pi x:A1.A2]] & x \not \in \FV([[A2]]) & \quad\text{Function type} \\
-     [[(x:A1)->A2]] & \triangleq & [[Pi x:A1.A2]] & x \in \FV([[A2]]) & \quad\text{Dependent function type} \\
-     [[data R <<u:k>> = K { <<N:A>> }]] & \triangleq &
-                    [[data R <<u:k>> = K <<A>>]]; && \quad\text{Record} \\
-                  && [[let]]~[[N]]_i : [[ (<<u:k>>) -> R@<<u>> -> A]]_i = & \forall i &  \\
-                  && [[\ <<u:k>> . \ y : R <<u>> . case y of K <<x:A>> => x]]_i~[[in]] && \\
-    \end{array}
-    \]
-\caption{Syntax of source language}
-\label{fig:appendix:syntax}
-\end{figure*}
+\gram{\otte\ottinterrule
+        \ottG\ottinterrule
+        \ottv}
+
+\subsection{Operational semantics}
+\ottdefnstep{}
+\ottusedrule{\ottdruleSXXMu{}}
 
 \subsection{Expression typing}
-See Figure \ref{fig:appendix:typing}.
-\begin{figure*}[ht]
-\ottdefnctxsrc{}
-\ottdefnpgmsrc{}
-\ottdefndeclsrc{}
-\ottdefnpatsrc{}
-\ottdefnexprsrc{}
-\caption{Typing rules of source language}
-\label{fig:appendix:typing}
-\end{figure*}
-
-\subsection{Translation to the core}
-See Figure \ref{fig:appendix:translate}.
-\begin{figure*}[ht]
-\ottdefnpgmtrans{}
-\ottdefndecltrans{}
-\begin{align*}
-[[ e := & let D : (<<u:T>>) -> star = mu X : (<<u:T>>) -> star . \ <<u:T>> . (aa:star) -> << (<<t>>[D |-> X] -> aa) >> -> aa in \\\let Ki : (<<u:T>>) -> <<t>> -> D@<<u>> = \ <<u:T>> . \<<x:t>> . foldn [D@<<u>>] (\aa:star.\<<bb : <<t>> -> aa >> . bbi <<x>>) in @@ ]]
-\end{align*}
-\ottdefnpattrans{}
-\ottdefnexprtrans{}
-\caption{Translation rules of source language}
-\label{fig:appendix:translate}
-\end{figure*}
+\ottdefnexpr{}
+\ottusedrule{\ottdruleTXXMu{}}
 
 \section{Proofs about core language}
 \subsection{Properties}
@@ -133,7 +96,6 @@ $\quad$
 		\item[Case $[[e=v]]$:] $[[e]]$ has one of the following forms:
 		\begin{inparaenum}[(1)]
 		    \item $[[star]]$,
-		    \item $[[x]]$,
 			\item $[[\x:t.e]]$,
 			\item $[[Pi x:t1.t2]]$,
 			\item $[[castup [t] e]]$,
@@ -149,6 +111,14 @@ $\quad$
 		
 		Otherwise, there exists some $[[e1']]$ such that $[[e1 --> e1']]$. By the induction hypothesis, $[[e1']]$ is unique reduction of $[[e1]]$. Thus by rule \ruleref{S\_CastDown}, $[[e]]'=[[castdown e1']]$ is the unique reduction for $[[e]]$.
 	\end{description}
+\end{proof}
+
+\begin{lem}[Uniqueness of $n$-step reduction]\label{lem:ecore:uniquen}
+	The $n$-step reduction $[[-->>]]$ is unique in the sense that given $[[e]]$ there is at most one $[[e']]$ such that $[[e]] [[-->>]] [[e']]$.
+\end{lem}
+
+\begin{proof}
+	Immediate from Lemma \ref{lem:unired}, by induction on the number of reduction steps.
 \end{proof}
 
 \begin{lem}[Decidability of type checking]
@@ -239,10 +209,10 @@ If $[[|- e:T]]$ then either $[[e]]$ is a value $v$ or there exists $[[e]]'$ such
 \begin{proof}
     By induction on the derivation of $[[|- e:T]]$ as follows:
     \begin{description}
+        \item[Case $[[e=x]]$:] Impossible, because the context is empty.
         \item[Case $[[e=v]]$:] Trivial, since $[[e]]$ is already a value that has one of the following forms:
 		\begin{inparaenum}[(1)]
 		    \item $[[star]]$,
-		    \item $[[x]]$,
 			\item $[[\x:t.e]]$,
 			\item $[[Pi x:t1.t2]]$,
 			\item $[[castup [t] e]]$.
@@ -260,4 +230,56 @@ If $[[|- e:T]]$ then either $[[e]]$ is a value $v$ or there exists $[[e]]'$ such
 		\item[Case $[[e]]=[[mu x:t.e1]]$:] By rule \ruleref{S\_Mu}, there always exists $[[e' == e1[x |-> mu x:t.e1] ]]$.
     \end{description}
 \end{proof}
+
+\section{Full specification of source language}
+\subsection{Syntax}
+See Figure \ref{fig:appendix:syntax}.
+\begin{figure*}[ht]
+\centering
+\gram{\ottpgm\ottinterrule
+\ottdecl\ottinterrule
+\ottu\ottinterrule
+\ottp\ottinterrule
+\ottE\ottinterrule
+\ottGs}
+    \[
+    \begin{array}{lllll}
+     &&&& \text{Syntactic Sugar} \\
+     [[A1->A2]] & \triangleq & [[Pi x:A1.A2]] & x \not \in \FV([[A2]]) & \quad\text{Function type} \\
+     [[(x:A1)->A2]] & \triangleq & [[Pi x:A1.A2]] & x \in \FV([[A2]]) & \quad\text{Dependent function type} \\
+     [[data R <<u:k>> = K { <<N:A>> }]] & \triangleq &
+                    [[data R <<u:k>> = K <<A>>]]; && \quad\text{Record} \\
+                  && [[let]]~[[N]]_i : [[ (<<u:k>>) -> R@<<u>> -> A]]_i = & \forall i &  \\
+                  && [[\ <<u:k>> . \ y : R <<u>> . case y of K <<x:A>> => x]]_i~[[in]] && \\
+    \end{array}
+    \]
+\caption{Syntax of source language}
+\label{fig:appendix:syntax}
+\end{figure*}
+
+\subsection{Expression typing}
+See Figure \ref{fig:appendix:typing}.
+\begin{figure*}[ht]
+\ottdefnctxsrc{}
+\ottdefnpgmsrc{}
+\ottdefndeclsrc{}
+\ottdefnpatsrc{}
+\ottdefnexprsrc{}
+\caption{Typing rules of source language}
+\label{fig:appendix:typing}
+\end{figure*}
+
+\subsection{Translation to the core}
+See Figure \ref{fig:appendix:translate}.
+\begin{figure*}[ht]
+\ottdefnpgmtrans{}
+\ottdefndecltrans{}
+\begin{align*}
+[[ e := & let D : (<<u:T>>) -> star = mu X : (<<u:T>>) -> star . \ <<u:T>> . (aa:star) -> << (<<t>>[D |-> X] -> aa) >> -> aa in \\\let Ki : (<<u:T>>) -> <<t>> -> D@<<u>> = \ <<u:T>> . \<<x:t>> . foldn [D@<<u>>] (\aa:star.\<<bb : <<t>> -> aa >> . bbi <<x>>) in @@ ]]
+\end{align*}
+\ottdefnpattrans{}
+\ottdefnexprtrans{}
+\caption{Translation rules of source language}
+\label{fig:appendix:translate}
+\end{figure*}
 
