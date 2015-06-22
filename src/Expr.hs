@@ -1,12 +1,14 @@
 module Expr where
 
 import Data.List ((\\), union)
+import Control.Monad.Except (throwError)
 -- import Data.Maybe (fromMaybe)
 
 import Syntax
 import Utils
 -- import Parser
 
+-- | Substitution function
 subst :: Sym -> Expr -> Expr -> Expr
 subst v x = sub
   where sub e@(Var i) = if i == v then x else e
@@ -18,10 +20,13 @@ subst v x = sub
         sub (U n e) = U n (sub e)
         sub (Kind k) = Kind k
         -- surface language
+        sub Error = Error
         sub Nat = Nat
         sub (Lit n) = Lit n
         sub (Add e1 e2) = Add (sub e1) (sub e2)
         sub (Case e alts) = Case (sub e) (map subAlt alts)
+        sub (Data db e) = Data db (sub e)
+        sub (Rec db e) = Rec db (sub e)
         abstr con i t e
           | v == i = con i (sub t) e -- type is also expression, need substitution
           | i `elem` fvx =
@@ -42,6 +47,8 @@ subst v x = sub
 substVar :: Sym -> Sym -> Expr -> Expr
 substVar s s' = subst s (Var s')
 
+
+-- | free variable set
 freeVars :: Expr -> [Sym]
 freeVars (Var s) = [s]
 freeVars (App f a) = freeVars f `union` freeVars a
@@ -51,13 +58,15 @@ freeVars (Mu i t1 t2) = freeVars t1 `union` (freeVars t2 \\ [i])
 freeVars (F _ t e) = freeVars t `union` freeVars e
 freeVars (U _ e) = freeVars e
 freeVars (Kind _) = []
+-- suface langage
 freeVars (Case e _) = freeVars e
-freeVars (Data _ e) = freeVars e
-freeVars (Rec _ e) = freeVars e
 freeVars Nat = []
+freeVars Error = []
 freeVars (Lit _) = []
 freeVars (Add e1 e2) = freeVars e1 `union` freeVars e2
 
+
+-- | alpha equality
 alphaEq :: Expr -> Expr -> Bool
 alphaEq (Var v) (Var v') = v == v'
 alphaEq (App f a) (App f' a') = alphaEq f f' && alphaEq a a'
@@ -67,10 +76,12 @@ alphaEq (Mu i t1 t2) (Mu i' t1' t2') = alphaEq t2 (substVar i' i t2') && alphaEq
 alphaEq (F n t e) (F n' t' e') = n == n' && alphaEq t t' && alphaEq e e'
 alphaEq (U n t) (U n' t') = alphaEq t t' && n == n'
 alphaEq (Kind k) (Kind k') = k == k'
--- primitive types
+-- surface language
 alphaEq Nat Nat = True
 alphaEq (Lit n) (Lit m) = n == m
 alphaEq (Add e1 e2) (Add e1' e2') = alphaEq e1 e1' && alphaEq e2 e2'
+alphaEq Error _ = True
+alphaEq _ Error = True
 alphaEq _ _ = False
 
 -- repFreeVar :: BEnv -> Expr -> Expr
@@ -130,20 +141,6 @@ desugar e = e
 
 type BEnv = [(Sym, Expr)]
 
--- whnf :: BEnv -> Expr -> Expr
--- whnf benv ee = spine ee []
---   where
---     spine (App f a) as = spine f (a : as)             -- (R-AppL)
---     spine (Lam s _ e) (a:as) = spine (subst s a e) as -- (R-AppLam)
---     spine (U (F _ e)) as = spine e as                 -- (R-Unfold-Fold)
---     spine (U e) as = spine (U (whnf benv e)) as       -- (R-unfold)
---     spine m@(Mu i e) as = spine (subst i m e) as      -- (R-Mu)
---     spine (Beta e) as = spine e as                    -- (R-Beta)
---     spine (Var n) as =                                -- fill in pre-defined terms
---       case lookup n benv of
---         Nothing -> foldl App (Var n) as
---         Just e  -> spine e as
---     spine f as = foldl App f as
 
 reduct :: Expr -> Either String Expr
 reduct (App (Lam s _ e1) e2) = Right $ subst s e2 e1      -- (R-AppLAm)
@@ -151,18 +148,23 @@ reduct (App e1 e2) = reduct e1 >>= \e -> Right (App e e2) -- (R-AppL)
 reduct (U _ (F _ _ e)) = Right e                              -- (R-Unfold-Fold)
 reduct (U n e) = reduct e >>= Right . U n                     -- (R-unfold)
 reduct m@(Mu x _ t2) = Right $ subst x m t2               -- (R-Mu)
+
 -- surface language
 reduct (Add (Lit n) (Lit m)) = Right (Lit (n + m))
 reduct (Add (Lit n) m) = reduct m >>= \m' -> Right $ Add (Lit n) m'
 reduct (Add n m) = reduct n >>= \n' -> Right (Add n' m)
 reduct Nat = return Nat
+reduct Error = throwError "Runtime error!"
 reduct e = Left $ "Not reducible: " ++ show e
 
--- multiple reduction
+
+-- | multiple reduction
 reductN :: Int -> Expr -> Either String Expr
 reductN 0 e = return e
 reductN n e = reduct e >>= \e' -> reductN (n-1) e'
 
+
+-- | evaluator
 eval :: Expr -> Either String Expr
 eval = loop
   where

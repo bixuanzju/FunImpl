@@ -1,6 +1,6 @@
 module Translation where
 
-import Control.Monad (unless, when, mapAndUnzipM)
+import Control.Monad (unless, mapAndUnzipM)
 import Control.Monad.Except (throwError)
 -- import Parser
 -- import Debug.Trace
@@ -10,6 +10,7 @@ import Syntax
 import TypeCheck
 import Utils
 
+-- | Elaboration
 trans :: Env -> Expr -> TC (Type, Expr)
 trans _ (Kind Star) = return (Kind Star, Kind Star)
 trans env (Var s) = findVar env s >>= \t -> return (t, Var s)
@@ -31,7 +32,7 @@ trans env (Pi x a b) = do
   (s, a') <- trans env a
   let env' = extend x a env
   (t, b') <- trans env' b
-  when ((s,t) `notElem` allowedKinds) $ throwError "Bad abstraction"
+  unless (alphaEq t (Kind Star) && alphaEq s (Kind Star)) $ throwError "Bad abstraction"
   return (t, Pi x a' b')
 trans env (Mu i t e) = do
   let env' = extend i t env
@@ -58,9 +59,9 @@ trans env (Case e alts) = do
   let arity = length actualTypes
 
   (altTypeList, e2List) <- mapAndUnzipM (transPattern dv actualTypes) alts
-  unless (all (== head altTypeList) (tail altTypeList)) $ throwError "Bad pattern expressions"
+  unless (all (alphaEq . head $ altTypeList) (tail altTypeList)) $ throwError "Bad pattern expressions"
 
-  let (Pi "" _ t) = head altTypeList
+  let (Pi "" _ t) = head . filter (\(Pi "" _ t') -> t' /= Error) $ altTypeList
   let genExpr = foldl App (App (U (arity + 1) e') t) e2List
 
   return (t, genExpr)
@@ -119,6 +120,8 @@ trans env (Add e1 e2) = do
   (t2, e2') <- trans env e2
   unless (t1 == Nat && t2 == Nat) $ throwError "Addition is only allowed for numbers!"
   return (Nat, Add e1' e2')
+
+trans _ Error = return (Error, Error)
 
 trans _ e = throwError $ "Trans: Impossible happened, trying to translate: " ++ show e
 

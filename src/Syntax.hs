@@ -23,6 +23,7 @@ data Expr = Var Sym
           | Case Expr [Alt]
           | Let Sym Type Expr Expr
           | Letrec Sym Type Expr Expr
+          | Error
           -- Primitive nat
           | Nat
           | Lit Int
@@ -85,10 +86,11 @@ instance Pretty Expr where
   pretty (Case e alts) = hang 2 (text "case" <+> pretty e <+> text "of" <$> text " " <+> intersperseBar (map pretty alts))
   pretty (Let n t e1 e2) = text "let" <+> pretty n <+> colon <+> pretty t <+> equals <+> pretty e1 <$> text "in" <$> pretty e2
   pretty (Letrec n t e1 e2) = text "letrec" <+> pretty n <+> colon <+> pretty t <+> equals <+> pretty e1 <$> text "in" <$> pretty e2
-  pretty (Rec recbind e) = text "Record" <+> pretty recbind <$> pretty e
+  pretty (Rec recbind e) = text "record" <+> pretty recbind <$> pretty e
   pretty Nat = text "nat"
   pretty (Add e1 e2) = parens (pretty e1 <+> text "+" <+> pretty e2)
   pretty (Lit n) = text (show n)
+  pretty (Error) = text "error"
 
 instance Pretty RecBind where
   pretty (RB n tpairs fields) = text n <+>
