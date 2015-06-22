@@ -95,7 +95,7 @@
 \section{Applications}
 \label{sec:app}
 
-In this section, we show applications, which either Haskell needs non-trivial extensions to do that, or languages like Coq and Agda are impossible to do, whereas we can easily achieve in \name.
+In this section, we show applications, which either Haskell needs non-trivial extensions to do that, or dependently typed languages like Coq and Agda are impossible to do, whereas we can easily achieve in \name.
 
 % \subsection{Parametric HOAS}
 % \label{sec:phoas}
@@ -203,8 +203,55 @@ Because \name is explicitly typed, each type parameter needs to be accompanied w
 
 \subsubsection{Higher-kinded types}
 
-\jeremy{Functor example}
+Higher-kinded types are types that take other types and produce a new type. To support higher-kinded types, languages like Haskell have to extend the existing core language to account for kind expressions. In \name, since all syntactical constructs are in the same level, we can easily construct higher-kinded types. We show this by an example of encoding the \emph{Functor} class:
 
+\begin{figure}[h!]
+  \begingroup\par\noindent\advance\leftskip\mathindent\(
+\begin{pboxed}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{7}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[5]{}\mathbf{rcrd}\;\Conid{Functor}\;(\Varid{f}\mathbin{:}\star\to \star)\mathrel{=}{}\<[E]%
+\\
+\>[5]{}\hsindent{2}{}\<[7]%
+\>[7]{}\Conid{Func}\;\{\mskip1.5mu \Varid{fmap}\mathbin{:}(\Varid{a}\mathbin{:}\star)\to (\Varid{b}\mathbin{:}\star)\to \Varid{f}\;\Varid{a}\to \Varid{f}\;\Varid{b}\mskip1.5mu\};{}\<[E]%
+\ColumnHook
+\end{pboxed}
+\)\par\noindent\endgroup\resethooks
+\end{figure}
+
+A functor is just a record that has only one field \emph{fmap}. A Functor instance of the \emph{Maybe} datatype is simply:
+
+\begin{figure}[h!]
+  \begingroup\par\noindent\advance\leftskip\mathindent\(
+\begin{pboxed}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{7}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{8}{@{}>{\hspre}c<{\hspost}@{}}%
+\column{8E}{@{}l@{}}%
+\column{9}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{11}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[5]{}\mathbf{let}\;\Varid{maybeInst}\mathbin{:}\Conid{Functor}\;\Conid{Maybe}\mathrel{=}{}\<[E]%
+\\
+\>[5]{}\hsindent{2}{}\<[7]%
+\>[7]{}\Conid{Func}\;\Conid{Maybe}\;(\lambda \Varid{a}\mathbin{:}\star.\,\lambda \Varid{b}\mathbin{:}\star.\,\lambda \Varid{f}\mathbin{:}\Varid{a}\to \Varid{b}.\,\lambda \Varid{x}\mathbin{:}\Conid{Maybe}\;\Varid{a}.\,{}\<[E]%
+\\
+\>[7]{}\hsindent{2}{}\<[9]%
+\>[9]{}\mathbf{case}\;\Varid{x}\;\mathbf{of}{}\<[E]%
+\\
+\>[9]{}\hsindent{2}{}\<[11]%
+\>[11]{}\Conid{Nothing}\Rightarrow \Conid{Nothing}\;\Varid{b}{}\<[E]%
+\\
+\>[7]{}\hsindent{1}{}\<[8]%
+\>[8]{}\mid {}\<[8E]%
+\>[11]{}\Conid{Just}\;(\Varid{z}\mathbin{:}\Varid{a})\Rightarrow \Conid{Just}\;\Varid{b}\;(\Varid{f}\;\Varid{z})){}\<[E]%
+\ColumnHook
+\end{pboxed}
+\)\par\noindent\endgroup\resethooks
+\end{figure}
 
 \subsubsection{HOAS}
 
@@ -296,7 +343,7 @@ The definition of the evaluator is quite straightforward, although it is worth n
 
 Evaluation of a lambda expression proceeds as follows:
 
-\begin{figure}[h!]
+\begin{figure}[H]
   \begingroup\par\noindent\advance\leftskip\mathindent\(
 \begin{pboxed}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
@@ -314,189 +361,133 @@ Evaluation of a lambda expression proceeds as follows:
 \)\par\noindent\endgroup\resethooks
 \end{figure}
 
+\subsubsection{Fix as a datatype}
+
+The type-level \emph{Fix} is a good example to demonstrate the expressiveness of \name. The definition is simply:
+
+\begin{figure}[H]
+  \begingroup\par\noindent\advance\leftskip\mathindent\(
+\begin{pboxed}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[5]{}\mathbf{rcrd}\;\Conid{Fix}\;(\Varid{f}\mathbin{:}\star\to \star)\mathrel{=}\Conid{In}\;\{\mskip1.5mu \Varid{out}\mathbin{:}(\Varid{f}\;(\Conid{Fix}\;\Varid{f}))\mskip1.5mu\};{}\<[E]%
+\ColumnHook
+\end{pboxed}
+\)\par\noindent\endgroup\resethooks
+\end{figure}
+
+The \emph{Fix} datatype is interesting in that Coq and Agda would reject this definition because the use of the higher-kinded parameter \emph{f} could be anywhere (e.g., in a negative position). However in \name, where type-level computation is explicitly controlled, we can safely use \emph{Fix} in the program.
+
+With \emph{Fix}, we can have the generic \emph{fold} function, or \emph{catamorphism}:
+
+\begin{figure}[H]
+  \begingroup\par\noindent\advance\leftskip\mathindent\(
+\begin{pboxed}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{7}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{9}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{20}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[5]{}\mathbf{letrec}\;\Varid{cata}\mathbin{:}{}\<[20]%
+\>[20]{}(\Varid{f}\mathbin{:}\star\to \star)\to (\Varid{a}\mathbin{:}\star)\to {}\<[E]%
+\\
+\>[20]{}\Conid{Functor}\;\Varid{f}\to (\Varid{f}\;\Varid{a}\to \Varid{a})\to \Conid{Fix}\;\Varid{f}\to \Varid{a}\mathrel{=}{}\<[E]%
+\\
+\>[5]{}\hsindent{2}{}\<[7]%
+\>[7]{}\lambda \Varid{f}\mathbin{:}\star\to \star.\,\lambda \Varid{a}\mathbin{:}\star.\,\lambda \Varid{m}\mathbin{:}\Conid{Functor}\;\Varid{f}.\,\lambda \Varid{g}\mathbin{:}\Varid{f}\;\Varid{a}\to \Varid{a}.\,\lambda \Varid{t}\mathbin{:}\Conid{Fix}\;\Varid{f}.\,{}\<[E]%
+\\
+\>[7]{}\hsindent{2}{}\<[9]%
+\>[9]{}\Varid{g}\;(\Varid{fmap}\;\Varid{f}\;\Varid{m}\;(\Conid{Fix}\;\Varid{f})\;\Varid{a}\;(\Varid{cata}\;\Varid{f}\;\Varid{a}\;\Varid{m}\;\Varid{g})\;(\Varid{out}\;\Varid{f}\;\Varid{t})){}\<[E]%
+\ColumnHook
+\end{pboxed}
+\)\par\noindent\endgroup\resethooks
+\end{figure}
+
+
+
 \subsubsection{Kind polymophism for datatypes}
 
 
-\subsubsection{Nested datatypes}
-\label{sec:binTree}
+% \subsubsection{Nested datatypes}
+% \label{sec:binTree}
 
-A perfect binary tree is a binary tree whose size is exactly a power of two. In Haskell, perfect binary trees are usually represented using nested datatypes. We show that \name is able to encode nested datatypes.
+% A perfect binary tree is a binary tree whose size is exactly a power of two. In Haskell, perfect binary trees are usually represented using nested datatypes. We show that \name is able to encode nested datatypes.
 
-First we define a pair datatype as follows:
+% First we define a pair datatype as follows:
 
-\begin{figure}[H]
-\begingroup\par\noindent\advance\leftskip\mathindent\(
-\begin{pboxed}\SaveRestoreHook
-\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[3]{}\mathbf{data}\;\Conid{PairT}\;(\Varid{a}\mathbin{:}\star)\;(\Varid{b}\mathbin{:}\star)\mathrel{=}\Conid{P}\;\Varid{a}\;\Varid{b};{}\<[E]%
-\ColumnHook
-\end{pboxed}
-\)\par\noindent\endgroup\resethooks
-\end{figure}
+% \begin{figure}[H]
+% \begin{spec}
+%   data PairT (a : *) (b : *) = P a b;
+% \end{spec}
+% \end{figure}
 
-Using pairs, perfect binary trees are easily defined as below:
+% Using pairs, perfect binary trees are easily defined as below:
 
-\begin{figure}[h!]
-\begingroup\par\noindent\advance\leftskip\mathindent\(
-\begin{pboxed}\SaveRestoreHook
-\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[3]{}\mathbf{data}\;\Conid{B}\;(\Varid{a}\mathbin{:}\star)\mathrel{=}\Conid{One}\;\Varid{a}\mid \Conid{Two}\;(\Conid{B}\;(\Conid{PairT}\;\Varid{a}\;\Varid{a}));{}\<[E]%
-\ColumnHook
-\end{pboxed}
-\)\par\noindent\endgroup\resethooks
-\end{figure}
+% \begin{figure}[h!]
+% \begin{spec}
+%   data B (a : *) = One a | Two (B (PairT a a));
+% \end{spec}
+% \end{figure}
 
-Notice that the recursive use of \emph{B} does not hold \emph{a}, but \emph{PairT a a}. This means every time we use a \emph{Two} constructor, the size of the pairs doubles. In case you are curious about the encoding of \emph{B}, here is the one:
+% Notice that the recursive use of \emph{B} does not hold \emph{a}, but \emph{PairT a a}. This means every time we use a \emph{Two} constructor, the size of the pairs doubles. In case you are curious about the encoding of \emph{B}, here is the one:
 
-\begin{figure}[h!]
-\begingroup\par\noindent\advance\leftskip\mathindent\(
-\begin{pboxed}\SaveRestoreHook
-\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{7}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[3]{}\mathbf{let}\;\Conid{B}\mathbin{:}\star\to \star\mathrel{=}\mu\;\Conid{X}\mathbin{:}\star\to \star.\,{}\<[E]%
-\\
-\>[3]{}\hsindent{4}{}\<[7]%
-\>[7]{}\lambda \Varid{a}\mathbin{:}\star.\,(\Conid{B}\mathbin{:}\star)\to (\Varid{a}\to \Conid{B})\to (\Conid{X}\;(\Conid{PairT}\;\Varid{a}\;\Varid{a})\to \Conid{B})\to \Conid{B}{}\<[E]%
-\\
-\>[3]{}\mathbf{in}{}\<[E]%
-\ColumnHook
-\end{pboxed}
-\)\par\noindent\endgroup\resethooks
-\end{figure}
+% \begin{figure}[h!]
+% \begin{spec}
+%   let B : * -> * = mu X : * -> * .
+%       \ a : * . (B : *) -> (a -> B) -> (X (PairT a a) -> B) -> B
+%   in
+% \end{spec}
+% \end{figure}
 
-Because of the polymorphic recursive type ($\mu X : \star \rightarrow \star $) being used, it is fairly straightforward to encode nested datatypes.
+% Because of the polymorphic recursive type ($\mu X : \star \rightarrow \star $) being used, it is fairly straightforward to encode nested datatypes.
 
-To easily construct a perfect binary tree from a list, we define a help function that transform a list to a perfect binary tree as shown in Figure~\ref{fig:perfectB}.
+% To easily construct a perfect binary tree from a list, we define a help function that transform a list to a perfect binary tree as shown in Figure~\ref{fig:perfectB}.
 
-\begin{figure}[ht]
-\begingroup\par\noindent\advance\leftskip\mathindent\(
-\begin{pboxed}\SaveRestoreHook
-\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{7}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{9}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{11}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{13}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{15}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{17}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[3]{}\mathbf{let}\;\Varid{pairs}\mathbin{:}(\Varid{a}\mathbin{:}\star)\to \Conid{List}\;\Varid{a}\to \Conid{List}\;(\Conid{PairT}\;\Varid{a}\;\Varid{a})\mathrel{=}{}\<[E]%
-\\
-\>[3]{}\hsindent{2}{}\<[5]%
-\>[5]{}\mu\;\Varid{pairs'}\mathbin{:}(\Varid{a}\mathbin{:}\star)\to \Conid{List}\;\Varid{a}\to \Conid{List}\;(\Conid{PairT}\;\Varid{a}\;\Varid{a}).\,{}\<[E]%
-\\
-\>[5]{}\hsindent{2}{}\<[7]%
-\>[7]{}\lambda \Varid{a}\mathbin{:}\star.\,\lambda \Varid{xs}\mathbin{:}\Conid{List}\;\Varid{a}.\,{}\<[E]%
-\\
-\>[7]{}\hsindent{2}{}\<[9]%
-\>[9]{}\mathbf{case}\;\Varid{xs}\;\mathbf{of}{}\<[E]%
-\\
-\>[9]{}\hsindent{2}{}\<[11]%
-\>[11]{}\Conid{Nil}\Rightarrow \Conid{Nil}\;(\Conid{PairT}\;\Varid{a}\;\Varid{a}){}\<[E]%
-\\
-\>[7]{}\hsindent{2}{}\<[9]%
-\>[9]{}\mid \Conid{Cons}\;(\Varid{y}\mathbin{:}\Varid{a})\;(\Varid{ys}\mathbin{:}\Conid{List}\;\Varid{a})\Rightarrow {}\<[E]%
-\\
-\>[9]{}\hsindent{4}{}\<[13]%
-\>[13]{}\mathbf{case}\;\Varid{ys}\;\mathbf{of}\;\Conid{Nil}\Rightarrow {}\<[E]%
-\\
-\>[13]{}\hsindent{2}{}\<[15]%
-\>[15]{}\Conid{Nil}\;(\Conid{PairT}\;\Varid{a}\;\Varid{a}){}\<[E]%
-\\
-\>[9]{}\hsindent{4}{}\<[13]%
-\>[13]{}\mid \Conid{Cons}\;(\Varid{y'}\mathbin{:}\Varid{a})\;(\Varid{ys'}\mathbin{:}\Conid{List}\;\Varid{a})\Rightarrow {}\<[E]%
-\\
-\>[13]{}\hsindent{4}{}\<[17]%
-\>[17]{}\Conid{Cons}\;(\Conid{PairT}\;\Varid{a}\;\Varid{a})\;(\Conid{P}\;\Varid{a}\;\Varid{a}\;\Varid{y}\;\Varid{y'})\;(\Varid{pairs'}\;\Varid{a}\;\Varid{ys'}){}\<[E]%
-\\
-\>[3]{}\mathbf{in}{}\<[E]%
-\\
-\>[3]{}\mathbf{let}\;\Varid{fromList}\mathbin{:}(\Varid{a}\mathbin{:}\star)\to \Conid{List}\;\Varid{a}\to \Conid{B}\;\Varid{a}\mathrel{=}{}\<[E]%
-\\
-\>[3]{}\hsindent{2}{}\<[5]%
-\>[5]{}\mu\;\Varid{from'}\mathbin{:}(\Varid{a}\mathbin{:}\star)\to \Conid{List}\;\Varid{a}\to \Conid{B}\;\Varid{a}.\,{}\<[E]%
-\\
-\>[5]{}\hsindent{2}{}\<[7]%
-\>[7]{}\lambda \Varid{a}\mathbin{:}\star.\,\lambda \Varid{xs}\mathbin{:}\Conid{List}\;\Varid{a}.\,{}\<[E]%
-\\
-\>[7]{}\hsindent{2}{}\<[9]%
-\>[9]{}\mathbf{case}\;\Varid{xs}\;\mathbf{of}{}\<[E]%
-\\
-\>[9]{}\hsindent{2}{}\<[11]%
-\>[11]{}\Conid{Nil}\Rightarrow \Conid{Two}\;\Varid{a}\;(\Varid{from'}\;(\Conid{PairT}\;\Varid{a}\;\Varid{a})\;(\Varid{pairs}\;\Varid{a}\;(\Conid{Nil}\;\Varid{a}))){}\<[E]%
-\\
-\>[7]{}\hsindent{2}{}\<[9]%
-\>[9]{}\mid \Conid{Cons}\;(\Varid{x}\mathbin{:}\Varid{a})\;(\Varid{xs'}\mathbin{:}\Conid{List}\;\Varid{a})\Rightarrow {}\<[E]%
-\\
-\>[9]{}\hsindent{2}{}\<[11]%
-\>[11]{}\mathbf{case}\;\Varid{xs'}\;\mathbf{of}{}\<[E]%
-\\
-\>[11]{}\hsindent{2}{}\<[13]%
-\>[13]{}\Conid{Nil}\Rightarrow \Conid{One}\;\Varid{a}\;\Varid{x}{}\<[E]%
-\\
-\>[9]{}\hsindent{2}{}\<[11]%
-\>[11]{}\mid \Conid{Cons}\;(\Varid{y}\mathbin{:}\Varid{a})\;(\Varid{zs}\mathbin{:}\Conid{List}\;\Varid{a})\Rightarrow {}\<[E]%
-\\
-\>[11]{}\hsindent{4}{}\<[15]%
-\>[15]{}\Conid{Two}\;\Varid{a}\;(\Varid{from'}\;(\Conid{PairT}\;\Varid{a}\;\Varid{a})\;(\Varid{pairs}\;\Varid{a}\;\Varid{xs})){}\<[E]%
-\\
-\>[3]{}\mathbf{in}{}\<[E]%
-\ColumnHook
-\end{pboxed}
-\)\par\noindent\endgroup\resethooks
-  \caption{Construct a perfect binary tree from a list}
-  \label{fig:perfectB}
-\end{figure}
+% \begin{figure}[ht]
+% \begin{spec}
+%   let pairs : (a : *) -> List a -> List (PairT a a) =
+%     mu pairs' : (a : *) -> List a -> List (PairT a a) .
+%       \ a : * . \ xs : List a .
+%         case xs of
+%           Nil => Nil (PairT a a)
+%         | Cons (y : a) (ys : List a) =>
+%             case ys of Nil =>
+%               Nil (PairT a a)
+%             | Cons (y' : a) (ys' : List a) =>
+%                 Cons (PairT a a) (P a a y y') (pairs' a ys')
+%   in
+%   let fromList : (a : *) -> List a -> B a =
+%     mu from' : (a : *) -> List a -> B a .
+%       \ a : * . \xs : List a .
+%         case xs of
+%           Nil => Two a (from' (PairT a a) (pairs a (Nil a)))
+%         | Cons (x : a) (xs' : List a) =>
+%           case xs' of
+%             Nil => One a x
+%           | Cons (y : a) (zs : List a) =>
+%               Two a (from' (PairT a a) (pairs a xs))
+%   in
+% \end{spec}
+%   \caption{Construct a perfect binary tree from a list}
+%   \label{fig:perfectB}
+% \end{figure}
 
-Now we can define an interesting function \emph{powerTwo}. Given a natural number $n$, it computes the largest natural number $m$, such that $2^{m} < n$:
+% Now we can define an interesting function \emph{powerTwo}. Given a natural number $n$, it computes the largest natural number $m$, such that $2^{m} < n$:
 
-\begin{figure}[H]
-\begingroup\par\noindent\advance\leftskip\mathindent\(
-\begin{pboxed}\SaveRestoreHook
-\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{7}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{9}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{11}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{13}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[3]{}\mathbf{let}\;\Varid{twos}\mathbin{:}(\Varid{a}\mathbin{:}\star)\to \Conid{B}\;\Varid{a}\to \Varid{nat}\mathrel{=}{}\<[E]%
-\\
-\>[3]{}\hsindent{2}{}\<[5]%
-\>[5]{}\mu\;\Varid{twos'}\mathbin{:}(\Varid{a}\mathbin{:}\star)\to \Conid{B}\;\Varid{a}\to \Varid{nat}.\,{}\<[E]%
-\\
-\>[5]{}\hsindent{2}{}\<[7]%
-\>[7]{}\lambda \Varid{a}\mathbin{:}\star.\,\lambda \Varid{x}\mathbin{:}\Conid{B}\;\Varid{a}.\,{}\<[E]%
-\\
-\>[7]{}\hsindent{2}{}\<[9]%
-\>[9]{}\mathbf{case}\;\Varid{x}\;\mathbf{of}{}\<[E]%
-\\
-\>[9]{}\hsindent{2}{}\<[11]%
-\>[11]{}\Conid{One}\;(\Varid{y}\mathbin{:}\Varid{a})\Rightarrow \mathrm{0}{}\<[E]%
-\\
-\>[7]{}\hsindent{2}{}\<[9]%
-\>[9]{}\mid \Conid{Two}\;(\Varid{c}\mathbin{:}\Conid{B}\;(\Conid{PairT}\;\Varid{a}\;\Varid{a}))\Rightarrow {}\<[E]%
-\\
-\>[9]{}\hsindent{4}{}\<[13]%
-\>[13]{}\mathrm{1}\mathbin{+}\Varid{twos'}\;(\Conid{PairT}\;\Varid{a}\;\Varid{a})\;\Varid{c}{}\<[E]%
-\\
-\>[3]{}\mathbf{in}{}\<[E]%
-\\
-\>[3]{}\mathbf{let}\;\Varid{powerTwo}\mathbin{:}\Conid{Nat}\to \Varid{nat}\mathrel{=}{}\<[E]%
-\\
-\>[3]{}\hsindent{2}{}\<[5]%
-\>[5]{}\lambda \Varid{n}\mathbin{:}\Conid{Nat}.\,\Varid{twos}\;\Varid{nat}\;(\Varid{fromList}\;\Varid{nat}\;(\Varid{take}\;\Varid{n}\;(\Varid{repeat}\;\mathrm{1}))){}\<[E]%
-\\
-\>[3]{}\mathbf{in}\;\Varid{powerTwo}\;(\Conid{S}\;(\Conid{S}\;(\Conid{S}\;(\Conid{S}\;\Conid{Z}))))\mbox{\onelinecomment  return 2}{}\<[E]%
-\ColumnHook
-\end{pboxed}
-\)\par\noindent\endgroup\resethooks
-\end{figure}
+% \begin{figure}[H]
+% \begin{spec}
+%   let twos : (a : *) -> B a -> nat =
+%     mu twos' : (a : *) -> B a -> nat .
+%       \ a : * . \x : B a .
+%         case x of
+%           One (y : a) => 0
+%         | Two (c : B (PairT a a)) =>
+%             1 + twos' (PairT a a) c
+%   in
+%   let powerTwo : Nat -> nat =
+%     \ n : Nat . twos nat (fromList nat (take n (repeat 1)))
+%   in powerTwo (S (S (S (S Z)))) -- return 2
+% \end{spec}
+% \end{figure}

@@ -10,7 +10,7 @@
 \section{Applications}
 \label{sec:app}
 
-In this section, we show applications, which either Haskell needs non-trivial extensions to do that, or languages like Coq and Agda are impossible to do, whereas we can easily achieve in \name.
+In this section, we show applications, which either Haskell needs non-trivial extensions to do that, or dependently typed languages like Coq and Agda are impossible to do, whereas we can easily achieve in \name.
 
 % \subsection{Parametric HOAS}
 % \label{sec:phoas}
@@ -94,8 +94,26 @@ Because \name is explicitly typed, each type parameter needs to be accompanied w
 
 \subsubsection{Higher-kinded types}
 
-\jeremy{Functor example}
+Higher-kinded types are types that take other types and produce a new type. To support higher-kinded types, languages like Haskell have to extend the existing core language to account for kind expressions. In \name, since all syntactical constructs are in the same level, we can easily construct higher-kinded types. We show this by an example of encoding the \emph{Functor} class:
 
+\begin{figure}[h!]
+  \begin{spec}
+    rcrd Functor (f : * -> *) =
+      Func {fmap : (a : *) -> (b : *) -> f a -> f b};
+  \end{spec}
+\end{figure}
+
+A functor is just a record that has only one field \emph{fmap}. A Functor instance of the \emph{Maybe} datatype is simply:
+
+\begin{figure}[h!]
+  \begin{spec}
+    let maybeInst : Functor Maybe =
+      Func Maybe (\ a : * . \ b : * . \f : a -> b . \ x : Maybe a .
+        case x of
+          Nothing => Nothing b
+       |  Just (z : a) => Just b (f z))
+  \end{spec}
+\end{figure}
 
 \subsubsection{HOAS}
 
@@ -138,7 +156,7 @@ The definition of the evaluator is quite straightforward, although it is worth n
 
 Evaluation of a lambda expression proceeds as follows:
 
-\begin{figure}[h!]
+\begin{figure}[H]
   \begin{spec}
   let test : Exp = App  (Lam (\ f : Exp . App f (Num 42)))
                         (Lam (\g : Exp. g))
@@ -146,87 +164,112 @@ Evaluation of a lambda expression proceeds as follows:
   \end{spec}
 \end{figure}
 
+\subsubsection{Fix as a datatype}
+
+The type-level \emph{Fix} is a good example to demonstrate the expressiveness of \name. The definition is simply:
+
+\begin{figure}[H]
+  \begin{spec}
+    rcrd Fix (f : * -> *) = In {out : (f (Fix f)) };
+  \end{spec}
+\end{figure}
+
+The \emph{Fix} datatype is interesting in that Coq and Agda would reject this definition because the use of the higher-kinded parameter \emph{f} could be anywhere (e.g., in a negative position). However in \name, where type-level computation is explicitly controlled, we can safely use \emph{Fix} in the program.
+
+With \emph{Fix}, we can have the generic \emph{fold} function, or \emph{catamorphism}:
+
+\begin{figure}[H]
+  \begin{spec}
+    letrec cata :  (f : * -> *) -> (a : *) ->
+                   Functor f -> (f a -> a) -> Fix f -> a =
+      \f : * -> * . \ a : * . \ m : Functor f . \ g : f a -> a. \ t : Fix f .
+        g (fmap f m (Fix f) a (cata f a m g) (out f t))
+  \end{spec}
+\end{figure}
+
+
+
 \subsubsection{Kind polymophism for datatypes}
 
 
-\subsubsection{Nested datatypes}
-\label{sec:binTree}
+% \subsubsection{Nested datatypes}
+% \label{sec:binTree}
 
-A perfect binary tree is a binary tree whose size is exactly a power of two. In Haskell, perfect binary trees are usually represented using nested datatypes. We show that \name is able to encode nested datatypes.
+% A perfect binary tree is a binary tree whose size is exactly a power of two. In Haskell, perfect binary trees are usually represented using nested datatypes. We show that \name is able to encode nested datatypes.
 
-First we define a pair datatype as follows:
+% First we define a pair datatype as follows:
 
-\begin{figure}[H]
-\begin{spec}
-  data PairT (a : *) (b : *) = P a b;
-\end{spec}
-\end{figure}
+% \begin{figure}[H]
+% \begin{spec}
+%   data PairT (a : *) (b : *) = P a b;
+% \end{spec}
+% \end{figure}
 
-Using pairs, perfect binary trees are easily defined as below:
+% Using pairs, perfect binary trees are easily defined as below:
 
-\begin{figure}[h!]
-\begin{spec}
-  data B (a : *) = One a | Two (B (PairT a a));
-\end{spec}
-\end{figure}
+% \begin{figure}[h!]
+% \begin{spec}
+%   data B (a : *) = One a | Two (B (PairT a a));
+% \end{spec}
+% \end{figure}
 
-Notice that the recursive use of \emph{B} does not hold \emph{a}, but \emph{PairT a a}. This means every time we use a \emph{Two} constructor, the size of the pairs doubles. In case you are curious about the encoding of \emph{B}, here is the one:
+% Notice that the recursive use of \emph{B} does not hold \emph{a}, but \emph{PairT a a}. This means every time we use a \emph{Two} constructor, the size of the pairs doubles. In case you are curious about the encoding of \emph{B}, here is the one:
 
-\begin{figure}[h!]
-\begin{spec}
-  let B : * -> * = mu X : * -> * .
-      \ a : * . (B : *) -> (a -> B) -> (X (PairT a a) -> B) -> B
-  in
-\end{spec}
-\end{figure}
+% \begin{figure}[h!]
+% \begin{spec}
+%   let B : * -> * = mu X : * -> * .
+%       \ a : * . (B : *) -> (a -> B) -> (X (PairT a a) -> B) -> B
+%   in
+% \end{spec}
+% \end{figure}
 
-Because of the polymorphic recursive type ($\mu X : \star \rightarrow \star $) being used, it is fairly straightforward to encode nested datatypes.
+% Because of the polymorphic recursive type ($\mu X : \star \rightarrow \star $) being used, it is fairly straightforward to encode nested datatypes.
 
-To easily construct a perfect binary tree from a list, we define a help function that transform a list to a perfect binary tree as shown in Figure~\ref{fig:perfectB}.
+% To easily construct a perfect binary tree from a list, we define a help function that transform a list to a perfect binary tree as shown in Figure~\ref{fig:perfectB}.
 
-\begin{figure}[ht]
-\begin{spec}
-  let pairs : (a : *) -> List a -> List (PairT a a) =
-    mu pairs' : (a : *) -> List a -> List (PairT a a) .
-      \ a : * . \ xs : List a .
-        case xs of
-          Nil => Nil (PairT a a)
-        | Cons (y : a) (ys : List a) =>
-            case ys of Nil =>
-              Nil (PairT a a)
-            | Cons (y' : a) (ys' : List a) =>
-                Cons (PairT a a) (P a a y y') (pairs' a ys')
-  in
-  let fromList : (a : *) -> List a -> B a =
-    mu from' : (a : *) -> List a -> B a .
-      \ a : * . \xs : List a .
-        case xs of
-          Nil => Two a (from' (PairT a a) (pairs a (Nil a)))
-        | Cons (x : a) (xs' : List a) =>
-          case xs' of
-            Nil => One a x
-          | Cons (y : a) (zs : List a) =>
-              Two a (from' (PairT a a) (pairs a xs))
-  in
-\end{spec}
-  \caption{Construct a perfect binary tree from a list}
-  \label{fig:perfectB}
-\end{figure}
+% \begin{figure}[ht]
+% \begin{spec}
+%   let pairs : (a : *) -> List a -> List (PairT a a) =
+%     mu pairs' : (a : *) -> List a -> List (PairT a a) .
+%       \ a : * . \ xs : List a .
+%         case xs of
+%           Nil => Nil (PairT a a)
+%         | Cons (y : a) (ys : List a) =>
+%             case ys of Nil =>
+%               Nil (PairT a a)
+%             | Cons (y' : a) (ys' : List a) =>
+%                 Cons (PairT a a) (P a a y y') (pairs' a ys')
+%   in
+%   let fromList : (a : *) -> List a -> B a =
+%     mu from' : (a : *) -> List a -> B a .
+%       \ a : * . \xs : List a .
+%         case xs of
+%           Nil => Two a (from' (PairT a a) (pairs a (Nil a)))
+%         | Cons (x : a) (xs' : List a) =>
+%           case xs' of
+%             Nil => One a x
+%           | Cons (y : a) (zs : List a) =>
+%               Two a (from' (PairT a a) (pairs a xs))
+%   in
+% \end{spec}
+%   \caption{Construct a perfect binary tree from a list}
+%   \label{fig:perfectB}
+% \end{figure}
 
-Now we can define an interesting function \emph{powerTwo}. Given a natural number $n$, it computes the largest natural number $m$, such that $2^{m} < n$:
+% Now we can define an interesting function \emph{powerTwo}. Given a natural number $n$, it computes the largest natural number $m$, such that $2^{m} < n$:
 
-\begin{figure}[H]
-\begin{spec}
-  let twos : (a : *) -> B a -> nat =
-    mu twos' : (a : *) -> B a -> nat .
-      \ a : * . \x : B a .
-        case x of
-          One (y : a) => 0
-        | Two (c : B (PairT a a)) =>
-            1 + twos' (PairT a a) c
-  in
-  let powerTwo : Nat -> nat =
-    \ n : Nat . twos nat (fromList nat (take n (repeat 1)))
-  in powerTwo (S (S (S (S Z)))) -- return 2
-\end{spec}
-\end{figure}
+% \begin{figure}[H]
+% \begin{spec}
+%   let twos : (a : *) -> B a -> nat =
+%     mu twos' : (a : *) -> B a -> nat .
+%       \ a : * . \x : B a .
+%         case x of
+%           One (y : a) => 0
+%         | Two (c : B (PairT a a)) =>
+%             1 + twos' (PairT a a) c
+%   in
+%   let powerTwo : Nat -> nat =
+%     \ n : Nat . twos nat (fromList nat (take n (repeat 1)))
+%   in powerTwo (S (S (S (S Z)))) -- return 2
+% \end{spec}
+% \end{figure}
