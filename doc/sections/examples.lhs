@@ -7,10 +7,10 @@
 %format rcrd = "\mathbf{rcrd}"
 
 
-\section{Applications}
+\section{Showcase}
 \label{sec:app}
 
-In this section, we show applications, which either Haskell needs non-trivial extensions to do that, or dependently typed languages like Coq and Agda are impossible to do, whereas we can easily achieve in \name.
+In this section, we showcase applications, which either Haskell needs non-trivial extensions to do that, or dependently typed languages like Coq and Agda are impossible to do, whereas we can easily achieve in \name.
 
 % \subsection{Parametric HOAS}
 % \label{sec:phoas}
@@ -94,7 +94,7 @@ Because \name is explicitly typed, each type parameter needs to be accompanied w
 
 \subsubsection{Higher-kinded types}
 
-Higher-kinded types are types that take other types and produce a new type. To support higher-kinded types, languages like Haskell have to extend the existing core language to account for kind expressions. In \name, since all syntactical constructs are in the same level, we can easily construct higher-kinded types. We show this by an example of encoding the \emph{Functor} class:
+Higher-kinded types are types that take other types and produce a new type. To support higher-kinded types, languages like Haskell have to extend their existing core languages to account for kind expressions. In \name, since all syntactical constructs are in the same level, we can easily construct higher-kinded types. We show this by an example of encoding the \emph{Functor} class:
 
 \begin{figure}[h!]
   \begin{spec}
@@ -174,9 +174,9 @@ The type-level \emph{Fix} is a good example to demonstrate the expressiveness of
   \end{spec}
 \end{figure}
 
-The \emph{Fix} datatype is interesting in that Coq and Agda would reject this definition because the use of the higher-kinded parameter \emph{f} could be anywhere (e.g., in a negative position). However in \name, where type-level computation is explicitly controlled, we can safely use \emph{Fix} in the program.
+The record notation also introduces the selector function: |out : (f : * -> *) -> Fix f -> f (Fix f)|. The \emph{Fix} datatype is interesting in that Coq and Agda would reject this definition because the use of the higher-kinded type parameter \emph{f} could be anywhere (e.g., in a negative position). However in \name, where type-level computation is explicitly controlled, we can safely use \emph{Fix} in the program.
 
-With \emph{Fix}, we can have the generic \emph{fold} function, or \emph{catamorphism}:
+Given \emph{fmap}, many recursive shcemes can be defined, for example  we can have \emph{catamorphism} or generic function fold:
 
 \begin{figure}[H]
   \begin{spec}
@@ -188,9 +188,25 @@ With \emph{Fix}, we can have the generic \emph{fold} function, or \emph{catamorp
 \end{figure}
 
 
-
 \subsubsection{Kind polymophism for datatypes}
 
+In Haskell, System $F_{c}^{\uparrow}$ was proposed to support kind polymorphism. However it separates expressions into terms, types and kinds, which complicates both the implementation and future extensions. \name natively allows datatype definitions to have polymorphic kinds. Here is an example, taken from~\cite{fc:pro}, of a datatype that benefits from kind polymophism: higher-kinded fixpoint combinator
+
+\begin{figure}[H]
+  \begin{spec}
+    data Mu (k : *) (f : (k -> *) -> k -> *) (a : k) =
+      Roll (f (Mu k f) a);
+  \end{spec}
+\end{figure}
+
+\emph{Mu} can be used to construct polymorphic recursive types of any kind, for instance:
+
+\begin{figure}[H]
+  \begin{spec}
+    data Listf (f : * -> *) (a : *) = Nil | Cons a (f a);
+    let List : * -> * = \a : * . Mu * Listf a
+  \end{spec}
+\end{figure}
 
 % \subsubsection{Nested datatypes}
 % \label{sec:binTree}
