@@ -4,6 +4,7 @@
 %format mu = "\mu"
 %format * = "\star"
 %format letrec = "\mathbf{letrec}"
+%format rcrd = "\mathbf{rcrd}"
 
 
 \section{Applications}
@@ -92,6 +93,11 @@ Because \name is explicitly typed, each type parameter needs to be accompanied w
   \end{code}
 \end{figure}
 
+\subsubsection{Higher-kinded types}
+
+\jeremy{Functor example}
+
+
 \subsubsection{HOAS}
 
 \emph{Higher-order abstract syntax} is a generalization of representing programs where the function space of the meta-language is used to encode the binders of the object language. Because the recursive mention of the datatype can appear in a negative position, systems like Coq and Agda would reject programs using HOAS due to the restrictiveness of their termination checkers. However \name is able to express HOAS in a straightforward way. We show an example of encoding simply typed lambda calculus:
@@ -109,7 +115,7 @@ Next we define the evaluator for our lambda calculus. As noted by [], the evalua
 \begin{figure}[ht]
 \begin{code}
 data Value = VI nat | VF (Value -> Value);
-rec Eval = Ev { eval' : Exp -> Value, reify' : Value -> Exp };
+rcrd Eval = Ev { eval' : Exp -> Value, reify' : Value -> Exp };
 let f : Eval = mu f' : Eval .
   Ev (\ e : Exp . case e of
         Num (n : nat) => VI n
@@ -139,6 +145,9 @@ Evaluation of a lambda expression proceeds as follows:
   in show (eval test) -- return 42
   \end{code}
 \end{figure}
+
+\subsubsection{Kind polymophism for datatypes}
+
 
 \subsubsection{Nested datatypes}
 \label{sec:binTree}

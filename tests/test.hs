@@ -25,7 +25,7 @@ maybedt :: String
 maybedt = "data maybe (a : *) = nothing | just a;"
 
 monad :: String
-monad = "rec monad (m : * -> *) = mo { return : pi a : * . a -> m a, bind : pi a : *. pi b : *. m a -> (a -> m b) -> m b};"
+monad = "rcrd monad (m : * -> *) = mo { return : pi a : * . a -> m a, bind : pi a : *. pi b : *. m a -> (a -> m b) -> m b};"
 
 -- listtest :: Expr
 -- listtest = let Right (Progm [e]) = parseExpr $ listdt ++ "\\ x : (list nat) . cons nat 0 x"
@@ -51,7 +51,7 @@ kindPoly = let Right (Progm [e]) = parseExpr $ listdt ++ "data TApp (k : *) (f :
              in e
 
 recordtest :: Expr
-recordtest = let Right (Progm [e]) = parseExpr $ listdt ++ "rec person = p { name : nat, addr : list nat}; addr (p 0 (cons nat 0 (nil nat)))"
+recordtest = let Right (Progm [e]) = parseExpr $ listdt ++ "rcrd person = p { name : nat, addr : list nat}; addr (p 0 (cons nat 0 (nil nat)))"
              in e
 
 recordtest2 :: Expr

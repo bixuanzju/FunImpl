@@ -20,7 +20,7 @@ import Syntax
     in     { TokenKeyword "in" }
     mu     { TokenKeyword "mu" }
     data   { TokenKeyword "data" }
-    rec   { TokenKeyword "rec" }
+    rec   { TokenKeyword "rcrd" }
     case   { TokenKeyword "case" }
     of     { TokenKeyword "of" }
     nat     { TokenKeyword "nat" }
@@ -170,7 +170,7 @@ lexer symbols keywords = lexer'
         lexSym cs [] = error $ "Cannot tokenize " ++ cs
 
 symbols = [".", "(", ")", ":", "\\", "*", "->", "=>", "[", "]", ";" , "=", "|", "&", "{", "}", ",", "+"]
-keywords = ["fold", "unfold", "pi", "mu", "beta", "let", "letrec", "in", "data", "case", "of", "rec", "nat"]
+keywords = ["fold", "unfold", "pi", "mu", "beta", "let", "letrec", "in", "data", "case", "of", "rcrd", "nat"]
 
 parseExpr = parser . lexer symbols keywords
 
