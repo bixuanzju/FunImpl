@@ -20,10 +20,11 @@ import Syntax
     in     { TokenKeyword "in" }
     mu     { TokenKeyword "mu" }
     data   { TokenKeyword "data" }
-    rec   { TokenKeyword "rec" }
+    rec   { TokenKeyword "rcrd" }
     case   { TokenKeyword "case" }
     of     { TokenKeyword "of" }
     nat     { TokenKeyword "nat" }
+    err     { TokenKeyword "error" }
     id     { TokenIdent $$ }
     digits { TokenDigits $$ }
     ':'    { TokenSymbol ":" }
@@ -87,6 +88,7 @@ aexp : aexp term                                { App $1 $2 }
      | term                                     { $1 }
 
 term : nat                                      { Nat }
+     | err                                    { Error }
      | id                                       { Var $1 }
      | digits                                   { Lit $1 }
      | '*'                                      { Kind Star }
@@ -170,7 +172,7 @@ lexer symbols keywords = lexer'
         lexSym cs [] = error $ "Cannot tokenize " ++ cs
 
 symbols = [".", "(", ")", ":", "\\", "*", "->", "=>", "[", "]", ";" , "=", "|", "&", "{", "}", ",", "+"]
-keywords = ["fold", "unfold", "pi", "mu", "beta", "let", "letrec", "in", "data", "case", "of", "rec", "nat"]
+keywords = ["fold", "unfold", "pi", "mu", "beta", "let", "letrec", "in", "data", "case", "of", "rcrd", "nat", "error"]
 
 parseExpr = parser . lexer symbols keywords
 

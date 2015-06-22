@@ -96,7 +96,6 @@ Now its two constructors can be encoded correspondingly as below:
   in
   let S : Nat -> Nat = \ n : Nat .
     castup[Nat] (\ B : * . \ z : B . \ f : Nat -> B . f n)
-  in
 \end{spec}
 \end{figure}
 

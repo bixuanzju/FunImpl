@@ -4,12 +4,13 @@
 %format mu = "\mu"
 %format * = "\star"
 %format letrec = "\mathbf{letrec}"
+%format rcrd = "\mathbf{rcrd}"
 
 
 \section{Applications}
 \label{sec:app}
 
-In this section, we show applications, which either Haskell needs non-trivial extensions to do that, or languages like Coq and Agda are impossible to do, whereas we can easily achieve in \name.
+In this section, we show applications, which either Haskell needs non-trivial extensions to do that, or dependently typed languages like Coq and Agda are impossible to do, whereas we can easily achieve in \name.
 
 % \subsection{Parametric HOAS}
 % \label{sec:phoas}
@@ -72,152 +73,203 @@ In this section, we show applications, which either Haskell needs non-trivial ex
 Conventional datatypes like natural numbers or polymorphic lists can be easily defined in \name, as in Haskell. For example, below is the definition of polymorphic lists:
 
 \begin{figure}[H]
-\begin{code}
+\begin{spec}
   data List (a : *) = Nil | Cons a (List a);
-\end{code}
+\end{spec}
 \end{figure}
 
 Because \name is explicitly typed, each type parameter needs to be accompanied with corresponding kind expressions. The use of the above datatype is best illustrated by the \emph{length} function:
 
 \begin{figure}[h!]
-  \begin{code}
+  \begin{spec}
     letrec length : (a : *) -> List a -> nat =
       \ a : * . \l : List a . case l of
-        Nil => 0
-      | Cons (x : a) (xs : List a) =>
-        1 + length a xs
+         Nil => 0
+      |  Cons (x : a) (xs : List a) => 1 + length a xs
     in
     let test : List nat = Cons nat 1 (Cons nat 2 (Nil nat))
     in length nat test -- return 2
-  \end{code}
+  \end{spec}
+\end{figure}
+
+\subsubsection{Higher-kinded types}
+
+Higher-kinded types are types that take other types and produce a new type. To support higher-kinded types, languages like Haskell have to extend the existing core language to account for kind expressions. In \name, since all syntactical constructs are in the same level, we can easily construct higher-kinded types. We show this by an example of encoding the \emph{Functor} class:
+
+\begin{figure}[h!]
+  \begin{spec}
+    rcrd Functor (f : * -> *) =
+      Func {fmap : (a : *) -> (b : *) -> f a -> f b};
+  \end{spec}
+\end{figure}
+
+A functor is just a record that has only one field \emph{fmap}. A Functor instance of the \emph{Maybe} datatype is simply:
+
+\begin{figure}[h!]
+  \begin{spec}
+    let maybeInst : Functor Maybe =
+      Func Maybe (\ a : * . \ b : * . \f : a -> b . \ x : Maybe a .
+        case x of
+          Nothing => Nothing b
+       |  Just (z : a) => Just b (f z))
+  \end{spec}
 \end{figure}
 
 \subsubsection{HOAS}
 
-\emph{Higher-order abstract syntax} is a generalization of representing programs where the function space of the meta-language is used to encode the binders of the object language. Because the recursive mention of the datatype can appear in a negative position, systems like Coq and Agda would reject programs using HOAS due to the restrictiveness of their termination checkers. However \name is able to express HOAS in a straightforward way. We show an example of encoding simply typed lambda calculus:
+\emph{Higher-order abstract syntax} is a generalization of representing programs where the function space of the meta-language is used to encode the binders of the object language. Because the recursive mention of the datatype can appear in a negative position, systems like Coq and Agda would reject programs using HOAS due to the restrictiveness of their termination checkers. However \name is able to express HOAS in a straightforward way. We show an example of encoding a simple lambda calculus:
 
 \begin{figure}[h!]
-\begin{code}
+\begin{spec}
   data Exp = Num nat
-    | Lam (Exp -> Exp)
-    | App Exp Exp;
-\end{code}
+    |  Lam (Exp -> Exp)
+    |  App Exp Exp;
+\end{spec}
 \end{figure}
 
-Next we define the evaluator for our lambda calculus. As noted by [], the evaluation function needs an extra function \emph{reify} to invert the result of evaluation. The code is presented in Figure~\ref{fig:hoas}.
+Next we define the evaluator for our lambda calculus. As noted by~\cite{Fegaras1996}, the evaluation function needs an extra function \emph{reify} to invert the result of evaluation. The code is presented in Figure~\ref{fig:hoas}.
 
 \begin{figure}[ht]
-\begin{code}
+\begin{spec}
 data Value = VI nat | VF (Value -> Value);
-rec Eval = Ev { eval' : Exp -> Value, reify' : Value -> Exp };
+rcrd Eval = Ev { eval' : Exp -> Value, reify' : Value -> Exp };
 let f : Eval = mu f' : Eval .
-  Ev (\ e : Exp . case e of
+  Ev  (\ e : Exp . case e of
         Num (n : nat) => VI n
       | Lam (fun : Exp -> Exp) =>
           VF (\e' : Value . eval' f' (fun (reify' f' e')))
       | App (a : Exp) (b : Exp) =>
           case eval' f' a of
-            VI (n : nat) => VI n -- abnormal branch
+            VI (n : nat) => error
           | VF (fun : Value -> Value) => fun (eval' f' b))
-     (\v : Value . case v of
-       VI (n : nat) => Num n -- abnormal branch
-     | VF (fun : Value -> Value) =>
-         Lam (\e' : Exp . (reify' f' (fun (eval' f' e')))))
+      (\v : Value . case v of
+        VI (n : nat) => Num n
+      | VF (fun : Value -> Value) =>
+          Lam (\e' : Exp . (reify' f' (fun (eval' f' e')))))
 in let eval : Exp -> Value = eval' f in
-\end{code}
+\end{spec}
   \caption{An evaluator for the HOAS-encoded lambda calculus.}
   \label{fig:hoas}
 \end{figure}
 
-The definition of the evaluator is quite straightforward, although it is worth noting that, because \name has yet have exception mechanism, we have to pattern match on all possibilities. (That is why we have \emph{abnormal} branches in the above code.) Thanks to the flexibility of the $\mu$ primitive, mutual recursion can be encoded by using records!
+The definition of the evaluator is quite straightforward, although it is worth noting that the evaluator is a partial function that can cause run-time errors. Thanks to the flexibility of the $\mu$ primitive, mutual recursion can be encoded by using records!
 
 Evaluation of a lambda expression proceeds as follows:
 
-\begin{figure}[h!]
-  \begin{code}
-  let test : Exp = App (Lam (\ x : Exp . x)) (Num 42)
+\begin{figure}[H]
+  \begin{spec}
+  let test : Exp = App  (Lam (\ f : Exp . App f (Num 42)))
+                        (Lam (\g : Exp. g))
   in show (eval test) -- return 42
-  \end{code}
+  \end{spec}
 \end{figure}
 
-\subsubsection{Nested datatypes}
-\label{sec:binTree}
+\subsubsection{Fix as a datatype}
 
-A perfect binary tree is a binary tree whose size is exactly a power of two. In Haskell, perfect binary trees are usually represented using nested datatypes. We show that \name is able to encode nested datatypes.
-
-First we define a pair datatype as follows:
+The type-level \emph{Fix} is a good example to demonstrate the expressiveness of \name. The definition is simply:
 
 \begin{figure}[H]
-\begin{spec}
-  data PairT (a : *) (b : *) = P a b;
-\end{spec}
+  \begin{spec}
+    rcrd Fix (f : * -> *) = In {out : (f (Fix f)) };
+  \end{spec}
 \end{figure}
 
-Using pairs, perfect binary trees are easily defined as below:
+The \emph{Fix} datatype is interesting in that Coq and Agda would reject this definition because the use of the higher-kinded parameter \emph{f} could be anywhere (e.g., in a negative position). However in \name, where type-level computation is explicitly controlled, we can safely use \emph{Fix} in the program.
 
-\begin{figure}[h!]
-\begin{spec}
-  data B (a : *) = One a | Two (B (PairT a a));
-\end{spec}
-\end{figure}
-
-Notice that the recursive use of \emph{B} does not hold \emph{a}, but \emph{PairT a a}. This means every time we use a \emph{Two} constructor, the size of the pairs doubles. In case you are curious about the encoding of \emph{B}, here is the one:
-
-\begin{figure}[h!]
-\begin{spec}
-  let B : * -> * = mu X : * -> * .
-      \ a : * . (B : *) -> (a -> B) -> (X (PairT a a) -> B) -> B
-  in
-\end{spec}
-\end{figure}
-
-Because of the polymorphic recursive type ($\mu X : \star \rightarrow \star $) being used, it is fairly straightforward to encode nested datatypes.
-
-To easily construct a perfect binary tree from a list, we define a help function that transform a list to a perfect binary tree as shown in Figure~\ref{fig:perfectB}.
-
-\begin{figure}[ht]
-\begin{spec}
-  let pairs : (a : *) -> List a -> List (PairT a a) =
-    mu pairs' : (a : *) -> List a -> List (PairT a a) .
-      \ a : * . \ xs : List a .
-        case xs of
-          Nil => Nil (PairT a a)
-        | Cons (y : a) (ys : List a) =>
-            case ys of Nil =>
-              Nil (PairT a a)
-            | Cons (y' : a) (ys' : List a) =>
-                Cons (PairT a a) (P a a y y') (pairs' a ys')
-  in
-  let fromList : (a : *) -> List a -> B a =
-    mu from' : (a : *) -> List a -> B a .
-      \ a : * . \xs : List a .
-        case xs of
-          Nil => Two a (from' (PairT a a) (pairs a (Nil a)))
-        | Cons (x : a) (xs' : List a) =>
-          case xs' of
-            Nil => One a x
-          | Cons (y : a) (zs : List a) =>
-              Two a (from' (PairT a a) (pairs a xs))
-  in
-\end{spec}
-  \caption{Construct a perfect binary tree from a list}
-  \label{fig:perfectB}
-\end{figure}
-
-Now we can define an interesting function \emph{powerTwo}. Given a natural number $n$, it computes the largest natural number $m$, such that $2^{m} < n$:
+With \emph{Fix}, we can have the generic \emph{fold} function, or \emph{catamorphism}:
 
 \begin{figure}[H]
-\begin{spec}
-  let twos : (a : *) -> B a -> nat =
-    mu twos' : (a : *) -> B a -> nat .
-      \ a : * . \x : B a .
-        case x of
-          One (y : a) => 0
-        | Two (c : B (PairT a a)) =>
-            1 + twos' (PairT a a) c
-  in
-  let powerTwo : Nat -> nat =
-    \ n : Nat . twos nat (fromList nat (take n (repeat 1)))
-  in powerTwo (S (S (S (S Z)))) -- return 2
-\end{spec}
+  \begin{spec}
+    letrec cata :  (f : * -> *) -> (a : *) ->
+                   Functor f -> (f a -> a) -> Fix f -> a =
+      \f : * -> * . \ a : * . \ m : Functor f . \ g : f a -> a. \ t : Fix f .
+        g (fmap f m (Fix f) a (cata f a m g) (out f t))
+  \end{spec}
 \end{figure}
+
+
+
+\subsubsection{Kind polymophism for datatypes}
+
+
+% \subsubsection{Nested datatypes}
+% \label{sec:binTree}
+
+% A perfect binary tree is a binary tree whose size is exactly a power of two. In Haskell, perfect binary trees are usually represented using nested datatypes. We show that \name is able to encode nested datatypes.
+
+% First we define a pair datatype as follows:
+
+% \begin{figure}[H]
+% \begin{spec}
+%   data PairT (a : *) (b : *) = P a b;
+% \end{spec}
+% \end{figure}
+
+% Using pairs, perfect binary trees are easily defined as below:
+
+% \begin{figure}[h!]
+% \begin{spec}
+%   data B (a : *) = One a | Two (B (PairT a a));
+% \end{spec}
+% \end{figure}
+
+% Notice that the recursive use of \emph{B} does not hold \emph{a}, but \emph{PairT a a}. This means every time we use a \emph{Two} constructor, the size of the pairs doubles. In case you are curious about the encoding of \emph{B}, here is the one:
+
+% \begin{figure}[h!]
+% \begin{spec}
+%   let B : * -> * = mu X : * -> * .
+%       \ a : * . (B : *) -> (a -> B) -> (X (PairT a a) -> B) -> B
+%   in
+% \end{spec}
+% \end{figure}
+
+% Because of the polymorphic recursive type ($\mu X : \star \rightarrow \star $) being used, it is fairly straightforward to encode nested datatypes.
+
+% To easily construct a perfect binary tree from a list, we define a help function that transform a list to a perfect binary tree as shown in Figure~\ref{fig:perfectB}.
+
+% \begin{figure}[ht]
+% \begin{spec}
+%   let pairs : (a : *) -> List a -> List (PairT a a) =
+%     mu pairs' : (a : *) -> List a -> List (PairT a a) .
+%       \ a : * . \ xs : List a .
+%         case xs of
+%           Nil => Nil (PairT a a)
+%         | Cons (y : a) (ys : List a) =>
+%             case ys of Nil =>
+%               Nil (PairT a a)
+%             | Cons (y' : a) (ys' : List a) =>
+%                 Cons (PairT a a) (P a a y y') (pairs' a ys')
+%   in
+%   let fromList : (a : *) -> List a -> B a =
+%     mu from' : (a : *) -> List a -> B a .
+%       \ a : * . \xs : List a .
+%         case xs of
+%           Nil => Two a (from' (PairT a a) (pairs a (Nil a)))
+%         | Cons (x : a) (xs' : List a) =>
+%           case xs' of
+%             Nil => One a x
+%           | Cons (y : a) (zs : List a) =>
+%               Two a (from' (PairT a a) (pairs a xs))
+%   in
+% \end{spec}
+%   \caption{Construct a perfect binary tree from a list}
+%   \label{fig:perfectB}
+% \end{figure}
+
+% Now we can define an interesting function \emph{powerTwo}. Given a natural number $n$, it computes the largest natural number $m$, such that $2^{m} < n$:
+
+% \begin{figure}[H]
+% \begin{spec}
+%   let twos : (a : *) -> B a -> nat =
+%     mu twos' : (a : *) -> B a -> nat .
+%       \ a : * . \x : B a .
+%         case x of
+%           One (y : a) => 0
+%         | Two (c : B (PairT a a)) =>
+%             1 + twos' (PairT a a) c
+%   in
+%   let powerTwo : Nat -> nat =
+%     \ n : Nat . twos nat (fromList nat (take n (repeat 1)))
+%   in powerTwo (S (S (S (S Z)))) -- return 2
+% \end{spec}
+% \end{figure}
