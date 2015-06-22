@@ -25,6 +25,8 @@ subst v x = sub
         sub (Lit n) = Lit n
         sub (Add e1 e2) = Add (sub e1) (sub e2)
         sub (Case e alts) = Case (sub e) (map subAlt alts)
+        sub (Data db e) = Data db (sub e)
+        sub (Rec db e) = Rec db (sub e)
         abstr con i t e
           | v == i = con i (sub t) e -- type is also expression, need substitution
           | i `elem` fvx =
