@@ -1,6 +1,6 @@
 module TypeCheck where
 
-import Control.Monad (unless, when)
+import Control.Monad (unless)
 import Control.Monad.Except (throwError)
 -- import Parser
 -- import Debug.Trace
@@ -23,6 +23,7 @@ findVar r s =
    Just t -> return t
    Nothing -> throwError $ "Cannot find variable " ++ s
 
+-- | Type checker for the core language
 tcheck :: Env -> Expr -> TC Type
 tcheck _ (Kind Star) = return $ Kind Star -- (T_AX)
 tcheck env (Var s) = findVar env s       -- (T_VAR and T_WEAK)
@@ -45,7 +46,7 @@ tcheck env (Pi x a b) =                  -- (T_PI)
   do s <- tcheck env a -- evaluate after type check
      let env' = extend x a env
      t <- tcheck env' b
-     when ((s,t) `notElem` allowedKinds) $ throwError "Bad abstraction"
+     unless (alphaEq t (Kind Star) && alphaEq s (Kind Star)) $ throwError "Bad abstraction"
      return t
 tcheck env (Mu i t e) =                  -- (T_MU)
   do let env' = extend i t env
@@ -106,6 +107,8 @@ tcheck env (Add e1 e2) = do
   unless (t1 == Nat && t2 == Nat) $ throwError "Addition is only allowed for numbers!"
   return Nat
 
+tcheck _ Error = return Error
+
 tcheck _ e = throwError $ "TypeCheck: Impossible happened, trying to type check:\n" ++ show e
 
 tcdatatypes :: Env -> DataBind -> TC Env
@@ -137,12 +140,12 @@ chainType = foldr (Pi "")
 mkProdType :: Type -> [(Sym, Type)] -> Type
 mkProdType = foldr (\(n, t1) t2 -> Pi n t1 t2)
 
-allowedKinds :: [(Type, Type)]
-allowedKinds =
-  [(Kind Star,Kind Star)
-  ,(Kind Star,Kind Box)
-  ,(Kind Box,Kind Star)
-  ,(Kind Box,Kind Box)]
+-- allowedKinds :: [(Type, Type)]
+-- allowedKinds =
+--   [(Kind Star,Kind Star)
+--   ,(Kind Star,Kind Box)
+--   ,(Kind Box,Kind Star)
+--   ,(Kind Box,Kind Box)]
 
 arr :: Type -> Type -> Type
 arr = Pi ""

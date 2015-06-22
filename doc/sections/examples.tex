@@ -177,21 +177,19 @@ Because \name is explicitly typed, each type parameter needs to be accompanied w
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{5}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{7}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{9}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{10}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
 \>[5]{}\mathbf{letrec}\;\Varid{length}\mathbin{:}(\Varid{a}\mathbin{:}\star)\to \Conid{List}\;\Varid{a}\to \Varid{nat}\mathrel{=}{}\<[E]%
 \\
 \>[5]{}\hsindent{2}{}\<[7]%
 \>[7]{}\lambda \Varid{a}\mathbin{:}\star.\,\lambda \Varid{l}\mathbin{:}\Conid{List}\;\Varid{a}.\,\mathbf{case}\;\Varid{l}\;\mathbf{of}{}\<[E]%
 \\
-\>[7]{}\hsindent{2}{}\<[9]%
-\>[9]{}\Conid{Nil}\Rightarrow \mathrm{0}{}\<[E]%
+\>[7]{}\hsindent{3}{}\<[10]%
+\>[10]{}\Conid{Nil}\Rightarrow \mathrm{0}{}\<[E]%
 \\
 \>[5]{}\hsindent{2}{}\<[7]%
-\>[7]{}\mid \Conid{Cons}\;(\Varid{x}\mathbin{:}\Varid{a})\;(\Varid{xs}\mathbin{:}\Conid{List}\;\Varid{a})\Rightarrow {}\<[E]%
-\\
-\>[7]{}\hsindent{2}{}\<[9]%
-\>[9]{}\mathrm{1}\mathbin{+}\Varid{length}\;\Varid{a}\;\Varid{xs}{}\<[E]%
+\>[7]{}\mid {}\<[10]%
+\>[10]{}\Conid{Cons}\;(\Varid{x}\mathbin{:}\Varid{a})\;(\Varid{xs}\mathbin{:}\Conid{List}\;\Varid{a})\Rightarrow \mathrm{1}\mathbin{+}\Varid{length}\;\Varid{a}\;\Varid{xs}{}\<[E]%
 \\
 \>[5]{}\mathbf{in}{}\<[E]%
 \\
@@ -210,39 +208,40 @@ Because \name is explicitly typed, each type parameter needs to be accompanied w
 
 \subsubsection{HOAS}
 
-\emph{Higher-order abstract syntax} is a generalization of representing programs where the function space of the meta-language is used to encode the binders of the object language. Because the recursive mention of the datatype can appear in a negative position, systems like Coq and Agda would reject programs using HOAS due to the restrictiveness of their termination checkers. However \name is able to express HOAS in a straightforward way. We show an example of encoding simply typed lambda calculus:
+\emph{Higher-order abstract syntax} is a generalization of representing programs where the function space of the meta-language is used to encode the binders of the object language. Because the recursive mention of the datatype can appear in a negative position, systems like Coq and Agda would reject programs using HOAS due to the restrictiveness of their termination checkers. However \name is able to express HOAS in a straightforward way. We show an example of encoding a simple lambda calculus:
 
 \begin{figure}[h!]
 \begingroup\par\noindent\advance\leftskip\mathindent\(
 \begin{pboxed}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{3}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}c<{\hspost}@{}}%
+\column{5E}{@{}l@{}}%
+\column{8}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
 \>[3]{}\mathbf{data}\;\Conid{Exp}\mathrel{=}\Conid{Num}\;\Varid{nat}{}\<[E]%
 \\
 \>[3]{}\hsindent{2}{}\<[5]%
-\>[5]{}\mid \Conid{Lam}\;(\Conid{Exp}\to \Conid{Exp}){}\<[E]%
+\>[5]{}\mid {}\<[5E]%
+\>[8]{}\Conid{Lam}\;(\Conid{Exp}\to \Conid{Exp}){}\<[E]%
 \\
 \>[3]{}\hsindent{2}{}\<[5]%
-\>[5]{}\mid \Conid{App}\;\Conid{Exp}\;\Conid{Exp};{}\<[E]%
+\>[5]{}\mid {}\<[5E]%
+\>[8]{}\Conid{App}\;\Conid{Exp}\;\Conid{Exp};{}\<[E]%
 \ColumnHook
 \end{pboxed}
 \)\par\noindent\endgroup\resethooks
 \end{figure}
 
-Next we define the evaluator for our lambda calculus. As noted by [], the evaluation function needs an extra function \emph{reify} to invert the result of evaluation. The code is presented in Figure~\ref{fig:hoas}.
+Next we define the evaluator for our lambda calculus. As noted by~\cite{Fegaras1996}, the evaluation function needs an extra function \emph{reify} to invert the result of evaluation. The code is presented in Figure~\ref{fig:hoas}.
 
 \begin{figure}[ht]
 \begingroup\par\noindent\advance\leftskip\mathindent\(
 \begin{pboxed}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{3}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{6}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{7}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{8}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{9}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{10}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{11}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{13}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
@@ -253,40 +252,37 @@ Next we define the evaluator for our lambda calculus. As noted by [], the evalua
 \>[B]{}\mathbf{let}\;\Varid{f}\mathbin{:}\Conid{Eval}\mathrel{=}\mu\;\Varid{f'}\mathbin{:}\Conid{Eval}.\,{}\<[E]%
 \\
 \>[B]{}\hsindent{3}{}\<[3]%
-\>[3]{}\Conid{Ev}\;(\lambda \Varid{e}\mathbin{:}\Conid{Exp}.\,\mathbf{case}\;\Varid{e}\;\mathbf{of}{}\<[E]%
+\>[3]{}\Conid{Ev}\;{}\<[7]%
+\>[7]{}(\lambda \Varid{e}\mathbin{:}\Conid{Exp}.\,\mathbf{case}\;\Varid{e}\;\mathbf{of}{}\<[E]%
 \\
-\>[3]{}\hsindent{6}{}\<[9]%
+\>[7]{}\hsindent{2}{}\<[9]%
 \>[9]{}\Conid{Num}\;(\Varid{n}\mathbin{:}\Varid{nat})\Rightarrow \Conid{VI}\;\Varid{n}{}\<[E]%
 \\
-\>[3]{}\hsindent{4}{}\<[7]%
 \>[7]{}\mid \Conid{Lam}\;(\Varid{fun}\mathbin{:}\Conid{Exp}\to \Conid{Exp})\Rightarrow {}\<[E]%
 \\
 \>[7]{}\hsindent{4}{}\<[11]%
 \>[11]{}\Conid{VF}\;(\lambda \Varid{e'}\mathbin{:}\Conid{Value}.\,\Varid{eval'}\;\Varid{f'}\;(\Varid{fun}\;(\Varid{reify'}\;\Varid{f'}\;\Varid{e'}))){}\<[E]%
 \\
-\>[3]{}\hsindent{4}{}\<[7]%
 \>[7]{}\mid \Conid{App}\;(\Varid{a}\mathbin{:}\Conid{Exp})\;(\Varid{b}\mathbin{:}\Conid{Exp})\Rightarrow {}\<[E]%
 \\
 \>[7]{}\hsindent{4}{}\<[11]%
 \>[11]{}\mathbf{case}\;\Varid{eval'}\;\Varid{f'}\;\Varid{a}\;\mathbf{of}{}\<[E]%
 \\
 \>[11]{}\hsindent{2}{}\<[13]%
-\>[13]{}\Conid{VI}\;(\Varid{n}\mathbin{:}\Varid{nat})\Rightarrow \Conid{VI}\;\Varid{n}\mbox{\onelinecomment  abnormal branch}{}\<[E]%
+\>[13]{}\Conid{VI}\;(\Varid{n}\mathbin{:}\Varid{nat})\Rightarrow \Varid{error}{}\<[E]%
 \\
 \>[7]{}\hsindent{4}{}\<[11]%
 \>[11]{}\mid \Conid{VF}\;(\Varid{fun}\mathbin{:}\Conid{Value}\to \Conid{Value})\Rightarrow \Varid{fun}\;(\Varid{eval'}\;\Varid{f'}\;\Varid{b}))\;{}\<[E]%
 \\
-\>[3]{}\hsindent{3}{}\<[6]%
-\>[6]{}(\lambda \Varid{v}\mathbin{:}\Conid{Value}.\,\mathbf{case}\;\Varid{v}\;\mathbf{of}{}\<[E]%
+\>[7]{}(\lambda \Varid{v}\mathbin{:}\Conid{Value}.\,\mathbf{case}\;\Varid{v}\;\mathbf{of}{}\<[E]%
 \\
-\>[6]{}\hsindent{2}{}\<[8]%
-\>[8]{}\Conid{VI}\;(\Varid{n}\mathbin{:}\Varid{nat})\Rightarrow \Conid{Num}\;\Varid{n}\mbox{\onelinecomment  abnormal branch}{}\<[E]%
+\>[7]{}\hsindent{2}{}\<[9]%
+\>[9]{}\Conid{VI}\;(\Varid{n}\mathbin{:}\Varid{nat})\Rightarrow \Conid{Num}\;\Varid{n}{}\<[E]%
 \\
-\>[3]{}\hsindent{3}{}\<[6]%
-\>[6]{}\mid \Conid{VF}\;(\Varid{fun}\mathbin{:}\Conid{Value}\to \Conid{Value})\Rightarrow {}\<[E]%
+\>[7]{}\mid \Conid{VF}\;(\Varid{fun}\mathbin{:}\Conid{Value}\to \Conid{Value})\Rightarrow {}\<[E]%
 \\
-\>[6]{}\hsindent{4}{}\<[10]%
-\>[10]{}\Conid{Lam}\;(\lambda \Varid{e'}\mathbin{:}\Conid{Exp}.\,(\Varid{reify'}\;\Varid{f'}\;(\Varid{fun}\;(\Varid{eval'}\;\Varid{f'}\;\Varid{e'}))))){}\<[E]%
+\>[7]{}\hsindent{4}{}\<[11]%
+\>[11]{}\Conid{Lam}\;(\lambda \Varid{e'}\mathbin{:}\Conid{Exp}.\,(\Varid{reify'}\;\Varid{f'}\;(\Varid{fun}\;(\Varid{eval'}\;\Varid{f'}\;\Varid{e'}))))){}\<[E]%
 \\
 \>[B]{}\mathbf{in}\;\mathbf{let}\;\Varid{eval}\mathbin{:}\Conid{Exp}\to \Conid{Value}\mathrel{=}\Varid{eval'}\;\Varid{f}\;\mathbf{in}{}\<[E]%
 \ColumnHook
@@ -296,7 +292,7 @@ Next we define the evaluator for our lambda calculus. As noted by [], the evalua
   \label{fig:hoas}
 \end{figure}
 
-The definition of the evaluator is quite straightforward, although it is worth noting that, because \name has yet have exception mechanism, we have to pattern match on all possibilities. (That is why we have \emph{abnormal} branches in the above code.) Thanks to the flexibility of the $\mu$ primitive, mutual recursion can be encoded by using records!
+The definition of the evaluator is quite straightforward, although it is worth noting that the evaluator is a partial function that can cause run-time errors. Thanks to the flexibility of the $\mu$ primitive, mutual recursion can be encoded by using records!
 
 Evaluation of a lambda expression proceeds as follows:
 
@@ -305,8 +301,12 @@ Evaluation of a lambda expression proceeds as follows:
 \begin{pboxed}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{25}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[3]{}\mathbf{let}\;\Varid{test}\mathbin{:}\Conid{Exp}\mathrel{=}\Conid{App}\;(\Conid{Lam}\;(\lambda \Varid{x}\mathbin{:}\Conid{Exp}.\,\Varid{x}))\;(\Conid{Num}\;\mathrm{42}){}\<[E]%
+\>[3]{}\mathbf{let}\;\Varid{test}\mathbin{:}\Conid{Exp}\mathrel{=}\Conid{App}\;{}\<[25]%
+\>[25]{}(\Conid{Lam}\;(\lambda \Varid{f}\mathbin{:}\Conid{Exp}.\,\Conid{App}\;\Varid{f}\;(\Conid{Num}\;\mathrm{42})))\;{}\<[E]%
+\\
+\>[25]{}(\Conid{Lam}\;(\lambda \Varid{g}\mathbin{:}\Conid{Exp}.\,\Varid{g})){}\<[E]%
 \\
 \>[3]{}\mathbf{in}\;\Varid{show}\;(\Varid{eval}\;\Varid{test})\mbox{\onelinecomment  return 42}{}\<[E]%
 \ColumnHook

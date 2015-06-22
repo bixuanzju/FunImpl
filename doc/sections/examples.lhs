@@ -73,24 +73,23 @@ In this section, we show applications, which either Haskell needs non-trivial ex
 Conventional datatypes like natural numbers or polymorphic lists can be easily defined in \name, as in Haskell. For example, below is the definition of polymorphic lists:
 
 \begin{figure}[H]
-\begin{code}
+\begin{spec}
   data List (a : *) = Nil | Cons a (List a);
-\end{code}
+\end{spec}
 \end{figure}
 
 Because \name is explicitly typed, each type parameter needs to be accompanied with corresponding kind expressions. The use of the above datatype is best illustrated by the \emph{length} function:
 
 \begin{figure}[h!]
-  \begin{code}
+  \begin{spec}
     letrec length : (a : *) -> List a -> nat =
       \ a : * . \l : List a . case l of
-        Nil => 0
-      | Cons (x : a) (xs : List a) =>
-        1 + length a xs
+         Nil => 0
+      |  Cons (x : a) (xs : List a) => 1 + length a xs
     in
     let test : List nat = Cons nat 1 (Cons nat 2 (Nil nat))
     in length nat test -- return 2
-  \end{code}
+  \end{spec}
 \end{figure}
 
 \subsubsection{Higher-kinded types}
@@ -100,50 +99,51 @@ Because \name is explicitly typed, each type parameter needs to be accompanied w
 
 \subsubsection{HOAS}
 
-\emph{Higher-order abstract syntax} is a generalization of representing programs where the function space of the meta-language is used to encode the binders of the object language. Because the recursive mention of the datatype can appear in a negative position, systems like Coq and Agda would reject programs using HOAS due to the restrictiveness of their termination checkers. However \name is able to express HOAS in a straightforward way. We show an example of encoding simply typed lambda calculus:
+\emph{Higher-order abstract syntax} is a generalization of representing programs where the function space of the meta-language is used to encode the binders of the object language. Because the recursive mention of the datatype can appear in a negative position, systems like Coq and Agda would reject programs using HOAS due to the restrictiveness of their termination checkers. However \name is able to express HOAS in a straightforward way. We show an example of encoding a simple lambda calculus:
 
 \begin{figure}[h!]
-\begin{code}
+\begin{spec}
   data Exp = Num nat
-    | Lam (Exp -> Exp)
-    | App Exp Exp;
-\end{code}
+    |  Lam (Exp -> Exp)
+    |  App Exp Exp;
+\end{spec}
 \end{figure}
 
-Next we define the evaluator for our lambda calculus. As noted by [], the evaluation function needs an extra function \emph{reify} to invert the result of evaluation. The code is presented in Figure~\ref{fig:hoas}.
+Next we define the evaluator for our lambda calculus. As noted by~\cite{Fegaras1996}, the evaluation function needs an extra function \emph{reify} to invert the result of evaluation. The code is presented in Figure~\ref{fig:hoas}.
 
 \begin{figure}[ht]
-\begin{code}
+\begin{spec}
 data Value = VI nat | VF (Value -> Value);
 rcrd Eval = Ev { eval' : Exp -> Value, reify' : Value -> Exp };
 let f : Eval = mu f' : Eval .
-  Ev (\ e : Exp . case e of
+  Ev  (\ e : Exp . case e of
         Num (n : nat) => VI n
       | Lam (fun : Exp -> Exp) =>
           VF (\e' : Value . eval' f' (fun (reify' f' e')))
       | App (a : Exp) (b : Exp) =>
           case eval' f' a of
-            VI (n : nat) => VI n -- abnormal branch
+            VI (n : nat) => error
           | VF (fun : Value -> Value) => fun (eval' f' b))
-     (\v : Value . case v of
-       VI (n : nat) => Num n -- abnormal branch
-     | VF (fun : Value -> Value) =>
-         Lam (\e' : Exp . (reify' f' (fun (eval' f' e')))))
+      (\v : Value . case v of
+        VI (n : nat) => Num n
+      | VF (fun : Value -> Value) =>
+          Lam (\e' : Exp . (reify' f' (fun (eval' f' e')))))
 in let eval : Exp -> Value = eval' f in
-\end{code}
+\end{spec}
   \caption{An evaluator for the HOAS-encoded lambda calculus.}
   \label{fig:hoas}
 \end{figure}
 
-The definition of the evaluator is quite straightforward, although it is worth noting that, because \name has yet have exception mechanism, we have to pattern match on all possibilities. (That is why we have \emph{abnormal} branches in the above code.) Thanks to the flexibility of the $\mu$ primitive, mutual recursion can be encoded by using records!
+The definition of the evaluator is quite straightforward, although it is worth noting that the evaluator is a partial function that can cause run-time errors. Thanks to the flexibility of the $\mu$ primitive, mutual recursion can be encoded by using records!
 
 Evaluation of a lambda expression proceeds as follows:
 
 \begin{figure}[h!]
-  \begin{code}
-  let test : Exp = App (Lam (\ x : Exp . x)) (Num 42)
+  \begin{spec}
+  let test : Exp = App  (Lam (\ f : Exp . App f (Num 42)))
+                        (Lam (\g : Exp. g))
   in show (eval test) -- return 42
-  \end{code}
+  \end{spec}
 \end{figure}
 
 \subsubsection{Kind polymophism for datatypes}

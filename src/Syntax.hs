@@ -23,6 +23,7 @@ data Expr = Var Sym
           | Case Expr [Alt]
           | Let Sym Type Expr Expr
           | Letrec Sym Type Expr Expr
+          | Error
           -- Primitive nat
           | Nat
           | Lit Int
@@ -89,6 +90,7 @@ instance Pretty Expr where
   pretty Nat = text "nat"
   pretty (Add e1 e2) = parens (pretty e1 <+> text "+" <+> pretty e2)
   pretty (Lit n) = text (show n)
+  pretty (Error) = text "error"
 
 instance Pretty RecBind where
   pretty (RB n tpairs fields) = text n <+>

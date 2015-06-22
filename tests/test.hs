@@ -36,9 +36,9 @@ pattest =
   let Right (Progm [e]) = parseExpr $ listdt ++ "let alist : list nat = cons nat 1 (cons nat 2 (nil nat)) in let head : list nat -> nat = \\ x : list nat . case x of nil => 1000 | cons (x : nat) (xs : list nat) => x in head alist"
   in e
 
-phoas :: Expr
-phoas =
-  let Right (Progm [e]) = parseExpr "data PLambda (a : *) = Var a | Num nat | Lam (a -> PLambda a) | App (PLambda a) (PLambda a); data Value = VI nat | VF (Value -> Value); letrec eval : PLambda Value -> Value = \\ e : PLambda Value . case e of Var (v : Value) => v | Num (n : nat) => VI n | Lam (f : Value -> PLambda Value) => VF (\\x : Value . eval (f x)) | App (a : PLambda Value) (b : PLambda Value) => case (eval a) of VI (n : nat) => VI n | VF (f : Value -> Value) => f (eval b) in let show : Value -> nat = \\ e : Value . case e of VI (n : nat) => n | VF (f : Value -> Value) => 10000 in let example : PLambda Value = App Value (Lam Value (\\ x : Value . Var Value x)) (Num Value 42) in show (eval example)"
+hoas :: Expr
+hoas =
+  let Right (Progm [e]) = parseExpr "data Exp = Num nat | Lam (Exp -> Exp) | App Exp Exp; data Value = VI nat | VF (Value -> Value); rcrd Eval = Ev { eval' : Exp -> Value, reify' : Value -> Exp}; let f : Eval= mu f' : Eval . Ev (\\ e : Exp . case e of Num (n : nat) => VI n | Lam (fun : Exp -> Exp) => VF (\\e' : Value . eval' f' (fun (reify' f' e'))) | App (a : Exp) (b : Exp) => case eval' f' a of VI (n : nat) => error | VF (fun : Value -> Value) => fun (eval' f' b)) (\\v : Value . case v of VI (n : nat) => Num n | VF (fun : Value -> Value) => Lam (\\e' : Exp . (reify' f' (fun (eval' f' e'))))) in let eval : Exp -> Value = eval' f in let show : Value -> nat = \\v : Value . case v of VI (n : nat) => n | VF (fun : Value -> Value) => error in let test : Exp = App (Lam (\\ f : Exp . App f (Num 42))) (Lam (\\ g : Exp. g)) in show (eval test)"
   in e
 
 perfectBinaryTree :: Expr
@@ -90,10 +90,10 @@ patternTest =
       (trans [] (desugar pattest) >>= (\(_, e) -> tcheck [] (desugar e))) @?= Right Nat
     , testCase "evaluation: case analysis" $
       (trans [] (desugar pattest) >>= (\(_, e) -> eval (desugar e))) @?= Right (Lit 1)
-    , testCase "typecheck: PHOAS" $
-      (trans [] (desugar phoas) >>= (\(_, e) -> tcheck [] (desugar e))) @?= Right Nat
-    , testCase "evaluation: PHOAS" $
-      (trans [] (desugar phoas) >>= (\(_, e) -> eval (desugar e))) @?= Right (Lit 42)
+    , testCase "typecheck: HOAS" $
+      (trans [] (desugar hoas) >>= (\(_, e) -> tcheck [] (desugar e))) @?= Right Nat
+    , testCase "evaluation: HOAS" $
+      (trans [] (desugar hoas) >>= (\(_, e) -> eval (desugar e))) @?= Right (Lit 42)
     , testCase "evaluation: Perfect binary tree" $
       (trans [] (desugar perfectBinaryTree) >>= (\(_, e) -> eval (desugar e))) @?= Right (Lit 2)
     ]
