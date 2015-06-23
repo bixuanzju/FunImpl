@@ -7,7 +7,7 @@ embed {{ tex-preamble
 
 %%% Metavariables
 metavar x, y, z, d, X, D, K, N, R, th {{ tex \theta }}, aa {{ tex \alpha }}, bb {{ tex b }}, nn {{ tex n }} ::= {{ com Variable names }}
-indexvar i, j, n ::= {{ com Index variables }}
+indexvar i, j, n, m ::= {{ com Index variables }}
 
 %%% Syntax
 grammar
@@ -94,6 +94,7 @@ terminals :: 'terminals_' ::=
   | ->>      ::  :: msteps    {{ tex \twoheadrightarrow }}
   | |->      ::  :: mapsto    {{ tex \mapsto }}
   | castup   ::  :: castup    {{ tex \kw{cast}^{\uparrow} }}
+  | ]        ::  :: bracketr  {{ tex \ottsym{]} \, }}
   | |-       ::  :: turnstile {{ tex \vdash }}
   | ==       ::  :: equiv     {{ tex \equiv }}
   | =a       ::  :: alphaeq   {{ tex \equiv }}

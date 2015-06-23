@@ -4,13 +4,13 @@
 \ottfirstprodline{|}{\dots}{}{}{}{}\ottprodnewline
 \ottprodline{|}{\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}}{}{}{}{\ottcom{Polymorphic recursion}}}
 
-\section{\name: \ecore with general recursion}\label{sec:rec}
+\section{\name: \ecore with General Recursion}\label{sec:rec}
 In this section, we present the core calculus \name, which is the explicit core \ecore extended with general recursion. The general recursion is polymorphic and has a uniform representation on both term level and type level, which works as a fixpoint and recursive type respectively. We have shown that \ecore does not rely on normalization for decidable type checking and type-safety. Though general recursion breaks the normalizing property, it is safe for \name to allow non-termination on the type level without breaking the decidability of type checking.
 
-\subsection{Grammar changes}
+\subsection{Grammar Changes}
 Figure \ref{fig:rec:ext} shows the changes of extending \ecore to \name with general recursion. The changes are subtle, since we add only one more primitive, reduction rule and typing rule for general recursion.
 
-For syntax, we add the polymorphic recursion operator $ \mu $ to represent general recursion on both term and type level in the same form $\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$. For operational semantics, we add the rule \ruleref{S\_Mu} to define the unrolling operation of a recursion, which results in $\ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]}$. For typing, we add the rule \ruleref{T\_Mu} for checking the validity of a polymorphic recursive term. The rule ensures that the polymorphic recursion $\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$ should have the same type $\tau$ as the binder $\ottmv{x}$ and also the inner expression $\ottnt{e}$.
+For syntax, we add the polymorphic recursion operator $ \mu $ to represent general recursion on both term and type level in the same form $\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$. For operational semantics, we add the rule \ruleref{S\_Mu} to define the unrolling operation of a recursion, which results in $\ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]} \,$. For typing, we add the rule \ruleref{T\_Mu} for checking the validity of a polymorphic recursive term. The rule ensures that the polymorphic recursion $\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$ should have the same type $\tau$ as the binder $\ottmv{x}$ and also the inner expression $\ottnt{e}$.
 
 \begin{figure}
 	\gram{\newsyntax}\vspace{1em}
@@ -20,9 +20,9 @@ For syntax, we add the polymorphic recursion operator $ \mu $ to represent gener
     \label{fig:rec:ext}
 \end{figure}
 
-\subsection{Recursion as term and type}
+\subsection{Recursion as Term and Type}
 \subsubsection{Term-level recursion}
-Note that the definition of values is not changed and $ \mu $-term is not treated as a value. This is different from conventional iso-recursive types, because the $ \mu $-operator can also be regarded as a \emph{fixpoint} on the term level. By rule \ruleref{S\_Mu}, evaluating a term $\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$ will substitute all $\ottmv{x}$ in $e$ with the whole $ \mu $-term itself, resulting in the unrolling $\ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]}$. So the $ \mu $-term is equivalent to a recursive function that should be allowed to unroll without restriction \fixme{(see example in \S \ref{})}.
+Note that the definition of values is not changed and $ \mu $-term is not treated as a value. This is different from conventional iso-recursive types, because the $ \mu $-operator can also be regarded as a \emph{fixpoint} on the term level. By rule \ruleref{S\_Mu}, evaluating a term $\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$ will substitute all $\ottmv{x}$ in $e$ with the whole $ \mu $-term itself, resulting in the unrolling $\ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]} \,$. So the $ \mu $-term is equivalent to a recursive function that should be allowed to unroll without restriction \fixme{(see example in \S \ref{})}.
 
 \subsubsection{Type-level recursion}
 On the type level, $\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$ works as a \emph{iso-recursive} type, a kind of recursive type that is not equal but only isomorphic to its unrolling. Normally, we need to add two more primitives $\kw{fold}$ and $\kw{unfold}$ for the iso-recursive type to map back and forth between the original and unrolled form. However, in \name we can show that with the rule \ruleref{S\_Mu}, $ \kw{cast}^{\uparrow} $ and $ \kw{cast}_{\downarrow} $ have the same functionality as $\kw{fold}$ and $\kw{unfold}$.
@@ -30,18 +30,20 @@ On the type level, $\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$ w
 Assume there exist expressions $\ottnt{e_{{\mathrm{1}}}}$ and $\ottnt{e_{{\mathrm{2}}}}$ such that 
 \[\begin{array}{lll}
 	&\ottnt{e_{{\mathrm{1}}}} &: \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}\\
-	&\ottnt{e_{{\mathrm{2}}}} &: \ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]}
+	&\ottnt{e_{{\mathrm{2}}}} &: \ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]} \,
 \end{array}\]
 Note that $\ottnt{e_{{\mathrm{1}}}}$ and $\ottnt{e_{{\mathrm{2}}}}$ have distinct types but the type of $\ottnt{e_{{\mathrm{2}}}}$ is the unrolling of $\ottnt{e_{{\mathrm{1}}}}$'s type, which follows the one-step reduction relation by rule \ruleref{S\_Mu}:
-\[ \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \longrightarrow  \ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]} \]
+\[ \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \longrightarrow  \ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]} \, \]
 By applying rules \ruleref{T\_CastUp} and \ruleref{T\_CastDown}, we can obtain the following typing results:
 \[\begin{array}{lll}
-	&\kw{cast}_{\downarrow} \, \ottnt{e_{{\mathrm{1}}}} &: \ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]}\\
-	&\kw{cast}^{\uparrow} \, \ottsym{[}  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]}  \ottnt{e_{{\mathrm{2}}}} &: \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}
+	&\kw{cast}_{\downarrow} \, \ottnt{e_{{\mathrm{1}}}} &: \ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]} \,\\
+	&\kw{cast}^{\uparrow} \, \ottsym{[}  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]} \,  \ottnt{e_{{\mathrm{2}}}} &: \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}
 \end{array}\]
 Thus, $ \kw{cast}^{\uparrow} $ and $ \kw{cast}_{\downarrow} $ witness the isomorphism between the original recursive type and its unrolling, which behave the same as $\kw{fold}$ and $\kw{unfold}$ operations in iso-recursive types.
 
-\subsection{Decidability of type checking}
-We give the proof of the decidability of type checking \ecore in \S \ref{sec:ecore:meta} without requiring normalization. \fixme{Generalize the proof for recursion.}
+\subsection{Decidability of Type Checking}
+We give the proof of the decidability of type checking \ecore in \S \ref{sec:ecore:meta} without requiring normalization. The \cast rules are critical for decidability, which rely on checking if one type can be reduced to another in one step. When we introduce general recursion into the language, if we can make sure the newly added and original typing rules are still decidable, the decidability of type checking will still follow in \name.
 
+The rule \ruleref{T\_Mu} for checking the well-formedness of polymorphic recursion is decidable because its premises only include decidable typing judgements. However, the rule \ruleref{S\_Mu} changes one-step reduction, which may affect the decidability of \cast rules. If the uniqueness of changed reduction rules still holds, by following the same proof tactic of \ecore, we can show that \cast rules are still decidable in \name. Note that given a recursive term $\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$, by rule \ruleref{S\_Mu}, there always exists a unique term $\ottnt{e'}=\ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]} \,$ such that $\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \longrightarrow  \ottnt{e'}$. Thus, the uniqueness of one-step reduction still holds, i.e. Lemma \ref{lem:ecore:unique} holds in \name. So the decidability of type checking, namely Lemma \ref{lem:ecore:decide} holds in \name.
 
+Moreover, it is straightforward to show the type-safety of \name by considering rules \ruleref{T\_Mu} and \ruleref{T\_Mu} during the induction of proof. Thus, Lemma \ref{lem:ecore:subst}, \ref{lem:ecore:reduct} and \ref{lem:ecore:prog} also hold in \name.

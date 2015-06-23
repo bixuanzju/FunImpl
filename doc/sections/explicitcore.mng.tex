@@ -1,4 +1,4 @@
-\section{The core language without recursion}\label{sec:ecore}
+\section{The Core Language without Recursion}\label{sec:ecore}
 
 In this section, we present \ecore calculus, a language based on \cc with explicit type-level computation. \ecore is a subset of the core language \name without general recursion, which is simple enough for meta-theoretic studies. By explicitly controlling the type-level computation with \cast operators, \ecore can achieve decidable type checking without requiring normalizing property. In rest of this section, we demonstrate the syntax, operational semantics, typing rules and meta-theory of \ecore.
 
@@ -28,7 +28,7 @@ Though \cast primitives make the syntax verbose when type conversion is heavily 
     \label{fig:ecore:syntax}
 \end{figure}
 
-\subsection{Operational semantics}\label{sec:ecore:opsem}
+\subsection{Operational Semantics}\label{sec:ecore:opsem}
 Figure \ref{fig:ecore:opsem} shows the \emph{call-by-name} operational semantics, defined by one-step reduction. Two base cases include \ruleref{S\_Beta} for $\beta$-reduction and \ruleref{S\_CastDownUp} for cast canceling. Two inductive case, \ruleref{S\_App} and \ruleref{S\_CastDown}, define reduction in the head position of an application, and in the $[[castdown]]$ inner expression respectively. The reduction rules are \emph{weak} in the sense that it is not allowed to reduce inside a $\lambda$-term or $[[castup]]$-term which is viewed as a value (see Figure \ref{fig:ecore:syntax}).
 
 To evaluate the value of a term-level expression, we apply the one-step reduction multiple times. The number of evaluation steps is not restricted, which is possible to be infinite. The multi-step reduction can be defined as follows:
@@ -91,8 +91,33 @@ With this result, we show a decidable algorithm to check whether one-step relati
 
 Note that when proving the decidability of type checking, we do not rely on the normalizing property. Because explicit type conversion rules use one-step reduction, which already has a decidable checking algorithm according to Lemma \ref{lem:ecore:unique}. We do not need to further require the normalization of terms. This is different from the proof for \cc which requires the language is normalizing \fixme{[cite the PTS paper]}. Because \cc's conversion rule needs to examine the $\beta$-equivalence of terms, which is decidable only if every term has a normal form.
 
-\subsubsection{Multi-step cast operator}
-\fixme{Write about $[[foldn]]$ and $[[unfoldn]]$.}
+\subsubsection{n-step cast operators}
+Because of the uniqueness of one-step reduction, we can generalize one-step \cast operators to $n$-step. Suppose $[[e]] : [[t]]$ and we have sequences of reduction $[[t1]] [[-->]] [[t2]] [[-->]] \dots [[-->]] [[tn]] [[-->]] [[t]]$ and $[[t]] [[-->]] [[T1]] [[-->]] [[T2]] [[-->]] \dots [[-->]] [[Tn]]$. We can define $n$-step \cast operators as follows:
+\begin{flalign*}
+    &[[foldn]] [ [[t1]], \dots, [[tn]] ] [[e]] & [[:=]] & [[castup]] [ [[t1]] ] ([[castup]] [ [[t2]] ] (\dots ( [[castup]] [ [[tn]] ] [[e]] ) \dots )) \\
+    &[[unfoldn]] [[e]] & [[:=]] & \underbrace{[[castdown]] ([[castdown]] (\dots ( [[castdown]]}_n [[e]]) \dots ))
+\end{flalign*}
+By rules \ruleref{T\_CastUp} and \ruleref{T\_CastDown}, we have the following typing results:
+\[\begin{array}{lll}
+    &[[foldn]] [ [[t1]], \dots, [[tn]] ] [[e]] & : [[t1]] \\
+    &[[unfoldn]] [[e]] & : [[Tn]]
+\end{array}\]
+
+From Lemma \ref{lem:ecore:unique}, we immediately have the following corollary for $n$-step reduction:
+
+\begin{lem}[Uniqueness of $n$-step reduction]\label{lem:ecore:uniquen}
+	The $n$-step reduction $[[-->>]]$ is unique in the sense that given $[[e]]$ there is at most one $[[e']]$ such that $[[e]] [[-->>]] [[e']]$.
+\end{lem}
+
+\begin{proof}
+	Immediate from Lemma \ref{lem:ecore:unique}, by induction on the number of reduction steps.
+\end{proof}
+
+Thus, $[[t1]] [[-->>]] [[t]]$ and $[[t]] [[-->>]] [[Tn]]$ are unique by Lemma \ref{lem:ecore:uniquen}. The intermediate types in $[[t1]] [[-->>]] [[t]]$, i.e. $[[t2]], \dots, [[tn]]$, can be uniquely determined. Thus, we can leave them out in the $[[foldn]]$ operator. Finally, we can have $n$-step \cast operators with the following form:
+\[\begin{array}{lll}
+    &[[foldn [t1] e]] & : [[t1]] \\
+    &[[unfoldn e]] & : [[Tn]]
+\end{array}\]
 
 \subsubsection{Type-safety}
 Proof of the type-safety (or soundness) of \ecore is fairly standard by subject reduction (or preservation) and progress lemmas. The subject reduction proof relies on the substitution lemma. We give the proof sketch of related lemmas as follows:
