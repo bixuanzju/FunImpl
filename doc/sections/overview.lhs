@@ -2,40 +2,127 @@
 
 \section{Overview}
 
-\bruno{Jeremy: can you give this section a go and start writing it up? I think this section should be your priority for now.}
+This section informally introduces the main features of \name. In
+particular, this section shows how the explicit casts in \name can be
+used instead of the typical conversion rule present in calculi such as
+the calculus of constructions. The formal details of \name are
+presented in \S\ref{sec:formal}.
 
-We begin this section with an informal introduction to the main features of \name. We show how it can serve as a simple and compiler-friendly core language with general recursion and decidable type system. The formal details are presented in \S\ref{sec:formal}.
-
-\subsection{Calculus of Constructions}
+\subsection{The Calculus of Constructions and the Conversion Rule}
 \label{sec:coc}
 
-\name is based on the \emph{Calculus of Constructions} (\coc)~\cite{coc}, which is a higher-order typed lambda calculus. One ``unconventional'' feature of \coc is the so-called \emph{conversion} rule as shown below:
-\ottusedrule{\ottdruleTccXXConv{}}
+The calculus of constructions (\coc)~\cite{coc} is a powerful
+higher-order typed lambda calculus supporting dependent types (among
+various other features).  A crutial
+feature of \coc is the so-called \emph{conversion}
+rule as shown below: \ottusedrule{\ottdruleTccXXConv{}}
 
-The conversion rule allows one to derive $e:[[t2]]$ from the derivation of $e:[[t1]]$ and the $\beta$-equality of $[[t1]]$ and $[[t2]]$. Note that in \coc, the use of this rule is implicit in that it is automatically applied during type checking to all non-normal form terms. To illustrate, let us consider a simple example. Suppose we have a built-in base type $[[int]]$ and \[f \equiv [[\x:(\y:star.y)int.x]] \] Without the conversion rule, $f$ cannot be applied to, say $3$ in \coc. Given that $f$ is actually $\beta$-convertible to $[[\x:int.x]]$, the conversion rule would allow the application of $f$ to $3$ by implicitly converting $[[\x:(\y:star.y)int.x]]$ to $[[\x:int.x]]$.
+%For the most part \name is similar to the \emph{Calculus of Constructions}
+%(\coc)~\cite{coc}, which is a higher-order typed lambda calculus.
+%However unlike \name and \coc is the
+%absence of a conversion rule 
 
-\subsection{Explicit Type Conversion Rules}
+The conversion rule allows one to derive $e:[[t2]]$ from the
+derivation of $e:[[t1]]$ and the $\beta$-equality of $[[t1]]$ and
+$[[t2]]$. This rule is important to \emph{automatically} allows 
+terms with equivalent types to be considered type-compatible. 
+To illustrate, let us consider a simple example. Suppose
+we have a built-in base type $[[int]]$ and \[f \equiv [[\x:(\y:star.y)int.x]] \]
+Here $f$ is a simple identity function. However, the type 
+of $x$  ($[[(\y:star.y)int]]$), which is the argument of $f$, is interesting: it is 
+an identity function on types, applied to an integer. 
+Without the conversion rule, $f$ cannot be
+applied to, say $3$ in \coc. However, given that $f$ is actually
+$\beta$-convertible to $[[\x:int.x]]$, the conversion rule allows
+the application of $f$ to $3$ by implicitly converting
+$[[\x:(\y:star.y)int.x]]$ to $[[\x:int.x]]$.
 
-\bruno{Contrast our calculus with the calculus of constructions. Explain fold/unfold.}
+\paragraph{Decidability of Type-Checking and Strong Normalization} 
+While the conversion rule in \coc brings alot of convenience, an unfortunate
+consequence is that it couples decidability of type-checking with 
+strong normalization of the calculus~\cite{coc:decidability}. 
+However strong normalization does not
+hold with general recursion. This is simply because due to the
+conversion rule, any non-terminating term would force the type checker
+to go into an infinitely loop (by constantly applying the conversion
+rule without termination), thus rendering the type system undecidable.
+\bruno{show simple example. Explain issue better.}
 
-In contrast to the implicit reduction rules of \coc, \name makes it explicit as to when and where to convert one type to another. To achieve that, it makes type conversion explicit by introducing two operations: $[[castup]]$ and $[[castdown]]$.
+\subsection{An Alternative to the Conversion Rule: Explicit Casts}
 
-In order to have a better intuition, let us consider the same example from \S\ref{sec:coc}. In \name, $f\,3$ is intended as an ill-typed application. Instead one would like to write the application as \[ f\,([[castup[(\y:star.y)int]three]]) \] The intuition is that, $[[castup]]$ is actually doing type conversion since the type of $ 3 $ is $ [[int]] $ and $ [[(\y:star.y)int]] $ can be reduced to $ [[int]] $.
+\bruno{Mention somewhere that the cast rules do \emph{one-step} reductions.}
+In contrast to the implicit reduction rules of \coc, \name makes it
+explicit as to when and where to convert one type to another. Type
+conversions are explicit by introducing two language constructs: $[[castup]]$
+(beta expansion) and $[[castdown]]$ (beta reduction). The benefit of
+this approach is that decidability of type-checking no longer is
+coupled with strong normalization of the calculus.
 
-The dual operation of $[[castup]]$ is $[[castdown]]$. The use of $[[castdown]]$ is better explained by another similar example. Suppose that \[ g \equiv [[\x:int.x]] \] and term $z$ has type \[ [[(\y:star.y)int]] \] $ g\,z $ is again an ill-typed application, while $ g\,([[castdown z]]) $ is type correct because $[[castdown]]$ reduces the type of $ z $ to $ [[int]] $.
+\paragraph{Beta Expansion} The first of the two type conversions
+$[[castup]]$, allows a type conversion provided that the resulting
+type is a \emph{beta expansion} of the original type of the term.
+Consider the same example
+from \S\ref{sec:coc}. In \name, $f\,3$ is an ill-typed
+application. Instead we must write the application as \[
+f\,([[castup[(\y:star.y)int] three]]) \]\bruno{how to put a space
+  before $3$?} The intuition is that,
+$[[castup]]$ is actually doing a type conversion since the type of $ 3 $
+is $ [[int]] $ and $ [[(\y:star.y)int]] $ can be reduced to $ [[int]]
+$.\bruno{explain why this is a beta expansion}\bruno{explain why 
+for beta expansions we need to provide the resulting type as
+argument}. 
 
-\subsection{Decidability and Strong Normalization}
+\paragraph{Beta Reduction}
+The dual operation of $[[castup]]$ is $[[castdown]]$, which allows a
+type conversion provided that the resulting type is a \emph{beta
+  reduction} of the original type of the term. The use of
+$[[castdown]]$ is better explained by another similar example. Suppose
+that \[ g \equiv [[\x:int.x]] \] and term $z$ has type \[
+[[(\y:star.y)int]] \] $ g\,z $ is again an ill-typed application,
+while $ g\,([[castdown z]]) $ is type correct because $[[castdown]]$
+reduces the type of $ z $ to $ [[int]] $. \bruno{explain why this is a reduction}
 
-\bruno{Informally explain that with explicit fold/unfold rules the decidability of the
-type system does not depend on strong normalization.}
+\subsection{Decidability without Strong Normalization}
 
-The decidability of the type system of \coc depends on the normalization property for all constructed terms~\cite{coc:decidability}. However strong normalization does not hold with general recursion. This is simply because due to the conversion rule, any non-terminating term would force the type checker to go into an infinitely loop (by constantly applying the conversion rule without termination), thus rendering the type system undecidable.
+With explicit type conversion rules the decidability of the
+type system no longer depends on the normalization property. 
+A nice consequence of this is that the type system remains decidable
+even in the presence of non-terminating programs at type level.
+%As we will see in later sections. The
+%ability to write non-terminating terms motivates us to have more
+%control over type-level computation. 
+To illustrate, let us consider the following example. Suppose that $d$ is a ``dependent type'' where
+\[d : [[int -> star]]\] so that $d\,3$ or $d\,100$ all yield the same
+type. With general recursion at hand, we can image a term $z$ that has
+type \[d\,\mathsf{loop}\] where $\mathsf{loop}$ stands for any
+diverging computation and of type $[[int]]$. What would happen if we
+try to type check the following application: \[ [[(\x: d three.x)z]]\]
+Under the normal typing rules of \coc, the type checker would get
+stuck as it tries to do $\beta$-equality on two terms: $d\,3$ and
+$d\,\mathsf{loop}$, where the latter is non-terminating.
 
-With explicit type conversion rules, however, the decidability of the type system no longer depends on the normalization property. In fact \name is not strong normalizing, as we will see in later sections. The ability to write non-terminating terms motivates us to have more control over type-level computation. To illustrate, let us consider a contrived example. Suppose that $d$ is a ``dependent type'' where \[d : [[int -> star]]\] so that $d\,3$ or $d\,100$ all yield the same type.  With general recursion at hand, we can image  a term $z$ that has type \[d\,\mathsf{loop}\] where $\mathsf{loop}$ stands for any diverging computation and of type $[[int]]$. What would happen if we try to type check the following application: \[ [[(\x: d three.x)z]]\] Under the normal typing rules of \coc, the type checker would get stuck as it tries to do $\beta$-equality on two terms: $d\,3$ and $d\,\mathsf{loop}$, where the latter is non-terminating.
+This is not the case for \name: \name has no conversion rule,
+therefore the type checker would do syntactic comparison between the
+two terms instead of $\beta$-equality in the above example and reject
+the program as ill-typed. Indeed it would be impossible to type-check
+the program even with the use of $[[castup]]$ and/or $[[castdown]]$:
+one would need to write infinite number of $[[castdown]]$'s to make
+the type checker loop forever (e.g., $([[\x:d
+three.x]])([[castdown]]([[castdown]] \dots z) $), but it is impossible
+to write such program in reality.
 
-This is not the case for \name: (i) it has no such conversion rule, therefore the type checker would do syntactic comparison between the two terms instead of $\beta$-equality in the above example; and (ii) one would need to write infinite number of $[[castdown]]$'s to make the type checker loop forever (e.g., $([[\x:d three.x]])([[castdown]]([[castdown]] \dots z) $), which is impossible in reality.
+In summary, \name achieves the decidability of type checking by
+explicitly controlling type-level computation.  which is independent of
+the normalization property, while supporting general recursion at the
+same time.
 
-In summary, \name achieves the decidability of type checking by explicitly controlling type-level computation, which is independent of the normalization property, while supporting general recursion at the same time.
+\subsection{Logical Inconsistency}
+
+\bruno{Explain that the \name is inconsistent and discuss that this is
+  a deliberate design decision, since we want to model languages like
+  Haskell, which are logically inconsistent as well.} \bruno{Discuss
+  the $* : *$ rule: since we already have inconsistency, having this
+  rule adds expressiveness and simplifies the system.} 
 
 \subsection{Unifying Recursive Types and Recursion}
 
