@@ -175,8 +175,8 @@ reduces the type of $ z $ to $  \kw{Int}  $. \bruno{explain why this is a reduct
 
 \subsection{Decidability without Strong Normalization}
 
-With explicit type conversion rules the decidability of the
-type system no longer depends on the normalization property. 
+With explicit type conversion rules the decidability of type-checking 
+no longer depends on the normalization property. 
 A nice consequence of this is that the type system remains decidable
 even in the presence of non-terminating programs at type level.
 %As we will see in later sections. The
@@ -206,59 +206,109 @@ explicitly controlling type-level computation.  which is independent of
 the normalization property, while supporting general recursion at the
 same time.
 
-
-
-\subsection{Unifying Recursive Types and Recursion}
+\subsection{Recursion and Recursive Types}
 
 \bruno{Show how in \name recursion and recursive types are unified.
 Discuss that due to this unification the sensible choice for the
 evaluation strategy is call-by-name. }
 
-Recursive types arise naturally if we want to do general recursion. \name differs from other programming languages in that it unifies both recursion and recursive types by the same $\mu$ primitive.
+A simple extension to \name is to add a simple recursion construct.
+With such an extension, it becomes possible to write standard
+recursive programs at the term level. At the same time, the recursive
+construct can also be used to model recursive types at the type-level.
+Therefore, \name differs from other programming languages in that it
+unifies both recursion and recursive types by the same $\mu$
+primitive. With a single language construct we get two powerful
+features!
+
+\paragraph{Recursion}
+
+The $\mu$ primitive is used to define recursive functions.
+For example the factorial function is defined as follows: 
+\[\miu{f}{\mathsf{Int} \rightarrow
+  \mathsf{Int}}{\lam{x}{\mathsf{Int}}{\mathsf{if}\,(x ==
+    0)\,\mathsf{then}\,1\,\mathsf{else}\,x * f\,(x - 1)}}\] 
+This is reflected by the dynamic semantics of the $\mu$ primitive:
+\[\miu{x}{T}{E} \longrightarrow E[x:=\miu{x}{T}{E}]\]
+which is exactly doing recursive unfolding of the same term.
+
+% The dynamic semantics of $\mu$ requires the recursive binder to satisfy (omit type annotations for clarity):  \[ \mu f.\,E = (\lambda f.\,E) (\mu f.\,E) \] which, however, does not terminate in strict languages. Therefore, to loosen the function-type restriction to allow any types, the sensible choice for the evaluation strategy is \emph{call-by-name}.
 
 \subsubsection{Recursive types}
+In the literature on type systems, there are two approaches to
+recursive types. One is called \emph{equi-recursive}, the other
+\emph{iso-recursive}. The \emph{iso-recursive}
+approach treats a recursive type and its unfolding as different, but
+isomorphic. The isomorphism between a recursive type and it's one step 
+unfolding is witnessed by traditionally $fold$ and $unfold$
+operations.\bruno{Explain that the casts generalize fold and unfold!}
+In \name, this is witnessed by first $ \kw{cast}^{\uparrow} $, then
+$ \kw{cast}_{\downarrow} $. A classic example of recursive types is the so-called
+``hungry'' type: $H = \miu{\sigma}{\star}{\mathsf{Int} \rightarrow
+  \sigma}$. A term $z$ of type $H$ can accept any number of numeric
+arguments and return a new function that is hungry for more, as
+illustrated below:
 
-In the literature on type systems, there are two approaches to recursive types. One is called \emph{equi-recursive}, the other \emph{iso-recursive}. \name takes the latter approach since it is more intuitive to us with regard to recursion. The \emph{iso-recusive} approach treats a recursive type and its unfolding as different, but isomorphic. In \name, this is witnessed by first $ \kw{cast}^{\uparrow} $, then $ \kw{cast}_{\downarrow} $. A classic example of recursive types is the so-called ``hungry'' type: $H = \miu{\sigma}{\star}{\mathsf{Int} \rightarrow \sigma}$. A term $z$ of type $H$ can accept any number of numeric arguments and return a new function that is hungry for more, as illustrated below:
 \begin{align*}
 \kw{cast}_{\downarrow} \, \ottmv{z} &:  \kw{Int}  \rightarrow H  \\
 \kw{cast}_{\downarrow} \, \ottsym{(}  \kw{cast}_{\downarrow} \, \ottmv{z}  \ottsym{)} &:  \kw{Int}  \rightarrow  \kw{Int}  \rightarrow H \\
  \kw{cast}_{\downarrow} ( \kw{cast}_{\downarrow}  \dots z) &:  \kw{Int}  \rightarrow  \kw{Int}  \rightarrow \dots \rightarrow H
 \end{align*}
 
-\subsubsection{Recursion}
+Due to the unification of recursive types and recursion, we can use
+the same $\mu$ primitive to write both recursive types and recursion
+with ease.
 
-The same $\mu$ primitive can also be used to define recursive functions, e.g., the factorial function: \[\miu{f}{\mathsf{Int} \rightarrow \mathsf{Int}}{\lam{x}{\mathsf{Int}}{\mathsf{if}\,(x == 0)\,\mathsf{then}\,1\,\mathsf{else}\,x * f\,(x - 1)}}\] This is reflected by the dynamic semantics of the $\mu$ primitive:
-\[\miu{x}{T}{E} \longrightarrow E[x:=\miu{x}{T}{E}]\]
-which is exactly doing recursive unfolding of the same term.
+\paragraph{Call-by-Name}
+Due to the unification, the \emph{call-by-value} evaluation strategy
+does not fit in our setting. In call-by-value evaluation, recursion
+can be expressed by the recursive binder $\mu$ as $\mu f : T
+\rightarrow T.\, E$ (note that the type of $f$ is restricted to
+function types). Since we don't want to pose restrictions on the
+types, the \emph{call-by-name} evaluation is a sensible choice.
+\bruno{Probably needs to be improved. I'll came back to this later!}
 
-Due to the unification, the \emph{call-by-value} evaluation strategy does not fit in our setting. In call-by-value evaluation, recursion can be expressed by the recursive binder $\mu$ as $\mu f : T \rightarrow T.\, E$ (note that the type of $f$ is restricted to function types). Since we don't want to pose restrictions on the types, the \emph{call-by-name}  evaluation is a sensible choice.
+\subsection{Logical Inconsistency}
 
-% The dynamic semantics of $\mu$ requires the recursive binder to satisfy (omit type annotations for clarity):  \[ \mu f.\,E = (\lambda f.\,E) (\mu f.\,E) \] which, however, does not terminate in strict languages. Therefore, to loosen the function-type restriction to allow any types, the sensible choice for the evaluation strategy is \emph{call-by-name}.
+\bruno{Explain that the \name is inconsistent and discuss that this is
+  a deliberate design decision, since we want to model languages like
+  Haskell, which are logically inconsistent as well.} \bruno{Discuss
+  the $* : *$ rule: since we already have inconsistency, having this
+  rule adds expressiveness and simplifies the system.} 
 
 \subsection{Encoding Datatypes}
 
-\bruno{Informally explain how to encode recursive datatypes and recursive functions
-using datatypes.}
 
-
-With the explicit type conversion rules and the $\mu$ primitive, it is straightforward to encode recursive datatypes and recusive functions using datatypes. While inductive datatypes can be encoded using either the Church or the Scott encoding, we adopt the Scott encoding as it is bear some resemblance to case analysis, making it more convenient to encode pattern matching. We demonstrate the encoding method using a simple datatype as a running example: the natural numbers.
+With the explicit type conversion rules and the $\mu$ primitive, it is
+easy to encode recursive datatypes and recursive functions using
+datatypes. While inductive datatypes can be encoded using either the
+Church or the Scott encoding, we adopt the Scott encoding as it
+encodes case analysis, making it more convenient to
+encode pattern matching. We demonstrate the encoding method using a
+simple datatype as a running example: the natural numbers.
 
 The datatype declaration for natural numbers is:
-\begin{figure}[h!]
 \begingroup\par\noindent\advance\leftskip\mathindent\(
 \begin{pboxed}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{4}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[3]{}\mathbf{data}\;\Conid{Nat}\mathrel{=}\Conid{Z}\mid \Conid{S}\;\Conid{Nat};{}\<[E]%
+\>[4]{}\mathbf{data}\;\Conid{Nat}\mathrel{=}\Conid{Z}\mid \Conid{S}\;\Conid{Nat};{}\<[E]%
 \ColumnHook
 \end{pboxed}
 \)\par\noindent\endgroup\resethooks
-\end{figure}
+In the Scott encoding, the encoding of the \emph{Nat} type reflects
+how its two constructors are going to be used. Since \emph{Nat} is a
+recursive datatype, we have to use recursive types at some point to
+reflect its recursive nature. As it turns out, the \emph{Nat} type can
+be simply represented as \ensuremath{\mu\;\Conid{Nat}\mathbin{:}\star.\,\Pi\;\Conid{B}\mathbin{:}\star.\,\Conid{B}\to (\Conid{Nat}\to \Conid{B})\to \Conid{B}}.
 
-In the Scoot encoding, the encoding of the \emph{Nat} type reflects how its two constructors are going to be used. Since \emph{Nat} is a recursive datatype, we have to use recursive types at some point to reflect its recursive nature. As it turns out, the \emph{Nat} type can be simply represented as \ensuremath{\mu\;\Conid{X}\mathbin{:}\star.\,\Pi\;\Conid{B}\mathbin{:}\star.\,\Conid{B}\to (\Conid{X}\to \Conid{B})\to \Conid{B}}.
-
-As can be seen, in the function type \ensuremath{\Conid{B}\to (\Conid{X}\to \Conid{B})\to \Conid{B}}, $B$ corresponds to the type of the \emph{Z} constructor, and \ensuremath{\Conid{X}\to \Conid{B}} corresponds to the type of the \emph{S} constructor. The intuition is that any use of the datatype being defined in the constructors is replaced with the recursive type, except for the return type, which is a type variable for use in the recursive functions.
+As can be seen, in the function type \ensuremath{\Conid{B}\to (\Conid{Nat}\to \Conid{B})\to \Conid{B}}, $B$
+corresponds to the type of the \emph{Z} constructor, and \ensuremath{\Conid{X}\to \Conid{B}}
+corresponds to the type of the \emph{S} constructor. The intuition is
+that any use of the datatype being defined in the constructors is
+replaced with the recursive type, except for the return type, which is
+a type variable for use in the recursive functions.
 
 Now its two constructors can be encoded correspondingly as below:
 \begin{figure}[h!]
@@ -307,7 +357,7 @@ As the last example, let us see how we can define recursive functions using the 
 
 As we can see, the above definition quite resembles case analysis common in modern functional programming languages. (Actually we formalize the encoding of case analysis in \S\ref{sec:surface}.)
 
-Due to the unification of recursive types and recursion, we can use the same $\mu$ primitive to write both recursive types and recursion with ease.
+
 
 %%% Local Variables:
 %%% mode: latex
