@@ -116,7 +116,13 @@ explicitly controlling type-level computation.  which is independent of
 the normalization property, while supporting general recursion at the
 same time.
 
+\subsection{Logical Inconsistency}
 
+\bruno{Explain that the \name is inconsistent and discuss that this is
+  a deliberate design decision, since we want to model languages like
+  Haskell, which are logically inconsistent as well.} \bruno{Discuss
+  the $* : *$ rule: since we already have inconsistency, having this
+  rule adds expressiveness and simplifies the system.} 
 
 \subsection{Unifying Recursive Types and Recursion}
 
