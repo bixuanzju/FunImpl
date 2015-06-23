@@ -208,6 +208,44 @@ In Haskell, System $F_{c}^{\uparrow}$ was proposed to support kind polymorphism.
   \end{spec}
 \end{figure}
 
+\subsubsection{Nested datatypes and polymorphic recursion}
+
+A nested datatype, also known as a \emph{non-regular} datatype, is a parametrised datatype whose definition contains different instances of the type parameters. Functions over nested datatypes usually involve polymorphic recursion. We show that \name is capable of defining all useful functions over a nested datatype. A simple example would be the type \emph{Pow} of power trees, whose size is exactly a power of two, declared as follows:
+
+\begin{figure}[H]
+\begin{spec}
+  data PairT (a : *) = P a a;
+  data Pow (a : *) = Zero a | Succ (Pow (PairT a));
+\end{spec}
+\end{figure}
+
+Notice that the recursive mention of \emph{Pow} does not hold \emph{a}, but \emph{PairT a}. This means every time we use a \emph{Succ} constructor, the size of the pairs doubles. In case you are curious about the encoding of \emph{Pow}, here is the one:
+
+\begin{figure}[H]
+\begin{spec}
+  let Pow : * -> * = mu X : * -> * .
+      \ a : * . (B : *) -> (a -> B) -> (X (PairT a) -> B) -> B
+\end{spec}
+\end{figure}
+
+Notice how the higher-kinded type variable |X : * -> *| helps encoding nested datatypes. Below is a simple function \emph{toList} that transforms a power tree into a list:
+
+\begin{figure}[H]
+  \begin{spec}
+    letrec toList : (a : *) -> Pow a -> List a =
+      \a : * . \t : Pow a . case t of
+         Zero (x : a) => Cons a x (Nil a)
+      |  Succ (c : Pow (PairT a)) =>
+           concatMap (PairT a) a
+             (\ x : PairT a . case x of
+                P (m : a) (n : a) =>
+                  Cons a m (Cons a n (Nil a)))
+             (toList (PairT a) c)
+  \end{spec}
+\end{figure}
+
+
+
 % \subsubsection{Nested datatypes}
 % \label{sec:binTree}
 

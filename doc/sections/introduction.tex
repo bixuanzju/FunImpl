@@ -69,11 +69,40 @@ a type-level program requires two beta-reductions to reach normal
 form, then two casts are needed in the program. If a non-terminating
 program is used at the type-level, it is not possible to cause
 non-termination in the type-checker, because that would require a
-program with an infinite number of casts. Since single beta-steps are
+program with an infinite number of casts. Therefore, since single beta-steps are
 trivially terminating, decidability of type-checking is possible even
 in the presence of non-terminating programs at the type-level. 
 %At the type-level recursive programs are interpreted 
 %as iso-recursive types. 
+
+Our motivation to develop \name is to use it as a simpler alternative
+to existing core languages for languages such as Haskell. 
+The paper shows how many of programming language features of
+Haskell, including some of the latest extensions, can be encoded in
+\name via a source language. In particular the source language
+supports \emph{algebraic datatypes}, \emph{higher-kinded types},
+\emph{nested datatypes}, \emph{kind polymorphism}~\cite{} and
+\emph{datatype promotion}~\cite{}.  This result is interesting because
+\name is a minimal calculus with only 8 language constructs and a
+single syntactic sort. In contrast the latest versions of System
+$F_{C}$ (Haskell's core language) have multiple syntactic sorts and
+dozens of language constructs.  Even if support for equality and
+coercions, which constitutes a significant part of System $F_{C}$,
+would be removed the resulting language would still be significantly
+larger and more complex than \name.
+
+We believe \name is particularly well-suited as a core for
+Haskell-like languages. In particular the treatment of type-level computation
+shares similar ideas with Haskell. Although Haskell's surface language
+provides a rich set of mechanisms to do type-level
+computation~\cite{}, the core language lacks fundamental mechanisms
+todo type-level computation. In particular, like in \name, type equality is purely
+syntactic (modulo alpha-conversion). 
+
+\begin{comment}
+ and there is no type-level
+abstraction. In other words in Haskell, mechanisms such as type
+classes and type families
 
 Although it may seem that forcing each step of computation 
 at the type-level to be explicit will prevent convinient use of 
@@ -83,27 +112,9 @@ Point about the treatment of type-level computation in Haskell. Haskell's
 core language has type applications, but no type-level lambda. Equality 
 is syntactic modulo alpha-conversion. This design choice was rooted in the 
 desire to support Hindley-Milner type-inference... 
+\end{comment}
 
-The paper also shows how many of programming language features of Haskell, 
-including some of the latest extensions, can be encoded in \name via 
-a source language. In particular the source language supports 
-\emph{algebraic datatypes}, \emph{higher-kinded types}, 
-\emph{nested datatypes}, \emph{kind polymorphism} and 
-\emph{datatype promotion}. 
-This result is interesting because \name is a minimal calculus
-with only 8 language constructs and a single syntactic sort. In contrast
-the latest versions of System $F_{C}$ (Haskell's core language) 
-have multiple syntactic sorts and dozens of language constructs. 
-Even if support for equality and coercions, which 
-constitutes a significant part of System $F_{C}$, would be removed
-the resulting language would still be significantly larger and more 
-complex than \name. 
-
-
-
-
-
-In summary, the constributions of this work are:
+In summary, the contributions of this work are:
 
 \begin{itemize}
 
@@ -126,7 +137,7 @@ In summary, the constributions of this work are:
 
 
 
-
+\begin{comment}
 \begin{enumerate}[a)]
 \item Motivations:
 
@@ -175,16 +186,6 @@ In summary, the constributions of this work are:
 
 \end{itemize}
 
-\item Related work:
-
-\begin{itemize}
-\item Henk \cite{pts:henk} and one of its implementation \cite{pts:fp} show the simplicity of the Pure Type System (PTS). \cite{pts:rec} also tries to combine recursion with PTS.
-
-\item \textsf{Zombie} \cite{zombie:popl14, zombie:thesis} is a language with two fragments supporting logics with non-termination. It limits the $\beta$-reduction for congruence closure \cite{zombie:popl15}.
-
-\item $\Pi\Sigma$ \cite{dep:pisigma} is a simple, dependently-typed core language for expressing high-level constructions\footnote{But the paper didn't give any meta-theories about the langauge.}. UHC compiler \cite{fc:uhc} tries to use a simplified core language with coercion to encode GADTs.
-
-\item System $F_C$ \cite{fc} has been extended with type promotion \cite{fc:pro} and kind equality \cite{fc:kind}. The latter one introduces a limited form of dependent types into the system\footnote{Richard A. Eisenberg is going to implement kind equality \cite{fc:kind} into GHC. The implementation is proposed at \url{https://phabricator.haskell.org/D808} and related paper is at \url{http://www.cis.upenn.edu/~eir/papers/2015/equalities/equalities-extended.pdf}.}, which mixes up types and kinds.
-\end{itemize}
 
 \end{enumerate}
+\end{comment}

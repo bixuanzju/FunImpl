@@ -1,1 +1,11 @@
 \section{Related Work}
+
+\begin{itemize}
+\item Henk \cite{pts:henk} and one of its implementation \cite{pts:fp} show the simplicity of the Pure Type System (PTS). \cite{pts:rec} also tries to combine recursion with PTS.
+
+\item \textsf{Zombie} \cite{zombie:popl14, zombie:thesis} is a language with two fragments supporting logics with non-termination. It limits the $\beta$-reduction for congruence closure \cite{zombie:popl15}.
+
+\item $\Pi\Sigma$ \cite{dep:pisigma} is a simple, dependently-typed core language for expressing high-level constructions\footnote{But the paper didn't give any meta-theories about the langauge.}. UHC compiler \cite{fc:uhc} tries to use a simplified core language with coercion to encode GADTs.
+
+\item System $F_C$ \cite{fc} has been extended with type promotion \cite{fc:pro} and kind equality \cite{fc:kind}. The latter one introduces a limited form of dependent types into the system\footnote{Richard A. Eisenberg is going to implement kind equality \cite{fc:kind} into GHC. The implementation is proposed at \url{https://phabricator.haskell.org/D808} and related paper is at \url{http://www.cis.upenn.edu/~eir/papers/2015/equalities/equalities-extended.pdf}.}, which mixes up types and kinds.
+\end{itemize}
