@@ -442,6 +442,89 @@ In Haskell, System $F_{c}^{\uparrow}$ was proposed to support kind polymorphism.
 \)\par\noindent\endgroup\resethooks
 \end{figure}
 
+\subsubsection{Nested datatypes and polymorphic recursion}
+
+A nested datatype, also known as a \emph{non-regular} datatype, is a parametrised datatype whose definition contains different instances of the type parameters. Functions over nested datatypes usually involve polymorphic recursion. We show that \name is capable of defining all useful functions over a nested datatype. A simple example would be the type \emph{Pow} of power trees, whose size is exactly a power of two, declared as follows:
+
+\begin{figure}[H]
+\begingroup\par\noindent\advance\leftskip\mathindent\(
+\begin{pboxed}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[3]{}\mathbf{data}\;\Conid{PairT}\;(\Varid{a}\mathbin{:}\star)\mathrel{=}\Conid{P}\;\Varid{a}\;\Varid{a};{}\<[E]%
+\\
+\>[3]{}\mathbf{data}\;\Conid{Pow}\;(\Varid{a}\mathbin{:}\star)\mathrel{=}\Conid{Zero}\;\Varid{a}\mid \Conid{Succ}\;(\Conid{Pow}\;(\Conid{PairT}\;\Varid{a}));{}\<[E]%
+\ColumnHook
+\end{pboxed}
+\)\par\noindent\endgroup\resethooks
+\end{figure}
+
+Notice that the recursive mention of \emph{Pow} does not hold \emph{a}, but \emph{PairT a}. This means every time we use a \emph{Succ} constructor, the size of the pairs doubles. In case you are curious about the encoding of \emph{Pow}, here is the one:
+
+\begin{figure}[H]
+\begingroup\par\noindent\advance\leftskip\mathindent\(
+\begin{pboxed}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{7}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[3]{}\mathbf{let}\;\Conid{Pow}\mathbin{:}\star\to \star\mathrel{=}\mu\;\Conid{X}\mathbin{:}\star\to \star.\,{}\<[E]%
+\\
+\>[3]{}\hsindent{4}{}\<[7]%
+\>[7]{}\lambda \Varid{a}\mathbin{:}\star.\,(\Conid{B}\mathbin{:}\star)\to (\Varid{a}\to \Conid{B})\to (\Conid{X}\;(\Conid{PairT}\;\Varid{a})\to \Conid{B})\to \Conid{B}{}\<[E]%
+\ColumnHook
+\end{pboxed}
+\)\par\noindent\endgroup\resethooks
+\end{figure}
+
+Notice how the higher-kinded type variable \ensuremath{\Conid{X}\mathbin{:}\star\to \star} helps encoding nested datatypes. Below is a simple function \emph{toList} that transforms a power tree into a list:
+
+\begin{figure}[H]
+  \begingroup\par\noindent\advance\leftskip\mathindent\(
+\begin{pboxed}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{7}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{10}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{12}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{14}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{17}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{19}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[5]{}\mathbf{letrec}\;\Varid{toList}\mathbin{:}(\Varid{a}\mathbin{:}\star)\to \Conid{Pow}\;\Varid{a}\to \Conid{List}\;\Varid{a}\mathrel{=}{}\<[E]%
+\\
+\>[5]{}\hsindent{2}{}\<[7]%
+\>[7]{}\lambda \Varid{a}\mathbin{:}\star.\,\lambda \Varid{t}\mathbin{:}\Conid{Pow}\;\Varid{a}.\,\mathbf{case}\;\Varid{t}\;\mathbf{of}{}\<[E]%
+\\
+\>[7]{}\hsindent{3}{}\<[10]%
+\>[10]{}\Conid{Zero}\;(\Varid{x}\mathbin{:}\Varid{a})\Rightarrow \Conid{Cons}\;\Varid{a}\;\Varid{x}\;(\Conid{Nil}\;\Varid{a}){}\<[E]%
+\\
+\>[5]{}\hsindent{2}{}\<[7]%
+\>[7]{}\mid {}\<[10]%
+\>[10]{}\Conid{Succ}\;(\Varid{c}\mathbin{:}\Conid{Pow}\;(\Conid{PairT}\;\Varid{a}))\Rightarrow {}\<[E]%
+\\
+\>[10]{}\hsindent{2}{}\<[12]%
+\>[12]{}\Varid{concatMap}\;(\Conid{PairT}\;\Varid{a})\;\Varid{a}\;{}\<[E]%
+\\
+\>[12]{}\hsindent{2}{}\<[14]%
+\>[14]{}(\lambda \Varid{x}\mathbin{:}\Conid{PairT}\;\Varid{a}.\,\mathbf{case}\;\Varid{x}\;\mathbf{of}{}\<[E]%
+\\
+\>[14]{}\hsindent{3}{}\<[17]%
+\>[17]{}\Conid{P}\;(\Varid{m}\mathbin{:}\Varid{a})\;(\Varid{n}\mathbin{:}\Varid{a})\Rightarrow {}\<[E]%
+\\
+\>[17]{}\hsindent{2}{}\<[19]%
+\>[19]{}\Conid{Cons}\;\Varid{a}\;\Varid{m}\;(\Conid{Cons}\;\Varid{a}\;\Varid{n}\;(\Conid{Nil}\;\Varid{a})))\;{}\<[E]%
+\\
+\>[12]{}\hsindent{2}{}\<[14]%
+\>[14]{}(\Varid{toList}\;(\Conid{PairT}\;\Varid{a})\;\Varid{c}){}\<[E]%
+\ColumnHook
+\end{pboxed}
+\)\par\noindent\endgroup\resethooks
+\end{figure}
+
+
+
 % \subsubsection{Nested datatypes}
 % \label{sec:binTree}
 
