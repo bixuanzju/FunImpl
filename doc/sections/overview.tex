@@ -155,7 +155,7 @@ type is a \emph{beta expansion} of the original type of the term.
 Consider the same example
 from \S\ref{sec:coc}. In \name, $f\,3$ is an ill-typed
 application. Instead we must write the application as \[
-f\,(\kw{cast}^{\uparrow} \, \ottsym{[}  \ottsym{(}  \lambda  \ottmv{y}  \ottsym{:}  \star  \ottsym{.}  \ottmv{y}  \ottsym{)} \, \kw{Int}  \ottsym{]}  3) \]\bruno{how to put a space
+f\,(\kw{cast}^{\uparrow} \, \ottsym{[}  \ottsym{(}  \lambda  \ottmv{y}  \ottsym{:}  \star  \ottsym{.}  \ottmv{y}  \ottsym{)} \, \kw{Int}  \ottsym{]} \,  3) \]\bruno{how to put a space
   before $3$?} The intuition is that,
 $ \kw{cast}^{\uparrow} $ is actually doing a type conversion since the type of $ 3 $
 is $  \kw{Int}  $ and $ \ottsym{(}  \lambda  \ottmv{y}  \ottsym{:}  \star  \ottsym{.}  \ottmv{y}  \ottsym{)} \, \kw{Int} $ can be reduced to $  \kw{Int} 

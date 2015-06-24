@@ -1,24 +1,34 @@
 \newcommand{\FV}{\mathsf{FV}}
 \newcommand{\dom}{\mathsf{dom}}
 
-\section{Full specification of core language}
+\section{Full Specification of Core Language}
 
 \subsection{Syntax}
 \gram{\otte\ottinterrule
         \ottG\ottinterrule
         \ottv}
+\[
+    \begin{array}{llll}
+     \text{Syntactic Sugar}\\
+     \quad [[A1->A2]] & \triangleq & [[Pi x:A1.A2]] \quad x \not \in \FV([[A2]]) \\
+     \quad [[(x:A1)->A2]] & \triangleq & [[Pi x:A1.A2]] \quad x \in \FV([[A2]]) \\
+     \quad [[foldn [t1] e]] & [[:=]] & [[castup]] [ [[t1]] ] ([[castup]] [ [[t2]] ] (\dots ( [[castup [tn] e]] ) \dots )) \\
+     \quad [[unfoldn e]] & [[:=]] & \underbrace{[[castdown]] ([[castdown]] (\dots ( [[castdown]]}_n [[e]]) \dots ))
+    \end{array}
+\]
 
-\subsection{Operational semantics}
+\subsection{Operational Semantics}
 \ottdefnstep{}
 \ottusedrule{\ottdruleSXXMu{}}
 
-\subsection{Expression typing}
+\subsection{Typing}
+\ottdefnctx{}
 \ottdefnexpr{}
 \ottusedrule{\ottdruleTXXMu{}}
 
-\section{Proofs about core language}
+\section{Proofs about Core Language}
 \subsection{Properties}
-\begin{lem}[Free variable lemma]\label{lem:free}
+\begin{lem}[Free variable lemma]\label{lem:appendix:free}
     If $[[G |- e:t]]$, then $\FV(e) \subseteq \dom([[G]])$ and $\FV([[t]]) \subseteq \dom([[G]])$.
 \end{lem}
 
@@ -31,7 +41,15 @@
     \end{description}
 \end{proof}
 
-\begin{lem}[Substitution lemma]\label{lem:subst}
+\begin{lem}[Thinning lemma]\label{lem:appendix:thin}
+    Let $[[G]]$ and $[[G']]$ be legal contexts such that $[[G]] \subseteq [[G']]$. If $[[G |- e : t]]$ then $[[G' |- e : t]]$.
+\end{lem}
+
+\begin{proof}
+    By trivial induction on the derivation of $[[G |- e : t]]$.
+\end{proof}
+
+\begin{lem}[Substitution lemma]\label{lem:appendix:subst}
 	If $[[G1, x:T, G2 |- e1:t]]$ and $[[G1 |- e2:T]]$, then $[[G1, G2 [x |-> e2] |- e1[x |-> e2]  : t[x |-> e2] ]]$.
 \end{lem}
 
@@ -50,7 +68,7 @@
     \end{description}
 \end{proof}
 
-\begin{lem}[Generation lemma]\label{lem:gen}
+\begin{lem}[Generation lemma]\label{lem:appendix:gen}
 $\quad$
 \begin{enumerate}[(1)]
 	\item If $[[G |- x:T]]$, then there exist an expression $[[t]]$ such that $[[t =a T]]$, $[[G |- t:s]]$ and $[[x:t elt G]]$.
@@ -64,7 +82,7 @@ $\quad$
 \end{lem}
 
 \begin{proof}
-    Consider a derivation of $[[G |- e:T]]$ for one of cases in the lemma. Note that rule \ruleref{T\_Weak} does not change $[[e]]$, then we can follow the process of derivation until expression $[[e]]$ is introduced the first time. The last step of derivation can be done by
+    Consider a derivation of $[[G |- e:T]]$ for one of cases in the lemma. We can follow the process of derivation until expression $[[e]]$ is introduced the first time. The last step of derivation can be done by
     \begin{itemize}
         \item rule \ruleref{T\_Var} for case 1;
         \item rule \ruleref{T\_App} for case 2;
@@ -74,19 +92,19 @@ $\quad$
         \item rule \ruleref{T\_CastUp} for case 6;
         \item rule \ruleref{T\_CastDown} for case 7.
     \end{itemize}
-    In each case, assume the conclusion of the rule is $[[G' |- e : t']]$ where $[[G']] \subseteq [[G]]$ and $[[t' =a T]]$. Then by inspection of used derivation rules, it can be shown that the statement of the lemma holds and is the only possible case.
+    In each case, assume the conclusion of the rule is $[[G' |- e : t']]$ where $[[G']] \subseteq [[G]]$ and $[[t' =a T]]$. Then by inspection of used derivation rules and Lemma \ref{lem:appendix:thin}, it can be shown that the statement of the lemma holds and is the only possible case.
 \end{proof}
 
-\begin{lem}[Correctness of types]\label{lem:corrtyp}
+\begin{lem}[Correctness of types]\label{lem:appendix:corrtyp}
     If $[[G |- e:t]]$ then $[[t == s]]$ or $[[G |- t : s]]$.
 \end{lem}
 
 \begin{proof}
-    Trivial induction on the derivation of $[[G |- e:t]]$ using Lemma \ref{lem:gen}.
+    Trivial induction on the derivation of $[[G |- e:t]]$ using Lemma \ref{lem:appendix:gen}.
 \end{proof}
 
-\subsection{Decidability of type checking}
-\begin{lem}[Uniqueness of one-step reduction]\label{lem:unired}
+\subsection{Decidability of Type Checking}
+\begin{lem}[Uniqueness of one-step reduction]\label{lem:appendix:unired}
 	The relation $[[-->]]$, i.e. one-step reduction, is unique in the sense that given $[[e]]$ there is at most one $[[e']]$ such that $[[e --> e']]$.
 \end{lem}
 
@@ -113,12 +131,12 @@ $\quad$
 	\end{description}
 \end{proof}
 
-\begin{lem}[Uniqueness of $n$-step reduction]\label{lem:ecore:uniquen}
+\begin{lem}[Uniqueness of $n$-step reduction]\label{lem:appendix:appendix:uniquen}
 	The $n$-step reduction $[[-->>]]$ is unique in the sense that given $[[e]]$ there is at most one $[[e']]$ such that $[[e]] [[-->>]] [[e']]$.
 \end{lem}
 
 \begin{proof}
-	Immediate from Lemma \ref{lem:unired}, by induction on the number of reduction steps.
+	Immediate from Lemma \ref{lem:appendix:unired}, by induction on the number of reduction steps.
 \end{proof}
 
 \begin{lem}[Decidability of type checking]
@@ -129,10 +147,10 @@ $\quad$
 	By induction on the structure of $[[e]]$:
 	\begin{description}
 	    \item[Case $[[e=star]]$:] Trivial by applying \ruleref{T\_Ax} and $[[t == star]]$.
-		\item[Case $[[e=x]]$:] Trivial by rule \ruleref{TS\_Var} and $[[t]]$ is the unique type of $[[x]]$ if $[[x:t elt G]]$.
-		\item[Case $[[e]]=[[e1 e2]]$, or $[[\x:t1.e1]]$, or $[[Pi x:t1.t2]]$, or $[[mu x:t.e1]]$:] Trivial according to Lemma \ref{lem:gen} by using rule \ruleref{T\_App}, \ruleref{T\_Lam}, \ruleref{T\_Pi}, or \ruleref{T\_Mu} respectively.
-		\item[Case $[[e]]=[[castup [t1] e1]]$:] From the premises of rule \ruleref{T\_CastUp}, by induction hypothesis, we can derive the type of $[[e1]]$ as $[[t2]]$, and check whether $[[t1]]$ is legal, i.e. its sorts is $[[star]]$. If $[[t1]]$ is legal, by Lemma \ref{lem:unired}, there is at most one $[[t1']]$ such that $[[t1 --> t1']]$. If such $[[t1']]$ does not exist, then we report the type checking is failed. Otherwise, we examine if $[[t1']]$ is syntactically equal to $[[t2]]$, i.e. $[[t1' =a t2]]$. If the equality holds, we obtain the unique type of $[[e]]$ which is $[[t1]]$. Otherwise, we report $[[e]]$ fails to type check.
-		\item[Case $[[e]]=[[castdown e1]]$:] From the premises of rule \ruleref{T\_CastDown}, by induction hypothesis, we can derive the type of $[[e1]]$ as $[[t1]]$. By Lemma \ref{lem:unired}, there is at most one $[[t2]]$ such that $[[t1 --> t2]]$. If such $[[t2]]$ exists and its sorts is $[[star]]$, we have found the unique type of $[[e]]$ is $[[t2]]$. Otherwise, we report $[[e]]$ fails to type check.
+		\item[Case $[[e=x]]$:] Trivial by rule \ruleref{T\_Var} and $[[t]]$ is the unique type of $[[x]]$ if $[[x:t elt G]]$.
+		\item[Case $[[e]]=[[e1 e2]]$, or $[[\x:t1.e1]]$, or $[[Pi x:t1.t2]]$, or $[[mu x:t.e1]]$:] Trivial according to Lemma \ref{lem:appendix:gen} by using rule \ruleref{T\_App}, \ruleref{T\_Lam}, \ruleref{T\_Pi}, or \ruleref{T\_Mu} respectively.
+		\item[Case $[[e]]=[[castup [t1] e1]]$:] From the premises of rule \ruleref{T\_CastUp}, by induction hypothesis, we can derive the type of $[[e1]]$ as $[[t2]]$, and check whether $[[t1]]$ is legal, i.e. its sorts is $[[star]]$. If $[[t1]]$ is legal, by Lemma \ref{lem:appendix:unired}, there is at most one $[[t1']]$ such that $[[t1 --> t1']]$. If such $[[t1']]$ does not exist, then we report the type checking is failed. Otherwise, we examine if $[[t1']]$ is syntactically equal to $[[t2]]$, i.e. $[[t1' =a t2]]$. If the equality holds, we obtain the unique type of $[[e]]$ which is $[[t1]]$. Otherwise, we report $[[e]]$ fails to type check.
+		\item[Case $[[e]]=[[castdown e1]]$:] From the premises of rule \ruleref{T\_CastDown}, by induction hypothesis, we can derive the type of $[[e1]]$ as $[[t1]]$. By Lemma \ref{lem:appendix:unired}, there is at most one $[[t2]]$ such that $[[t1 --> t2]]$. If such $[[t2]]$ exists and its sorts is $[[star]]$, we have found the unique type of $[[e]]$ is $[[t2]]$. Otherwise, we report $[[e]]$ fails to type check.
 	\end{description}
 \end{proof}
 
@@ -150,21 +168,21 @@ If $[[G |- e:T]]$ and $[[e]] [[->>]] e'$ then $[[G |- e':T]]$.
     The proof is by induction with respect to the definition of one-step reduction $[[-->]]$ as follows:
     \begin{description}
         \item[Case $\ottdruleSXXBeta{}$:] $\quad$ \\
-        Suppose $[[G |- (\x:t1.e1)e2 :T]]$ and $[[G |- e1 [x |-> e2] :T']]$. By Lemma \ref{lem:gen}(2), there exist expressions $[[t1']]$ and $[[t2]]$ such that 
+        Suppose $[[G |- (\x:t1.e1)e2 :T]]$ and $[[G |- e1 [x |-> e2] :T']]$. By Lemma \ref{lem:appendix:gen}(2), there exist expressions $[[t1']]$ and $[[t2]]$ such that 
         \begin{align}
             &[[G |- (\x:t1.e1):(Pi x:t1'.t2)]] \label{equ:lam} \\
             &[[G |- e2:t1']] \nonumber \\
             &[[T =a t2 [x |-> e2] ]] \nonumber
         \end{align}
-        By Lemma \ref{lem:gen}(3), the judgement (\ref{equ:lam}) implies that there exists an expression $[[t2']]$ such that
+        By Lemma \ref{lem:appendix:gen}(3), the judgement (\ref{equ:lam}) implies that there exists an expression $[[t2']]$ such that
         \begin{align}
             &[[Pi x:t1'.t2 =a Pi x:t1.t2']] \label{equ:lameq}\\
             &[[G, x:t1 |- e1:t2']] \nonumber
         \end{align}
-        Hence, by (\ref{equ:lameq}) we have $[[t1 =a t1']]$ and $[[t2 =a t2']]$. Then we can obtain $[[G, x:t1 |- e1:t2]]$ and $[[G |- e2:t1]]$. By Lemma \ref{lem:subst}, we have $[[G |- e1[x |-> e2] : t2[x |-> e2] ]]$. Therefore, we conclude with $[[T' =a t2[x |-> e2] ]] [[=a]] [[T]]$.
+        Hence, by (\ref{equ:lameq}) we have $[[t1 =a t1']]$ and $[[t2 =a t2']]$. Then we can obtain $[[G, x:t1 |- e1:t2]]$ and $[[G |- e2:t1]]$. By Lemma \ref{lem:appendix:subst}, we have $[[G |- e1[x |-> e2] : t2[x |-> e2] ]]$. Therefore, we conclude with $[[T' =a t2[x |-> e2] ]] [[=a]] [[T]]$.
         
         \item[Case $\ottdruleSXXApp{}$:] $\quad$ \\
-        Suppose $[[G |- e1 e2 :T]]$ and $[[G |- e1' e2 :T']]$. By Lemma \ref{lem:gen}(2), there exist expressions $[[t1]]$ and $[[t2]]$ such that 
+        Suppose $[[G |- e1 e2 :T]]$ and $[[G |- e1' e2 :T']]$. By Lemma \ref{lem:appendix:gen}(2), there exist expressions $[[t1]]$ and $[[t2]]$ such that 
         \begin{align*}
             &[[G |- e1:(Pi x:t1.t2)]] \\
             &[[G |- e2:t1]]\\
@@ -173,7 +191,7 @@ If $[[G |- e:T]]$ and $[[e]] [[->>]] e'$ then $[[G |- e':T]]$.
         By induction hypothesis, we have $[[G |- e1':(Pi x:t1.t2)]]$. By rule \ruleref{T\_App}, we obtain $[[G |- e1' e2 : t2[x |-> e2] ]]$. Therefore, $[[T' =a t2[x |-> e2] ]] [[=a]] [[T]]$.
         
         \item[Case $\ottdruleSXXCastDown{}$:] $\quad$ \\
-        Suppose $[[G |- castdown e :T]]$ and $[[G |- castdown e' :T']]$. By Lemma \ref{lem:gen}(7), there exist expressions $[[t1]], [[t2]]$ such that 
+        Suppose $[[G |- castdown e :T]]$ and $[[G |- castdown e' :T']]$. By Lemma \ref{lem:appendix:gen}(7), there exist expressions $[[t1]], [[t2]]$ such that 
         \begin{align*}
             &[[G |- e:t1]] \qquad [[G |- t2:s]] \\
             &[[t1 --> t2]] \qquad [[T =a t2 ]]
@@ -181,22 +199,22 @@ If $[[G |- e:T]]$ and $[[e]] [[->>]] e'$ then $[[G |- e':T]]$.
         By induction hypothesis, we have $[[G |- e':t1]]$. By rule \ruleref{T\_CastDown}, we obtain $[[G |- castdown e' : t2 ]]$. Therefore, $[[T' =a t2]] [[=a]] [[T]]$.
         
         \item[Case $\ottdruleSXXCastDownUp{}$:] $\quad$ \\
-        Suppose $[[G |- castdown (castup [t1] e) :T]]$ and $[[G |- e :T']]$. By Lemma \ref{lem:gen}(7), there exist expressions $[[t1']], [[t2]]$ such that 
+        Suppose $[[G |- castdown (castup [t1] e) :T]]$ and $[[G |- e :T']]$. By Lemma \ref{lem:appendix:gen}(7), there exist expressions $[[t1']], [[t2]]$ such that 
         \begin{align}
             &[[G |- (castup [t1] e):t1']] \label{equ:fold} \\
             &[[t1' --> t2]] \label{equ:foldeq1} \\
             &[[T =a t2 ]] \label{equ:foldeq4}
         \end{align}
-        By Lemma \ref{lem:gen}(6), the judgement (\ref{equ:fold}) implies that there exists an expression $[[t2']]$ such that
+        By Lemma \ref{lem:appendix:gen}(6), the judgement (\ref{equ:fold}) implies that there exists an expression $[[t2']]$ such that
         \begin{align}
             &[[G |- e:t2']] \label{equ:foldr} \\
             &[[t1 --> t2']] \label{equ:foldeq2} \\
             &[[t1' =a t1]] \label{equ:foldeq3}
         \end{align}
-        By (\ref{equ:foldeq1}, \ref{equ:foldeq2}, \ref{equ:foldeq3}) and Lemma \ref{lem:unired} we obtain $[[t2 =a t2']]$. From (\ref{equ:foldr}) we have $[[T' =a t2' ]]$. Therefore, by (\ref{equ:foldeq4}), $[[T' =a t2' ]] [[=a]] [[t2 =a T]]$.
+        By (\ref{equ:foldeq1}, \ref{equ:foldeq2}, \ref{equ:foldeq3}) and Lemma \ref{lem:appendix:unired} we obtain $[[t2 =a t2']]$. From (\ref{equ:foldr}) we have $[[T' =a t2' ]]$. Therefore, by (\ref{equ:foldeq4}), $[[T' =a t2' ]] [[=a]] [[t2 =a T]]$.
         
         \item[Case $\ottdruleSXXMu{}$:] $\quad$ \\
-        Suppose $[[G |- (mu x:t.e) :T]]$ and $[[G |- e[x |-> mu x:t.e] :T']]$. By Lemma \ref{lem:gen}(5), we have $[[T =a t]]$ and $[[G, x:t |- e:t]]$. Then we obtain $[[G |- (mu x:t.e) : t]]$. Thus by Lemma \ref{lem:subst}, we have $[[G |- e[x |-> mu x:t.e] : t[x |-> mu x:t.e] ]]$.
+        Suppose $[[G |- (mu x:t.e) :T]]$ and $[[G |- e[x |-> mu x:t.e] :T']]$. By Lemma \ref{lem:appendix:gen}(5), we have $[[T =a t]]$ and $[[G, x:t |- e:t]]$. Then we obtain $[[G |- (mu x:t.e) : t]]$. Thus by Lemma \ref{lem:appendix:subst}, we have $[[G |- e[x |-> mu x:t.e] : t[x |-> mu x:t.e] ]]$.
         
         Note that $[[x]]:[[t]]$, i.e. the type of $[[x]]$ is $[[t]]$, then $[[x]] \notin \FV([[t]])$ holds implicitly. Hence, by the definition of substitution, we obtain $[[t[x |-> mu x:t.e] == t]]$. Therefore, $[[T' =a t[x |-> mu x:t.e] ]] [[==]] [[t =a T]]$.
     \end{description}
@@ -217,21 +235,21 @@ If $[[|- e:T]]$ then either $[[e]]$ is a value $v$ or there exists $[[e]]'$ such
 			\item $[[Pi x:t1.t2]]$,
 			\item $[[castup [t] e]]$.
 		\end{inparaenum}
-		\item[Case $[[e]]=[[e1 e2]]$:] By Lemma \ref{lem:gen}(2), there exist expressions $[[t1]]$ and $[[t2]]$ such that $[[|- e1:(Pi x:t1.t2)]]$ and $[[|-e2:t1]]$. Consider whether $[[e1]]$ is a value:
+		\item[Case $[[e]]=[[e1 e2]]$:] By Lemma \ref{lem:appendix:gen}(2), there exist expressions $[[t1]]$ and $[[t2]]$ such that $[[|- e1:(Pi x:t1.t2)]]$ and $[[|-e2:t1]]$. Consider whether $[[e1]]$ is a value:
     		\begin{itemize}
-    		    \item If $[[e1]]=v$, by Lemma \ref{lem:gen}(3), it must be a $\lambda$-term such that $[[e1 == \x:t1.e1']]$ for some $[[e1']]$ satisfying $[[|- e1':t2]]$. Then by rule \ruleref{S\_Beta}, we have $[[(\x:t1.e1') e2 --> e1' [x |-> e2] ]]$. Thus, there exists $[[e' == e1' [x |-> e2] ]]$ such that $[[e --> e']]$.
+    		    \item If $[[e1]]=v$, by Lemma \ref{lem:appendix:gen}(3), it must be a $\lambda$-term such that $[[e1 == \x:t1.e1']]$ for some $[[e1']]$ satisfying $[[|- e1':t2]]$. Then by rule \ruleref{S\_Beta}, we have $[[(\x:t1.e1') e2 --> e1' [x |-> e2] ]]$. Thus, there exists $[[e' == e1' [x |-> e2] ]]$ such that $[[e --> e']]$.
     		    \item Otherwise, by induction hypothesis, there exists $[[e1']]$ such that $[[e1 --> e1']]$. Then by rule \ruleref{S\_App}, we have $[[e1 e2 --> e1' e2]]$. Thus, there exists $[[e' == e1' e2]]$ such that $[[e --> e']]$.
     		\end{itemize}
-		\item[Case $[[e]]=[[castdown e1]]$:] By Lemma \ref{lem:gen}(7), there exist expressions $[[t1]]$ and $[[t2]]$ such that $[[|- e1:t1]]$ and $[[t1 --> t2]]$. Consider whether $[[e1]]$ is a value:
+		\item[Case $[[e]]=[[castdown e1]]$:] By Lemma \ref{lem:appendix:gen}(7), there exist expressions $[[t1]]$ and $[[t2]]$ such that $[[|- e1:t1]]$ and $[[t1 --> t2]]$. Consider whether $[[e1]]$ is a value:
 		     \begin{itemize}
-    		    \item If $[[e1]]=v$, by Lemma \ref{lem:gen}(6), it must be a $[[castup]]$-term such that $[[e1 == castup [t1] e1']]$ for some $[[e1']]$ satisfying $[[|- e1':t2]]$. Then by rule \ruleref{S\_CastDownUp}, we can obtain $[[castdown (castup [t1] e1') --> e1']]$. Thus, there exists $[[e' == e1']]$ such that $[[e --> e']]$.
+    		    \item If $[[e1]]=v$, by Lemma \ref{lem:appendix:gen}(6), it must be a $[[castup]]$-term such that $[[e1 == castup [t1] e1']]$ for some $[[e1']]$ satisfying $[[|- e1':t2]]$. Then by rule \ruleref{S\_CastDownUp}, we can obtain $[[castdown (castup [t1] e1') --> e1']]$. Thus, there exists $[[e' == e1']]$ such that $[[e --> e']]$.
     		    \item Otherwise, by induction hypothesis, there exists $[[e1']]$ such that $[[e1 --> e1']]$. Then by rule \ruleref{S\_CastDown}, we have $[[castdown e1 --> castdown e1']]$. Thus, there exists $[[e' == castdown e1']]$ such that $[[e --> e']]$.
     		\end{itemize}
 		\item[Case $[[e]]=[[mu x:t.e1]]$:] By rule \ruleref{S\_Mu}, there always exists $[[e' == e1[x |-> mu x:t.e1] ]]$.
     \end{description}
 \end{proof}
 
-\section{Full specification of source language}
+\section{Full Specification of Source Language}
 \subsection{Syntax}
 See Figure \ref{fig:appendix:syntax}.
 \begin{figure*}[ht]
@@ -257,7 +275,7 @@ See Figure \ref{fig:appendix:syntax}.
 \label{fig:appendix:syntax}
 \end{figure*}
 
-\subsection{Expression typing}
+\subsection{Expression Typing}
 See Figure \ref{fig:appendix:typing}.
 \begin{figure*}[ht]
 \ottdefnctxsrc{}
@@ -269,7 +287,7 @@ See Figure \ref{fig:appendix:typing}.
 \label{fig:appendix:typing}
 \end{figure*}
 
-\subsection{Translation to the core}
+\subsection{Translation to the Core}
 See Figure \ref{fig:appendix:translate}.
 \begin{figure*}[ht]
 \ottdefnpgmtrans{}

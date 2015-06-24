@@ -1,15 +1,36 @@
 %%% !!! WARNING: AUTO GENERATED. DO NOT MODIFY !!! %%%
-\section{The core language without recursion}\label{sec:ecore}
 
-In this section, we present \ecore calculus, a language based on \cc with explicit type-level computation. \ecore is a subset of the core language \name without general recursion, which is simple enough for meta-theoretic studies. By explicitly controlling the type-level computation with \cast operators, \ecore can achieve decidable type checking without requiring normalizing property. In rest of this section, we demonstrate the syntax, operational semantics, typing rules and meta-theory of \ecore.
+\section{A Dependently Typed Calculus with Casts}\label{sec:ecore}
+
+In this section, we present \ecore calculus. \ecore is a subset of the core
+language \name without general recursion. By explicitly controlling the type-level
+computation with \cast operators, \ecore has decidable type-checking
+without requiring strong normalization. In rest of this
+section, we demonstrate the syntax, operational semantics, typing
+rules and meta-theory of \ecore.
 
 \subsection{Syntax}\label{sec:ecore:syn}
-Figure \ref{fig:ecore:syntax} shows the syntax of \ecore, including expressions, contexts and values. The syntax follows \cc and fairly straightforward while there are still some differences in \ecore, including the "type-in-type" axiom and \cast operators.
+Figure \ref{fig:ecore:syntax} shows the syntax of \ecore, including
+expressions, contexts and values. The syntax follows closely the
+calculus of constructions (\cc). Two important differences, however, are: 1)
+the absence of the $\Box$ constant (due to use of the "type-in-type"
+axiom); 2) the existence of two \cast operators.
 
 \subsubsection{Unified syntactic levels}
-\ecore uses a unified syntactic representation for different levels of expressions by following the \emph{pure type system} (PTS) representation of \cc. Traditionally in \cc, there are two distinct sorts $\star$ and $\Box$ representing the type of \emph{types} and \emph{sorts} respectively, and an axiom $\star:\Box$ specifying the relation. In \ecore, we further merge types and kinds together by including only a single sort $\star$ and an impredicative axiom $\star:\star$. 
+\ecore uses a unified syntactic representation for different levels of
+expressions by following the \emph{pure type system} (PTS)
+representation of \cc. Traditionally in \cc, there are two distinct
+sorts $\star$ and $\Box$ representing the type of
+\emph{types} and \emph{sorts} respectively, and an axiom
+$\star:\Box$ specifying the relation. In \ecore, we further
+merge types and kinds together by including only a single sort
+$\star$ and an impredicative axiom $\star:\star$. 
 
-Therefore, there is no syntactic distinction between terms, types or kinds. This design brings the economy for type checking, since one set of rules can cover all syntactic levels. By convention, we use metavariables $\tau$ and $\sigma$ for an expression on the type-level position and $e$ for one on the term level.
+Therefore, there is no syntactic distinction between terms, types or
+kinds. This design brings the economy for type checking, since one set
+of rules can cover all syntactic levels. By convention, we use
+metavariables $\tau$ and $\sigma$ for an expression on the type-level
+position and $e$ for one on the term level.
 
 \subsubsection{Dependent function types}
 In the context of \cc, if a term $\ottmv{x}$ has the type $\tau_{{\mathrm{1}}}$, and $\tau_{{\mathrm{2}}}$ is a type, i.e. $\ottmv{x}:\tau_{{\mathrm{1}}}:\star$ and $\tau_{{\mathrm{2}}}:\Box$, we call the type $\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}$ a \emph{dependent product}. \ecore follows \cc to use the same $ \Pi $-notation to represent dependent function types.
@@ -29,7 +50,7 @@ Though \cast primitives make the syntax verbose when type conversion is heavily 
     \label{fig:ecore:syntax}
 \end{figure}
 
-\subsection{Operational semantics}\label{sec:ecore:opsem}
+\subsection{Operational Semantics}\label{sec:ecore:opsem}
 Figure \ref{fig:ecore:opsem} shows the \emph{call-by-name} operational semantics, defined by one-step reduction. Two base cases include \ruleref{S\_Beta} for $\beta$-reduction and \ruleref{S\_CastDownUp} for cast canceling. Two inductive case, \ruleref{S\_App} and \ruleref{S\_CastDown}, define reduction in the head position of an application, and in the $ \kw{cast}_{\downarrow} $ inner expression respectively. The reduction rules are \emph{weak} in the sense that it is not allowed to reduce inside a $\lambda$-term or $ \kw{cast}^{\uparrow} $-term which is viewed as a value (see Figure \ref{fig:ecore:syntax}).
 
 To evaluate the value of a term-level expression, we apply the one-step reduction multiple times. The number of evaluation steps is not restricted, which is possible to be infinite. The multi-step reduction can be defined as follows:
@@ -53,7 +74,7 @@ Figure \ref{fig:ecore:typing} gives the \emph{syntax-directed} typing rules of \
 
 Most typing rules are quite standard. We write $\vdash  \Gamma$ if a context $\Gamma$ is well-formed. Note that there is only a single sort $\star$, we use $\Gamma  \vdash  \tau  \ottsym{:}  \star$ to check if $\tau$ is a well-formed type. Rule \ruleref{T\_Ax} is the "type-in-type" axiom. Rule \ruleref{T\_Var} checks the type of variable $\ottmv{x}$ from the valid context. Rules \ruleref{T\_App} and \ruleref{T\_Lam} check the validity of application and abstraction. Rules \ruleref{T\_Pi} check the type well-formedness of the dependent function.
 
-We focus on rules \ruleref{T\_CastUp} and \ruleref{T\_CastDown} that define the semantics of \cast operators and replace the conversion rule of \cc~\fixme{(see \ref{})}. The relation between the original and converted type is defined by one-step reduction (see \ref{fig:ecore:opsem}). Specifically speaking, if given a judgement $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau_{{\mathrm{2}}}$ and relation $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}  \longrightarrow  \tau_{{\mathrm{3}}}$, then $\kw{cast}^{\uparrow} \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]}  \ottnt{e}$ expands the type of $\ottnt{e}$ from $\tau_{{\mathrm{2}}}$ to $\tau_{{\mathrm{1}}}$, while $\kw{cast}_{\downarrow} \, \ottnt{e}$ reduces the type of $\ottnt{e}$ from $\tau_{{\mathrm{2}}}$ to $\tau_{{\mathrm{3}}}$.
+We focus on rules \ruleref{T\_CastUp} and \ruleref{T\_CastDown} that define the semantics of \cast operators and replace the conversion rule of \cc~\fixme{(see \ref{})}. The relation between the original and converted type is defined by one-step reduction (see \ref{fig:ecore:opsem}). Specifically speaking, if given a judgement $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau_{{\mathrm{2}}}$ and relation $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}  \longrightarrow  \tau_{{\mathrm{3}}}$, then $\kw{cast}^{\uparrow} \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]} \,  \ottnt{e}$ expands the type of $\ottnt{e}$ from $\tau_{{\mathrm{2}}}$ to $\tau_{{\mathrm{1}}}$, while $\kw{cast}_{\downarrow} \, \ottnt{e}$ reduces the type of $\ottnt{e}$ from $\tau_{{\mathrm{2}}}$ to $\tau_{{\mathrm{3}}}$.
 
 Finally, the definition of type equality in \ecore differs from \cc. Without \cc's conversion rule, the type of a term cannot be converted freely against $\beta$-equality, unless using \cast operators. Thus, types of expressions are equal only if they are syntactically equal, i.e. satisfy the $\alpha$-equality.
 
@@ -92,14 +113,39 @@ With this result, we show a decidable algorithm to check whether one-step relati
 
 Note that when proving the decidability of type checking, we do not rely on the normalizing property. Because explicit type conversion rules use one-step reduction, which already has a decidable checking algorithm according to Lemma \ref{lem:ecore:unique}. We do not need to further require the normalization of terms. This is different from the proof for \cc which requires the language is normalizing \fixme{[cite the PTS paper]}. Because \cc's conversion rule needs to examine the $\beta$-equivalence of terms, which is decidable only if every term has a normal form.
 
-\subsubsection{Multi-step cast operator}
-\fixme{Write about $ \kw{cast}_{\uparrow}^n $ and $ \kw{cast}_{\downarrow}^n $.}
+\subsubsection{n-step cast operators}
+Because of the uniqueness of one-step reduction, we can generalize one-step \cast operators to $n$-step. Suppose $\ottnt{e} : \tau$ and we have sequences of reduction $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}  \longrightarrow  \dots  \longrightarrow  \tau_{\ottmv{n}}  \longrightarrow  \tau$ and $\tau  \longrightarrow  \sigma_{{\mathrm{1}}}  \longrightarrow  \sigma_{{\mathrm{2}}}  \longrightarrow  \dots  \longrightarrow  \sigma_{\ottmv{n}}$. We can define $n$-step \cast operators as follows:
+\begin{flalign*}
+    & \kw{cast}_{\uparrow}^n  [ \tau_{{\mathrm{1}}}, \dots, \tau_{\ottmv{n}} ] \ottnt{e} &  \triangleq ~  &  \kw{cast}^{\uparrow}  [ \tau_{{\mathrm{1}}} ] ( \kw{cast}^{\uparrow}  [ \tau_{{\mathrm{2}}} ] (\dots (  \kw{cast}^{\uparrow}  [ \tau_{\ottmv{n}} ] \ottnt{e} ) \dots )) \\
+    & \kw{cast}_{\downarrow}^n  \ottnt{e} &  \triangleq ~  & \underbrace{ \kw{cast}_{\downarrow}  ( \kw{cast}_{\downarrow}  (\dots (  \kw{cast}_{\downarrow} }_n \ottnt{e}) \dots ))
+\end{flalign*}
+By rules \ruleref{T\_CastUp} and \ruleref{T\_CastDown}, we have the following typing results:
+\[\begin{array}{lll}
+    & \kw{cast}_{\uparrow}^n  [ \tau_{{\mathrm{1}}}, \dots, \tau_{\ottmv{n}} ] \ottnt{e} & : \tau_{{\mathrm{1}}} \\
+    & \kw{cast}_{\downarrow}^n  \ottnt{e} & : \sigma_{\ottmv{n}}
+\end{array}\]
+
+From Lemma \ref{lem:ecore:unique}, we immediately have the following corollary for $n$-step reduction:
+
+\begin{lem}[Uniqueness of $n$-step reduction]\label{lem:ecore:uniquen}
+	The $n$-step reduction $ \longrightarrow_n $ is unique in the sense that given $\ottnt{e}$ there is at most one $\ottnt{e'}$ such that $\ottnt{e}  \longrightarrow_n  \ottnt{e'}$.
+\end{lem}
+
+\begin{proof}
+	Immediate from Lemma \ref{lem:ecore:unique}, by induction on the number of reduction steps.
+\end{proof}
+
+Thus, $\tau_{{\mathrm{1}}}  \longrightarrow_n  \tau$ and $\tau  \longrightarrow_n  \sigma_{\ottmv{n}}$ are unique by Lemma \ref{lem:ecore:uniquen}. The intermediate types in $\tau_{{\mathrm{1}}}  \longrightarrow_n  \tau$, i.e. $\tau_{{\mathrm{2}}}, \dots, \tau_{\ottmv{n}}$, can be uniquely determined. Thus, we can leave them out in the $ \kw{cast}_{\uparrow}^n $ operator. Finally, we can have $n$-step \cast operators with the following form:
+\[\begin{array}{lll}
+    &\kw{cast}_{\uparrow}^n \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]} \,  \ottnt{e} & : \tau_{{\mathrm{1}}} \\
+    &\kw{cast}_{\downarrow}^n \, \ottnt{e} & : \sigma_{\ottmv{n}}
+\end{array}\]
 
 \subsubsection{Type-safety}
 Proof of the type-safety (or soundness) of \ecore is fairly standard by subject reduction (or preservation) and progress lemmas. The subject reduction proof relies on the substitution lemma. We give the proof sketch of related lemmas as follows:
 
 \begin{lem}[Substitution lemma]\label{lem:ecore:subst}
-	If $\Gamma_{{\mathrm{1}}}  \ottsym{,}  \ottmv{x}  \ottsym{:}  \sigma  \ottsym{,}  \Gamma_{{\mathrm{2}}}  \vdash  \ottnt{e_{{\mathrm{1}}}}  \ottsym{:}  \tau$ and $\Gamma_{{\mathrm{1}}}  \vdash  \ottnt{e_{{\mathrm{2}}}}  \ottsym{:}  \sigma$, then $\Gamma_{{\mathrm{1}}}  \ottsym{,}  \Gamma_{{\mathrm{2}}}  \ottsym{[}  \ottmv{x}  \mapsto  \ottnt{e_{{\mathrm{2}}}}  \ottsym{]}  \vdash  \ottnt{e_{{\mathrm{1}}}}  \ottsym{[}  \ottmv{x}  \mapsto  \ottnt{e_{{\mathrm{2}}}}  \ottsym{]}  \ottsym{:}  \tau  \ottsym{[}  \ottmv{x}  \mapsto  \ottnt{e_{{\mathrm{2}}}}  \ottsym{]}$.
+	If $\Gamma_{{\mathrm{1}}}  \ottsym{,}  \ottmv{x}  \ottsym{:}  \sigma  \ottsym{,}  \Gamma_{{\mathrm{2}}}  \vdash  \ottnt{e_{{\mathrm{1}}}}  \ottsym{:}  \tau$ and $\Gamma_{{\mathrm{1}}}  \vdash  \ottnt{e_{{\mathrm{2}}}}  \ottsym{:}  \sigma$, then $\Gamma_{{\mathrm{1}}}  \ottsym{,}  \Gamma_{{\mathrm{2}}}  \ottsym{[}  \ottmv{x}  \mapsto  \ottnt{e_{{\mathrm{2}}}}  \ottsym{]} \,  \vdash  \ottnt{e_{{\mathrm{1}}}}  \ottsym{[}  \ottmv{x}  \mapsto  \ottnt{e_{{\mathrm{2}}}}  \ottsym{]} \,  \ottsym{:}  \tau  \ottsym{[}  \ottmv{x}  \mapsto  \ottnt{e_{{\mathrm{2}}}}  \ottsym{]} \,$.
 \end{lem}
 
 \begin{proof}

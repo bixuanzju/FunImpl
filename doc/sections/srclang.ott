@@ -148,7 +148,7 @@ Gs |- let x : A = E2 in E1 : B
 
 %%% Translation rules
 defn Gs  |- pgm : A ~> e ::  :: pgmtrans :: 'TRpgm_' {{ com Program translation }}
-{{ tex [[Gs]] \labeledjudge{tr} [[pgm]] : [[A]] [[~>]] [[e]] }}
+{{ tex [[Gs]] \labeledjudge{s} [[pgm]] : [[A]] [[~>]] [[e]] }}
 by
 
 << Gs0 |- decl : Gs' ~> e1 >>
@@ -159,7 +159,7 @@ Gs0 |- (<<decl>>;E) :A ~> <<e1>> (+) e
 
 
 defn Gs  |- decl : Gs' ~> e ::  :: decltrans :: 'TRdecl_' {{ com Datatype translation }}
-{{ tex [[Gs]] \labeledjudge{tr} [[decl]] : [[Gs']] [[~>]] [[e]] }}
+{{ tex [[Gs]] \labeledjudge{s} [[decl]] : [[Gs']] [[~>]] [[e]] }}
 by
 
 Gs |- (<<u:k>>) -> star : star ~> (<<u:T>>) -> star
@@ -168,7 +168,7 @@ Gs |- (<<u:k>>) -> star : star ~> (<<u:T>>) -> star
 Gs |- (data D << u:k >> = << K <<A>> >>) : (D : (<<u:k>>) -> star, << K : (<<u:k>>) -> <<A>> -> D@<<u>> >>) ~> e
 
 defn Gs  |- p => E : B -> A ~> e ::  :: pattrans :: 'TRpat_' {{ com Pattern translation }}
-{{ tex [[Gs]] \labeledjudge{tr} [[p]] [[=>]] [[E]] : [[B]] [[->]] [[A]] [[~>]] [[e]] }}
+{{ tex [[Gs]] \labeledjudge{s} [[p]] [[=>]] [[E]] : [[B]] [[->]] [[A]] [[~>]] [[e]] }}
 by
 
 K : (<<u:k>>)-><<B>>->D@<<u>> elt Gs
@@ -179,7 +179,7 @@ Gs |- K <<x:B[<< u |-> U >>]>> => E:D@<<U>>->A ~> \<<x:T>>.e
 
 
 defn Gs  |- E : A ~> e ::  :: exprtrans :: 'TR_' {{ com Expression translation }}
-{{ tex [[Gs]] \labeledjudge{tr} [[E]] : [[A]] [[~>]] [[e]] }}
+{{ tex [[Gs]] \labeledjudge{s} [[E]] : [[A]] [[~>]] [[e]] }}
 by
 
 ------------------------------ :: Ax
