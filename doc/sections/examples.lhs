@@ -68,7 +68,7 @@ In this section, we showcase applications, which either Haskell needs non-trivia
 % \label{fig:pex}
 % \end{figure}
 
-\subsubsection{Conventional datatypes}
+\subsubsection{Conventional Datatypes}
 
 Conventional datatypes like natural numbers or polymorphic lists can be easily defined in \name, as in Haskell. For example, below is the definition of polymorphic lists:
 
@@ -92,7 +92,7 @@ Because \name is explicitly typed, each type parameter needs to be accompanied w
   \end{spec}
 \end{figure}
 
-\subsubsection{Higher-kinded types}
+\subsubsection{Higher-kinded Types}
 
 Higher-kinded types are types that take other types and produce a new type. To support higher-kinded types, languages like Haskell have to extend their existing core languages to account for kind expressions. In \name, since all syntactical constructs are in the same level, we can easily construct higher-kinded types. We show this by an example of encoding the \emph{Functor} class:
 
@@ -164,7 +164,7 @@ Evaluation of a lambda expression proceeds as follows:
   \end{spec}
 \end{figure}
 
-\subsubsection{Fix as a datatype}
+\subsubsection{Fix as a Datatype}
 
 The type-level \emph{Fix} is a good example to demonstrate the expressiveness of \name. The definition is simply:
 
@@ -188,7 +188,7 @@ Given \emph{fmap}, many recursive shcemes can be defined, for example  we can ha
 \end{figure}
 
 
-\subsubsection{Kind polymophism for datatypes}
+\subsubsection{Kind Polymophism for Datatypes}
 
 In Haskell, System $F_{c}^{\uparrow}$ was proposed to support kind polymorphism. However it separates expressions into terms, types and kinds, which complicates both the implementation and future extensions. \name natively allows datatype definitions to have polymorphic kinds. Here is an example, taken from~\cite{fc:pro}, of a datatype that benefits from kind polymophism: higher-kinded fixpoint combinator
 
@@ -208,7 +208,7 @@ In Haskell, System $F_{c}^{\uparrow}$ was proposed to support kind polymorphism.
   \end{spec}
 \end{figure}
 
-\subsubsection{Nested datatypes and polymorphic recursion}
+\subsubsection{Nested Datatypes and Polymorphic Recursion}
 
 A nested datatype, also known as a \emph{non-regular} datatype, is a parametrised datatype whose definition contains different instances of the type parameters. Functions over nested datatypes usually involve polymorphic recursion. We show that \name is capable of defining all useful functions over a nested datatype. A simple example would be the type \emph{Pow} of power trees, whose size is exactly a power of two, declared as follows:
 
