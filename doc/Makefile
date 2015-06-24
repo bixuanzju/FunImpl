@@ -10,6 +10,7 @@ $(MAIN).pdf: $(wildcard sections/*.tex) $(wildcard sections/*.lhs) $(wildcard se
 	pdflatex $(@:.pdf=.tex)
 
 clean:
+	touch $(MAIN).tex
 	rm -f $(MAIN).aux $(MAIN).log $(MAIN).out $(MAIN).synctex.gz $(MAIN).blg texput.log
 
 distclean: clean

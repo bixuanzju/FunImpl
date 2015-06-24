@@ -149,8 +149,11 @@ $\quad$
 	\begin{description}
 	    \item[Case $\ottnt{e}  \ottsym{=}  \star$:] Trivial by applying \ruleref{T\_Ax} and $\tau  \equiv  \star$.
 		\item[Case $\ottnt{e}  \ottsym{=}  \ottmv{x}$:] Trivial by rule \ruleref{T\_Var} and $\tau$ is the unique type of $\ottmv{x}$ if $\ottmv{x}  \ottsym{:}  \tau \, \in \, \Gamma$.
-		\item[Case $\ottnt{e}=\ottnt{e_{{\mathrm{1}}}} \, \ottnt{e_{{\mathrm{2}}}}$, or $\lambda  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}$, or $\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}$, or $\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}$:] Trivial according to Lemma \ref{lem:appendix:gen} by using rule \ruleref{T\_App}, \ruleref{T\_Lam}, \ruleref{T\_Pi}, or \ruleref{T\_Mu} respectively.
-		\item[Case $\ottnt{e}=\kw{cast}^{\uparrow} \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]} \,  \ottnt{e_{{\mathrm{1}}}}$:] From the premises of rule \ruleref{T\_CastUp}, by induction hypothesis, we can derive the type of $\ottnt{e_{{\mathrm{1}}}}$ as $\tau_{{\mathrm{2}}}$, and check whether $\tau_{{\mathrm{1}}}$ is legal, i.e. its sorts is $\star$. If $\tau_{{\mathrm{1}}}$ is legal, by Lemma \ref{lem:appendix:unired}, there is at most one $\tau'_{{\mathrm{1}}}$ such that $\tau_{{\mathrm{1}}}  \longrightarrow  \tau'_{{\mathrm{1}}}$. If such $\tau'_{{\mathrm{1}}}$ does not exist, then we report the type checking is failed. Otherwise, we examine if $\tau'_{{\mathrm{1}}}$ is syntactically equal to $\tau_{{\mathrm{2}}}$, i.e. $\tau'_{{\mathrm{1}}}  \equiv  \tau_{{\mathrm{2}}}$. If the equality holds, we obtain the unique type of $\ottnt{e}$ which is $\tau_{{\mathrm{1}}}$. Otherwise, we report $\ottnt{e}$ fails to type check.
+		\item[Case $\ottnt{e}=\ottnt{e_{{\mathrm{1}}}} \, \ottnt{e_{{\mathrm{2}}}}$:] By rule \ruleref{T\_App} and introduction hypothesis, there exist unique expressions $\tau_{{\mathrm{1}}}$ and $\tau_{{\mathrm{2}}}$ such that $\Gamma  \vdash  \ottnt{e_{{\mathrm{1}}}}  \ottsym{:}  \ottsym{(}  \Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}  \ottsym{)}$, $\Gamma  \vdash  \ottnt{e_{{\mathrm{2}}}}  \ottsym{:}  \tau_{{\mathrm{1}}}$. Thus, from Lemma \ref{lem:appendix:gen}, $\tau_{{\mathrm{2}}}  \ottsym{[}  \ottmv{x}  \mapsto  \ottnt{e_{{\mathrm{2}}}}  \ottsym{]} \,$ is the unique type of $\ottnt{e}$.
+		\item[Case $\lambda  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}$:] By rule \ruleref{T\_Lam} and introduction hypothesis, there exist unique expressions $\tau_{{\mathrm{2}}}$ such that $\Gamma  \vdash  \ottsym{(}  \Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}  \ottsym{)}  \ottsym{:}  \star$ and $\Gamma  \ottsym{,}  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \vdash  \ottnt{e}  \ottsym{:}  \tau_{{\mathrm{2}}}$. Thus, from Lemma \ref{lem:appendix:gen}, $\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}$ is the unique type of $\ottnt{e}$.
+		\item[Case $\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}$:] By rule \ruleref{T\_Pi} and introduction hypothesis, we have $\Gamma  \vdash  \tau_{{\mathrm{1}}}  \ottsym{:}  \star$ and $\Gamma  \ottsym{,}  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \vdash  \tau_{{\mathrm{2}}}  \ottsym{:}  \star$. Thus, from Lemma \ref{lem:appendix:gen}, $\star$ is the unique type of $\ottnt{e}$.
+		\item[Case $\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}$:] By rule \ruleref{T\_Mu} and introduction hypothesis, we have $\Gamma  \vdash  \tau  \ottsym{:}  \star$ and $\Gamma  \ottsym{,}  \ottmv{x}  \ottsym{:}  \tau  \vdash  \ottnt{e}  \ottsym{:}  \tau$. Thus, from Lemma \ref{lem:appendix:gen}, $\tau$ is the unique type of $\ottnt{e}$.
+		\item[Case $\ottnt{e}=\kw{cast}^{\uparrow} \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]} \,  \ottnt{e_{{\mathrm{1}}}}$:] From the premises of rule \ruleref{T\_CastUp}, by induction hypothesis, we can derive the type of $\ottnt{e_{{\mathrm{1}}}}$ as $\tau_{{\mathrm{2}}}$, and check whether $\tau_{{\mathrm{1}}}$ is legal, i.e. its sorts is $\star$. If $\tau_{{\mathrm{1}}}$ is legal, by Lemma \ref{lem:appendix:unired}, there is at most one $\tau'_{{\mathrm{1}}}$ such that $\tau_{{\mathrm{1}}}  \longrightarrow  \tau'_{{\mathrm{1}}}$. If such $\tau'_{{\mathrm{1}}}$ does not exist, then we report type checking fails. Otherwise, we examine if $\tau'_{{\mathrm{1}}}$ is syntactically equal to $\tau_{{\mathrm{2}}}$, i.e. $\tau'_{{\mathrm{1}}}  \equiv  \tau_{{\mathrm{2}}}$. If the equality holds, we obtain the unique type of $\ottnt{e}$ which is $\tau_{{\mathrm{1}}}$. Otherwise, we report $\ottnt{e}$ fails to type check.
 		\item[Case $\ottnt{e}=\kw{cast}_{\downarrow} \, \ottnt{e_{{\mathrm{1}}}}$:] From the premises of rule \ruleref{T\_CastDown}, by induction hypothesis, we can derive the type of $\ottnt{e_{{\mathrm{1}}}}$ as $\tau_{{\mathrm{1}}}$. By Lemma \ref{lem:appendix:unired}, there is at most one $\tau_{{\mathrm{2}}}$ such that $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}$. If such $\tau_{{\mathrm{2}}}$ exists and its sorts is $\star$, we have found the unique type of $\ottnt{e}$ is $\tau_{{\mathrm{2}}}$. Otherwise, we report $\ottnt{e}$ fails to type check.
 	\end{description}
 \end{proof}
@@ -291,6 +294,7 @@ See Figure \ref{fig:appendix:typing}.
 \subsection{Translation to the Core}
 See Figure \ref{fig:appendix:translate}.
 \begin{figure*}[ht]
+\ottdefnctxtrans{}
 \ottdefnpgmtrans{}
 \ottdefndecltrans{}
 \begin{align*}
@@ -301,4 +305,26 @@ See Figure \ref{fig:appendix:translate}.
 \caption{Translation rules of source language}
 \label{fig:appendix:translate}
 \end{figure*}
+
+
+\section{Proofs about Source Language}
+\subsection{Type-safety of Translation}
+\begin{lem}[Type-safety of expression translation]
+Given $ \Sigma  \labeledjudge{s}  \ottnt{E}  :  T $, if $ \labeledjudge{ct}  \Sigma   \rightsquigarrow   \Gamma $, $ \Sigma  \labeledjudge{s}  \ottnt{E}  :  T   \rightsquigarrow   \ottnt{e} $ and $ \Sigma  \labeledjudge{s}  T  :  \star   \rightsquigarrow   \tau $, then $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$.
+\end{lem}
+
+\begin{proof}
+    By induction on the derivation of $ \Sigma  \labeledjudge{s}  \ottnt{E}  :  T $:
+    \begin{description}
+        \item[Case $\ottnt{E}  \ottsym{=}  \star$:]
+    \end{description}
+\end{proof}
+
+\begin{lem}[Type-safety of datatype translation]
+Given $ \Sigma  \labeledjudge{d}  \ottnt{decl}  :  \Sigma' $, if $ \labeledjudge{ct}  \Sigma   \rightsquigarrow   \Gamma $, $ \Sigma  \labeledjudge{d}  \ottnt{decl}  :  \Sigma'   \rightsquigarrow   \ottnt{e} $ and \fixme{$\tau=?$}, then $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$.
+\end{lem}
+
+\begin{proof}
+    
+\end{proof}
 
