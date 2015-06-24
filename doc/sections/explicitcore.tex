@@ -2,45 +2,60 @@
 
 \section{A Dependently Typed Calculus with Casts}\label{sec:ecore}
 
-In this section, we present \ecore calculus. \ecore is a subset of the core
-language \name without general recursion. By explicitly controlling the type-level
-computation with \cast operators, \ecore has decidable type-checking
-without requiring strong normalization. In rest of this
+In this section, we present the \ecore calculus. This calculus is very 
+close to the calculus of contructions, except for two key differences: 
+1) the absence of the $\Box$ constant (due to use of the "type-in-type"
+axiom); 2) the existence of two \cast operators. Like the calculus 
+of constructions, \ecore has decidable type-checking. However, unlike
+\cc the proof of decidability of type-checking does not require 
+the strong normalization of the calculus. 
+In rest of this
 section, we demonstrate the syntax, operational semantics, typing
 rules and meta-theory of \ecore.
 
-\subsection{Syntax}\label{sec:ecore:syn}
-Figure \ref{fig:ecore:syntax} shows the syntax of \ecore, including
-expressions, contexts and values. The syntax follows closely the
-calculus of constructions (\cc). Two important differences, however, are: 1)
-the absence of the $\Box$ constant (due to use of the "type-in-type"
-axiom); 2) the existence of two \cast operators.
+%\ecore is a subset of the core
+%language \name without general recursion. By explicitly controlling the type-level
+%computation with \cast operators, \ecore has decidable type-checking
+%without requiring strong normalization. 
 
-\subsubsection{Unified syntactic levels}
-\ecore uses a unified syntactic representation for different levels of
-expressions by following the \emph{pure type system} (PTS)
-representation of \cc. Traditionally in \cc, there are two distinct
+\subsection{Syntax}\label{sec:ecore:syn}
+
+Figure \ref{fig:ecore:syntax} shows the syntax of \ecore, including
+expressions, contexts and values. \ecore uses a unified syntactic
+representation for different levels of expressions by following the
+\emph{pure type system} (PTS) representation of \cc. Therefore, there
+is no syntactic distinction between terms, types or kinds. This design
+brings the economy for type checking, since one set of rules can cover
+all syntactic levels. By convention, we use metavariables $\tau$ and
+$\sigma$ for an expression on the type-level position and $e$ for one
+on the term level.
+
+\subsubsection{Type of Types}
+Traditionally in \cc, there are two distinct
 sorts $\star$ and $\Box$ representing the type of
 \emph{types} and \emph{sorts} respectively, and an axiom
 $\star:\Box$ specifying the relation. In \ecore, we further
 merge types and kinds together by including only a single sort
 $\star$ and an impredicative axiom $\star:\star$. 
 
-Therefore, there is no syntactic distinction between terms, types or
-kinds. This design brings the economy for type checking, since one set
-of rules can cover all syntactic levels. By convention, we use
-metavariables $\tau$ and $\sigma$ for an expression on the type-level
-position and $e$ for one on the term level.
-
-\subsubsection{Dependent function types}
-In the context of \cc, if a term $\ottmv{x}$ has the type $\tau_{{\mathrm{1}}}$, and $\tau_{{\mathrm{2}}}$ is a type, i.e. $\ottmv{x}:\tau_{{\mathrm{1}}}:\star$ and $\tau_{{\mathrm{2}}}:\Box$, we call the type $\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}$ a \emph{dependent product}. \ecore follows \cc to use the same $ \Pi $-notation to represent dependent function types.
-
-However, a higher-kind polymorphic function type such as $\Pi \, \ottmv{x}  \ottsym{:}  \Box  \ottsym{.}  \ottmv{x}  \rightarrow  \ottmv{x}$ is not allowed in \cc, because $\Box$ is the highest sort that can not be typed. While $ \Pi $-notation in \ecore is more expressive and does not have such limitation because of the axiom $\star:\star$. In the source language, we interchangeably use the arrow form $\ottsym{(}  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{)}  \rightarrow  \tau_{{\mathrm{2}}}$ of the product for clarity. By convention, we also use the syntactic sugar $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}$ to represent the product if $\ottmv{x}$ does not occur free in $\tau_{{\mathrm{2}}}$.
 
 \subsubsection{Explicit type conversion}
-We introduce two new primitives $ \kw{cast}^{\uparrow} $ and $ \kw{cast}_{\downarrow} $ (pronounced as "cast up" and "cast down") to replace implicit conversion rule of \cc with \emph{one-step} explicit type conversion. They represent two directions of type conversion: $ \kw{cast}_{\downarrow} $ stands for the $\beta$-reduction of types, while $ \kw{cast}^{\uparrow} $ is the inverse \fixme{(see examples in \S \ref{sec:})}.
 
-Though \cast primitives make the syntax verbose when type conversion is heavily used, the implementation of type checking is simplified because typing rules of \ecore become type-directed without \cc's implicit conversion rule. Considering the core language is compiler-oriented and \fixme{source language does not include \cast primitives}, end-users will not directly use them. Some type conversions can be generated through the translation of the source language \fixme{(\S \ref{sec:src})}.
+We introduce two new primitives $ \kw{cast}^{\uparrow} $ and $ \kw{cast}_{\downarrow} $
+(pronounced as "cast up" and "cast down") to replace implicit
+conversion rule of \cc with \emph{one-step} explicit type
+conversion. They represent two directions of type conversion:
+$ \kw{cast}_{\downarrow} $ stands for the $\beta$-reduction of types, while
+$ \kw{cast}^{\uparrow} $ is the inverse \fixme{(see examples in \S \ref{sec:})}.
+
+Though \cast primitives make the syntax verbose when type conversion
+is heavily used, the implementation of type checking is simplified
+because typing rules of \ecore become type-directed without \cc's
+implicit conversion rule. Considering the core language is
+compiler-oriented and \fixme{source language does not include \cast
+  primitives}, end-users will not directly use them. Some type
+conversions can be generated through the translation of the source
+language \fixme{(\S \ref{sec:src})}.
 
 \begin{figure}
     \gram{\ottec\ottinterrule
@@ -51,16 +66,41 @@ Though \cast primitives make the syntax verbose when type conversion is heavily 
 \end{figure}
 
 \subsection{Operational Semantics}\label{sec:ecore:opsem}
-Figure \ref{fig:ecore:opsem} shows the \emph{call-by-name} operational semantics, defined by one-step reduction. Two base cases include \ruleref{S\_Beta} for $\beta$-reduction and \ruleref{S\_CastDownUp} for cast canceling. Two inductive case, \ruleref{S\_App} and \ruleref{S\_CastDown}, define reduction in the head position of an application, and in the $ \kw{cast}_{\downarrow} $ inner expression respectively. The reduction rules are \emph{weak} in the sense that it is not allowed to reduce inside a $\lambda$-term or $ \kw{cast}^{\uparrow} $-term which is viewed as a value (see Figure \ref{fig:ecore:syntax}).
 
-To evaluate the value of a term-level expression, we apply the one-step reduction multiple times. The number of evaluation steps is not restricted, which is possible to be infinite. The multi-step reduction can be defined as follows:
+Figure \ref{fig:ecore:opsem} shows the \emph{call-by-name} operational
+semantics, defined by one-step reduction. Two base cases include
+\ruleref{S\_Beta} for $\beta$-reduction and \ruleref{S\_CastDownUp}
+for cast canceling. Two inductive case, \ruleref{S\_App} and
+\ruleref{S\_CastDown}, define reduction in the head position of an
+application, and in the $ \kw{cast}_{\downarrow} $ inner expression
+respectively. The reduction rules are \emph{weak} in the sense that it
+is not allowed to reduce inside a $\lambda$-term or $ \kw{cast}^{\uparrow} $-term
+which is viewed as a value (see Figure \ref{fig:ecore:syntax}).
+
+To evaluate the value of a term-level expression, we apply the
+one-step reduction multiple times. The number of evaluation steps is
+not restricted, which is possible to be infinite. The multi-step
+reduction can be defined as follows:
+
 \begin{dfn}[Multi-step reduction]
-    The relation $ \twoheadrightarrow $ is the transitive and reflexive closure of the one-step reduction $ \longrightarrow $.
+    The relation $ \twoheadrightarrow $ is the transitive and reflexive closure of
+    the one-step reduction $ \longrightarrow $.
 \end{dfn}
 
-But for a type-level expression, the evaluation is driven by \cast operators, which is finite. For a consecutive sequence of reductions with $n$ steps, we use the notation $ \longrightarrow_n $ to denote the relation between the initial and final expressions:
+%\bruno{The following point should be made when talking about typing, 
+%not here!}
+%But for a type-level expression, the evaluation is driven by \cast
+%operators, which is finite. 
+For a consecutive sequence of reductions
+with $n$ steps, we use the notation $ \longrightarrow_n $ to denote the relation
+between the initial and final expressions:
+
 \begin{dfn}[$n$-step reduction]
-    The $n$-step reduction is denoted by $\ottnt{e_{{\mathrm{0}}}}  \longrightarrow_n  \ottnt{e_{\ottmv{n}}}$, if there exists a sequence of one-step reductions $\ottnt{e_{{\mathrm{0}}}}  \longrightarrow  \ottnt{e_{{\mathrm{1}}}}  \longrightarrow  \ottnt{e_{{\mathrm{2}}}}  \longrightarrow  \dots  \longrightarrow  \ottnt{e_{\ottmv{n}}}$, where $n$ is a positive integer and $\ottnt{e_{\ottmv{i}}}\,(i=0,1,\dots,n)$ are valid expressions.
+    The $n$-step reduction is denoted by $\ottnt{e_{{\mathrm{0}}}}  \longrightarrow_n  \ottnt{e_{\ottmv{n}}}$, if
+    there exists a sequence of one-step reductions $\ottnt{e_{{\mathrm{0}}}}  \longrightarrow 
+    \ottnt{e_{{\mathrm{1}}}}  \longrightarrow  \ottnt{e_{{\mathrm{2}}}}  \longrightarrow  \dots  \longrightarrow  \ottnt{e_{\ottmv{n}}}$, where $n$ is
+    a positive integer and $\ottnt{e_{\ottmv{i}}}\,(i=0,1,\dots,n)$ are valid
+    expressions.
 \end{dfn}
 
 \begin{figure}
@@ -70,13 +110,67 @@ But for a type-level expression, the evaluation is driven by \cast operators, wh
 \end{figure}
 
 \subsection{Typing}\label{sec:ecore:type}
-Figure \ref{fig:ecore:typing} gives the \emph{syntax-directed} typing rules of \ecore, including rules of context well-formedness $\vdash  \Gamma$ and expression typing $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$. Note that there is only a single set of rules for expression typing, because there is no distinction of different syntactic levels.
 
-Most typing rules are quite standard. We write $\vdash  \Gamma$ if a context $\Gamma$ is well-formed. Note that there is only a single sort $\star$, we use $\Gamma  \vdash  \tau  \ottsym{:}  \star$ to check if $\tau$ is a well-formed type. Rule \ruleref{T\_Ax} is the "type-in-type" axiom. Rule \ruleref{T\_Var} checks the type of variable $\ottmv{x}$ from the valid context. Rules \ruleref{T\_App} and \ruleref{T\_Lam} check the validity of application and abstraction. Rules \ruleref{T\_Pi} check the type well-formedness of the dependent function.
+Figure \ref{fig:ecore:typing} gives the \emph{syntax-directed} typing
+rules of \ecore, including rules of context well-formedness $\vdash  \Gamma$
+and expression typing $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$. Note that there is only a
+single set of rules for expression typing, because there is no
+distinction of different syntactic levels.
 
-We focus on rules \ruleref{T\_CastUp} and \ruleref{T\_CastDown} that define the semantics of \cast operators and replace the conversion rule of \cc~\fixme{(see \ref{})}. The relation between the original and converted type is defined by one-step reduction (see \ref{fig:ecore:opsem}). Specifically speaking, if given a judgement $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau_{{\mathrm{2}}}$ and relation $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}  \longrightarrow  \tau_{{\mathrm{3}}}$, then $\kw{cast}^{\uparrow} \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]} \,  \ottnt{e}$ expands the type of $\ottnt{e}$ from $\tau_{{\mathrm{2}}}$ to $\tau_{{\mathrm{1}}}$, while $\kw{cast}_{\downarrow} \, \ottnt{e}$ reduces the type of $\ottnt{e}$ from $\tau_{{\mathrm{2}}}$ to $\tau_{{\mathrm{3}}}$.
+Most typing rules are quite standard. We write $\vdash  \Gamma$ if a context
+$\Gamma$ is well-formed. Note that there is only a single sort
+$\star$, we use $\Gamma  \vdash  \tau  \ottsym{:}  \star$ to check if $\tau$ is a
+well-formed type. Rule \ruleref{T\_Ax} is the "type-in-type"
+axiom. Rule \ruleref{T\_Var} checks the type of variable $\ottmv{x}$ from
+the valid context. Rules \ruleref{T\_App} and \ruleref{T\_Lam} check
+the validity of application and abstraction. Rules \ruleref{T\_Pi}
+check the type well-formedness of the dependent function.
 
-Finally, the definition of type equality in \ecore differs from \cc. Without \cc's conversion rule, the type of a term cannot be converted freely against $\beta$-equality, unless using \cast operators. Thus, types of expressions are equal only if they are syntactically equal, i.e. satisfy the $\alpha$-equality.
+\paragraph{The Cast Rules}
+We focus on rules \ruleref{T\_CastUp} and \ruleref{T\_CastDown} that
+define the semantics of \cast operators and replace the conversion
+rule of \cc~\fixme{(see \ref{})}. The relation between the original
+and converted type is defined by one-step reduction (see
+\ref{fig:ecore:opsem}). Specifically speaking, if given a judgement
+$\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau_{{\mathrm{2}}}$ and relation $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}  \longrightarrow  \tau_{{\mathrm{3}}}$, then
+$\kw{cast}^{\uparrow} \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]} \,  \ottnt{e}$ expands the type of $\ottnt{e}$ from $\tau_{{\mathrm{2}}}$ to
+$\tau_{{\mathrm{1}}}$, while $\kw{cast}_{\downarrow} \, \ottnt{e}$ reduces the type of $\ottnt{e}$ from
+$\tau_{{\mathrm{2}}}$ to $\tau_{{\mathrm{3}}}$.
+\bruno{More details please! Show worked out examples with a typing 
+derivation.}
+
+Importantly, in \ecore term-level and type-level computation are treated 
+differently. Term-level computation is dealt in the usual way, by 
+using multi-step reduction until a value is finally obtained. 
+Type-level computation, on the other hand, is controlled by the program:
+each step of the computation is induced by a cast. If a type-level 
+program requires $n$ steps of computation to reach normal form, 
+then it will require $n$ casts to compute a (type-level) value.
+
+\subsubsection{Type in Type}
+\bruno{I have moved this text from the previous section. 
+This is where you should talk about the \emph{typing} consequences 
+of the * : * axiom.}
+In the context of \cc, if a term $\ottmv{x}$ has the type $\tau_{{\mathrm{1}}}$, and
+$\tau_{{\mathrm{2}}}$ is a type, i.e. $\ottmv{x}:\tau_{{\mathrm{1}}}:\star$ and
+$\tau_{{\mathrm{2}}}:\Box$, we call the type $\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}$ a
+\emph{dependent product}. \ecore follows \cc to use the same
+$ \Pi $-notation to represent dependent function types.
+
+However, a higher-kind polymorphic function type such as $\Pi \, \ottmv{x}  \ottsym{:}  \Box  \ottsym{.}  \ottmv{x}  \rightarrow  \ottmv{x}$ is not allowed in \cc, because $\Box$ is
+the highest sort that can not be typed. While $ \Pi $-notation in
+\ecore is more expressive and does not have such limitation because of
+the axiom $\star:\star$. In the source language, we
+interchangeably use the arrow form $\ottsym{(}  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{)}  \rightarrow  \tau_{{\mathrm{2}}}$ of the product for
+clarity. By convention, we also use the syntactic sugar $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}$ to represent the product if $\ottmv{x}$ does not occur free in
+$\tau_{{\mathrm{2}}}$.
+
+\paragraph{Syntactic Equality}
+Finally, the definition of type equality in \ecore differs from
+\cc. Without \cc's conversion rule, the type of a term cannot be
+converted freely against $\beta$-equality, unless using \cast
+operators. Thus, types of expressions are equal only if they are
+syntactically equal, i.e. satisfy the $\alpha$-equality.
 
 \begin{figure}
     \ottdefnctx{}
