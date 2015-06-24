@@ -61,7 +61,7 @@ defns
 LintSrc :: '' ::=
 
 defn |- Gs        ::  :: ctxsrc :: 'EnvS_' {{ com Well-formed context }}
-{{ tex \labeledjudge{s} [[Gs]] }}
+{{ tex \labeledjudge{ct} [[Gs]] }}
 by
 
 -------- :: Empty
@@ -73,7 +73,7 @@ Gs |- A : s
 |- Gs, x : A
 
 defn Gs  |- pgm : A ::  :: pgmsrc :: 'TSpgm_' {{ com Program context }}
-{{ tex [[Gs]] \labeledjudge{s} [[pgm]] : [[A]] }}
+{{ tex [[Gs]] \labeledjudge{pg} [[pgm]] : [[A]] }}
 by
 
 << Gs0 |- decl : Gs' >>
@@ -84,7 +84,7 @@ Gs0 |- (<<decl>>;E) :A
 
 
 defn Gs  |- decl : Gs' ::  :: declsrc :: 'TSdecl_' {{ com Datatype declaration }}
-{{ tex [[Gs]] \labeledjudge{s} [[decl]] : [[Gs']] }}
+{{ tex [[Gs]] \labeledjudge{d} [[decl]] : [[Gs']] }}
 by
 
 Gs |- (<<u:k>>) -> star : star
@@ -93,7 +93,7 @@ Gs |- (<<u:k>>) -> star : star
 Gs |- (data D << u:k >> = << K <<A>> >>) : (D : (<<u:k>>) -> star, << K : (<<u:k>>) -> <<A>> -> D@<<u>> >>)
 
 defn Gs  |- p => E : B -> A ::  :: patsrc :: 'Tpat_' {{ com Pattern typing }}
-{{ tex [[Gs]] \labeledjudge{s} [[p]] [[=>]] [[E]] : [[B]] [[->]] [[A]] }}
+{{ tex [[Gs]] \labeledjudge{p} [[p]] [[=>]] [[E]] : [[B]] [[->]] [[A]] }}
 by
 
 K : (<<u:k>>)-><<B>>->D@<<u>> elt Gs
@@ -147,8 +147,20 @@ Gs |- E1 [x |-> E2] : B
 Gs |- let x : A = E2 in E1 : B
 
 %%% Translation rules
+defn |- Gs ~> G     ::  :: ctxtrans :: 'TRenv_' {{ com Context translation }}
+{{ tex \labeledjudge{ct} [[Gs]] [[~>]] [[G]] }}
+by
+
+---------------- :: Empty
+|- empty ~> empty
+
+|- Gs ~> G
+Gs |- A : s ~> t
+------------------------- :: Var
+|- Gs, x : A ~> G, x : t
+
 defn Gs  |- pgm : A ~> e ::  :: pgmtrans :: 'TRpgm_' {{ com Program translation }}
-{{ tex [[Gs]] \labeledjudge{s} [[pgm]] : [[A]] [[~>]] [[e]] }}
+{{ tex [[Gs]] \labeledjudge{pg} [[pgm]] : [[A]] [[~>]] [[e]] }}
 by
 
 << Gs0 |- decl : Gs' ~> e1 >>
@@ -159,7 +171,7 @@ Gs0 |- (<<decl>>;E) :A ~> <<e1>> (+) e
 
 
 defn Gs  |- decl : Gs' ~> e ::  :: decltrans :: 'TRdecl_' {{ com Datatype translation }}
-{{ tex [[Gs]] \labeledjudge{s} [[decl]] : [[Gs']] [[~>]] [[e]] }}
+{{ tex [[Gs]] \labeledjudge{d} [[decl]] : [[Gs']] [[~>]] [[e]] }}
 by
 
 Gs |- (<<u:k>>) -> star : star ~> (<<u:T>>) -> star
@@ -168,7 +180,7 @@ Gs |- (<<u:k>>) -> star : star ~> (<<u:T>>) -> star
 Gs |- (data D << u:k >> = << K <<A>> >>) : (D : (<<u:k>>) -> star, << K : (<<u:k>>) -> <<A>> -> D@<<u>> >>) ~> e
 
 defn Gs  |- p => E : B -> A ~> e ::  :: pattrans :: 'TRpat_' {{ com Pattern translation }}
-{{ tex [[Gs]] \labeledjudge{s} [[p]] [[=>]] [[E]] : [[B]] [[->]] [[A]] [[~>]] [[e]] }}
+{{ tex [[Gs]] \labeledjudge{p} [[p]] [[=>]] [[E]] : [[B]] [[->]] [[A]] [[~>]] [[e]] }}
 by
 
 K : (<<u:k>>)-><<B>>->D@<<u>> elt Gs
@@ -185,7 +197,7 @@ by
 ------------------------------ :: Ax
 empty |- star : star ~> star
 
-|- Gs
+|- Gs ~> G
 x:A elt Gs
 ------------- :: Var
 Gs |- x:A ~> x
