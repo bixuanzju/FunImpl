@@ -6,7 +6,7 @@ This section informally introduces the main features of \name. In
 particular, this section shows how the explicit casts in \name can be
 used instead of the typical conversion rule present in calculi such as
 the calculus of constructions. The formal details of \name are
-presented in \S\ref{sec:formal}.
+presented in \S\ref{sec:ecore}.
 
 \subsection{The Calculus of Constructions and the Conversion Rule}
 \label{sec:coc}
@@ -29,7 +29,7 @@ terms with equivalent types to be considered type-compatible.
 To illustrate, let us consider a simple example. Suppose
 we have a built-in base type $[[int]]$ and \[f \equiv [[\x:(\y:star.y)int.x]] \]
 Here $f$ is a simple identity function. However, the type 
-of $x$  ($[[(\y:star.y)int]]$), which is the argument of $f$, is interesting: it is 
+of $x$ (i.e., $[[(\y:star.y)int]]$), which is the argument of $f$, is interesting: it is 
 an identity function on types, applied to an integer. 
 Without the conversion rule, $f$ cannot be
 applied to, say $3$ in \coc. However, given that $f$ is actually

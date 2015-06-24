@@ -97,7 +97,7 @@ This section informally introduces the main features of \name. In
 particular, this section shows how the explicit casts in \name can be
 used instead of the typical conversion rule present in calculi such as
 the calculus of constructions. The formal details of \name are
-presented in \S\ref{sec:formal}.
+presented in \S\ref{sec:ecore}.
 
 \subsection{The Calculus of Constructions and the Conversion Rule}
 \label{sec:coc}
@@ -120,7 +120,7 @@ terms with equivalent types to be considered type-compatible.
 To illustrate, let us consider a simple example. Suppose
 we have a built-in base type $ \kw{Int} $ and \[f \equiv \lambda  \ottmv{x}  \ottsym{:}  \ottsym{(}  \lambda  \ottmv{y}  \ottsym{:}  \star  \ottsym{.}  \ottmv{y}  \ottsym{)} \, \kw{Int}  \ottsym{.}  \ottmv{x} \]
 Here $f$ is a simple identity function. However, the type 
-of $x$  ($\ottsym{(}  \lambda  \ottmv{y}  \ottsym{:}  \star  \ottsym{.}  \ottmv{y}  \ottsym{)} \, \kw{Int}$), which is the argument of $f$, is interesting: it is 
+of $x$ (i.e., $\ottsym{(}  \lambda  \ottmv{y}  \ottsym{:}  \star  \ottsym{.}  \ottmv{y}  \ottsym{)} \, \kw{Int}$), which is the argument of $f$, is interesting: it is 
 an identity function on types, applied to an integer. 
 Without the conversion rule, $f$ cannot be
 applied to, say $3$ in \coc. However, given that $f$ is actually
