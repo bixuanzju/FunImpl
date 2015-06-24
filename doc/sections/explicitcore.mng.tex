@@ -1,14 +1,35 @@
-\section{The Core Language without Recursion}\label{sec:ecore}
 
-In this section, we present \ecore calculus, a language based on \cc with explicit type-level computation. \ecore is a subset of the core language \name without general recursion, which is simple enough for meta-theoretic studies. By explicitly controlling the type-level computation with \cast operators, \ecore can achieve decidable type checking without requiring normalizing property. In rest of this section, we demonstrate the syntax, operational semantics, typing rules and meta-theory of \ecore.
+\section{A Dependently Typed Calculus with Casts}\label{sec:ecore}
+
+In this section, we present \ecore calculus. \ecore is a subset of the core
+language \name without general recursion. By explicitly controlling the type-level
+computation with \cast operators, \ecore has decidable type-checking
+without requiring strong normalization. In rest of this
+section, we demonstrate the syntax, operational semantics, typing
+rules and meta-theory of \ecore.
 
 \subsection{Syntax}\label{sec:ecore:syn}
-Figure \ref{fig:ecore:syntax} shows the syntax of \ecore, including expressions, contexts and values. The syntax follows \cc and fairly straightforward while there are still some differences in \ecore, including the "type-in-type" axiom and \cast operators.
+Figure \ref{fig:ecore:syntax} shows the syntax of \ecore, including
+expressions, contexts and values. The syntax follows closely the
+calculus of constructions (\cc). Two important differences, however, are: 1)
+the absence of the $\Box$ constant (due to use of the "type-in-type"
+axiom); 2) the existence of two \cast operators.
 
 \subsubsection{Unified syntactic levels}
-\ecore uses a unified syntactic representation for different levels of expressions by following the \emph{pure type system} (PTS) representation of \cc. Traditionally in \cc, there are two distinct sorts $[[star]]$ and $[[square]]$ representing the type of \emph{types} and \emph{sorts} respectively, and an axiom $[[star]]:[[square]]$ specifying the relation. In \ecore, we further merge types and kinds together by including only a single sort $[[star]]$ and an impredicative axiom $[[star]]:[[star]]$. 
+\ecore uses a unified syntactic representation for different levels of
+expressions by following the \emph{pure type system} (PTS)
+representation of \cc. Traditionally in \cc, there are two distinct
+sorts $[[star]]$ and $[[square]]$ representing the type of
+\emph{types} and \emph{sorts} respectively, and an axiom
+$[[star]]:[[square]]$ specifying the relation. In \ecore, we further
+merge types and kinds together by including only a single sort
+$[[star]]$ and an impredicative axiom $[[star]]:[[star]]$. 
 
-Therefore, there is no syntactic distinction between terms, types or kinds. This design brings the economy for type checking, since one set of rules can cover all syntactic levels. By convention, we use metavariables $[[t]]$ and $[[T]]$ for an expression on the type-level position and $e$ for one on the term level.
+Therefore, there is no syntactic distinction between terms, types or
+kinds. This design brings the economy for type checking, since one set
+of rules can cover all syntactic levels. By convention, we use
+metavariables $[[t]]$ and $[[T]]$ for an expression on the type-level
+position and $e$ for one on the term level.
 
 \subsubsection{Dependent function types}
 In the context of \cc, if a term $[[x]]$ has the type $[[t1]]$, and $[[t2]]$ is a type, i.e. $[[x]]:[[t1]]:[[star]]$ and $[[t2]]:[[square]]$, we call the type $[[Pi x:t1.t2]]$ a \emph{dependent product}. \ecore follows \cc to use the same $[[Pi]]$-notation to represent dependent function types.
