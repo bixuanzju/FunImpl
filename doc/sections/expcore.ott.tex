@@ -352,18 +352,10 @@
 }}
 
 
-\newcommand{\ottdruleSCXXCaseMatch}[1]{\ottdrule[#1]{%
-{\ottmv{K_{\ottmv{i}}}  \,\overline{  \ottmv{x_{\ottmv{i}}}  \ottsym{:}  T_{\ottmv{i}}  }\,  \Rightarrow  \ottnt{E_{\ottmv{i}}} \, \in \, \,\overline{  \ottnt{p}  \Rightarrow  \ottnt{E}  }\,}%
-}{
-\kw{case} \, \ottmv{K_{\ottmv{i}}} \, \,\overline{  \ottnt{u}  }\, \, \,\overline{  \ottnt{E}  }\, \, \kw{of} \, \,\overline{  \ottnt{p}  \Rightarrow  \ottnt{E}  }\,  \longrightarrow  \ottnt{E_{\ottmv{i}}}  \ottsym{[}  \,\overline{  \ottmv{x_{\ottmv{i}}}  \mapsto  \ottnt{E}  }\,  \ottsym{]} \,}{%
-{\ottdrulename{SC\_CaseMatch}}{}%
-}}
-
-
 \newcommand{\ottdruleSCXXCase}[1]{\ottdrule[#1]{%
-{\ottnt{E}  \longrightarrow  \ottnt{E'}}%
+{\ottnt{E_{{\mathrm{1}}}}  \longrightarrow  \ottnt{E'_{{\mathrm{1}}}}}%
 }{
-\kw{case} \, \ottnt{E} \, \kw{of} \, \,\overline{  \ottnt{p}  \Rightarrow  \ottnt{E_{{\mathrm{2}}}}  }\,  \longrightarrow  \kw{case} \, \ottnt{E'} \, \kw{of} \, \,\overline{  \ottnt{p}  \Rightarrow  \ottnt{E_{{\mathrm{2}}}}  }\,}{%
+\kw{case} \, \ottnt{E_{{\mathrm{1}}}} \, \kw{of} \, \,\overline{  \ottnt{p}  \Rightarrow  \ottnt{E}  }\,  \longrightarrow  \kw{case} \, \ottnt{E'_{{\mathrm{1}}}} \, \kw{of} \, \,\overline{  \ottnt{p}  \Rightarrow  \ottnt{E}  }\,}{%
 {\ottdrulename{SC\_Case}}{}%
 }}
 
@@ -373,13 +365,24 @@
 \ottusedrule{\ottdruleSCXXApp{}}
 \ottusedrule{\ottdruleSCXXCastDown{}}
 \ottusedrule{\ottdruleSCXXMu{}}
-\ottusedrule{\ottdruleSCXXCaseMatch{}}
 \ottusedrule{\ottdruleSCXXCase{}}
+\end{ottdefnblock}}
+
+%% defn stepsrc_multi
+\newcommand{\ottdruleSCXXCaseMatch}[1]{\ottdrule[#1]{%
+{\ottmv{K_{\ottmv{i}}}  \,\overline{  \ottmv{x_{\ottmv{i}}}  \ottsym{:}  T_{\ottmv{i}}  }\,  \Rightarrow  \ottnt{E_{\ottmv{i}}} \, \in \, \,\overline{  \ottnt{p}  \Rightarrow  \ottnt{E}  }\,}%
+}{
+\kw{case} \, \ottmv{K_{\ottmv{i}}} \, \,\overline{  \ottnt{u}  }\, \, \,\overline{  \ottnt{E_{{\mathrm{1}}}}  }\, \, \kw{of} \, \,\overline{  \ottnt{p}  \Rightarrow  \ottnt{E}  }\,  \longrightarrow_n  \ottnt{E_{\ottmv{i}}}  \ottsym{[}  \,\overline{  \ottmv{x_{\ottmv{i}}}  \mapsto  \ottnt{E_{{\mathrm{1}}}}  }\,  \ottsym{]} \,}{%
+{\ottdrulename{SC\_CaseMatch}}{}%
+}}
+
+\newcommand{\ottdefnstepsrcXXmulti}[1]{\begin{ottdefnblock}[#1]{$\ottnt{E}  \longrightarrow_n  \ottnt{E'}$}{\ottcom{Case reduction}}
+\ottusedrule{\ottdruleSCXXCaseMatch{}}
 \end{ottdefnblock}}
 
 
 \newcommand{\ottdefnsOpSemSrc}{
-\ottdefnstepsrc{}}
+\ottdefnstepsrc{}\ottdefnstepsrcXXmulti{}}
 
 % defns LintSrc
 %% defn ctxsrc

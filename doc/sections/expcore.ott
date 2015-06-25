@@ -43,6 +43,7 @@ e, t {{ tex \tau }}, T {{ tex \sigma }} :: 'e_' ::=       {{ com Expressions    
   | s                         :: M:: Sort
   | foldn [ t ] e             :: M:: CastUpMulti
   | unfoldn e                 :: M:: CastDownMulti
+  | K << u >> << e >>         :: M:: Constructor
 
 %% Literals
 lit :: 'lit_' ::=
