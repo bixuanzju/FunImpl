@@ -281,6 +281,7 @@ See Figure \ref{fig:appendix:syntax}.
 
 \subsection{Operational Semantics}
 \ottdefnstepsrc{}
+\ottusedrule{\ottdruleSCXXCaseMatch{}}
 
 \subsection{Expression Typing}
 See Figure \ref{fig:appendix:typing}.
@@ -317,25 +318,46 @@ If $[[E1 --> E2]]$ and $[[Gs |- E1 : A1 ~> e1]]$, $[[Gs |- E2 : A2 ~> e2]]$ for 
 \end{lem}
 
 \begin{proof}
-    By induction on the relation $[[E1 --> E2]]$. We only treat the non-trivial case \ruleref{SC\_CaseMatch}.
+    By induction on the relation $[[E1 --> E2]]$. Most cases are the same as core language, which are trivial. We only treat interesting cases \ruleref{SC\_Case} and \ruleref{SC\_CaseMatch}.
+    \begin{description}
+        \item[Case \scriptsize{$\ottdruleSCXXCase{}$}:] $\quad$ \\
+        By induction hypothesis, we have $[[Gs |- E1 : A ~> e1]]$, $[[Gs |- E1' : A' ~> e1']]$ and $[[e1 --> e1']]$. Note that $[[Gs |- case E1 of << p => E >> : A ~> (unfoldn e1) t <<e>>]]$ and $[[Gs |- case E1' of << p => E >> : A ~> (unfoldn e1') t <<e>>]]$. And by \ruleref{S\_CastDown}, we have the result $[[(unfoldn e1) t <<e>> --> (unfoldn e1') t <<e>>]]$.
+        \item[Case \scriptsize{$\ottdruleSCXXCaseMatch{}$}:] $\quad$ \\
+        By rule \ruleref{TRdecl\_data}, $[[Ki == \ <<u:T>> . \<<x:T>> . foldn [D@<<u>>] (\aa:star.\<<bb : <<T>> -> aa >> . bbi <<x>>)]]$. By \ruleref{TRpat\_Alt} and \ruleref{TR\_Case}, we have $[[Gs |- case Ki <<u>> <<E1>> of <<p=>E>> : A ~> (unfoldn (Ki <<u>> <<e1>>)) t <<e'>>]]$ where
+        \begin{align*}
+                & [[<<Gs |- E1 : A1 ~> e1>>]] \\
+                & [[<<Gs |- A1 : star ~> T>>]] \\
+                & [[<<Gs |- E : A ~> e>>]] \\
+                & [[<<e' == \ <<x:T>>.e >>]].
+        \end{align*}
+        Thus, we have the following reduction sequence:
+        \begin{align*}
+            &[[unfoldn (foldn [D@<<u>>] (\aa:star.\<<bb : <<T>> -> aa >> . bbi <<e1>>)) t <<\ <<x:T>>.e>>]] \\
+            &[[-->>]]  [[(\aa:star.\<<bb : <<T>> -> aa >> . bbi <<e1>>) t <<\ <<x:T>>.e>>]] \\
+            &[[-->]]  [[(\<<bb : <<T>> -> t >> . bbi <<e1>>) <<\ <<x:T>>.e>>]] \\
+            &[[-->]]  [[(\ <<x:T>>.ei) <<e1>>]] \\
+            &[[-->]]  [[ei [<<x |-> e1>>] ]].
+        \end{align*}
+        Note that $[[Gs |- Ei [ << xi |-> E1 >> ] : A ~> ei [ << xi |-> e1 >> ] ]]$, therefore the reduction sequence above follows the result.
+    \end{description}
 \end{proof}
 
 \begin{lem}[Type-safety of expression translation]
-If $[[empty |- E:A ~> e]]$ and $[[empty |- A:star ~> t]]$, then $[[empty |- e:t]]$.
+If $[[Gs |- E:A ~> e]]$, $[[Gs |- A:star ~> t]]$ and $[[|- Gs ~> G]]$, then $[[G |- e:t]]$.
 \end{lem}
 
 \begin{proof}
-    By induction on the derivation of $[[empty |- E : A]]$.
+    By induction on the derivation of $[[Gs |- E : A ~> e]]$ . Suppose there is a core language context $[[G]]$ such that $[[|- Gs ~> G]]$.
     \begin{description}
-        \item[Case \ruleref{TR\_Ax}:] Trivial. $[[e]] = [[t]] = [[star]]$ and $[[empty |- star:star]]$ holds by rule \ruleref{T\_Ax}.
-        \item[Case \ruleref{TR\_Var}:] Impossible, since the context is empty.
-        \item[Case \ruleref{TR\_App}:] Suppose $[[empty |- E1 E2 : A1[x |-> E2] ~> e1 e2]]$ and $[[empty |- A1[x |-> E2] : star ~> t1 [x |-> e2] ]]$. By induction hypothesis, we have $[[empty |- e1 : (Pi x:t2.t1)]]$ where $[[empty |- E1 : (Pi x:A2.A1) ~> e1]]$, $[[empty |- (Pi x:A2.A1) : star ~> (Pi x:t2.t1)]]$. And $[[empty |- e2:t2]]$ where $[[empty |- E2 : A2 ~> e2]]$, $[[empty |- A2 : star ~> t2]]$. Thus by rule \ruleref{T\_App}, we have $[[empty |- e1 e2 : t1 [x |-> e2] ]]$.
-        \item[Case \ruleref{TR\_Lam}:] Suppose $[[empty |- (\x:A1.E):(Pi x:A1.A2) ~> \x:t1.e]]$ and $[[empty |- Pi x:A1.A2 : star ~> Pi x:t1.t2]]$. By induction hypothesis, we have $[[empty, x : t1 |- e:t2]]$ where $[[empty, x : A1 |- E : A2 ~> e]]$, $[[empty |- A1 : star ~> t1]]$, $[[empty |- A2 : star ~> t2]]$. And $[[empty |- Pi x:t1.t2 : star]]$ where $[[empty |- (Pi x:A1.A2) : s ~> Pi x:t1.t2]]$. Thus by rule \ruleref{T\_Lam}, we have $[[empty |- (\x:t1.e):(Pi x:t1.t2)]]$.
-        \item[Case \ruleref{TR\_Pi}:] Suppose $[[empty |- (Pi x:A1.A2):r ~> Pi x:t1.t2]]$. By induction hypothesis, we have $[[empty |- t1 : star]]$ where $[[empty |- A1 : s ~> t1]]$. And $[[empty, x : t1 |- t2 : star]]$ where $[[empty, x: A1 |- A2 : r ~> t2]]$. Thus by rule \ruleref{T\_Pi} $[[empty |- (Pi x:t1.t2) : star]]$.
-        \item[Case \ruleref{TR\_CastUp}:] Suppose $[[empty |- (castup[A1] E):A1 ~> castup[t1] e]]$ and $[[empty |- A1 : star ~> t1]]$. By induction hypothesis, we have $[[empty |- e : t2]]$ where $[[empty |- E : A2 ~> e]]$, $[[empty |- A2 : star ~> t2]]$. We also have $[[empty |- A1 : s ~> t1]]$ and $[[A1 --> A2]]$. By Lemma \ref{lem:appendix:src:redtr}, we obtain $[[t1 --> t2]]$. Thus, by rule \ruleref{T\_CastUp}, we have $[[empty |- castup[t1] e : t1]]$.
-        \item[Case \ruleref{TR\_CastDown}:] Suppose $[[empty |- (castdown E) : A2 ~> castdown e]]$ and $[[empty |- A2 : star ~> t2]]$. By induction hypothesis, we have $[[empty |- e : t1]]$ where $[[empty |- E : A1 ~> e]]$, $[[empty |- A1 : star ~> t1]]$. We also have $[[A1 --> A2]]$ and $[[empty |- A2 : star ~> t2]]$. By Lemma \ref{lem:appendix:src:redtr}, we obtain $[[t1 --> t2]]$. Thus, by rule \ruleref{T\_CastDown}, we have $[[empty |- castdown e : t2]]$.
-        \item[Case \ruleref{TR\_Mu}:] Suppose $[[empty |- (mu x:A . E):A ~> mu x:t.e]]$ and $[[empty |- A : star ~> t]]$. By induction hypothesis, we have $[[empty, x : t |- e : t]]$ where $[[empty, x:A |- E:A ~> e]]$. Thus by rule \ruleref{T\_Mu}, we have $[[empty |- (mu x:t.e) : t]]$.
-        \item[Case \ruleref{TR\_Case}:] Suppose $[[empty |- case E1 of << p => E2 >> : A ~> (unfoldn e1) t <<e2>>]]$ and $[[empty |- A : star ~> t]]$. By induction hypothesis, we have $[[empty |- E1 : B ~> e1]]$ and $[[<< empty |- p => E2 : B -> A ~> e2 >>]]$. And $[[empty |- e1 : t1]]$ where $[[empty |- B : star ~> t1]]$. By rule \ruleref{TRpat\_Alt}, we have
+        \item[Case \ruleref{TR\_Ax}:] Trivial. $[[e]] = [[t]] = [[star]]$ and $[[Gs |- star:star]]$ holds by rule \ruleref{T\_Ax}.
+        \item[Case \ruleref{TR\_Var}:] Trivial. By rule \ruleref{T\_Var}, we have $[[|- Gs ~> G]]$, then $[[x]]:[[t]] [[elt]] [[G]]$ where $[[Gs |- A:star~>t]]$.
+        \item[Case \ruleref{TR\_App}:] Suppose $[[Gs |- E1 E2 : A1[x |-> E2] ~> e1 e2]]$ and $[[Gs |- A1[x |-> E2] : star ~> t1 [x |-> e2] ]]$. By induction hypothesis, we have $[[G |- e1 : (Pi x:t2.t1)]]$ where $[[Gs |- E1 : (Pi x:A2.A1) ~> e1]]$, $[[Gs |- (Pi x:A2.A1) : star ~> (Pi x:t2.t1)]]$. And $[[G |- e2:t2]]$ where $[[Gs |- E2 : A2 ~> e2]]$, $[[Gs |- A2 : star ~> t2]]$. Thus by rule \ruleref{T\_App}, we have $[[G |- e1 e2 : t1 [x |-> e2] ]]$.
+        \item[Case \ruleref{TR\_Lam}:] Suppose $[[Gs |- (\x:A1.E):(Pi x:A1.A2) ~> \x:t1.e]]$ and $[[Gs |- Pi x:A1.A2 : star ~> Pi x:t1.t2]]$. By induction hypothesis, we have $[[G, x : t1 |- e:t2]]$ where $[[Gs, x : A1 |- E : A2 ~> e]]$, $[[Gs |- A1 : star ~> t1]]$, $[[Gs |- A2 : star ~> t2]]$. And $[[G |- Pi x:t1.t2 : star]]$ where $[[Gs |- (Pi x:A1.A2) : s ~> Pi x:t1.t2]]$. Thus by rule \ruleref{T\_Lam}, we have $[[G |- (\x:t1.e):(Pi x:t1.t2)]]$.
+        \item[Case \ruleref{TR\_Pi}:] Suppose $[[Gs |- (Pi x:A1.A2):r ~> Pi x:t1.t2]]$. By induction hypothesis, we have $[[G |- t1 : star]]$ where $[[Gs |- A1 : s ~> t1]]$. And $[[G, x : t1 |- t2 : star]]$ where $[[Gs, x: A1 |- A2 : r ~> t2]]$. Thus by rule \ruleref{T\_Pi} $[[G |- (Pi x:t1.t2) : star]]$.
+        \item[Case \ruleref{TR\_CastUp}:] Suppose $[[Gs |- (castup[A1] E):A1 ~> castup[t1] e]]$ and $[[Gs |- A1 : star ~> t1]]$. By induction hypothesis, we have $[[G |- e : t2]]$ where $[[Gs |- E : A2 ~> e]]$, $[[Gs |- A2 : star ~> t2]]$. We also have $[[Gs |- A1 : s ~> t1]]$ and $[[A1 --> A2]]$. By Lemma \ref{lem:appendix:src:redtr}, we obtain $[[t1 --> t2]]$. Thus, by rule \ruleref{T\_CastUp}, we have $[[G |- castup[t1] e : t1]]$.
+        \item[Case \ruleref{TR\_CastDown}:] Suppose $[[Gs |- (castdown E) : A2 ~> castdown e]]$ and $[[Gs |- A2 : star ~> t2]]$. By induction hypothesis, we have $[[G |- e : t1]]$ where $[[Gs |- E : A1 ~> e]]$, $[[Gs |- A1 : star ~> t1]]$. We also have $[[A1 --> A2]]$ and $[[Gs |- A2 : star ~> t2]]$. By Lemma \ref{lem:appendix:src:redtr}, we obtain $[[t1 --> t2]]$. Thus, by rule \ruleref{T\_CastDown}, we have $[[G |- castdown e : t2]]$.
+        \item[Case \ruleref{TR\_Mu}:] Suppose $[[Gs |- (mu x:A . E):A ~> mu x:t.e]]$ and $[[Gs |- A : star ~> t]]$. By induction hypothesis, we have $[[G, x : t |- e : t]]$ where $[[Gs, x:A |- E:A ~> e]]$. Thus by rule \ruleref{T\_Mu}, we have $[[G |- (mu x:t.e) : t]]$.
+        \item[Case \ruleref{TR\_Case}:] Suppose $[[Gs |- case E1 of << p => E2 >> : A ~> (unfoldn e1) t <<e2>>]]$ and $[[Gs |- A : star ~> t]]$. By induction hypothesis, we have $[[Gs |- E1 : B ~> e1]]$ and $[[<< Gs |- p => E2 : B -> A ~> e2 >>]]$. And $[[G |- e1 : t1]]$ where $[[Gs |- B : star ~> t1]]$. By rule \ruleref{TRpat\_Alt}, we have
         \begin{align*}
             [[p]] &[[==]] [[K <<x:B1[<< u |-> U >>]>>]] \\
             [[B]] &[[==]] [[D@<<U>>]] \\
@@ -343,11 +365,11 @@ If $[[empty |- E:A ~> e]]$ and $[[empty |- A:star ~> t]]$, then $[[empty |- e:t]
         \end{align*}
         where
         \begin{align*}
-            &[[empty |- E2 : A ~> e]] \\
-            &[[empty |- e : t]] \\
-            &[[empty |- B1[<< u |-> U >>]:star ~> T ]]
+            &[[Gs |- E2 : A ~> e]] \\
+            &[[G |- e : t]] \\
+            &[[Gs |- B1[<< u |-> U >>]:star ~> T ]]
         \end{align*}
-        By rule \ruleref{TRdecl\_Data}, we have $[[D == mu X : (<<u:T*>>) -> star . \ <<u:T*>> . (aa:star) -> << (<<T>>[D |-> X] -> aa) >> -> aa]]$. Thus, $[[t1]] [[==]] [[D*]] [[<<T*>>]]$ where $[[<<empty |- U : star ~> T*>>]]$. Then by rule \ruleref{T\_CastDown} and the definition of $n$-step cast operator, the type of $[[unfoldn e1]]$ is $[[(aa:star) -> << (<<T>> -> aa) >> -> aa]]$. Note that by rule \ruleref{T\_Lam}, $[[empty |- e2 : <<T>> -> t]]$. Therefore, by rule \ruleref{T\_App}, we obtain $[[empty |- (unfoldn e1) t <<e2>> : t]]$, which follows the result.
+        By rule \ruleref{TRdecl\_Data}, we have $[[D == mu X : (<<u:T*>>) -> star . \ <<u:T*>> . (aa:star) -> << (<<T>>[D |-> X] -> aa) >> -> aa]]$. Thus, $[[t1]] [[==]] [[D*]] [[<<T*>>]]$ where $[[<<Gs |- U : star ~> T*>>]]$. Then by rule \ruleref{T\_CastDown} and the definition of $n$-step cast operator, the type of $[[unfoldn e1]]$ is $[[(aa:star) -> << (<<T>> -> aa) >> -> aa]]$. Note that by rule \ruleref{T\_Lam}, $[[G |- e2 : <<T>> -> t]]$. Therefore, by rule \ruleref{T\_App}, we obtain $[[G |- (unfoldn e1) t <<e2>> : t]]$, which follows the result.
     \end{description}
 \end{proof}
 

@@ -91,13 +91,17 @@ castdown E --> castdown E'
 ------------------------------- :: Mu
 mu x:A.E --> E [x |-> mu x:A.E]
 
+E1 --> E1'
+----------------------------------------------------- :: Case
+case E1 of << p => E >> --> case E1' of << p => E >>
+
+
+defn E -->> E' ::  :: stepsrc_multi :: 'SC_' {{ com Case reduction }}
+by
+
 Ki << xi : Ai >> => Ei elt << p => E >>
 ------------------------------------- :: CaseMatch
-case Ki <<u>> <<E>> of <<p=>E>> --> Ei [ << xi |-> E >> ]
-
-E --> E'
------------------------------------------------------ :: Case
-case E of << p => E2 >> --> case E' of << p => E2 >>
+case Ki <<u>> <<E1>> of <<p=>E>> -->> Ei [ << xi |-> E1 >> ]
 
 %%% Typing rules
 defns
