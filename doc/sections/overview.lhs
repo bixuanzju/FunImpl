@@ -201,9 +201,9 @@ datatypes. While inductive datatypes can be encoded using either the
 Church or the Scott encoding, we adopt the Scott encoding as it
 encodes case analysis, making it more convenient to
 encode pattern matching. We demonstrate the encoding method using a
-simple datatype as a running example: the natural numbers.
+simple datatype as a running example: Peano numbers.
 
-The datatype declaration for natural numbers is:
+The datatype declaration for Peano numbers is:
 
 <  data Nat = Z | S Nat;
 

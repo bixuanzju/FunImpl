@@ -184,3 +184,34 @@ title = {{Revisiting catamorphisms over datatypes with embedded functions (or, p
 url = {http://dl.acm.org/citation.cfm?id=237721.237792},
 year = {1996}
 }
+@misc{Bohm1985,
+abstract = {The notion of iteratively defined functions from and to heterogeneous term algebras is introduced as the solution of a finite set of equations of a special shape. Such a notion has remarkable consequences: (1) Choosing the second-order typed lamdda-calculus ($\Lambda$ for short) as a programming language enables one to represent algebra elements and iterative functions by automatic uniform synthesis paradigms, using neither conditional nor recursive constructs. (2) A completeness theorem for $\Lambda$-terms with type of degree at most two and a companion corollary for $\Lambda$-programs have been proved. (3) A new congruence relation for the last-mentioned $\Lambda$-terms which is stronger than $\Lambda$-convertibility is introduced and proved to have the meaning of a $\Lambda$-program equivalence. Moreover, an extension of the paradigms to the synthesis of functions of higher complexity is considered and exemplified. All the concepts are explained and motivated by examples over integers, list- and tree-structures.},
+author = {B\"{o}hm, Corrado and Berarducci, Alessandro},
+booktitle = {Theoretical Computer Science},
+doi = {10.1016/0304-3975(85)90135-5},
+issn = {03043975},
+pages = {135--154},
+title = {{Automatic synthesis of typed $\Lambda$-programs on term algebras}},
+volume = {39},
+year = {1985}
+}
+@article{fstar,
+author = {Rastogi, Aseem and Delignat-lavaud, Antoine and Keller, Chantal and Strub, Pierre-yves and Bhargavan, Karthikeyan},
+file = {:Users/jeremybi/Dropbox/papers/full.pdf:pdf},
+pages = {1--19},
+title = {{Semantic Purity and Effects Reunited in F}},
+year = {2015}
+}
+@misc{Swamy2011,
+abstract = {Distributed applications are difficult to program reliably and securely. Dependently typed functional languages promise to prevent broad classes of errors and vulnerabilities, and to enable program verification to proceed side-by-side with development. However, as recursion, effects, and rich libraries are added, using types to reason about programs, specifications, and proofs becomes challenging. We present F-star, a full-fledged design and implementation of a new dependently typed language for secure distributed programming. Unlike prior languages, F-star provides arbitrary recursion while maintaining a logically consistent core; it enables modular reasoning about state and other effects using affine types; and it supports proofs of refinement properties using a mixture of cryptographic evidence and logical proof terms. The key mechanism is a new kind system that tracks several sub-languages within F-star and controls their interaction. F-star subsumes two previous languages, F7 and Fine. We prove type soundness (with proofs mechanized in Coq) and logical consistency for F-star. We have implemented a compiler that translates F-star to NET bytecode, based on a prototype for Fine. F-star provides access to libraries for concurrency, networking, cryptography, and interoperability with C\#, F\#, and the other .NET languages. The compiler produces verifiable binaries with 60\% code size overhead for proofs and types, as much as a 45x improvement over the Fine compiler, while still enabling efficient bytecode verification. To date, we have programmed and verified more than 20,000 lines of F-star including (1) new schemes for multi-party sessions; (2) a zero-knowledge privacy-preserving payment protocol; (3) a provenance-aware curated database; (4) a suite of 17 web-browser extensions verified for authorization properties; and (5) a cloud-hosted multi-tier web application with a verified reference monitor.},
+author = {Swamy, Nikhil and Chen, Juan and Fournet, C\'{e}dric and Strub, Pierre-Yves and Bhargavan, Karthikeyan and Yang, Jean},
+booktitle = {ACM SIGPLAN Notices},
+doi = {10.1145/2034574.2034811},
+isbn = {9781450308656},
+issn = {03621340},
+number = {9},
+pages = {266},
+title = {{Secure distributed programming with value-dependent types}},
+volume = {46},
+year = {2011}
+}

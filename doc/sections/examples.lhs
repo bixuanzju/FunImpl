@@ -7,7 +7,7 @@
 %format rcrd = "\mathbf{rcrd}"
 
 
-\section{Showcase}
+\section{\name by Example}
 \label{sec:app}
 
 In this section, we showcase applications, which either Haskell needs non-trivial extensions to do that, or dependently typed languages like Coq and Agda are impossible to do, whereas we can easily achieve in \name.

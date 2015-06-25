@@ -1,5 +1,26 @@
 \section{Related Work}
 
+There is a lot work on bring full-spectrum dependent types to the practical programming world.
+
+\subsubsection{Unification of Terms, Types, and Kinds}
+
+This line of work is largely inspired by Henk~\cite{pts:henk}, where they are the first to use the so-called \emph{lambda cube} as a typed intermediate language, unifying all three levels. Since the implicit conversion of the lambda cube is not syntax-directed, they come up with a approach to strategically distribute the conversion rule over the other typing rules. In retrospect, Henk is quite conservative in terms of type-level computation. Actually it is not even a dependently typed language, as they clearly state that they don't allow types to depend on terms. As for recursion, even though it has a full lambda calculus at the type level, recursion is disallowed.
+
+Another recent work on dependently typed language based on the same syntactic category is \textsf{Zombie}~\cite{zombie:popl14, zombie:thesis}, where they have terms, types and the single kind $\star$. The language is based on a call-by-value variant of lambda calculus. One beautiful thing about Zombie is that it is composed of two fragments: a logical fragment and a programmatic fragment, so that it supports both partial and total programming. Even though Zombie has one syntactic category, it is still fairly complicated, as it tries to be both consistent as logics and pragmatic as a programming language.
+
+\subsubsection{Encoding of Datatypes}
+
+One thing \name differs from other functional programming languages is that all the features in the surface language like datatypes and so on can be encoded into the core language. There is much work on encoding datatypes into various high-level languages. The classic Church encoding of datatypes into System F is detailed in the work of Bohm and Beraducci~\cite{Bohm1985}. The Church encoding excels in implementing iterative or fold-like functions over algebraic datatypes, but is awkward in expressing general recursion, usually in a complex and insufficient way. An alternative encoding of datatypes is the so called \emph{Scott} encoding. However Scott encoding is not typable in System F, as it needs recursive types to represent recursive datatypes. \name has all it needs to represent polymorphic and recursive datatypes. The explicit cast rules also makes it possible to encode GADTs, as can be seen in the last examples in \S\ref{sec:app}. Currently we are investigating how the encoding of GADTs interact with the other language constructs. We leave that as future work.
+
+\subsubsection{General Recursion}
+
+As discussed before, bringing general recursion blindly into the dependently typed world causes more trouble then convenience. There are many dependently typed languages that allow general recursion. Zombie approaches general recursion by separating a consistent sub-language, in which all expressions are known to terminate, from a programmatic language that supports general recursion. What is interesting about Zombie is that those two seemingly conflicting worlds can interact with each other nicely, without compromising the consistency property. The key idea of this is to distinguish between these two fragments by using a \emph{consistency classifier $\theta$}. When $\theta$ is \textsf{L}, it means the logical part, and \textsf{P} the program part.
+
+$F^{\star}$~\cite{Swamy2011} also supports writing general-purpose programs with effects (e.g., state, exceptions, non-terminating, etc.) while maintaining a consistent core language. Unlike \name, it has several sub-languages -- for terms, proofs and so on. The interesting part of $F^{\star}$ lies in its kind system, which controls the interactions between its sub-languages. They use $\star$ to denote program terms that may be effectful and divergent, and \textsf{P} for proofs that identify pure and total functions. One difference from \name is that, types in $F^{\star}$ can only contain values but no non-value expressions, leading to its less expressiveness than \name.
+
+\subsubsection{Managed Type-level Computation}
+
+
 \begin{itemize}
 \item Henk \cite{pts:henk} and one of its implementation \cite{pts:fp} show the simplicity of the Pure Type System (PTS). \cite{pts:rec} also tries to combine recursion with PTS.
 
