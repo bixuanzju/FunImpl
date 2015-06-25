@@ -131,7 +131,7 @@ $\quad$
 	\end{description}
 \end{proof}
 
-\begin{lem}[Uniqueness of $n$-step reduction]\label{lem:appendix:appendix:uniquen}
+\begin{lem}[Uniqueness of $n$-step reduction]\label{lem:appendix:uniquen}
 	The $n$-step reduction $[[-->>]]$ is unique in the sense that given $[[e]]$ there is at most one $[[e']]$ such that $[[e]] [[-->>]] [[e']]$.
 \end{lem}
 
@@ -255,13 +255,14 @@ If $[[|- e:T]]$ then either $[[e]]$ is a value $v$ or there exists $[[e]]'$ such
 \section{Full Specification of Source Language}
 \subsection{Syntax}
 See Figure \ref{fig:appendix:syntax}.
-\begin{figure*}[ht]
+\begin{figure*}
 \centering
 \gram{\ottpgm\ottinterrule
 \ottdecl\ottinterrule
 \ottu\ottinterrule
 \ottp\ottinterrule
 \ottE\ottinterrule
+\ottV\ottinterrule
 \ottGs}
     \[
     \begin{array}{lllll}
@@ -278,9 +279,12 @@ See Figure \ref{fig:appendix:syntax}.
 \label{fig:appendix:syntax}
 \end{figure*}
 
+\subsection{Operational Semantics}
+\ottdefnstepsrc{}
+
 \subsection{Expression Typing}
 See Figure \ref{fig:appendix:typing}.
-\begin{figure*}[ht]
+\begin{figure*}
 \ottdefnctxsrc{}
 \ottdefnpgmsrc{}
 \ottdefndeclsrc{}
@@ -292,7 +296,7 @@ See Figure \ref{fig:appendix:typing}.
 
 \subsection{Translation to the Core}
 See Figure \ref{fig:appendix:translate}.
-\begin{figure*}[ht]
+\begin{figure*}
 \ottdefnctxtrans{}
 \ottdefnpgmtrans{}
 \ottdefndecltrans{}
@@ -308,22 +312,42 @@ See Figure \ref{fig:appendix:translate}.
 
 \section{Proofs about Source Language}
 \subsection{Type-safety of Translation}
-\begin{lem}[Type-safety of expression translation]
-Given $[[Gs |- E : A]]$, if $[[|- Gs ~> G]]$, $[[Gs |- E:A ~> e]]$ and $[[Gs |- A:star ~> t]]$, then $[[G |- e:t]]$.
+\begin{lem}[Type-safety of reduction translation]\label{lem:appendix:src:redtr}
+If $[[E1 --> E2]]$ and $[[Gs |- E1 : A1 ~> e1]]$, $[[Gs |- E2 : A2 ~> e2]]$ for some context $[[Gs]]$, then $[[e1 --> e2]]$.
 \end{lem}
 
 \begin{proof}
-    By induction on the derivation of $[[Gs |- E : A]]$:
-    \begin{description}
-        \item[Case $[[E=star]]$:]
-    \end{description}
+    By induction on the relation $[[E1 --> E2]]$. We only treat the non-trivial case \ruleref{SC\_CaseMatch}.
 \end{proof}
 
-\begin{lem}[Type-safety of datatype translation]
-Given $[[Gs |- decl : Gs']]$, if $[[|- Gs ~> G]]$, $[[Gs |- decl:Gs' ~> e]]$ and \fixme{$[[t]]=?$}, then $[[G |- e:t]]$.
+\begin{lem}[Type-safety of expression translation]
+If $[[empty |- E:A ~> e]]$ and $[[empty |- A:star ~> t]]$, then $[[empty |- e:t]]$.
 \end{lem}
 
 \begin{proof}
-    
+    By induction on the derivation of $[[empty |- E : A]]$.
+    \begin{description}
+        \item[Case \ruleref{TR\_Ax}:] Trivial. $[[e]] = [[t]] = [[star]]$ and $[[empty |- star:star]]$ holds by rule \ruleref{T\_Ax}.
+        \item[Case \ruleref{TR\_Var}:] Impossible, since the context is empty.
+        \item[Case \ruleref{TR\_App}:] Suppose $[[empty |- E1 E2 : A1[x |-> E2] ~> e1 e2]]$ and $[[empty |- A1[x |-> E2] : star ~> t1 [x |-> e2] ]]$. By induction hypothesis, we have $[[empty |- e1 : (Pi x:t2.t1)]]$ where $[[empty |- E1 : (Pi x:A2.A1) ~> e1]]$, $[[empty |- (Pi x:A2.A1) : star ~> (Pi x:t2.t1)]]$. And $[[empty |- e2:t2]]$ where $[[empty |- E2 : A2 ~> e2]]$, $[[empty |- A2 : star ~> t2]]$. Thus by rule \ruleref{T\_App}, we have $[[empty |- e1 e2 : t1 [x |-> e2] ]]$.
+        \item[Case \ruleref{TR\_Lam}:] Suppose $[[empty |- (\x:A1.E):(Pi x:A1.A2) ~> \x:t1.e]]$ and $[[empty |- Pi x:A1.A2 : star ~> Pi x:t1.t2]]$. By induction hypothesis, we have $[[empty, x : t1 |- e:t2]]$ where $[[empty, x : A1 |- E : A2 ~> e]]$, $[[empty |- A1 : star ~> t1]]$, $[[empty |- A2 : star ~> t2]]$. And $[[empty |- Pi x:t1.t2 : star]]$ where $[[empty |- (Pi x:A1.A2) : s ~> Pi x:t1.t2]]$. Thus by rule \ruleref{T\_Lam}, we have $[[empty |- (\x:t1.e):(Pi x:t1.t2)]]$.
+        \item[Case \ruleref{TR\_Pi}:] Suppose $[[empty |- (Pi x:A1.A2):r ~> Pi x:t1.t2]]$. By induction hypothesis, we have $[[empty |- t1 : star]]$ where $[[empty |- A1 : s ~> t1]]$. And $[[empty, x : t1 |- t2 : star]]$ where $[[empty, x: A1 |- A2 : r ~> t2]]$. Thus by rule \ruleref{T\_Pi} $[[empty |- (Pi x:t1.t2) : star]]$.
+        \item[Case \ruleref{TR\_CastUp}:] Suppose $[[empty |- (castup[A1] E):A1 ~> castup[t1] e]]$ and $[[empty |- A1 : star ~> t1]]$. By induction hypothesis, we have $[[empty |- e : t2]]$ where $[[empty |- E : A2 ~> e]]$, $[[empty |- A2 : star ~> t2]]$. We also have $[[empty |- A1 : s ~> t1]]$ and $[[A1 --> A2]]$. By Lemma \ref{lem:appendix:src:redtr}, we obtain $[[t1 --> t2]]$. Thus, by rule \ruleref{T\_CastUp}, we have $[[empty |- castup[t1] e : t1]]$.
+        \item[Case \ruleref{TR\_CastDown}:] Suppose $[[empty |- (castdown E) : A2 ~> castdown e]]$ and $[[empty |- A2 : star ~> t2]]$. By induction hypothesis, we have $[[empty |- e : t1]]$ where $[[empty |- E : A1 ~> e]]$, $[[empty |- A1 : star ~> t1]]$. We also have $[[A1 --> A2]]$ and $[[empty |- A2 : star ~> t2]]$. By Lemma \ref{lem:appendix:src:redtr}, we obtain $[[t1 --> t2]]$. Thus, by rule \ruleref{T\_CastDown}, we have $[[empty |- castdown e : t2]]$.
+        \item[Case \ruleref{TR\_Mu}:] Suppose $[[empty |- (mu x:A . E):A ~> mu x:t.e]]$ and $[[empty |- A : star ~> t]]$. By induction hypothesis, we have $[[empty, x : t |- e : t]]$ where $[[empty, x:A |- E:A ~> e]]$. Thus by rule \ruleref{T\_Mu}, we have $[[empty |- (mu x:t.e) : t]]$.
+        \item[Case \ruleref{TR\_Case}:] Suppose $[[empty |- case E1 of << p => E2 >> : A ~> (unfoldn e1) t <<e2>>]]$ and $[[empty |- A : star ~> t]]$. By induction hypothesis, we have $[[empty |- E1 : B ~> e1]]$ and $[[<< empty |- p => E2 : B -> A ~> e2 >>]]$. And $[[empty |- e1 : t1]]$ where $[[empty |- B : star ~> t1]]$. By rule \ruleref{TRpat\_Alt}, we have
+        \begin{align*}
+            [[p]] &[[==]] [[K <<x:B1[<< u |-> U >>]>>]] \\
+            [[B]] &[[==]] [[D@<<U>>]] \\
+            [[e2]] &[[==]] [[\ <<x:T>> .e]]
+        \end{align*}
+        where
+        \begin{align*}
+            &[[empty |- E2 : A ~> e]] \\
+            &[[empty |- e : t]] \\
+            &[[empty |- B1[<< u |-> U >>]:star ~> T ]]
+        \end{align*}
+        By rule \ruleref{TRdecl\_Data}, we have $[[D == mu X : (<<u:T*>>) -> star . \ <<u:T*>> . (aa:star) -> << (<<T>>[D |-> X] -> aa) >> -> aa]]$. Thus, $[[t1]] [[==]] [[D*]] [[<<T*>>]]$ where $[[<<empty |- U : star ~> T*>>]]$. Then by rule \ruleref{T\_CastDown} and the definition of $n$-step cast operator, the type of $[[unfoldn e1]]$ is $[[(aa:star) -> << (<<T>> -> aa) >> -> aa]]$. Note that by rule \ruleref{T\_Lam}, $[[empty |- e2 : <<T>> -> t]]$. Therefore, by rule \ruleref{T\_App}, we obtain $[[empty |- (unfoldn e1) t <<e2>> : t]]$, which follows the result.
+    \end{description}
 \end{proof}
 

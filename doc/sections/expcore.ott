@@ -113,8 +113,8 @@ terminals :: 'terminals_' ::=
   | data     ::  :: data      {{ tex \kw{data} }}
   | case     ::  :: case      {{ tex \kw{case} }}
   | of       ::  :: of        {{ tex \kw{of} }}
-  | <<       ::  :: vecl      {{ tex \overline{ }}
-  | >>       ::  :: vecr      {{ tex } }}
+  | <<       ::  :: vecl      {{ tex \,\overline{ }}
+  | >>       ::  :: vecr      {{ tex }\, }}
   | @        ::  :: marker    {{ tex }}
   | ~>       ::  :: transto   {{ tex \rightsquigarrow }}
   | (+)      ::  :: union     {{ tex \uplus }}
@@ -147,6 +147,7 @@ formula :: 'formula_' ::=
   | x fresh G                          ::   :: freshment
     {{ tex [[x]] \not \in \kw{dom}([[G]]) }}
   | ee1 =b ee2                         ::   :: beta_equality_coc
+  | p1 => E1 elt << p2 => E2 >>        ::   :: pattern_inclusion
 
 %%% Subrule
 subrules
