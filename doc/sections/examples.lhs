@@ -245,3 +245,40 @@ Notice how the higher-kinded type variable |X : * -> *| helps encoding nested da
              (toList (PairT a) c)
   \end{spec}
 \end{figure}
+
+\subsubsection{Well-scoped De Bruijn Notation}
+
+As a last example, we show a representation of well-scoped lambda terms using de Bruijn notation. In this notation, a variable is represented as a number -- its de Bruijn index, where the number $k$ stands for the variable bound by the $k$'s enclosing $\lambda$. Using the GADT syntax, below is the definition of lambda terms:
+
+\begin{figure}[H]
+  \begin{spec}
+    data Fin : Nat -> * =
+         fzero : (n : Nat) -> Fin (S n)
+      |  fsucc : (n : Nat) -> Fin n -> Fin (S n);
+    data Term : Nat -> * =
+         Var : (n : Nat) -> Fin n -> Term n
+      |  Lam : (n : Nat) -> Term (S n) -> Term n
+      |  App : (n : Nat) -> Term n -> Term n -> Term n;
+  \end{spec}
+\end{figure}
+
+The datatype \emph{Fin n} is used to restrict the the de Brujin index, so that it lies between $0$ to $n - 1$. The type of a closed term is simply |Term Z|, for instance,  a lambda term $\lambda x.\,\lambda y.\, x$ is represented as (we use decimal numbers instead of peano natural numbers):
+
+\begin{figure}[H]
+  \begin{spec}
+    Lam 0 (Lam 1 (Var 2 (fsucc 1 (fzero 0))))
+  \end{spec}
+\end{figure}
+
+If we accidentally write the wrong index, the program would fail to pass type checking. The magic lies in the encoding of \emph{Term}, as shown below \jeremy{write printer function}:
+
+\begin{figure}[H]
+  \begin{spec}
+    let Term : Nat -> * = mu X : Nat -> * . \ a : Nat .
+      (B : Nat -> *) ->
+      ((n : Nat) -> Fin n -> B n) ->
+      ((n : Nat) -> X (S n) -> B n) ->
+      ((n : Nat) -> X n -> X n -> B n) ->
+      B a
+  \end{spec}
+\end{figure}
