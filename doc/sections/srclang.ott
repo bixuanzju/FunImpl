@@ -30,10 +30,12 @@ E , A {{ tex T }}, B {{ tex S }}, k {{ tex \kappa }} :: 'es_' ::=       {{ com E
   | star                   ::  :: Star       {{ com Type of types }}
   | E1 E2                  ::  :: App        {{ com Application }}
   | \ x : A . E            ::  :: Lam        {{ com Abstraction }}
-  | Pi x : A1 . A2         ::  :: Pi         {{ com Product }}
+  | Pi x : A . B           ::  :: Pi         {{ com Product }}
+  | castup [ A ] E         ::  :: CastUp     {{ com Cast up by expansion}}
+  | castdown E             ::  :: CastDown   {{ com Cast down by reduction }}
   | mu x : A . E           ::  :: Mu         {{ com General recursion }}
   | case E1 of << p => E2 >> ::  :: Case     {{ com Case analysis }}
-  | let x : A = E2 in E1   ::  :: LetBinding {{ com Let binding }}
+  | let x : A = E2 in E1   :: M:: LetBinding {{ com Let binding }}
   | E1 [ x |-> E2 ]        :: M:: Sub        {{ com Substitution }}
   | ( E )                  :: M:: Parens     {{ com Parenthesized expression }}
   | A1 -> A2               :: M:: FuncType   {{ com Function type }}
@@ -45,6 +47,15 @@ E , A {{ tex T }}, B {{ tex S }}, k {{ tex \kappa }} :: 'es_' ::=       {{ com E
   | \ << u : k >> . E      :: M:: LamVec
   | E1 [ << u |-> E2 >> ]  :: M:: SubstVec
   | s                      :: M:: Sort       {{ com Sort }}
+  | E *                    :: M:: Starred    {{ com Starred expression }}
+
+V {{ tex v }} :: 'vs_' ::=                               {{ com Values   }}
+  | star                 ::  :: Star       {{ com Type of types }}
+  | \ x : A . E          ::  :: Lam        {{ com Abstraction  }}
+  | Pi x : A . B         ::  :: Pi         {{ com Product }}
+  | castup [ A ] E       ::  :: CastUp     {{ com Cast up by expansion }}
+  | K << u >> << E >>    ::  :: DataCon    {{ com Data constructor }}
+
 
 %% Contexts
 Gs {{ tex \Sigma }} :: 'Gs_' ::= {{ com Contexts }}
@@ -56,12 +67,44 @@ Gs {{ tex \Sigma }} :: 'Gs_' ::= {{ com Contexts }}
   | ( Gs )          :: M:: ParenCtx
   | << Gs >>        :: M:: CtxVec
 
+%%% Dynamic semantics
+defns
+OpSemSrc :: '' ::=
+
+defn E --> E' ::  :: stepsrc :: 'SC_' {{ com One-step reduction }}
+by
+
+----------------------------  :: Beta
+(\x:A.E1) E2 --> E1 [x|->E2]
+
+---------------------------- :: CastDownUp
+castdown (castup[A] E) --> E
+
+E1 --> E1'
+---------------- :: App
+E1 E2 --> E1' E2
+
+E --> E'
+-------------------------- :: CastDown
+castdown E --> castdown E'
+
+------------------------------- :: Mu
+mu x:A.E --> E [x |-> mu x:A.E]
+
+Ki << xi : Ai >> => Ei elt << p => E >>
+------------------------------------- :: CaseMatch
+case Ki <<u>> <<E>> of <<p=>E>> --> Ei [ << xi |-> E >> ]
+
+E --> E'
+----------------------------------------------------- :: Case
+case E of << p => E2 >> --> case E' of << p => E2 >>
+
 %%% Typing rules
 defns
 LintSrc :: '' ::=
 
 defn |- Gs        ::  :: ctxsrc :: 'EnvS_' {{ com Well-formed context }}
-{{ tex \labeledjudge{ct} [[Gs]] }}
+{{ tex \labeledjudge{wf} [[Gs]] }}
 by
 
 -------- :: Empty
@@ -130,6 +173,18 @@ Gs, x:A1 |- A2:r
 ------------------- :: Pi
 Gs |- (Pi x:A1.A2):r
 
+Gs |- E : A2
+Gs |- A1 : s
+A1 --> A2
+---------------------- :: CastUp
+Gs |- (castup[A1] E):A1
+
+Gs |- E : A1
+Gs |- A2 : s
+A1 --> A2
+---------------------- :: CastDown
+Gs |- (castdown E) : A2
+
 Gs, x:A |- E:A
 Gs |- A:s
 ------------------- :: Mu
@@ -137,18 +192,13 @@ Gs |- (mu x:A . E):A
 
 Gs |- E1 : B
 << Gs |- p => E2 : B -> A >>
-<< Gs |- B -> A : s >>
+<< Gs |- A : s >>
 ---------------------------------- :: Case
 Gs |- case E1 of << p => E2 >> : A
 
-Gs |- E2 : A
-Gs |- E1 [x |-> E2] : B
----------------------------------- :: Let
-Gs |- let x : A = E2 in E1 : B
-
 %%% Translation rules
 defn |- Gs ~> G     ::  :: ctxtrans :: 'TRenv_' {{ com Context translation }}
-{{ tex \labeledjudge{ct} [[Gs]] [[~>]] [[G]] }}
+{{ tex \labeledjudge{wf} [[Gs]] [[~>]] [[G]] }}
 by
 
 ---------------- :: Empty
@@ -217,6 +267,18 @@ Gs, x:A1 |- A2:r ~> t2
 ---------------------- :: Pi
 Gs |- (Pi x:A1.A2):r ~> Pi x:t1.t2
 
+Gs |- E : A2 ~> e
+Gs |- A1 : s ~> t1
+A1 --> A2
+------------------------------------- :: CastUp
+Gs |- (castup[A1] E):A1 ~> castup[t1] e
+
+Gs |- E : A1 ~> e
+Gs |- A2 : s ~> t2
+A1 --> A2
+------------------------------------ :: CastDown
+Gs |- (castdown E) : A2 ~> castdown e
+
 Gs, x:A |- E:A ~> e
 Gs |- A:s ~> t
 ------------------------------- :: Mu
@@ -224,11 +286,6 @@ Gs |- (mu x:A . E):A ~> mu x:t.e
 
 Gs |- E1 : B ~> e1
 << Gs |- p => E2 : B -> A ~> e2 >>
-<< Gs |- B -> A : s ~> T -> t >>
+<< Gs |- A : s ~> t >>
 ---------------------------------------- :: Case
 Gs |- case E1 of << p => E2 >> : A ~> (unfoldn e1) t <<e2>>
-
-Gs |- E2 : A ~> e2
-Gs |- E1 [x |-> E2] : B ~> e1 [x |-> e2]
----------------------------------------- :: Let
-Gs |- let x : A = E2 in E1 : B ~> e1 [x |-> e2]

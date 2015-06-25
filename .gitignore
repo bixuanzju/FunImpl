@@ -28,3 +28,4 @@ doc/*.fdb_latexmk
 /doc/sections/auto/
 .texpadtmp/
 *.ptb
+doc/main.pdf

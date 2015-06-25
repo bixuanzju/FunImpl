@@ -76,15 +76,15 @@
 
 \newcommand{\ottpgm}{
 \ottrulehead{\ottnt{pgm}}{::=}{\ottcom{Program}}\ottprodnewline
-\ottfirstprodline{|}{\overline{  \ottnt{decl}  }  \ottsym{;}  \ottnt{E}}{}{}{}{\ottcom{Declarations}}}
+\ottfirstprodline{|}{\,\overline{  \ottnt{decl}  }\,  \ottsym{;}  \ottnt{E}}{}{}{}{\ottcom{Declarations}}}
 
 \newcommand{\ottdecl}{
 \ottrulehead{\ottnt{decl}}{::=}{\ottcom{Declarations}}\ottprodnewline
-\ottfirstprodline{|}{\kw{data} \, \ottmv{D}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{=}  \overline{  \ottmv{K}  \overline{  T  }  }}{}{}{}{\ottcom{Datatype declaration}}}
+\ottfirstprodline{|}{\kw{data} \, \ottmv{D}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{=}  \,\overline{  \ottmv{K}  \,\overline{  T  }\,  }\,}{}{}{}{\ottcom{Datatype declaration}}}
 
 \newcommand{\ottp}{
 \ottrulehead{\ottnt{p}}{::=}{\ottcom{Patterns}}\ottprodnewline
-\ottfirstprodline{|}{\ottmv{K}  \overline{  \ottmv{x}  \ottsym{:}  T  }}{}{}{}{\ottcom{Pattern}}}
+\ottfirstprodline{|}{\ottmv{K}  \,\overline{  \ottmv{x}  \ottsym{:}  T  }\,}{}{}{}{\ottcom{Pattern}}}
 
 \newcommand{\ottu}{
 \ottrulehead{\ottnt{u}  ,\ \upsilon}{::=}{\ottcom{Atoms}}\ottprodnewline
@@ -97,10 +97,19 @@
 \ottprodline{|}{\star}{}{}{}{\ottcom{Type of types}}\ottprodnewline
 \ottprodline{|}{\ottnt{E_{{\mathrm{1}}}} \, \ottnt{E_{{\mathrm{2}}}}}{}{}{}{\ottcom{Application}}\ottprodnewline
 \ottprodline{|}{\lambda  \ottmv{x}  \ottsym{:}  T  \ottsym{.}  \ottnt{E}}{}{}{}{\ottcom{Abstraction}}\ottprodnewline
-\ottprodline{|}{\Pi \, \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{.}  T_{{\mathrm{2}}}}{}{}{}{\ottcom{Product}}\ottprodnewline
+\ottprodline{|}{\Pi \, \ottmv{x}  \ottsym{:}  T  \ottsym{.}  S}{}{}{}{\ottcom{Product}}\ottprodnewline
+\ottprodline{|}{\kw{cast}^{\uparrow} \, \ottsym{[}  T  \ottsym{]} \,  \ottnt{E}}{}{}{}{\ottcom{Cast up by expansion}}\ottprodnewline
+\ottprodline{|}{\kw{cast}_{\downarrow} \, \ottnt{E}}{}{}{}{\ottcom{Cast down by reduction}}\ottprodnewline
 \ottprodline{|}{\mu \, \ottmv{x}  \ottsym{:}  T  \ottsym{.}  \ottnt{E}}{}{}{}{\ottcom{General recursion}}\ottprodnewline
-\ottprodline{|}{\kw{case} \, \ottnt{E_{{\mathrm{1}}}} \, \kw{of} \, \overline{  \ottnt{p}  \Rightarrow  \ottnt{E_{{\mathrm{2}}}}  }}{}{}{}{\ottcom{Case analysis}}\ottprodnewline
-\ottprodline{|}{\kw{let} \, \ottmv{x}  \ottsym{:}  T  \ottsym{=}  \ottnt{E_{{\mathrm{2}}}} \, \kw{in} \, \ottnt{E_{{\mathrm{1}}}}}{}{}{}{\ottcom{Let binding}}}
+\ottprodline{|}{\kw{case} \, \ottnt{E_{{\mathrm{1}}}} \, \kw{of} \, \,\overline{  \ottnt{p}  \Rightarrow  \ottnt{E_{{\mathrm{2}}}}  }\,}{}{}{}{\ottcom{Case analysis}}}
+
+\newcommand{\ottV}{
+\ottrulehead{v}{::=}{\ottcom{Values}}\ottprodnewline
+\ottfirstprodline{|}{\star}{}{}{}{\ottcom{Type of types}}\ottprodnewline
+\ottprodline{|}{\lambda  \ottmv{x}  \ottsym{:}  T  \ottsym{.}  \ottnt{E}}{}{}{}{\ottcom{Abstraction}}\ottprodnewline
+\ottprodline{|}{\Pi \, \ottmv{x}  \ottsym{:}  T  \ottsym{.}  S}{}{}{}{\ottcom{Product}}\ottprodnewline
+\ottprodline{|}{\kw{cast}^{\uparrow} \, \ottsym{[}  T  \ottsym{]} \,  \ottnt{E}}{}{}{}{\ottcom{Cast up by expansion}}\ottprodnewline
+\ottprodline{|}{\ottmv{K}  \,\overline{  \ottnt{u}  }\,  \,\overline{  \ottnt{E}  }\,}{}{}{}{\ottcom{Data constructor}}}
 
 \newcommand{\ottGs}{
 \ottrulehead{\Sigma}{::=}{\ottcom{Contexts}}\ottprodnewline
@@ -132,6 +141,7 @@
 \ottp\ottinterrule
 \ottu\ottinterrule
 \ottE\ottinterrule
+\ottV\ottinterrule
 \ottGs\ottinterrule
 \ottee\ottinterrule
 \ottss\ottafterlastrule
@@ -303,35 +313,103 @@
 \newcommand{\ottdefnsOpSem}{
 \ottdefnstepXXrec{}\ottdefnstep{}}
 
+% defns OpSemSrc
+%% defn stepsrc
+\newcommand{\ottdruleSCXXBeta}[1]{\ottdrule[#1]{%
+}{
+\ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  T  \ottsym{.}  \ottnt{E_{{\mathrm{1}}}}  \ottsym{)} \, \ottnt{E_{{\mathrm{2}}}}  \longrightarrow  \ottnt{E_{{\mathrm{1}}}}  \ottsym{[}  \ottmv{x}  \mapsto  \ottnt{E_{{\mathrm{2}}}}  \ottsym{]} \,}{%
+{\ottdrulename{SC\_Beta}}{}%
+}}
+
+
+\newcommand{\ottdruleSCXXCastDownUp}[1]{\ottdrule[#1]{%
+}{
+\kw{cast}_{\downarrow} \, \ottsym{(}  \kw{cast}^{\uparrow} \, \ottsym{[}  T  \ottsym{]} \,  \ottnt{E}  \ottsym{)}  \longrightarrow  \ottnt{E}}{%
+{\ottdrulename{SC\_CastDownUp}}{}%
+}}
+
+
+\newcommand{\ottdruleSCXXApp}[1]{\ottdrule[#1]{%
+{\ottnt{E_{{\mathrm{1}}}}  \longrightarrow  \ottnt{E'_{{\mathrm{1}}}}}%
+}{
+\ottnt{E_{{\mathrm{1}}}} \, \ottnt{E_{{\mathrm{2}}}}  \longrightarrow  \ottnt{E'_{{\mathrm{1}}}} \, \ottnt{E_{{\mathrm{2}}}}}{%
+{\ottdrulename{SC\_App}}{}%
+}}
+
+
+\newcommand{\ottdruleSCXXCastDown}[1]{\ottdrule[#1]{%
+{\ottnt{E}  \longrightarrow  \ottnt{E'}}%
+}{
+\kw{cast}_{\downarrow} \, \ottnt{E}  \longrightarrow  \kw{cast}_{\downarrow} \, \ottnt{E'}}{%
+{\ottdrulename{SC\_CastDown}}{}%
+}}
+
+
+\newcommand{\ottdruleSCXXMu}[1]{\ottdrule[#1]{%
+}{
+\mu \, \ottmv{x}  \ottsym{:}  T  \ottsym{.}  \ottnt{E}  \longrightarrow  \ottnt{E}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  T  \ottsym{.}  \ottnt{E}  \ottsym{]} \,}{%
+{\ottdrulename{SC\_Mu}}{}%
+}}
+
+
+\newcommand{\ottdruleSCXXCaseMatch}[1]{\ottdrule[#1]{%
+{\ottmv{K_{\ottmv{i}}}  \,\overline{  \ottmv{x_{\ottmv{i}}}  \ottsym{:}  T_{\ottmv{i}}  }\,  \Rightarrow  \ottnt{E_{\ottmv{i}}} \, \in \, \,\overline{  \ottnt{p}  \Rightarrow  \ottnt{E}  }\,}%
+}{
+\kw{case} \, \ottmv{K_{\ottmv{i}}} \, \,\overline{  \ottnt{u}  }\, \, \,\overline{  \ottnt{E}  }\, \, \kw{of} \, \,\overline{  \ottnt{p}  \Rightarrow  \ottnt{E}  }\,  \longrightarrow  \ottnt{E_{\ottmv{i}}}  \ottsym{[}  \,\overline{  \ottmv{x_{\ottmv{i}}}  \mapsto  \ottnt{E}  }\,  \ottsym{]} \,}{%
+{\ottdrulename{SC\_CaseMatch}}{}%
+}}
+
+
+\newcommand{\ottdruleSCXXCase}[1]{\ottdrule[#1]{%
+{\ottnt{E}  \longrightarrow  \ottnt{E'}}%
+}{
+\kw{case} \, \ottnt{E} \, \kw{of} \, \,\overline{  \ottnt{p}  \Rightarrow  \ottnt{E_{{\mathrm{2}}}}  }\,  \longrightarrow  \kw{case} \, \ottnt{E'} \, \kw{of} \, \,\overline{  \ottnt{p}  \Rightarrow  \ottnt{E_{{\mathrm{2}}}}  }\,}{%
+{\ottdrulename{SC\_Case}}{}%
+}}
+
+\newcommand{\ottdefnstepsrc}[1]{\begin{ottdefnblock}[#1]{$\ottnt{E}  \longrightarrow  \ottnt{E'}$}{\ottcom{One-step reduction}}
+\ottusedrule{\ottdruleSCXXBeta{}}
+\ottusedrule{\ottdruleSCXXCastDownUp{}}
+\ottusedrule{\ottdruleSCXXApp{}}
+\ottusedrule{\ottdruleSCXXCastDown{}}
+\ottusedrule{\ottdruleSCXXMu{}}
+\ottusedrule{\ottdruleSCXXCaseMatch{}}
+\ottusedrule{\ottdruleSCXXCase{}}
+\end{ottdefnblock}}
+
+
+\newcommand{\ottdefnsOpSemSrc}{
+\ottdefnstepsrc{}}
+
 % defns LintSrc
 %% defn ctxsrc
 \newcommand{\ottdruleEnvSXXEmpty}[1]{\ottdrule[#1]{%
 }{
- \labeledjudge{ct}  \varnothing }{%
+ \labeledjudge{wf}  \varnothing }{%
 {\ottdrulename{EnvS\_Empty}}{}%
 }}
 
 
 \newcommand{\ottdruleEnvSXXVar}[1]{\ottdrule[#1]{%
-{ \labeledjudge{ct}  \Sigma }%
+{ \labeledjudge{wf}  \Sigma }%
 \\ { \Sigma  \labeledjudge{s}  T  :  \star }%
 }{
- \labeledjudge{ct}  \Sigma  \ottsym{,}  \ottmv{x}  \ottsym{:}  T }{%
+ \labeledjudge{wf}  \Sigma  \ottsym{,}  \ottmv{x}  \ottsym{:}  T }{%
 {\ottdrulename{EnvS\_Var}}{}%
 }}
 
-\newcommand{\ottdefnctxsrc}[1]{\begin{ottdefnblock}[#1]{$ \labeledjudge{ct}  \Sigma $}{\ottcom{Well-formed context}}
+\newcommand{\ottdefnctxsrc}[1]{\begin{ottdefnblock}[#1]{$ \labeledjudge{wf}  \Sigma $}{\ottcom{Well-formed context}}
 \ottusedrule{\ottdruleEnvSXXEmpty{}}
 \ottusedrule{\ottdruleEnvSXXVar{}}
 \end{ottdefnblock}}
 
 %% defn pgmsrc
 \newcommand{\ottdruleTSpgmXXPgm}[1]{\ottdrule[#1]{%
-{\overline{   \Sigma_{{\mathrm{0}}}  \labeledjudge{d}  \ottnt{decl}  :  \Sigma'   }}%
-\\ {\Sigma  \ottsym{=}  \Sigma_{{\mathrm{0}}}  \ottsym{,}  \overline{  \Sigma'  }}%
+{\,\overline{   \Sigma_{{\mathrm{0}}}  \labeledjudge{d}  \ottnt{decl}  :  \Sigma'   }\,}%
+\\ {\Sigma  \ottsym{=}  \Sigma_{{\mathrm{0}}}  \ottsym{,}  \,\overline{  \Sigma'  }\,}%
 \\ { \Sigma  \labeledjudge{s}  \ottnt{E}  :  T }%
 }{
- \Sigma_{{\mathrm{0}}}  \labeledjudge{pg}  \ottsym{(}  \overline{  \ottnt{decl}  }  \ottsym{;}  \ottnt{E}  \ottsym{)}  :  T }{%
+ \Sigma_{{\mathrm{0}}}  \labeledjudge{pg}  \ottsym{(}  \,\overline{  \ottnt{decl}  }\,  \ottsym{;}  \ottnt{E}  \ottsym{)}  :  T }{%
 {\ottdrulename{TSpgm\_Pgm}}{}%
 }}
 
@@ -341,10 +419,10 @@
 
 %% defn declsrc
 \newcommand{\ottdruleTSdeclXXData}[1]{\ottdrule[#1]{%
-{ \Sigma  \labeledjudge{s}  \ottsym{(}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{)}  \rightarrow  \star  :  \star }%
-\\ {\overline{   \Sigma  \ottsym{,}  \ottmv{D}  \ottsym{:}  \ottsym{(}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{)}  \rightarrow  \star  \ottsym{,}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \labeledjudge{s}  \overline{  T  }  \rightarrow  \ottmv{D}    \overline{  \ottnt{u}  }  :  \star   }}%
+{ \Sigma  \labeledjudge{s}  \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{)}  \rightarrow  \star  :  \star }%
+\\ {\,\overline{   \Sigma  \ottsym{,}  \ottmv{D}  \ottsym{:}  \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{)}  \rightarrow  \star  \ottsym{,}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \labeledjudge{s}  \,\overline{  T  }\,  \rightarrow  \ottmv{D}    \,\overline{  \ottnt{u}  }\,  :  \star   }\,}%
 }{
- \Sigma  \labeledjudge{d}  \ottsym{(}  \kw{data} \, \ottmv{D}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{=}  \overline{  \ottmv{K}  \overline{  T  }  }  \ottsym{)}  :  \ottsym{(}  \ottmv{D}  \ottsym{:}  \ottsym{(}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{)}  \rightarrow  \star  \ottsym{,}  \overline{  \ottmv{K}  \ottsym{:}  \ottsym{(}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{)}  \rightarrow  \overline{  T  }  \rightarrow  \ottmv{D}    \overline{  \ottnt{u}  }  }  \ottsym{)} }{%
+ \Sigma  \labeledjudge{d}  \ottsym{(}  \kw{data} \, \ottmv{D}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{=}  \,\overline{  \ottmv{K}  \,\overline{  T  }\,  }\,  \ottsym{)}  :  \ottsym{(}  \ottmv{D}  \ottsym{:}  \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{)}  \rightarrow  \star  \ottsym{,}  \,\overline{  \ottmv{K}  \ottsym{:}  \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{)}  \rightarrow  \,\overline{  T  }\,  \rightarrow  \ottmv{D}    \,\overline{  \ottnt{u}  }\,  }\,  \ottsym{)} }{%
 {\ottdrulename{TSdecl\_Data}}{}%
 }}
 
@@ -354,11 +432,11 @@
 
 %% defn patsrc
 \newcommand{\ottdruleTpatXXAlt}[1]{\ottdrule[#1]{%
-{\ottmv{K}  \ottsym{:}  \ottsym{(}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{)}  \rightarrow  \overline{  S  }  \rightarrow  \ottmv{D}    \overline{  \ottnt{u}  } \, \in \, \Sigma}%
-\\ { \Sigma  \ottsym{,}  \overline{  \ottmv{x}  \ottsym{:}  S  \ottsym{[}  \overline{  \ottnt{u}  \mapsto  \upsilon  }  \ottsym{]} \,  }  \labeledjudge{s}  \ottnt{E}  :  T }%
-\\ { \Sigma  \labeledjudge{s}  S  \ottsym{[}  \overline{  \ottnt{u}  \mapsto  \upsilon  }  \ottsym{]} \,  :  \star }%
+{\ottmv{K}  \ottsym{:}  \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{)}  \rightarrow  \,\overline{  S  }\,  \rightarrow  \ottmv{D}    \,\overline{  \ottnt{u}  }\, \, \in \, \Sigma}%
+\\ { \Sigma  \ottsym{,}  \,\overline{  \ottmv{x}  \ottsym{:}  S  \ottsym{[}  \,\overline{  \ottnt{u}  \mapsto  \upsilon  }\,  \ottsym{]} \,  }\,  \labeledjudge{s}  \ottnt{E}  :  T }%
+\\ { \Sigma  \labeledjudge{s}  S  \ottsym{[}  \,\overline{  \ottnt{u}  \mapsto  \upsilon  }\,  \ottsym{]} \,  :  \star }%
 }{
- \Sigma  \labeledjudge{p}  \ottmv{K}  \overline{  \ottmv{x}  \ottsym{:}  S  \ottsym{[}  \overline{  \ottnt{u}  \mapsto  \upsilon  }  \ottsym{]} \,  }   \Rightarrow   \ottnt{E}  :  \ottmv{D}    \overline{  \upsilon  }   \rightarrow   T }{%
+ \Sigma  \labeledjudge{p}  \ottmv{K}  \,\overline{  \ottmv{x}  \ottsym{:}  S  \ottsym{[}  \,\overline{  \ottnt{u}  \mapsto  \upsilon  }\,  \ottsym{]} \,  }\,   \Rightarrow   \ottnt{E}  :  \ottmv{D}    \,\overline{  \upsilon  }\,   \rightarrow   T }{%
 {\ottdrulename{Tpat\_Alt}}{}%
 }}
 
@@ -375,7 +453,7 @@
 
 
 \newcommand{\ottdruleTSXXVar}[1]{\ottdrule[#1]{%
-{ \labeledjudge{ct}  \Sigma }%
+{ \labeledjudge{wf}  \Sigma }%
 \\ {\ottmv{x}  \ottsym{:}  T \, \in \, \Sigma}%
 }{
  \Sigma  \labeledjudge{s}  \ottmv{x}  :  T }{%
@@ -410,6 +488,26 @@
 }}
 
 
+\newcommand{\ottdruleTSXXCastUp}[1]{\ottdrule[#1]{%
+{ \Sigma  \labeledjudge{s}  \ottnt{E}  :  T_{{\mathrm{2}}} }%
+\\ { \Sigma  \labeledjudge{s}  T_{{\mathrm{1}}}  :  \star }%
+\\ {T_{{\mathrm{1}}}  \longrightarrow  T_{{\mathrm{2}}}}%
+}{
+ \Sigma  \labeledjudge{s}  \ottsym{(}  \kw{cast}^{\uparrow} \, \ottsym{[}  T_{{\mathrm{1}}}  \ottsym{]} \,  \ottnt{E}  \ottsym{)}  :  T_{{\mathrm{1}}} }{%
+{\ottdrulename{TS\_CastUp}}{}%
+}}
+
+
+\newcommand{\ottdruleTSXXCastDown}[1]{\ottdrule[#1]{%
+{ \Sigma  \labeledjudge{s}  \ottnt{E}  :  T_{{\mathrm{1}}} }%
+\\ { \Sigma  \labeledjudge{s}  T_{{\mathrm{2}}}  :  \star }%
+\\ {T_{{\mathrm{1}}}  \longrightarrow  T_{{\mathrm{2}}}}%
+}{
+ \Sigma  \labeledjudge{s}  \ottsym{(}  \kw{cast}_{\downarrow} \, \ottnt{E}  \ottsym{)}  :  T_{{\mathrm{2}}} }{%
+{\ottdrulename{TS\_CastDown}}{}%
+}}
+
+
 \newcommand{\ottdruleTSXXMu}[1]{\ottdrule[#1]{%
 { \Sigma  \ottsym{,}  \ottmv{x}  \ottsym{:}  T  \labeledjudge{s}  \ottnt{E}  :  T }%
 \\ { \Sigma  \labeledjudge{s}  T  :  \star }%
@@ -421,20 +519,11 @@
 
 \newcommand{\ottdruleTSXXCase}[1]{\ottdrule[#1]{%
 { \Sigma  \labeledjudge{s}  \ottnt{E_{{\mathrm{1}}}}  :  S }%
-\\ {\overline{   \Sigma  \labeledjudge{p}  \ottnt{p}   \Rightarrow   \ottnt{E_{{\mathrm{2}}}}  :  S   \rightarrow   T   }}%
-\\ {\overline{   \Sigma  \labeledjudge{s}  S  \rightarrow  T  :  \star   }}%
+\\ {\,\overline{   \Sigma  \labeledjudge{p}  \ottnt{p}   \Rightarrow   \ottnt{E_{{\mathrm{2}}}}  :  S   \rightarrow   T   }\,}%
+\\ {\,\overline{   \Sigma  \labeledjudge{s}  T  :  \star   }\,}%
 }{
- \Sigma  \labeledjudge{s}  \kw{case} \, \ottnt{E_{{\mathrm{1}}}} \, \kw{of} \, \overline{  \ottnt{p}  \Rightarrow  \ottnt{E_{{\mathrm{2}}}}  }  :  T }{%
+ \Sigma  \labeledjudge{s}  \kw{case} \, \ottnt{E_{{\mathrm{1}}}} \, \kw{of} \, \,\overline{  \ottnt{p}  \Rightarrow  \ottnt{E_{{\mathrm{2}}}}  }\,  :  T }{%
 {\ottdrulename{TS\_Case}}{}%
-}}
-
-
-\newcommand{\ottdruleTSXXLet}[1]{\ottdrule[#1]{%
-{ \Sigma  \labeledjudge{s}  \ottnt{E_{{\mathrm{2}}}}  :  T }%
-\\ { \Sigma  \labeledjudge{s}  \ottnt{E_{{\mathrm{1}}}}  \ottsym{[}  \ottmv{x}  \mapsto  \ottnt{E_{{\mathrm{2}}}}  \ottsym{]} \,  :  S }%
-}{
- \Sigma  \labeledjudge{s}  \kw{let} \, \ottmv{x}  \ottsym{:}  T  \ottsym{=}  \ottnt{E_{{\mathrm{2}}}} \, \kw{in} \, \ottnt{E_{{\mathrm{1}}}}  :  S }{%
-{\ottdrulename{TS\_Let}}{}%
 }}
 
 \newcommand{\ottdefnexprsrc}[1]{\begin{ottdefnblock}[#1]{$ \Sigma  \labeledjudge{s}  \ottnt{E}  :  T $}{\ottcom{Expression typing}}
@@ -443,39 +532,40 @@
 \ottusedrule{\ottdruleTSXXApp{}}
 \ottusedrule{\ottdruleTSXXLam{}}
 \ottusedrule{\ottdruleTSXXPi{}}
+\ottusedrule{\ottdruleTSXXCastUp{}}
+\ottusedrule{\ottdruleTSXXCastDown{}}
 \ottusedrule{\ottdruleTSXXMu{}}
 \ottusedrule{\ottdruleTSXXCase{}}
-\ottusedrule{\ottdruleTSXXLet{}}
 \end{ottdefnblock}}
 
 %% defn ctxtrans
 \newcommand{\ottdruleTRenvXXEmpty}[1]{\ottdrule[#1]{%
 }{
- \labeledjudge{ct}  \varnothing   \rightsquigarrow   \varnothing }{%
+ \labeledjudge{wf}  \varnothing   \rightsquigarrow   \varnothing }{%
 {\ottdrulename{TRenv\_Empty}}{}%
 }}
 
 
 \newcommand{\ottdruleTRenvXXVar}[1]{\ottdrule[#1]{%
-{ \labeledjudge{ct}  \Sigma   \rightsquigarrow   \Gamma }%
+{ \labeledjudge{wf}  \Sigma   \rightsquigarrow   \Gamma }%
 \\ { \Sigma  \labeledjudge{s}  T  :  \star   \rightsquigarrow   \tau }%
 }{
- \labeledjudge{ct}  \Sigma  \ottsym{,}  \ottmv{x}  \ottsym{:}  T   \rightsquigarrow   \Gamma  \ottsym{,}  \ottmv{x}  \ottsym{:}  \tau }{%
+ \labeledjudge{wf}  \Sigma  \ottsym{,}  \ottmv{x}  \ottsym{:}  T   \rightsquigarrow   \Gamma  \ottsym{,}  \ottmv{x}  \ottsym{:}  \tau }{%
 {\ottdrulename{TRenv\_Var}}{}%
 }}
 
-\newcommand{\ottdefnctxtrans}[1]{\begin{ottdefnblock}[#1]{$ \labeledjudge{ct}  \Sigma   \rightsquigarrow   \Gamma $}{\ottcom{Context translation}}
+\newcommand{\ottdefnctxtrans}[1]{\begin{ottdefnblock}[#1]{$ \labeledjudge{wf}  \Sigma   \rightsquigarrow   \Gamma $}{\ottcom{Context translation}}
 \ottusedrule{\ottdruleTRenvXXEmpty{}}
 \ottusedrule{\ottdruleTRenvXXVar{}}
 \end{ottdefnblock}}
 
 %% defn pgmtrans
 \newcommand{\ottdruleTRpgmXXPgm}[1]{\ottdrule[#1]{%
-{\overline{   \Sigma_{{\mathrm{0}}}  \labeledjudge{d}  \ottnt{decl}  :  \Sigma'   \rightsquigarrow   \ottnt{e_{{\mathrm{1}}}}   }}%
-\\ {\Sigma  \ottsym{=}  \Sigma_{{\mathrm{0}}}  \ottsym{,}  \overline{  \Sigma'  }}%
+{\,\overline{   \Sigma_{{\mathrm{0}}}  \labeledjudge{d}  \ottnt{decl}  :  \Sigma'   \rightsquigarrow   \ottnt{e_{{\mathrm{1}}}}   }\,}%
+\\ {\Sigma  \ottsym{=}  \Sigma_{{\mathrm{0}}}  \ottsym{,}  \,\overline{  \Sigma'  }\,}%
 \\ { \Sigma  \labeledjudge{s}  \ottnt{E}  :  T   \rightsquigarrow   \ottnt{e} }%
 }{
- \Sigma_{{\mathrm{0}}}  \labeledjudge{pg}  \ottsym{(}  \overline{  \ottnt{decl}  }  \ottsym{;}  \ottnt{E}  \ottsym{)}  :  T   \rightsquigarrow   \overline{  \ottnt{e_{{\mathrm{1}}}}  }  \uplus  \ottnt{e} }{%
+ \Sigma_{{\mathrm{0}}}  \labeledjudge{pg}  \ottsym{(}  \,\overline{  \ottnt{decl}  }\,  \ottsym{;}  \ottnt{E}  \ottsym{)}  :  T   \rightsquigarrow   \,\overline{  \ottnt{e_{{\mathrm{1}}}}  }\,  \uplus  \ottnt{e} }{%
 {\ottdrulename{TRpgm\_Pgm}}{}%
 }}
 
@@ -485,10 +575,10 @@
 
 %% defn decltrans
 \newcommand{\ottdruleTRdeclXXData}[1]{\ottdrule[#1]{%
-{ \Sigma  \labeledjudge{s}  \ottsym{(}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{)}  \rightarrow  \star  :  \star   \rightsquigarrow   \ottsym{(}  \overline{  \ottnt{u}  \ottsym{:}  \sigma  }  \ottsym{)}  \rightarrow  \star }%
-\\ {\overline{   \Sigma  \ottsym{,}  \ottmv{D}  \ottsym{:}  \ottsym{(}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{)}  \rightarrow  \star  \ottsym{,}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \labeledjudge{s}  \overline{  T  }  \rightarrow  \ottmv{D}    \overline{  \ottnt{u}  }  :  \star   \rightsquigarrow   \overline{  \tau  }  \rightarrow  \ottmv{D}    \overline{  \ottnt{u}  }   }}%
+{ \Sigma  \labeledjudge{s}  \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{)}  \rightarrow  \star  :  \star   \rightsquigarrow   \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \sigma  }\,  \ottsym{)}  \rightarrow  \star }%
+\\ {\,\overline{   \Sigma  \ottsym{,}  \ottmv{D}  \ottsym{:}  \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{)}  \rightarrow  \star  \ottsym{,}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \labeledjudge{s}  \,\overline{  T  }\,  \rightarrow  \ottmv{D}    \,\overline{  \ottnt{u}  }\,  :  \star   \rightsquigarrow   \,\overline{  \tau  }\,  \rightarrow  \ottmv{D}    \,\overline{  \ottnt{u}  }\,   }\,}%
 }{
- \Sigma  \labeledjudge{d}  \ottsym{(}  \kw{data} \, \ottmv{D}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{=}  \overline{  \ottmv{K}  \overline{  T  }  }  \ottsym{)}  :  \ottsym{(}  \ottmv{D}  \ottsym{:}  \ottsym{(}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{)}  \rightarrow  \star  \ottsym{,}  \overline{  \ottmv{K}  \ottsym{:}  \ottsym{(}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{)}  \rightarrow  \overline{  T  }  \rightarrow  \ottmv{D}    \overline{  \ottnt{u}  }  }  \ottsym{)}   \rightsquigarrow   \ottnt{e} }{%
+ \Sigma  \labeledjudge{d}  \ottsym{(}  \kw{data} \, \ottmv{D}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{=}  \,\overline{  \ottmv{K}  \,\overline{  T  }\,  }\,  \ottsym{)}  :  \ottsym{(}  \ottmv{D}  \ottsym{:}  \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{)}  \rightarrow  \star  \ottsym{,}  \,\overline{  \ottmv{K}  \ottsym{:}  \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{)}  \rightarrow  \,\overline{  T  }\,  \rightarrow  \ottmv{D}    \,\overline{  \ottnt{u}  }\,  }\,  \ottsym{)}   \rightsquigarrow   \ottnt{e} }{%
 {\ottdrulename{TRdecl\_Data}}{}%
 }}
 
@@ -498,11 +588,11 @@
 
 %% defn pattrans
 \newcommand{\ottdruleTRpatXXAlt}[1]{\ottdrule[#1]{%
-{\ottmv{K}  \ottsym{:}  \ottsym{(}  \overline{  \ottnt{u}  \ottsym{:}  \kappa  }  \ottsym{)}  \rightarrow  \overline{  S  }  \rightarrow  \ottmv{D}    \overline{  \ottnt{u}  } \, \in \, \Sigma}%
-\\ { \Sigma  \ottsym{,}  \overline{  \ottmv{x}  \ottsym{:}  S  \ottsym{[}  \overline{  \ottnt{u}  \mapsto  \upsilon  }  \ottsym{]} \,  }  \labeledjudge{s}  \ottnt{E}  :  T   \rightsquigarrow   \ottnt{e} }%
-\\ { \Sigma  \labeledjudge{s}  S  \ottsym{[}  \overline{  \ottnt{u}  \mapsto  \upsilon  }  \ottsym{]} \,  :  \star   \rightsquigarrow   \sigma }%
+{\ottmv{K}  \ottsym{:}  \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{)}  \rightarrow  \,\overline{  S  }\,  \rightarrow  \ottmv{D}    \,\overline{  \ottnt{u}  }\, \, \in \, \Sigma}%
+\\ { \Sigma  \ottsym{,}  \,\overline{  \ottmv{x}  \ottsym{:}  S  \ottsym{[}  \,\overline{  \ottnt{u}  \mapsto  \upsilon  }\,  \ottsym{]} \,  }\,  \labeledjudge{s}  \ottnt{E}  :  T   \rightsquigarrow   \ottnt{e} }%
+\\ { \Sigma  \labeledjudge{s}  S  \ottsym{[}  \,\overline{  \ottnt{u}  \mapsto  \upsilon  }\,  \ottsym{]} \,  :  \star   \rightsquigarrow   \sigma }%
 }{
- \Sigma  \labeledjudge{p}  \ottmv{K}  \overline{  \ottmv{x}  \ottsym{:}  S  \ottsym{[}  \overline{  \ottnt{u}  \mapsto  \upsilon  }  \ottsym{]} \,  }   \Rightarrow   \ottnt{E}  :  \ottmv{D}    \overline{  \upsilon  }   \rightarrow   T   \rightsquigarrow   \lambda  \overline{  \ottmv{x}  \ottsym{:}  \sigma  }  \ottsym{.}  \ottnt{e} }{%
+ \Sigma  \labeledjudge{p}  \ottmv{K}  \,\overline{  \ottmv{x}  \ottsym{:}  S  \ottsym{[}  \,\overline{  \ottnt{u}  \mapsto  \upsilon  }\,  \ottsym{]} \,  }\,   \Rightarrow   \ottnt{E}  :  \ottmv{D}    \,\overline{  \upsilon  }\,   \rightarrow   T   \rightsquigarrow   \lambda  \,\overline{  \ottmv{x}  \ottsym{:}  \sigma  }\,  \ottsym{.}  \ottnt{e} }{%
 {\ottdrulename{TRpat\_Alt}}{}%
 }}
 
@@ -519,7 +609,7 @@
 
 
 \newcommand{\ottdruleTRXXVar}[1]{\ottdrule[#1]{%
-{ \labeledjudge{ct}  \Sigma   \rightsquigarrow   \Gamma }%
+{ \labeledjudge{wf}  \Sigma   \rightsquigarrow   \Gamma }%
 \\ {\ottmv{x}  \ottsym{:}  T \, \in \, \Sigma}%
 }{
  \Sigma  \labeledjudge{s}  \ottmv{x}  :  T   \rightsquigarrow   \ottmv{x} }{%
@@ -554,6 +644,26 @@
 }}
 
 
+\newcommand{\ottdruleTRXXCastUp}[1]{\ottdrule[#1]{%
+{ \Sigma  \labeledjudge{s}  \ottnt{E}  :  T_{{\mathrm{2}}}   \rightsquigarrow   \ottnt{e} }%
+\\ { \Sigma  \labeledjudge{s}  T_{{\mathrm{1}}}  :  \star   \rightsquigarrow   \tau_{{\mathrm{1}}} }%
+\\ {T_{{\mathrm{1}}}  \longrightarrow  T_{{\mathrm{2}}}}%
+}{
+ \Sigma  \labeledjudge{s}  \ottsym{(}  \kw{cast}^{\uparrow} \, \ottsym{[}  T_{{\mathrm{1}}}  \ottsym{]} \,  \ottnt{E}  \ottsym{)}  :  T_{{\mathrm{1}}}   \rightsquigarrow   \kw{cast}^{\uparrow} \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]} \,  \ottnt{e} }{%
+{\ottdrulename{TR\_CastUp}}{}%
+}}
+
+
+\newcommand{\ottdruleTRXXCastDown}[1]{\ottdrule[#1]{%
+{ \Sigma  \labeledjudge{s}  \ottnt{E}  :  T_{{\mathrm{1}}}   \rightsquigarrow   \ottnt{e} }%
+\\ { \Sigma  \labeledjudge{s}  T_{{\mathrm{2}}}  :  \star   \rightsquigarrow   \tau_{{\mathrm{2}}} }%
+\\ {T_{{\mathrm{1}}}  \longrightarrow  T_{{\mathrm{2}}}}%
+}{
+ \Sigma  \labeledjudge{s}  \ottsym{(}  \kw{cast}_{\downarrow} \, \ottnt{E}  \ottsym{)}  :  T_{{\mathrm{2}}}   \rightsquigarrow   \kw{cast}_{\downarrow} \, \ottnt{e} }{%
+{\ottdrulename{TR\_CastDown}}{}%
+}}
+
+
 \newcommand{\ottdruleTRXXMu}[1]{\ottdrule[#1]{%
 { \Sigma  \ottsym{,}  \ottmv{x}  \ottsym{:}  T  \labeledjudge{s}  \ottnt{E}  :  T   \rightsquigarrow   \ottnt{e} }%
 \\ { \Sigma  \labeledjudge{s}  T  :  \star   \rightsquigarrow   \tau }%
@@ -565,20 +675,11 @@
 
 \newcommand{\ottdruleTRXXCase}[1]{\ottdrule[#1]{%
 { \Sigma  \labeledjudge{s}  \ottnt{E_{{\mathrm{1}}}}  :  S   \rightsquigarrow   \ottnt{e_{{\mathrm{1}}}} }%
-\\ {\overline{   \Sigma  \labeledjudge{p}  \ottnt{p}   \Rightarrow   \ottnt{E_{{\mathrm{2}}}}  :  S   \rightarrow   T   \rightsquigarrow   \ottnt{e_{{\mathrm{2}}}}   }}%
-\\ {\overline{   \Sigma  \labeledjudge{s}  S  \rightarrow  T  :  \star   \rightsquigarrow   \sigma  \rightarrow  \tau   }}%
+\\ {\,\overline{   \Sigma  \labeledjudge{p}  \ottnt{p}   \Rightarrow   \ottnt{E_{{\mathrm{2}}}}  :  S   \rightarrow   T   \rightsquigarrow   \ottnt{e_{{\mathrm{2}}}}   }\,}%
+\\ {\,\overline{   \Sigma  \labeledjudge{s}  T  :  \star   \rightsquigarrow   \tau   }\,}%
 }{
- \Sigma  \labeledjudge{s}  \kw{case} \, \ottnt{E_{{\mathrm{1}}}} \, \kw{of} \, \overline{  \ottnt{p}  \Rightarrow  \ottnt{E_{{\mathrm{2}}}}  }  :  T   \rightsquigarrow   \ottsym{(}  \kw{cast}_{\downarrow}^n \, \ottnt{e_{{\mathrm{1}}}}  \ottsym{)} \, \tau \, \overline{  \ottnt{e_{{\mathrm{2}}}}  } }{%
+ \Sigma  \labeledjudge{s}  \kw{case} \, \ottnt{E_{{\mathrm{1}}}} \, \kw{of} \, \,\overline{  \ottnt{p}  \Rightarrow  \ottnt{E_{{\mathrm{2}}}}  }\,  :  T   \rightsquigarrow   \ottsym{(}  \kw{cast}_{\downarrow}^n \, \ottnt{e_{{\mathrm{1}}}}  \ottsym{)} \, \tau \, \,\overline{  \ottnt{e_{{\mathrm{2}}}}  }\, }{%
 {\ottdrulename{TR\_Case}}{}%
-}}
-
-
-\newcommand{\ottdruleTRXXLet}[1]{\ottdrule[#1]{%
-{ \Sigma  \labeledjudge{s}  \ottnt{E_{{\mathrm{2}}}}  :  T   \rightsquigarrow   \ottnt{e_{{\mathrm{2}}}} }%
-\\ { \Sigma  \labeledjudge{s}  \ottnt{E_{{\mathrm{1}}}}  \ottsym{[}  \ottmv{x}  \mapsto  \ottnt{E_{{\mathrm{2}}}}  \ottsym{]} \,  :  S   \rightsquigarrow   \ottnt{e_{{\mathrm{1}}}}  \ottsym{[}  \ottmv{x}  \mapsto  \ottnt{e_{{\mathrm{2}}}}  \ottsym{]} \, }%
-}{
- \Sigma  \labeledjudge{s}  \kw{let} \, \ottmv{x}  \ottsym{:}  T  \ottsym{=}  \ottnt{E_{{\mathrm{2}}}} \, \kw{in} \, \ottnt{E_{{\mathrm{1}}}}  :  S   \rightsquigarrow   \ottnt{e_{{\mathrm{1}}}}  \ottsym{[}  \ottmv{x}  \mapsto  \ottnt{e_{{\mathrm{2}}}}  \ottsym{]} \, }{%
-{\ottdrulename{TR\_Let}}{}%
 }}
 
 \newcommand{\ottdefnexprtrans}[1]{\begin{ottdefnblock}[#1]{$ \Sigma  \labeledjudge{s}  \ottnt{E}  :  T   \rightsquigarrow   \ottnt{e} $}{\ottcom{Expression translation}}
@@ -587,9 +688,10 @@
 \ottusedrule{\ottdruleTRXXApp{}}
 \ottusedrule{\ottdruleTRXXLam{}}
 \ottusedrule{\ottdruleTRXXPi{}}
+\ottusedrule{\ottdruleTRXXCastUp{}}
+\ottusedrule{\ottdruleTRXXCastDown{}}
 \ottusedrule{\ottdruleTRXXMu{}}
 \ottusedrule{\ottdruleTRXXCase{}}
-\ottusedrule{\ottdruleTRXXLet{}}
 \end{ottdefnblock}}
 
 
@@ -677,6 +779,7 @@
 \newcommand{\ottdefnss}{
 \ottdefnsLintCore
 \ottdefnsOpSem
+\ottdefnsOpSemSrc
 \ottdefnsLintSrc
 \ottdefnsLintCC
 }
