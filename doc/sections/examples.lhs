@@ -7,7 +7,7 @@
 %format rcrd = "\mathbf{rcrd}"
 
 
-\section{Showcase}
+\section{\name by Example}
 \label{sec:app}
 
 In this section, we showcase applications, which either Haskell needs non-trivial extensions to do that, or dependently typed languages like Coq and Agda are impossible to do, whereas we can easily achieve in \name.
@@ -96,7 +96,7 @@ Because \name is explicitly typed, each type parameter needs to be accompanied w
 
 \subsubsection{Higher-kinded Types}
 
-Higher-kinded types are types that take other types and produce a new type. To support higher-kinded types, languages like Haskell have to extend their existing core languages to account for kind expressions. In \name, since all syntactical constructs are in the same level, we can easily construct higher-kinded types. We show this by an example of encoding the \emph{Functor} class:
+Higher-kinded types are types that take other types and produce a new type. To support higher-kinded types, languages like Haskell have to extend their existing core languages to account for kind expressions. In \name, since all syntactic constructs are in the same level, we can easily construct higher-kinded types. We show this by an example of encoding the \emph{Functor} class:
 
 \begin{figure}[h!]
   \begin{spec}
