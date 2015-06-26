@@ -12,7 +12,15 @@
 
 \newcommand{\sufcc}{$\lambda C_{\mathsf{suf}}$\xspace}
 
-In this section, we present the surface language of \name with features that are convenient for functional programming: user-defined datatypes, and pattern matching. Thanks to the expressiveness of \name, all these features can be elaborated into the core language without extending the built-in language constructs of \name. In what follows, we first give the syntax of the surface language, followed by the extended typing rules, then we show the formal translation rules that translates a surface language expression to an expression in \name. Finally we prove the type-safety of the translation.
+In this section, we present a surface language built on top of \name with
+features that are convenient for functional programming: user-defined
+datatypes, and pattern matching. Thanks to the expressiveness of
+\name, all these features can be elaborated into the core language
+without extending the built-in language constructs of \name. In what
+follows, we first give the syntax of the surface language, followed by
+the extended typing rules, then we show the formal translation rules
+that translates a surface language expression to an expression in
+\name. Finally we prove the type-safety of the translation.
 
 \subsection{Extended Syntax}
 
@@ -28,7 +36,25 @@ The type of a data constructor $K$ has the form:
 \[
 [[K : (<<u:k>>) -> <<A>> -> D@<<u>>]]
 \]
-The quantified type variables $[[<<u>>]]$ appear in the same order in the return type $[[D@<<u>>]]$. Note that the use of dependent product to tie together the type constructor arguments ($[[(<<u:k>>)]]$) makes it possible to let the type of some type constructor arguments depend on other type constructor arguments. The \textbf{case} expression is conventional, used to break up values built with data constructors. The patterns of a case expression are flat (no nested patterns), and bind value variables.
+\bruno{this looks a bit odd for a number of reasons: firstly why to
+  insist on having the quantified variables in the same order as the
+  arguments in the constructor? Secondly it seems that all other
+  arguments cannot be dependently typed? 
+It seems to me that 
+\[
+[[K : (<<x:k>>) -> D@<<u>>]]
+\]
+where all variables $u$ are bound ($u \in \overline{x}$) would be
+better. 
+}
+The quantified type variables $[[<<u>>]]$ appear in the same order in
+the return type $[[D@<<u>>]]$. Note that the use of dependent product
+to tie together the type constructor arguments ($[[(<<u:k>>)]]$) makes
+it possible to let the type of some type constructor arguments depend
+on other type constructor arguments. The \textbf{case} expression is
+conventional, used to break up values built with data constructors.
+The patterns of a case expression are flat (no nested patterns), and
+bind value variables.
 
 \begin{figure*}
 \centering
@@ -77,7 +103,12 @@ The quantified type variables $[[<<u>>]]$ appear in the same order in the return
 %   \caption{Syntax of \sufcc ($e$ for terms; $\tau,\sigma,\upsilon$ for types; $\kappa$ for kinds)}\label{fig:datasyn}
 % \end{figure}
 
-For the sake of programming, the surface language employs some syntactic sugars: A non-dependent function type can be written as $[[A1 -> A2]]$. Dependent function type $[[Pi x : A1 . A2]]$ is abbreviated as $[[(x : A1) -> A2]]$ for easy reading. We also introduce a Haskell-like record syntax, which is desugared to datatypes with accompanying selector functions.
+For the sake of programming, the surface language employs some
+syntactic sugar. A non-dependent function type can be written as
+$[[A1 -> A2]]$. A dependent function type $[[Pi x : A1 . A2]]$ is
+abbreviated as $[[(x : A1) -> A2]]$ for easy reading. We also
+introduce a Haskell-like record syntax, which is desugared to
+datatypes with accompanying selector functions.
 
 % \begin{figure}[ht]
 % \centering
@@ -94,12 +125,44 @@ For the sake of programming, the surface language employs some syntactic sugars:
 % \end{figure}
 
 \subsection{Extended Typing Rules}
+\bruno{For typing and translation show only one figure (Figure 8), since the
+  typing figure is just a subset. We can use gray to highlight the
+  parts which belong to the translation.}
 
-Figure~\ref{fig:surface:typing} defines the type system of the surface language. Several new typing judgments appear in the type system. The use of different subscripts of the judgments is to be distinct from the one used in \name. Most rules of the type system are standard for systems based on \coc, including the rules for the well-formedness of contexts (\ruleref{EnvS\_Empty}, \ruleref{EnvS\_Var}), inferring the types of variables (\ruleref{TS\_Var}), and dependent application (\ruleref{TS\_App}). Two judgments $[[Gs |- pgm : A]]$ and $[[Gs |- decl : Gs']]$ are of the essence to the type checking of the surface language. The former type checks a whole program, and the latter type checks datatype declarations.
+Figure~\ref{fig:surface:typing} defines the type system of the surface
+language. Several new typing judgments appear in the type system. The
+use of different subscripts of the judgments is to be distinct from
+the one used in \name. Most rules of the type system are standard for
+systems based on \coc, including the rules for the well-formedness of
+contexts (\ruleref{EnvS\_Empty}, \ruleref{EnvS\_Var}), inferring the
+types of variables (\ruleref{TS\_Var}), and dependent application
+(\ruleref{TS\_App}). Two judgments $[[Gs |- pgm : A]]$ and
+$[[Gs |- decl : Gs']]$ are of the essence to the type checking of the
+surface language. The former type checks a whole program, and the
+latter type checks datatype declarations.
 
-Rule \ruleref{TSpgm\_Pgm} type checks a whole problem. It first type-checks the declarations, which in return gives a new typing environment. Combined with the original environment, it then continues to type check the expression and return the result type. Rule \ruleref{TSpgm\_Data} is used to type check datatype declarations. It first ensures the well-formedness of the type of the type constructor application (of kind $\star$). Note that since our system adopts $\star : \star$, this means we can express kind polymophism in the type parameters. Finally it make sure the types of data constructors are valid.
+Rule \ruleref{TSpgm\_Pgm} type checks a whole program. It first
+type-checks the declarations, which in return gives a new typing
+environment. Combined with the original environment, it then continues
+to type check the expression and return the result type. Rule
+\ruleref{TSpgm\_Data} is used to type check datatype declarations. It
+first ensures the well-formedness of the type of the type constructor
+application (of kind $\star$). Note that since our system adopts
+$\star : \star$, this means we can express kind polymophism in the
+type parameters. Finally it make sure the types of data constructors
+are valid.
 
-Rules \ruleref{TS\_Case} and \ruleref{Tpat\_Alt} handle the type checking of case expressions. The conclusion of \ruleref{TS\_Case} binds the right types to the scrutinee expression $[[E1]]$ and alternatives $\overline{p \Rightarrow E_2}$. The first premise of \ruleref{Tpat\_Alt} binds the actual type constructor arguments to $[[<<u>>]]$. The second premise checks whether the types of the right-hand sides of each alternative, instantiated to the actual type constructor arguments $[[<<u>>]]$, are equal. Finally the third premise checks the well-formedness of the types of data constructor arguments.
+Rules \ruleref{TS\_Case} and \ruleref{Tpat\_Alt} handle the type
+checking of case expressions. The conclusion of \ruleref{TS\_Case}
+binds the right types to the scrutinee expression $[[E1]]$ and
+alternatives $\overline{p \Rightarrow E_2}$. The first premise of
+\ruleref{Tpat\_Alt} binds the actual type constructor arguments to
+$[[<<u>>]]$. The second premise checks whether the types of the
+right-hand sides of each alternative, instantiated to the actual type
+constructor arguments $[[<<u>>]]$, are equal. Finally the third
+premise checks the well-formedness of the types of data constructor
+arguments.
+\bruno{Mention that we do not support refinement, as in GADTs?}
 
 \begin{figure*}
 \ottdefnctxsrc{}
@@ -137,7 +200,13 @@ We use a type-directed translation. The basic translation rules have the form:
 [[Gs  |- E : A ~> e]]
 \]
 
-It states that \name expression $[[e]]$ is the translation of the surface expression $[[E]]$ of type $[[A]]$. Figure~\ref{fig:source:translate} defines the translation rules, which are the typing rules in Figure~\ref{fig:surface:typing} extended with the resulting expression $[[e]]$. In the translation, we require that applications of constructors to be \emph{saturated}.
+It states that \name expression $[[e]]$ is the translation of the
+surface expression $[[E]]$ of type $[[A]]$.
+Figure~\ref{fig:source:translate} defines the translation rules, which
+are the typing rules in Figure~\ref{fig:surface:typing} extended with
+the resulting expression $[[e]]$. In the translation, we require that
+applications of constructors to be \emph{saturated}.\bruno{Any
+  partiular reasons for this?}
 
 Among others, Rules \ruleref{TRdecl\_Data}, \ruleref{TRpat\_Alt} and \ruleref{TR\_Case} are of the essence to the translation. Rule \ruleref{TR\_Case} translates case expressions into applications by first translating the scrutinee expression, casting it down to the right type. It is then applied to the result type of the body expression and a list of translated \name expressions of its alternatives. Rule \ruleref{TRpat\_Alt} tells how to translate each alternative. Basically it translates an alternative into a lambda abstraction, where each bound variable in the pattern corresponds to a bound variable in the lambda abstraction in the same order. The body in the alternative is recursively translated and treated as the body of the lambda abstraction.
 

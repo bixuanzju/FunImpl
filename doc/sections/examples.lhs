@@ -107,7 +107,7 @@ giving the source language a name.} is explicitly typed, each type parameter nee
 Higher-kinded types are types that take other types and produce a new
 type. To support higher-kinded types, languages like Haskell have to
 extend their existing core languages to account for kind
-expressions\bruno{Probably want to mention F_{\omega}}.
+expressions\bruno{Probably want to mention $F_{\omega}$}.
 In \name, since all syntactic constructs are in the same
 level, we can easily construct higher-kinded types. We show this by an
 example of encoding the \emph{Functor} class:
@@ -344,3 +344,5 @@ shown below \jeremy{write printer function}:
 \end{figure}
 
 \bruno{Two questions: firstly does it work? secondly do we support GADT syntax now?}
+
+\bruno{More examples? closed type families; dependent types?}
