@@ -1,4 +1,3 @@
-%%% !!! WARNING: AUTO GENERATED. DO NOT MODIFY !!! %%%
 \newcommand{\FV}{\mathsf{FV}}
 \newcommand{\dom}{\mathsf{dom}}
 
@@ -27,9 +26,9 @@ The full syntax of the surface language is defined in Figure~\ref{fig:surface:sy
 \]
 The type of a data constructor $K$ has the form:
 \[
-\ottmv{K}  \ottsym{:}  \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{)}  \rightarrow  \,\overline{  T  }\,  \rightarrow  \ottmv{D}    \,\overline{  \ottnt{u}  }\,
+[[K : (<<u:k>>) -> <<A>> -> D@<<u>>]]
 \]
-The quantified type variables $\,\overline{  \ottnt{u}  }\,$ appear in the same order in the return type $\ottmv{D}    \,\overline{  \ottnt{u}  }\,$. Note that the use of dependent product to tie together the type constructor arguments ($\ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{)}$) makes it possible to let the type of some type constructor arguments depend on other type constructor arguments. The \textbf{case} expression is conventional, used to break up values built with data constructors. The patterns of a case expression are flat (no nested patterns), and bind value variables.
+The quantified type variables $[[<<u>>]]$ appear in the same order in the return type $[[D@<<u>>]]$. Note that the use of dependent product to tie together the type constructor arguments ($[[(<<u:k>>)]]$) makes it possible to let the type of some type constructor arguments depend on other type constructor arguments. The \textbf{case} expression is conventional, used to break up values built with data constructors. The patterns of a case expression are flat (no nested patterns), and bind value variables.
 
 \begin{figure*}
 \centering
@@ -43,12 +42,12 @@ The quantified type variables $\,\overline{  \ottnt{u}  }\,$ appear in the same 
     \[
     \begin{array}{lllll}
      &&&& \text{Syntactic Sugar} \\
-     T_{{\mathrm{1}}}  \rightarrow  T_{{\mathrm{2}}} & \triangleq & \Pi \, \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{.}  T_{{\mathrm{2}}} & x \not \in \FV(T_{{\mathrm{2}}}) & \quad\text{Function type} \\
-     \ottsym{(}  \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{)}  \rightarrow  T_{{\mathrm{2}}} & \triangleq & \Pi \, \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{.}  T_{{\mathrm{2}}} & x \in \FV(T_{{\mathrm{2}}}) & \quad\text{Dependent function type} \\
-     \kw{data} \, \ottmv{R}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{=}  \ottmv{K}  \ottsym{\{}  \,\overline{  \ottmv{N}  \ottsym{:}  T  }\,  \ottsym{\}} & \triangleq &
-                    \kw{data} \, \ottmv{R}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{=}  \ottmv{K}  \,\overline{  T  }\,; && \quad\text{Record} \\
-                  &&  \kw{let} ~\ottmv{N}_i : \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{)}  \rightarrow  \ottmv{R}    \,\overline{  \ottnt{u}  }\,  \rightarrow  T_i = & \forall i &  \\
-                  && \lambda  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{.}  \lambda  \ottmv{y}  \ottsym{:}  \ottmv{R} \, \,\overline{  \ottnt{u}  }\,  \ottsym{.}  \kw{case} \, \ottmv{y} \, \kw{of} \, \ottmv{K}  \,\overline{  \ottmv{x}  \ottsym{:}  T  }\,  \Rightarrow  \ottmv{x}_i~ \kw{in}  && \\
+     [[A1->A2]] & \triangleq & [[Pi x:A1.A2]] & x \not \in \FV([[A2]]) & \quad\text{Function type} \\
+     [[(x:A1)->A2]] & \triangleq & [[Pi x:A1.A2]] & x \in \FV([[A2]]) & \quad\text{Dependent function type} \\
+     [[data R <<u:k>> = K { <<N:A>> }]] & \triangleq &
+                    [[data R <<u:k>> = K <<A>>]]; && \quad\text{Record} \\
+                  && [[let]]~[[N]]_i : [[ (<<u:k>>) -> R@<<u>> -> A]]_i = & \forall i &  \\
+                  && [[\ <<u:k>> . \ y : R <<u>> . case y of K <<x:A>> => x]]_i~[[in]] && \\
     \end{array}
     \]
 \caption{Syntax of the surface language}
@@ -78,7 +77,7 @@ The quantified type variables $\,\overline{  \ottnt{u}  }\,$ appear in the same 
 %   \caption{Syntax of \sufcc ($e$ for terms; $\tau,\sigma,\upsilon$ for types; $\kappa$ for kinds)}\label{fig:datasyn}
 % \end{figure}
 
-For the sake of programming, the surface language employs some syntactic sugars: A non-dependent function type can be written as $T_{{\mathrm{1}}}  \rightarrow  T_{{\mathrm{2}}}$. Dependent function type $\Pi \, \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{.}  T_{{\mathrm{2}}}$ is abbreviated as $\ottsym{(}  \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{)}  \rightarrow  T_{{\mathrm{2}}}$ for easy reading. We also introduce a Haskell-like record syntax, which is desugared to datatypes with accompanying selector functions.
+For the sake of programming, the surface language employs some syntactic sugars: A non-dependent function type can be written as $[[A1 -> A2]]$. Dependent function type $[[Pi x : A1 . A2]]$ is abbreviated as $[[(x : A1) -> A2]]$ for easy reading. We also introduce a Haskell-like record syntax, which is desugared to datatypes with accompanying selector functions.
 
 % \begin{figure}[ht]
 % \centering
@@ -96,11 +95,11 @@ For the sake of programming, the surface language employs some syntactic sugars:
 
 \subsection{Extended Typing Rules}
 
-Figure~\ref{fig:surface:typing} defines the type system of the surface language. Several new typing judgments appear in the type system. The use of different subscripts of the judgments is to be distinct from the one used in \name. Most rules of the type system are standard for systems based on \coc, including the rules for the well-formedness of contexts (\ruleref{EnvS\_Empty}, \ruleref{EnvS\_Var}), inferring the types of variables (\ruleref{TS\_Var}), and dependent application (\ruleref{TS\_App}). Two judgments $ \Sigma  \labeledjudge{pg}  \ottnt{pgm}  :  T $ and $ \Sigma  \labeledjudge{d}  \ottnt{decl}  :  \Sigma' $ are of the essence to the type checking of the surface language. The former type checks a whole program, and the latter type checks datatype declarations.
+Figure~\ref{fig:surface:typing} defines the type system of the surface language. Several new typing judgments appear in the type system. The use of different subscripts of the judgments is to be distinct from the one used in \name. Most rules of the type system are standard for systems based on \coc, including the rules for the well-formedness of contexts (\ruleref{EnvS\_Empty}, \ruleref{EnvS\_Var}), inferring the types of variables (\ruleref{TS\_Var}), and dependent application (\ruleref{TS\_App}). Two judgments $[[Gs |- pgm : A]]$ and $[[Gs |- decl : Gs']]$ are of the essence to the type checking of the surface language. The former type checks a whole program, and the latter type checks datatype declarations.
 
 Rule \ruleref{TSpgm\_Pgm} type checks a whole problem. It first type-checks the declarations, which in return gives a new typing environment. Combined with the original environment, it then continues to type check the expression and return the result type. Rule \ruleref{TSpgm\_Data} is used to type check datatype declarations. It first ensures the well-formedness of the type of the type constructor application (of kind $\star$). Note that since our system adopts $\star : \star$, this means we can express kind polymophism in the type parameters. Finally it make sure the types of data constructors are valid.
 
-Rules \ruleref{TS\_Case} and \ruleref{Tpat\_Alt} handle the type checking of case expressions. The conclusion of \ruleref{TS\_Case} binds the right types to the scrutinee expression $\ottnt{E_{{\mathrm{1}}}}$ and alternatives $\overline{p \Rightarrow E_2}$. The first premise of \ruleref{Tpat\_Alt} binds the actual type constructor arguments to $\,\overline{  \ottnt{u}  }\,$. The second premise checks whether the types of the right-hand sides of each alternative, instantiated to the actual type constructor arguments $\,\overline{  \ottnt{u}  }\,$, are equal. Finally the third premise checks the well-formedness of the types of data constructor arguments.
+Rules \ruleref{TS\_Case} and \ruleref{Tpat\_Alt} handle the type checking of case expressions. The conclusion of \ruleref{TS\_Case} binds the right types to the scrutinee expression $[[E1]]$ and alternatives $\overline{p \Rightarrow E_2}$. The first premise of \ruleref{Tpat\_Alt} binds the actual type constructor arguments to $[[<<u>>]]$. The second premise checks whether the types of the right-hand sides of each alternative, instantiated to the actual type constructor arguments $[[<<u>>]]$, are equal. Finally the third premise checks the well-formedness of the types of data constructor arguments.
 
 \begin{figure*}
 \ottdefnctxsrc{}
@@ -135,14 +134,14 @@ Rules \ruleref{TS\_Case} and \ruleref{Tpat\_Alt} handle the type checking of cas
 
 We use a type-directed translation. The basic translation rules have the form:
 \[
- \Sigma  \labeledjudge{s}  \ottnt{E}  :  T   \rightsquigarrow   \ottnt{e} 
+[[Gs  |- E : A ~> e]]
 \]
 
-It states that \name expression $\ottnt{e}$ is the translation of the surface expression $\ottnt{E}$ of type $T$. Figure~\ref{fig:source:translate} defines the translation rules, which are the typing rules in Figure~\ref{fig:surface:typing} extended with the resulting expression $\ottnt{e}$. In the translation, we require that applications of constructors to be \emph{saturated}.
+It states that \name expression $[[e]]$ is the translation of the surface expression $[[E]]$ of type $[[A]]$. Figure~\ref{fig:source:translate} defines the translation rules, which are the typing rules in Figure~\ref{fig:surface:typing} extended with the resulting expression $[[e]]$. In the translation, we require that applications of constructors to be \emph{saturated}.
 
 Among others, Rules \ruleref{TRdecl\_Data}, \ruleref{TRpat\_Alt} and \ruleref{TR\_Case} are of the essence to the translation. Rule \ruleref{TR\_Case} translates case expressions into applications by first translating the scrutinee expression, casting it down to the right type. It is then applied to the result type of the body expression and a list of translated \name expressions of its alternatives. Rule \ruleref{TRpat\_Alt} tells how to translate each alternative. Basically it translates an alternative into a lambda abstraction, where each bound variable in the pattern corresponds to a bound variable in the lambda abstraction in the same order. The body in the alternative is recursively translated and treated as the body of the lambda abstraction.
 
-Rule \ruleref{TRDecl\_Data} does the most heavy work and deserves further explanation. First of all, it results in an incomplete expression (as can be seen by the incomplete \emph{let} expressions), The result expression is supposed to be prepended to the translation of the last expression to form a complete \name expression, as specified by Rule \ruleref{TRpgm\_Pgm}. Furthermore, each type constructor is translated to a recursive type, of which the body is a type-level lambda abstraction. What is interesting is that each recursive mention of the datatype in the data constructor parameters is replaced with the recursive variable $\ottmv{X}$. Note that for the moment, the result type variable $\alpha$ is restricted to have kind $\star$. This could pose difficulties when translating GADTs as we will discussion in the future work. Each data constructor is translated to a lambda abstraction. Notice how we use \castup in the lambda body to get the right type.
+Rule \ruleref{TRDecl\_Data} does the most heavy work and deserves further explanation. First of all, it results in an incomplete expression (as can be seen by the incomplete \emph{let} expressions), The result expression is supposed to be prepended to the translation of the last expression to form a complete \name expression, as specified by Rule \ruleref{TRpgm\_Pgm}. Furthermore, each type constructor is translated to a recursive type, of which the body is a type-level lambda abstraction. What is interesting is that each recursive mention of the datatype in the data constructor parameters is replaced with the recursive variable $[[X]]$. Note that for the moment, the result type variable $[[aa]]$ is restricted to have kind $\star$. This could pose difficulties when translating GADTs as we will discussion in the future work. Each data constructor is translated to a lambda abstraction. Notice how we use \castup in the lambda body to get the right type.
 
 The rest of the translation rules hold few surprises.
 
@@ -151,7 +150,7 @@ The rest of the translation rules hold few surprises.
 \ottdefnpgmtrans{}
 \ottdefndecltrans{}
 \begin{align*}
-\ottnt{e}  \triangleq ~  &  \kw{let} \, \ottmv{D}  \ottsym{:}  \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \sigma  }\,  \ottsym{)}  \rightarrow  \star  \ottsym{=}  \mu \, \ottmv{X}  \ottsym{:}  \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \sigma  }\,  \ottsym{)}  \rightarrow  \star  \ottsym{.}  \lambda  \,\overline{  \ottnt{u}  \ottsym{:}  \sigma  }\,  \ottsym{.}  \ottsym{(}  \alpha  \ottsym{:}  \star  \ottsym{)}  \rightarrow  \,\overline{  \ottsym{(}  \,\overline{  \tau  }\,  \ottsym{[}  \ottmv{D}  \mapsto  \ottmv{X}  \ottsym{]} \,  \rightarrow  \alpha  \ottsym{)}  }\,  \rightarrow  \alpha \, \kw{in} \, \\ &  \kw{let} \, \ottmv{K_{\ottmv{i}}}  \ottsym{:}  \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \sigma  }\,  \ottsym{)}  \rightarrow  \,\overline{  \tau  }\,  \rightarrow  \ottmv{D}    \,\overline{  \ottnt{u}  }\,  \ottsym{=}  \lambda  \,\overline{  \ottnt{u}  \ottsym{:}  \sigma  }\,  \ottsym{.}  \lambda  \,\overline{  \ottmv{x}  \ottsym{:}  \tau  }\,  \ottsym{.}  \kw{cast}_{\uparrow}^n \, \ottsym{[}  \ottmv{D}    \,\overline{  \ottnt{u}  }\,  \ottsym{]} \,  \ottsym{(}  \lambda  \alpha  \ottsym{:}  \star  \ottsym{.}  \lambda  \,\overline{  b  \ottsym{:}  \,\overline{  \tau  }\,  \rightarrow  \alpha  }\,  \ottsym{.}  b_{\ottmv{i}} \, \,\overline{  \ottmv{x}  }\,  \ottsym{)} \, \kw{in} \, 
+[[ e := & let D : (<<u:T>>) -> star = mu X : (<<u:T>>) -> star . \ <<u:T>> . (aa:star) -> << (<<t>>[D |-> X] -> aa) >> -> aa in \\\let Ki : (<<u:T>>) -> <<t>> -> D@<<u>> = \ <<u:T>> . \<<x:t>> . foldn [D@<<u>>] (\aa:star.\<<bb : <<t>> -> aa >> . bbi <<x>>) in @@ ]]
 \end{align*}
 \ottdefnpattrans{}
 \ottdefnexprtrans{}
