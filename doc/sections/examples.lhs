@@ -6,11 +6,17 @@
 %format letrec = "\mathbf{letrec}"
 %format rcrd = "\mathbf{rcrd}"
 
+\bruno{General comment is that, although the material is good, the text is a bit informally written.
+Text needs to be polsihed. Also the text is lacking references.}
 
-\section{\name by Example}
+\section{\name by Example}\bruno{Wrong title! This section is not about \name; it is about source languages that can be built on top of name!}
 \label{sec:app}
 
-In this section, we showcase applications, which either Haskell needs non-trivial extensions to do that, or dependently typed languages like Coq and Agda are impossible to do, whereas we can easily achieve in \name.
+This sections shows a number of programs written in a source language
+built on top of \name.  Most of the examples either require
+non-trivial extensions of Haskell, or are non-trivial to encode in
+dependently typed language like Coq or Agda. The formalization of the
+source language is presented in Section \ref{}.
 
 \begin{comment}
 \subsection{Parametric HOAS}
@@ -70,9 +76,11 @@ in show (eval example) -- return 42
 \end{figure}
 \end{comment}
 
-\subsubsection{Conventional Datatypes}
-
-Conventional datatypes like natural numbers or polymorphic lists can be easily defined in \name, as in Haskell. For example, below is the definition of polymorphic lists:
+\subsubsection{Datatypes}
+Conventional datatypes like natural numbers or polymorphic lists can
+be easily defined in \name\bruno{This is not name; its the source language built
+on top of name!}, as in Haskell. For example, below is the
+definition of polymorphic lists:
 
 \begin{figure}[H]
 \begin{spec}
@@ -80,7 +88,8 @@ Conventional datatypes like natural numbers or polymorphic lists can be easily d
 \end{spec}
 \end{figure}
 
-Because \name is explicitly typed, each type parameter needs to be accompanied with corresponding kind expressions. The use of the above datatype is best illustrated by the \emph{length} function:
+Because \name\bruno{You'll have to stop referring to \name in this section. You may want to consider
+giving the source language a name.} is explicitly typed, each type parameter needs to be accompanied with corresponding kind expressions. The use of the above datatype is best illustrated by the \emph{length} function:
 
 \begin{figure}[h!]
   \begin{spec}
@@ -95,8 +104,13 @@ Because \name is explicitly typed, each type parameter needs to be accompanied w
 \end{figure}
 
 \subsubsection{Higher-kinded Types}
-
-Higher-kinded types are types that take other types and produce a new type. To support higher-kinded types, languages like Haskell have to extend their existing core languages to account for kind expressions. In \name, since all syntactic constructs are in the same level, we can easily construct higher-kinded types. We show this by an example of encoding the \emph{Functor} class:
+Higher-kinded types are types that take other types and produce a new
+type. To support higher-kinded types, languages like Haskell have to
+extend their existing core languages to account for kind
+expressions\bruno{Probably want to mention F_{\omega}}.
+In \name, since all syntactic constructs are in the same
+level, we can easily construct higher-kinded types. We show this by an
+example of encoding the \emph{Functor} class:
 
 \begin{figure}[h!]
   \begin{spec}
@@ -105,7 +119,8 @@ Higher-kinded types are types that take other types and produce a new type. To s
   \end{spec}
 \end{figure}
 
-A functor is just a record that has only one field \emph{fmap}. A Functor instance of the \emph{Maybe} datatype is simply:
+A functor is just a record that has only one field \emph{fmap}. A
+Functor instance of the \emph{Maybe} datatype is simply:
 
 \begin{figure}[h!]
   \begin{spec}
@@ -119,7 +134,14 @@ A functor is just a record that has only one field \emph{fmap}. A Functor instan
 
 \subsubsection{HOAS}
 
-\emph{Higher-order abstract syntax} is a generalization of representing programs where the function space of the meta-language is used to encode the binders of the object language. Because the recursive mention of the datatype can appear in a negative position, systems like Coq and Agda would reject programs using HOAS due to the restrictiveness of their termination checkers. However \name is able to express HOAS in a straightforward way. We show an example of encoding a simple lambda calculus:
+\emph{Higher-order abstract syntax} is a
+representation of abstract syntax where the function space of the meta-language is
+used to encode the binders of the object language. Because of the
+recursive occurrence of the datatype appears in a negative position in \dots\bruno{explain where!},
+systems like Coq and Agda would reject programs using HOAS due to the
+restrictiveness of their termination checkers. However \name is able
+to express HOAS in a straightforward way. We show an example of
+encoding a simple lambda calculus:
 
 \begin{figure}[h!]
 \begin{spec}
@@ -129,7 +151,10 @@ A functor is just a record that has only one field \emph{fmap}. A Functor instan
 \end{spec}
 \end{figure}
 
-Next we define the evaluator for our lambda calculus. As noted by~\cite{Fegaras1996}, the evaluation function needs an extra function \emph{reify} to invert the result of evaluation. The code is presented in Figure~\ref{fig:hoas}.
+Next we define the evaluator for our lambda calculus. As noted
+by~\cite{Fegaras1996}, the evaluation function needs an extra function
+\emph{reify} to invert the result of evaluation. The code is presented
+in Figure~\ref{fig:hoas}.
 
 \begin{figure}[ht]
 \begin{spec}
@@ -154,7 +179,10 @@ in let eval : Exp -> Value = eval' f in
   \label{fig:hoas}
 \end{figure}
 
-The definition of the evaluator is quite straightforward, although it is worth noting that the evaluator is a partial function that can cause run-time errors. Thanks to the flexibility of the $\mu$ primitive, mutual recursion can be encoded by using records!
+The definition of the evaluator is quite straightforward, although it
+is worth noting that the evaluator is a partial function that can
+cause run-time errors. Thanks to the flexibility of the $\mu$
+primitive, mutual recursion can be encoded by using records!
 
 Evaluation of a lambda expression proceeds as follows:
 
@@ -167,8 +195,8 @@ Evaluation of a lambda expression proceeds as follows:
 \end{figure}
 
 \subsubsection{Fix as a Datatype}
-
-The type-level \emph{Fix} is a good example to demonstrate the expressiveness of \name. The definition is simply:
+The type-level \emph{Fix} is a good example to demonstrate the
+expressiveness of \name. The definition is simply:
 
 \begin{figure}[H]
   \begin{spec}
@@ -176,9 +204,16 @@ The type-level \emph{Fix} is a good example to demonstrate the expressiveness of
   \end{spec}
 \end{figure}
 
-The record notation also introduces the selector function: |out : (f : * -> *) -> Fix f -> f (Fix f)|. The \emph{Fix} datatype is interesting in that Coq and Agda would reject this definition because the use of the higher-kinded type parameter \emph{f} could be anywhere (e.g., in a negative position). However in \name, where type-level computation is explicitly controlled, we can safely use \emph{Fix} in the program.
+The record notation also introduces the selector function: |out : (f :
+* -> *) -> Fix f -> f (Fix f)|. The \emph{Fix} datatype is interesting
+in that Coq and Agda would reject this definition because the use of
+the higher-kinded type parameter \emph{f} could be anywhere (e.g., in
+a negative position). \bruno{show example?}
+However in \name, where type-level computation
+is explicitly controlled, we can safely use \emph{Fix} in the program.
 
-Given \emph{fmap}, many recursive shcemes can be defined, for example  we can have \emph{catamorphism} or generic function fold:
+Given \emph{fmap}, many recursive shcemes can be defined, for example
+we can have \emph{catamorphism}\bruno{reference?} or generic function fold:
 
 \begin{figure}[H]
   \begin{spec}
@@ -189,10 +224,14 @@ Given \emph{fmap}, many recursive shcemes can be defined, for example  we can ha
   \end{spec}
 \end{figure}
 
-
-\subsubsection{Kind Polymophism for Datatypes}
-
-In Haskell, System $F_{c}^{\uparrow}$ was proposed to support kind polymorphism. However it separates expressions into terms, types and kinds, which complicates both the implementation and future extensions. \name natively allows datatype definitions to have polymorphic kinds. Here is an example, taken from~\cite{fc:pro}, of a datatype that benefits from kind polymophism: higher-kinded fixpoint combinator
+\subsubsection{Kind Polymophism}
+In Haskell, System $F_{c}^{\uparrow}$\bruno{reference} was proposed to support kind
+polymorphism. However it separates expressions into terms, types and
+kinds, which complicates both the implementation and future
+extensions. \name natively allows datatype definitions to have
+polymorphic kinds. Here is an example, taken from~\cite{fc:pro}, of a
+datatype that benefits from kind polymophism: a higher-kinded fixpoint
+combinator
 
 \begin{figure}[H]
   \begin{spec}
@@ -210,9 +249,15 @@ In Haskell, System $F_{c}^{\uparrow}$ was proposed to support kind polymorphism.
   \end{spec}
 \end{figure}
 
-\subsubsection{Nested Datatypes and Polymorphic Recursion}
+\subsubsection{Nested Datatypes}
 
-A nested datatype, also known as a \emph{non-regular} datatype, is a parametrised datatype whose definition contains different instances of the type parameters. Functions over nested datatypes usually involve polymorphic recursion. We show that \name is capable of defining all useful functions over a nested datatype. A simple example would be the type \emph{Pow} of power trees, whose size is exactly a power of two, declared as follows:
+A nested datatype\bruno{reference}, also known as a \emph{non-regular} datatype, is a
+parametrised datatype whose definition contains different instances of
+the type parameters. Functions over nested datatypes usually involve
+polymorphic recursion. We show that \name is capable of defining all
+useful functions over a nested datatype. A simple example would be the
+type \emph{Pow} of power trees, whose size is exactly a power of two,
+declared as follows:
 
 \begin{figure}[H]
 \begin{spec}
@@ -221,7 +266,10 @@ A nested datatype, also known as a \emph{non-regular} datatype, is a parametrise
 \end{spec}
 \end{figure}
 
-Notice that the recursive mention of \emph{Pow} does not hold \emph{a}, but \emph{PairT a}. This means every time we use a \emph{Succ} constructor, the size of the pairs doubles. In case you are curious about the encoding of \emph{Pow}, here is the one:
+Notice that the recursive mention of \emph{Pow} does not hold
+\emph{a}, but \emph{PairT a}. This means every time we use a
+\emph{Succ} constructor, the size of the pairs doubles. In case you
+are curious about the encoding of \emph{Pow}, here is the one:
 
 \begin{figure}[H]
 \begin{spec}
@@ -247,8 +295,14 @@ Notice how the higher-kinded type variable |X : * -> *| helps encoding nested da
 \end{figure}
 
 \subsubsection{Well-scoped De Bruijn Notation}
+\bruno{what is the point that we are trying to make with this example? Title is wrong;
+should be about the point, not about the particular example!}
 
-As a last example, we show a representation of well-scoped lambda terms using de Bruijn notation. In this notation, a variable is represented as a number -- its de Bruijn index, where the number $k$ stands for the variable bound by the $k$'s enclosing $\lambda$. Using the GADT syntax, below is the definition of lambda terms:
+As a last example, we show a representation of well-scoped lambda
+terms using de Bruijn notation. In this notation, a variable is
+represented as a number -- its de Bruijn index, where the number $k$
+stands for the variable bound by the $k$'s enclosing $\lambda$. Using
+the GADT syntax, below is the definition of lambda terms:
 
 \begin{figure}[H]
   \begin{spec}
@@ -262,7 +316,11 @@ As a last example, we show a representation of well-scoped lambda terms using de
   \end{spec}
 \end{figure}
 
-The datatype \emph{Fin n} is used to restrict the the de Brujin index, so that it lies between $0$ to $n - 1$. The type of a closed term is simply |Term Z|, for instance,  a lambda term $\lambda x.\,\lambda y.\, x$ is represented as (we use decimal numbers instead of peano natural numbers):
+The datatype \emph{Fin n} is used to restrict the the de Brujin index,
+so that it lies between $0$ to $n - 1$. The type of a closed term is
+simply |Term Z|, for instance, a lambda term $\lambda x.\,\lambda y.\,
+x$ is represented as (we use decimal numbers instead of peano natural
+numbers):
 
 \begin{figure}[H]
   \begin{spec}
@@ -270,7 +328,9 @@ The datatype \emph{Fin n} is used to restrict the the de Brujin index, so that i
   \end{spec}
 \end{figure}
 
-If we accidentally write the wrong index, the program would fail to pass type checking. The magic lies in the encoding of \emph{Term}, as shown below \jeremy{write printer function}:
+If we accidentally write the wrong index, the program would fail to
+pass type checking. The magic lies in the encoding of \emph{Term}, as
+shown below \jeremy{write printer function}:
 
 \begin{figure}[H]
   \begin{spec}
@@ -282,3 +342,5 @@ If we accidentally write the wrong index, the program would fail to pass type ch
       B a
   \end{spec}
 \end{figure}
+
+\bruno{Two questions: firstly does it work? secondly do we support GADT syntax now?}
