@@ -48,6 +48,8 @@ E , A {{ tex T }}, B {{ tex S }}, k {{ tex \kappa }} :: 'es_' ::=       {{ com E
   | E1 [ << u |-> E2 >> ]  :: M:: SubstVec
   | s                      :: M:: Sort       {{ com Sort }}
   | E *                    :: M:: Starred    {{ com Starred expression }}
+  | foldn [ A ] E          :: M:: CastUpMulti
+  | unfoldn E              :: M:: CastDownMulti
 
 V {{ tex v }} :: 'vs_' ::=                               {{ com Values   }}
   | star                 ::  :: Star       {{ com Type of types }}
