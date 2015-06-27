@@ -49,7 +49,6 @@ data Pattern = PConstr Constructor [(Sym, Type)] deriving Eq
 isVal :: Expr -> Bool
 isVal (Lam{}) = True
 isVal (Pi{}) = True
-isVal (F{}) = True
 isVal (Lit _) = True
 isVal Nat = True
 isVal _ = False

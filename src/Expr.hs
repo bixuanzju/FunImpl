@@ -145,8 +145,8 @@ type BEnv = [(Sym, Expr)]
 reduct :: Expr -> Either String Expr
 reduct (App (Lam s _ e1) e2) = Right $ subst s e2 e1      -- (R-AppLAm)
 reduct (App e1 e2) = reduct e1 >>= \e -> Right (App e e2) -- (R-AppL)
-reduct (U _ (F _ _ e)) = Right e                              -- (R-Unfold-Fold)
-reduct (U n e) = reduct e >>= Right . U n                     -- (R-unfold)
+reduct (U _ e) = Right e                              -- (R-Unfold-Fold)
+reduct (F _ _ e) = Right e                      -- (R-fold)
 reduct m@(Mu x _ t2) = Right $ subst x m t2               -- (R-Mu)
 
 -- surface language
