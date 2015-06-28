@@ -129,49 +129,77 @@ the application of $f$ to $3$ by implicitly converting
 $\lambda  \ottmv{x}  \ottsym{:}  \ottsym{(}  \lambda  \ottmv{y}  \ottsym{:}  \star  \ottsym{.}  \ottmv{y}  \ottsym{)} \, \kw{Int}  \ottsym{.}  \ottmv{x}$ to $\lambda  \ottmv{x}  \ottsym{:}  \kw{Int}  \ottsym{.}  \ottmv{x}$.
 
 \paragraph{Decidability of Type-Checking and Strong Normalization} 
-While the conversion rule in \coc brings alot of convenience, an unfortunate
-consequence is that it couples decidability of type-checking with 
-strong normalization of the calculus~\cite{coc:decidability}. 
-However strong normalization does not
-hold with general recursion. This is simply because due to the
-conversion rule, any non-terminating term would force the type checker
-to go into an infinitely loop (by constantly applying the conversion
-rule without termination), thus rendering the type system undecidable.
-\bruno{show simple example. Explain issue better.}
+While the conversion rule in \coc brings a lot of convenience, an
+unfortunate consequence is that it couples decidability of
+type-checking with strong normalization of the
+calculus~\cite{coc:decidability}.  However strong normalization does
+not hold with general recursion. This is because due to the conversion
+rule, any non-terminating term would force the type checker to go into
+an infinitely loop (by constantly applying the conversion rule without
+termination), thus rendering the type system undecidable.
+
+To illustrate the problem of the conversion rule with general
+recursion, let us consider a somewhat contrived example. Suppose that
+$d$ is a ``dependent type'' where
+\[d : \kw{Int}  \rightarrow  \star\]
+and $d\,3$ or $d\,100$ all yield the same type. With general recursion
+at hand, we can image a term $z$ that has type \[d\,\mathsf{loop}\]
+where $\mathsf{loop}$ stands for any diverging computation of type
+$ \kw{Int} $. What would happen if we try to type check the following
+application: \[ \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \ottmv{d} \, 3  \ottsym{.}  \ottmv{x}  \ottsym{)} \, \ottmv{z}\]
+Under the normal typing rules of \coc, the type checker would get
+stuck as it tries to do $\beta$-equality on two terms: $d\,3$ and
+$d\,\mathsf{loop}$, where the latter is non-terminating.  \bruno{show
+  simple example. Explain issue better.} \jeremy{done!}
 
 \subsection{An Alternative to the Conversion Rule: Explicit Casts}
 
-\bruno{Mention somewhere that the cast rules do \emph{one-step} reductions.}
-In contrast to the implicit reduction rules of \coc, \name makes it
-explicit as to when and where to convert one type to another. Type
-conversions are explicit by introducing two language constructs: $ \kw{cast}^{\uparrow} $
-(beta expansion) and $ \kw{cast}_{\downarrow} $ (beta reduction). The benefit of
-this approach is that decidability of type-checking no longer is
-coupled with strong normalization of the calculus.
+\bruno{Mention somewhere that the cast rules do \emph{one-step}
+  reductions.} \jeremy{done! see last paragraph, also put beta
+  reduction before beta expansion} In contrast to the implicit
+reduction rules of \coc, \name makes it explicit as to when and where
+to convert one type to another. Type conversions are explicit by
+introducing two language constructs: $ \kw{cast}_{\downarrow} $ (beta reduction)
+and $ \kw{cast}^{\uparrow} $ (beta expansion). The benefit of this approach is
+that decidability of type-checking no longer is coupled with strong
+normalization of the calculus.
 
-\paragraph{Beta Expansion} The first of the two type conversions
-$ \kw{cast}^{\uparrow} $, allows a type conversion provided that the resulting
+\paragraph{Beta Reduction} The first of the two type conversions
+$ \kw{cast}_{\downarrow} $, allows a type conversion provided that the resulting
+type is a \emph{beta reduction} of the original type of the term. The
+use of $ \kw{cast}_{\downarrow} $ is better explained by the following simple
+example. Suppose that
+\[ g \equiv \lambda  \ottmv{x}  \ottsym{:}  \kw{Int}  \ottsym{.}  \ottmv{x} \]
+and term $z$ has type
+\[ \ottsym{(}  \lambda  \ottmv{y}  \ottsym{:}  \star  \ottsym{.}  \ottmv{y}  \ottsym{)} \, \kw{Int} \]
+$ g\,z $ is an ill-typed application, whereas $ g\,(\kw{cast}_{\downarrow} \, \ottmv{z}) $
+is type correct. This is witnessed by
+$\ottsym{(}  \lambda  \ottmv{y}  \ottsym{:}  \star  \ottsym{.}  \ottmv{y}  \ottsym{)} \, \kw{Int} \rightarrow_{\beta}  \kw{Int} $, which is a beta
+reduction for term $\ottsym{(}  \lambda  \ottmv{y}  \ottsym{:}  \star  \ottsym{.}  \ottmv{y}  \ottsym{)} \, \kw{Int}$. \bruno{explain why this is a
+  reduction} \jeremy{done!}
+
+\paragraph{Beta Expansion} The dual operation of $ \kw{cast}_{\downarrow} $ is
+$ \kw{cast}^{\uparrow} $, which allows a type conversion provided that the resulting
 type is a \emph{beta expansion} of the original type of the term.
-Consider the same example
-from \S\ref{sec:coc}. In \name, $f\,3$ is an ill-typed
-application. Instead we must write the application as \[
-f\,(\kw{cast}^{\uparrow} \, \ottsym{[}  \ottsym{(}  \lambda  \ottmv{y}  \ottsym{:}  \star  \ottsym{.}  \ottmv{y}  \ottsym{)} \, \kw{Int}  \ottsym{]} \,  3) \]\bruno{how to put a space
-  before $3$?} The intuition is that,
-$ \kw{cast}^{\uparrow} $ is actually doing a type conversion since the type of $ 3 $
-is $  \kw{Int}  $ and $ \ottsym{(}  \lambda  \ottmv{y}  \ottsym{:}  \star  \ottsym{.}  \ottmv{y}  \ottsym{)} \, \kw{Int} $ can be reduced to $  \kw{Int} 
-$.\bruno{explain why this is a beta expansion}\bruno{explain why 
-for beta expansions we need to provide the resulting type as
-argument}. 
+Consider the same example from \S\ref{sec:coc}. In \name, $f\,3$ is an
+ill-typed application. Instead we must write the application as
+\[ f\,(\kw{cast}^{\uparrow} \, \ottsym{[}  \ottsym{(}  \lambda  \ottmv{y}  \ottsym{:}  \star  \ottsym{.}  \ottmv{y}  \ottsym{)} \, \kw{Int}  \ottsym{]} \,  3) \]
+\bruno{how to put a space before $3$?} \jeremy{fixed!} The intuition
+is that, $ \kw{cast}^{\uparrow} $ is actually doing a type conversion becuase the
+type of $ 3 $ is $  \kw{Int}  $, and $ \ottsym{(}  \lambda  \ottmv{y}  \ottsym{:}  \star  \ottsym{.}  \ottmv{y}  \ottsym{)} \, \kw{Int} $ is the beta
+expansion of $ \kw{Int} $ (witnessed by
+$\ottsym{(}  \lambda  \ottmv{y}  \ottsym{:}  \star  \ottsym{.}  \ottmv{y}  \ottsym{)} \, \kw{Int} \rightarrow_{\beta}  \kw{Int} $). \bruno{explain why
+  this is a beta expansion} \jeremy{done!} Notice that for
+$ \kw{cast}^{\uparrow} $ to work, we need to provide the resulting type as
+argument. This is because for the same term, there are more than one
+choices for beta expansions (e.g., $1 + 2$ and $2 + 1$ are both the
+beta expansions for $3$). \bruno{explain why for beta expansions we
+  need to provide the resulting type as argument} \jeremy{done!}
 
-\paragraph{Beta Reduction}
-The dual operation of $ \kw{cast}^{\uparrow} $ is $ \kw{cast}_{\downarrow} $, which allows a
-type conversion provided that the resulting type is a \emph{beta
-  reduction} of the original type of the term. The use of
-$ \kw{cast}_{\downarrow} $ is better explained by another similar example. Suppose
-that \[ g \equiv \lambda  \ottmv{x}  \ottsym{:}  \kw{Int}  \ottsym{.}  \ottmv{x} \] and term $z$ has type \[
-\ottsym{(}  \lambda  \ottmv{y}  \ottsym{:}  \star  \ottsym{.}  \ottmv{y}  \ottsym{)} \, \kw{Int} \] $ g\,z $ is again an ill-typed application,
-while $ g\,(\kw{cast}_{\downarrow} \, \ottmv{z}) $ is type correct because $ \kw{cast}_{\downarrow} $
-reduces the type of $ z $ to $  \kw{Int}  $. \bruno{explain why this is a reduction}
+A final point to make is that the cast rules specify \emph{one-step}
+reduction. This enables us to have more control over type-level
+computation. The full technical details about cast rules are presented
+in \S\ref{sec:ecore}.
 
 \subsection{Decidability without Strong Normalization}
 
@@ -182,32 +210,36 @@ even in the presence of non-terminating programs at type level.
 %As we will see in later sections. The
 %ability to write non-terminating terms motivates us to have more
 %control over type-level computation. 
-To illustrate, let us consider the following example. Suppose that $d$ is a ``dependent type'' where
-\[d : \kw{Int}  \rightarrow  \star\] so that $d\,3$ or $d\,100$ all yield the same
-type. With general recursion at hand, we can image a term $z$ that has
-type \[d\,\mathsf{loop}\] where $\mathsf{loop}$ stands for any
-diverging computation and of type $ \kw{Int} $. What would happen if we
-try to type check the following application: \[ \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \ottmv{d} \, 3  \ottsym{.}  \ottmv{x}  \ottsym{)} \, \ottmv{z}\]
-Under the normal typing rules of \coc, the type checker would get
-stuck as it tries to do $\beta$-equality on two terms: $d\,3$ and
-$d\,\mathsf{loop}$, where the latter is non-terminating.
+% To illustrate, let us consider the following example. Suppose that $d$ is a ``dependent type'' where
+% \[d : \kw{Int}  \rightarrow  \star\] so that $d\,3$ or $d\,100$ all yield the same
+% type. With general recursion at hand, we can image a term $z$ that has
+% type \[d\,\mathsf{loop}\] where $\mathsf{loop}$ stands for any
+% diverging computation and of type $ \kw{Int} $. What would happen if we
+% try to type check the following application: \[ \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \ottmv{d} \, 3  \ottsym{.}  \ottmv{x}  \ottsym{)} \, \ottmv{z}\]
+% Under the normal typing rules of \coc, the type checker would get
+% stuck as it tries to do $\beta$-equality on two terms: $d\,3$ and
+% $d\,\mathsf{loop}$, where the latter is non-terminating.
 
-This is not the case for \name: \name has no conversion rule,
-therefore the type checker would do syntactic comparison between the
-two terms instead of $\beta$-equality in the above example and reject
-the program as ill-typed. Indeed it would be impossible to type-check
-the program even with the use of $ \kw{cast}^{\uparrow} $ and/or $ \kw{cast}_{\downarrow} $:
+To illustrate, let us consider the same example discussed in
+\S\ref{sec:coc}. Now the type checker won't get stuck when
+type-checking the following application:
+\[ \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \ottmv{d} \, 3  \ottsym{.}  \ottmv{x}  \ottsym{)} \, \ottmv{z} \]
+where the type of $z$ is $d\,\mathsf{loop}$.  This is because in \name, type checker
+only does syntactic comparison between $d\,3$ and $d\,\mathsf{loop}$,
+instead of $\beta$-equality. Therefore it rejects the above
+application as ill-typed. Indeed it is impossible to type-check the
+application even with the use of $ \kw{cast}^{\uparrow} $ and/or $ \kw{cast}_{\downarrow} $:
 one would need to write infinite number of $ \kw{cast}_{\downarrow} $'s to make
-the type checker loop forever (e.g., $(\lambda  \ottmv{x}  \ottsym{:}  \ottmv{d} \, 3  \ottsym{.}  \ottmv{x})( \kw{cast}_{\downarrow} ( \kw{cast}_{\downarrow}  \dots z) $), but it is impossible
-to write such program in reality.
+the type checker loop forever (e.g.,
+$(\lambda  \ottmv{x}  \ottsym{:}  \ottmv{d} \, 3  \ottsym{.}  \ottmv{x})( \kw{cast}_{\downarrow} ( \kw{cast}_{\downarrow}  \dots z))$). But it is
+impossible to write such program in reality.
 
 In summary, \name achieves the decidability of type checking by
-explicitly controlling type-level computation.  which is independent of
-the normalization property, while supporting general recursion at the
-same time.
+explicitly controlling type-level computation.  which is independent
+of the normalization property, while supporting general recursion at
+the same time.
 
 \subsection{Recursion and Recursive Types}
-\label{sec:overview:recursion}
 
 \bruno{Show how in \name recursion and recursive types are unified.
 Discuss that due to this unification the sensible choice for the
@@ -224,31 +256,39 @@ features!
 
 \paragraph{Recursion}
 
-The $\mu$ primitive is used to define recursive functions.
-For example the factorial function is defined as follows: 
-\[\miu{f}{\mathsf{Int} \rightarrow
-  \mathsf{Int}}{\lam{x}{\mathsf{Int}}{\mathsf{if}\,(x ==
-    0)\,\mathsf{then}\,1\,\mathsf{else}\,x * f\,(x - 1)}}\] 
-This is reflected by the dynamic semantics of the $\mu$ primitive:
-\[\miu{x}{T}{E} \longrightarrow E[x:=\miu{x}{T}{E}]\]
-which is exactly doing recursive unfolding of the same term.
+The $\mu$ primitive can be used to define recursive functions.  For
+example the factorial function is defined as follows:
+\[
+  \miu{f}{\mathsf{Int} \rightarrow \mathsf{Int}}{\lam{x}{\mathsf{Int}}{\mathsf{if}\,(x == 0)\,\mathsf{then}\,1\,\mathsf{else}\,x * f\,(x - 1)}}
+\]
+The above recursive definition works because of the dynamic semantics of the
+$\mu$ primitive: \ottusedrule{\ottdruleSXXMu{}} which is exactly doing
+recursive unfolding of the same term.
 
 % The dynamic semantics of $\mu$ requires the recursive binder to satisfy (omit type annotations for clarity):  \[ \mu f.\,E = (\lambda f.\,E) (\mu f.\,E) \] which, however, does not terminate in strict languages. Therefore, to loosen the function-type restriction to allow any types, the sensible choice for the evaluation strategy is \emph{call-by-name}.
+
+\newcommand{\fold}{{\bf $\mathsf{fold}$}\xspace}
+\newcommand{\unfold}{{\bf $\mathsf{unfold}$}\xspace}
 
 \subsubsection{Recursive types}
 In the literature on type systems, there are two approaches to
 recursive types. One is called \emph{equi-recursive}, the other
-\emph{iso-recursive}. The \emph{iso-recursive}
-approach treats a recursive type and its unfolding as different, but
-isomorphic. The isomorphism between a recursive type and it's one step 
-unfolding is witnessed by traditionally $fold$ and $unfold$
-operations.\bruno{Explain that the casts generalize fold and unfold!}
-In \name, this is witnessed by first $ \kw{cast}^{\uparrow} $, then
-$ \kw{cast}_{\downarrow} $. A classic example of recursive types is the so-called
-``hungry'' type: $H = \miu{\sigma}{\star}{\mathsf{Int} \rightarrow
-  \sigma}$. A term $z$ of type $H$ can accept any number of numeric
-arguments and return a new function that is hungry for more, as
-illustrated below:
+\emph{iso-recursive}. The \emph{iso-recursive} approach treats a
+recursive type and its unfolding as different, but isomorphic. The
+isomorphism between a recursive type and its one step unfolding is
+witnessed by traditionally \fold and \unfold operations. In \name, the
+isomorphism is witnessed by first $ \kw{cast}^{\uparrow} $, then
+$ \kw{cast}_{\downarrow} $. \bruno{Explain that the casts generalize fold and
+  unfold!}  \jeremy{done!} At first sight, the cast rules share some
+similarities with \fold and \unfold, but they differ in two folds: 1)
+$ \kw{cast}^{\uparrow} $ and $ \kw{cast}_{\downarrow} $ can only be applied on terms, and it
+is the type of the term that is converted; 2) they generalize \fold
+and \unfold in that they can convert any types, not just recursive
+types. A classic example of a recursive type is the so-called
+``hungry'' type~\cite{tapl}:
+$H = \miu{\sigma}{\star}{\mathsf{Int} \rightarrow \sigma}$. A term $z$
+of type $H$ can accept any number of integers and return a new
+function that is hungry for more, as illustrated below:
 
 \begin{align*}
 \kw{cast}_{\downarrow} \, \ottmv{z} &:  \kw{Int}  \rightarrow H  \\
@@ -275,7 +315,18 @@ types, the \emph{call-by-name} evaluation is a sensible choice.
   a deliberate design decision, since we want to model languages like
   Haskell, which are logically inconsistent as well.} \bruno{Discuss
   the $* : *$ rule: since we already have inconsistency, having this
-  rule adds expressiveness and simplifies the system.} 
+  rule adds expressiveness and simplifies the system.} \jeremy{added!}
+
+One consequence of adding general recursion to the type system is that
+the logical consistency of the system is broken. This is a deliberate
+design decision, since our goal is to model languages like Haskell,
+which are logically inconsistent as well.
+
+In light of the fact that we decide to give up consistency, we take
+another step further by declaring that the kind $\star$ is of type
+$\star$. As it turns out, having this rule adds expressiveness and
+simplifies our system. We return to this issue in \S\ref{sec:related}.
+
 
 \subsection{Encoding Datatypes}
 
@@ -288,30 +339,33 @@ encodes case analysis, making it more convenient to
 encode pattern matching. We demonstrate the encoding method using a
 simple datatype as a running example: Peano numbers.
 
-The datatype declaration for Peano numbers is:
+The datatype declaration for Peano numbers in Haskell is:
 \begingroup\par\noindent\advance\leftskip\mathindent\(
 \begin{pboxed}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{4}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[4]{}\mathbf{data}\;\Conid{Nat}\mathrel{=}\Conid{Z}\mid \Conid{S}\;\Conid{Nat};{}\<[E]%
+\>[4]{}\mathbf{data}\;\Conid{Nat}\mathrel{=}\Conid{Z}\mid \Conid{S}\;\Conid{Nat}{}\<[E]%
 \ColumnHook
 \end{pboxed}
 \)\par\noindent\endgroup\resethooks
-In the Scott encoding, the encoding of the \emph{Nat} type reflects
+In the Scott encoding, the encoding of the \emph{Nat} datatype reflects
 how its two constructors are going to be used. Since \emph{Nat} is a
 recursive datatype, we have to use recursive types at some point to
-reflect its recursive nature. As it turns out, the \emph{Nat} type can
-be simply represented as \ensuremath{\mu\;\Conid{Nat}\mathbin{:}\star.\,\Pi\;\Conid{B}\mathbin{:}\star.\,\Conid{B}\to (\Conid{Nat}\to \Conid{B})\to \Conid{B}}.
+reflect its recursive nature. As it turns out, the \emph{Nat} datatype
+can be represented as \ensuremath{\mu\;\Conid{X}\mathbin{:}\star.\,\Pi\;\Conid{B}\mathbin{:}\star.\,\Conid{B}\to (\Conid{X}\to \Conid{B})\to \Conid{B}}.
 
-As can be seen, in the function type \ensuremath{\Conid{B}\to (\Conid{Nat}\to \Conid{B})\to \Conid{B}}, $B$
-corresponds to the type of the \emph{Z} constructor, and \ensuremath{\Conid{X}\to \Conid{B}}
-corresponds to the type of the \emph{S} constructor. The intuition is
-that any use of the datatype being defined in the constructors is
-replaced with the recursive type, except for the return type, which is
-a type variable for use in the recursive functions.
+As can be seen, in the function arrow \ensuremath{\Conid{B}\to (\Conid{X}\to \Conid{B})\to \Conid{B}}, $B$
+corresponds to the type of the constructor \emph{Z}, and \ensuremath{\Conid{X}\to \Conid{B}}
+corresponds to the type of the constructor \emph{S}. The intuition is
+that any use of the datatype in the data constructors is replaced with
+the recursive type variable ($X$ in the case), and we make the
+resulting type variable ($B$ in this case) universally quantified so
+that elements of the datatype with different result types can be used
+in the same program~\cite{gadts}.
 
 Now its two constructors can be encoded correspondingly as below:
+
 \begin{figure}[h!]
 \begingroup\par\noindent\advance\leftskip\mathindent\(
 \begin{pboxed}\SaveRestoreHook
@@ -356,7 +410,9 @@ As the last example, let us see how we can define recursive functions using the 
 \)\par\noindent\endgroup\resethooks
 \end{figure}
 
-As we can see, the above definition quite resembles case analysis common in modern functional programming languages. (Actually we formalize the encoding of case analysis in \S\ref{sec:surface}.)
+The above definition quite resembles case analysis commonly seen in
+modern functional programming languages. (We formalize the encoding of
+case analysis in \S\ref{sec:surface}.)
 
 
 
