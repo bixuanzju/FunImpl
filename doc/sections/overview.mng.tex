@@ -279,12 +279,11 @@ witnessed by traditionally \fold and \unfold operations. In \name, the
 isomorphism is witnessed by first $[[castup]]$, then
 $[[castdown]]$. \bruno{Explain that the casts generalize fold and
   unfold!}  \jeremy{done!} At first sight, the cast rules share some
-similarities with \fold and \unfold, but they differ in two folds: 1)
-$[[castup]]$ and $[[castdown]]$ can only be applied on terms, and it
-is the type of the term that is converted; 2) they generalize \fold
-and \unfold in that they can convert any types, not just recursive
-types. A classic example of a recursive type is the so-called
-``hungry'' type~\cite{tapl}:
+similarities with \fold and \unfold, but $[[castup]]$ and
+$[[castdown]]$ actually generalize \fold and \unfold: they can convert
+any types, not just recursive types. To demonstrate the use of the
+cast rules, let us consider a classic example of a recursive type, the
+so-called ``hungry'' type~\cite{tapl}:
 $H = \miu{\sigma}{\star}{\mathsf{Int} \rightarrow \sigma}$. A term $z$
 of type $H$ can accept any number of integers and return a new
 function that is hungry for more, as illustrated below:
