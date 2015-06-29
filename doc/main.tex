@@ -22,14 +22,6 @@
 \newcommand{\ecore}{$\lambda_{\star}$\xspace}
 \newcommand{\cc}{$\lambda C$\xspace}
 
-\newcommand{\castup}{$\mathsf{cast}^\uparrow$\xspace}
-\newcommand{\castdown}{$\mathsf{cast}_\downarrow$\xspace}
-\newcommand{\cast}{$\kw{cast}$\xspace}
-
-\newcommand{\lam}[3]{\lambda #1:#2.\,#3}
-\newcommand{\pai}[3]{\Pi #1:#2.\,#3}
-\newcommand{\miu}[3]{\mu #1:#2.\,#3}
-
 \newcommand{\authornote}[3]{{\color{#2} {\sc #1}: #3}}
 \newcommand\bruno[1]{\authornote{bruno}{red}{#1}}
 \newcommand\jeremy[1]{\authornote{jeremy}{blue}{#1}}
@@ -55,6 +47,10 @@
 
 % Code highlighting
 \usepackage{listings}
+\usepackage{xcolor}
+\newcommand{\hl}[2][gray!40]{\colorbox{#1}{#2}}
+\newcommand{\hlmath}[2][gray!40]{%
+  \colorbox{#1}{$\displaystyle#2$}}
 
 % Theorem
 \usepackage{amsthm}
@@ -66,13 +62,8 @@
 \usepackage{styles/mathpartir}  % by Didier Rémy (http://gallium.inria.fr/~remy/latex/mathpartir.html
 
 % Ott includes
-\usepackage{supertabular}
 \input{sections/expcore.ott.tex}
-% Hack to use mathpartir for ott
-\newcommand{\ottlinebreak}{}
-\renewcommand{\ottdrule}[4][]{{\inferrule{#2 }{#3}\quad\ottdrulename{#4}}}
-\newcommand{\gram}[1]{\ottgrammartabular{#1\ottafterlastrule}}
-\newcommand{\ruleref}[1]{\ottdrulename{#1}}
+\input{sections/otthelper.tex}
 
 % lhs2tex
 \usepackage{mylhs2tex}

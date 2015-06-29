@@ -173,7 +173,7 @@ However, a higher-kind polymorphic function type such as $[[Pi
     x:square.x->x]]$ is not allowed in \cc, because $[[square]]$ is
 the highest sort that can not be typed. While $[[Pi]]$-notation in
 \ecore is more expressive and does not have such limitation because of
-the axiom $[[star]]:[[star]]$. In the source language, we
+the axiom $[[star]]:[[star]]$. In the surface language, we
 interchangeably use the arrow form $[[(x:t1)->t2]]$ of the product for
 clarity. By convention, we also use the syntactic sugar $[[t1 -->
     t2]]$ to represent the product if $[[x]]$ does not occur free in
@@ -187,7 +187,7 @@ operators. Thus, types of expressions are equal only if they are
 syntactically equal, i.e. satisfy the $\alpha$-equality.
 
 \begin{figure}
-    \ottdefnctx{}
+    \ottdefnctx{}\ottinterrule
     \ottdefnexpr{}
     \caption{Typing rules of \ecore}
     \label{fig:ecore:typing}
@@ -220,9 +220,9 @@ $[[t1 --> t2]]$ and $[[t1 --> t2']]$. Then the type of $[[castdown e]]$ can be
 either $[[t2]]$ or $[[t2']]$ by rule \ruleref{T\_CastDown}, which is not
 decidable. The property is proven by the following lemma:
 
-\begin{lem}[Uniqueness of One-step Reduction]\label{lem:ecore:unique}
-	The relation $[[-->]]$, i.e. one-step reduction, is unique in the sense that
-given $[[e]]$ there is at most one $[[e']]$ such that $[[e --> e']]$.
+\begin{lem}[Decidability of One-step Reduction]\label{lem:ecore:unique}
+	The one-step reduction $[[-->]]$ is called decidable if 
+given $[[e]]$ there is a unique $[[e']]$ such that $[[e --> e']]$ or no such $[[e']]$.
 \end{lem}
 
 \begin{proof}
@@ -237,10 +237,10 @@ syntactically equal. Thus, checking if $[[t1 --> t2]]$ is decidable and rules
 \ruleref{T\_CastUp} and \ruleref{T\_CastDown} are therefore decidable. We can
 conclude the decidability of type checking:
 
-\begin{lem}[Decidability of Type Checking \ecore]\label{lem:ecore:decide}
-	There is a decidable algorithm which given $[[G]], [[e]]$ computes the unique
+\begin{thm}[Decidability of Type Checking \ecore]\label{lem:ecore:decide}
+	There is an algorithm which given $[[G]], [[e]]$ computes the unique
 $[[t]]$ such that $[[G |- e:t]]$ or reports there is no such $[[t]]$.
-\end{lem}
+\end{thm}
 
 \begin{proof}
 	By induction on the structure of $[[e]]$.
@@ -256,7 +256,7 @@ examine the $\beta$-equivalence of terms, which is decidable only if every term
 has a normal form.
 
 \paragraph{Cast Operators in $n$ steps}
-Because of the uniqueness of one-step reduction, we can generalize one-step
+Because of the decidability of one-step reduction, we can generalize one-step
 \cast operators to $n$-step. Suppose $[[e]] : [[t]]$ and we have sequences of
 reduction $[[t1]] [[-->]] [[t2]] [[-->]] \dots [[-->]] [[tn]] [[-->]] [[t]]$
 and $[[t]] [[-->]] [[T1]] [[-->]] [[T2]] [[-->]] \dots [[-->]] [[Tn]]$. We can
@@ -277,9 +277,9 @@ typing results:
 From Lemma \ref{lem:ecore:unique}, we immediately have the following corollary
 for $n$-step reduction:
 
-\begin{lem}[Uniqueness of $n$-step Reduction]\label{lem:ecore:uniquen}
-	The $n$-step reduction $[[-->>]]$ is unique in the sense that given $[[e]]$
-there is at most one $[[e']]$ such that $[[e]] [[-->>]] [[e']]$.
+\begin{lem}[Decidability of $n$-step Reduction]\label{lem:ecore:uniquen}
+	The $n$-step reduction $[[-->>]]$ is called decidable if 
+    given $[[e]]$ there is a unique $[[e']]$ such that $[[e]] [[-->>]] [[e']]$ or no such $[[e']]$.
 \end{lem}
 
 \begin{proof}
@@ -312,9 +312,9 @@ follows:
     By induction on the derivation of $[[G1, x:T, G2 |- e1:t]]$.
 \end{proof}
 
-\begin{lem}[Subject Reduction]\label{lem:ecore:reduct}
+\begin{thm}[Subject Reduction]\label{lem:ecore:reduct}
 If $[[G |- e:T]]$ and $[[e]] [[->>]] e'$ then $[[G |- e':T]]$.
-\end{lem}
+\end{thm}
 
 \begin{proof}
     (\emph{Sketch}) We prove the case for one-step reduction, i.e. $[[e -->
@@ -324,11 +324,11 @@ of $[[e]] [[->>]] [[e']]$.
 reduction $[[-->]]$.
 \end{proof}
 
-\begin{lem}[Progress]\label{lem:ecore:prog}
-If $[[|- e:T]]$ then either $[[e]]$ is a value $v$ or there exists $[[e]]'$
+\begin{thm}[Progress]\label{lem:ecore:prog}
+If $[[empty |- e:T]]$ then either $[[e]]$ is a value $v$ or there exists $[[e]]'$
 such that $[[e --> e']]$.
-\end{lem}
+\end{thm}
 
 \begin{proof}
-    By induction on the derivation of $[[|- e:T]]$.
+    By induction on the derivation of $[[empty |- e:T]]$.
 \end{proof}

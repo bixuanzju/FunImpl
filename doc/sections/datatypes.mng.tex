@@ -63,17 +63,7 @@ bind value variables.
 \ottE\ottinterrule
 \ottV\ottinterrule
 \ottGs}
-    \[
-    \begin{array}{lllll}
-     &&&& \text{Syntactic Sugar} \\
-     [[A1->A2]] & \triangleq & [[Pi x:A1.A2]] & x \not \in \FV([[A2]]) & \quad\text{Function type} \\
-     [[(x:A1)->A2]] & \triangleq & [[Pi x:A1.A2]] & x \in \FV([[A2]]) & \quad\text{Dependent function type} \\
-     [[data R <<u:k>> = K { <<N:A>> }]] & \triangleq &
-                    [[data R <<u:k>> = K <<A>>]]; && \quad\text{Record} \\
-                  && [[let]]~[[N]]_i : [[ (<<u:k>>) -> R@<<u>> -> A]]_i = & \forall i &  \\
-                  && [[\ <<u:k>> . \ y : R <<u>> . case y of K <<x:A>> => x]]_i~[[in]] && \\
-    \end{array}
-    \]
+\[\ottsurfsugar\] % defined in otthelper.mng.tex
 \caption{Syntax of the surface language}
 \label{fig:surface:syntax}
 \end{figure*}
@@ -163,12 +153,12 @@ arguments.
 \bruno{Mention that we do not support refinement, as in GADTs?}
 
 \begin{figure*}
-\ottdefnctxsrc{}
-\ottdefnpgmsrc{}
-\ottdefndeclsrc{}
-\ottdefnpatsrc{}
+\ottdefnctxsrc{}\ottinterrule
+\ottdefnpgmsrc{}\ottinterrule
+\ottdefndeclsrc{}\ottinterrule
+\ottdefnpatsrc{}\ottinterrule
 \ottdefnexprsrc{}
-\caption{Typing rules of surface language}
+\caption{Typing rules of the surface language}
 \label{fig:surface:typing}
 \end{figure*}
 
@@ -213,15 +203,13 @@ Rule \ruleref{TRDecl\_Data} does the most heavy work and deserves further explan
 The rest of the translation rules hold few surprises.
 
 \begin{figure*}
-\ottdefnctxtrans{}
-\ottdefnpgmtrans{}
+\ottdefnctxtrans{}\ottinterrule
+\ottdefnpgmtrans{}\ottinterrule
 \ottdefndecltrans{}
-\begin{align*}
-[[ e := & let D : (<<u:T>>) -> star = mu X : (<<u:T>>) -> star . \ <<u:T>> . (aa:star) -> << (<<t>>[D |-> X] -> aa) >> -> aa in \\\let Ki : (<<u:T>>) -> <<t>> -> D@<<u>> = \ <<u:T>> . \<<x:t>> . foldn [D@<<u>>] (\aa:star.\<<bb : <<t>> -> aa >> . bbi <<x>>) in @@ ]]
-\end{align*}
-\ottdefnpattrans{}
+\[\hlmath{\ottdecltrans}\]\ottinterrule % defined in otthelper.mng.tex
+\ottdefnpattrans{}\ottinterrule
 \ottdefnexprtrans{}
-\caption{Translation rules of source language}
+\caption{Translation rules of the source language}
 \label{fig:source:translate}
 \end{figure*}
 

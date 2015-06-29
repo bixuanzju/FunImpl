@@ -42,12 +42,12 @@ $\star$ and an impredicative axiom $\star:\star$.
 
 \paragraph{Explicit type conversion}
 
-We introduce two new primitives $ \kw{cast}^{\uparrow} $ and $ \kw{cast}_{\downarrow} $
+We introduce two new primitives $ \mathsf{cast}^{\uparrow} $ and $ \mathsf{cast}_{\downarrow} $
 (pronounced as "cast up" and "cast down") to replace implicit
 conversion rule of \cc with \emph{one-step} explicit type
 conversion. They represent two directions of type conversion:
-$ \kw{cast}_{\downarrow} $ stands for the $\beta$-reduction of types, while
-$ \kw{cast}^{\uparrow} $ is the inverse (Examples will be given in later typing sections).
+$ \mathsf{cast}_{\downarrow} $ stands for the $\beta$-reduction of types, while
+$ \mathsf{cast}^{\uparrow} $ is the inverse (Examples will be given in later typing sections).
 
 Though \cast primitives make the syntax verbose when type conversion
 is heavily used, the implementation of type checking is simplified
@@ -72,9 +72,9 @@ semantics, defined by one-step reduction. Two base cases include
 \ruleref{S\_Beta} for $\beta$-reduction and \ruleref{S\_CastDownUp}
 for cast canceling. Two inductive case, \ruleref{S\_App} and
 \ruleref{S\_CastDown}, define reduction in the head position of an
-application, and in the $ \kw{cast}_{\downarrow} $ inner expression
+application, and in the $ \mathsf{cast}_{\downarrow} $ inner expression
 respectively. The reduction rules are \emph{weak} in the sense that it
-is not allowed to reduce inside a $\lambda$-term or $ \kw{cast}^{\uparrow} $-term
+is not allowed to reduce inside a $\lambda$-term or $ \mathsf{cast}^{\uparrow} $-term
 which is viewed as a value (see Figure \ref{fig:ecore:syntax}).
 
 To evaluate the value of a term-level expression, we apply the
@@ -133,16 +133,16 @@ rule of \cc~(see \S\ref{sec:coc}). The relation between the original
 and converted type is defined by one-step reduction (see
 \ref{fig:ecore:opsem}). Specifically speaking, if given a judgement
 $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau_{{\mathrm{2}}}$ and relation $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}  \longrightarrow  \tau_{{\mathrm{3}}}$, then
-$\kw{cast}^{\uparrow} \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]} \,  \ottnt{e}$ expands the type of $\ottnt{e}$ from $\tau_{{\mathrm{2}}}$ to
-$\tau_{{\mathrm{1}}}$, while $\kw{cast}_{\downarrow} \, \ottnt{e}$ reduces the type of $\ottnt{e}$ from
-$\tau_{{\mathrm{2}}}$ to $\tau_{{\mathrm{3}}}$. For example, assume $\Gamma  \vdash  \ottnt{e_{{\mathrm{1}}}}  \ottsym{:}  \kw{Int}$ and $\Gamma  \vdash  \ottnt{e_{{\mathrm{2}}}}  \ottsym{:}  \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \star  \ottsym{.}  \ottmv{x}  \ottsym{)} \, \kw{Int}$. Note that the following reduction holds:
-\[ \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \star  \ottsym{.}  \ottmv{x}  \ottsym{)} \, \kw{Int}  \longrightarrow  \kw{Int}\]
+$\mathsf{cast}^{\uparrow} \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]} \,  \ottnt{e}$ expands the type of $\ottnt{e}$ from $\tau_{{\mathrm{2}}}$ to
+$\tau_{{\mathrm{1}}}$, while $\mathsf{cast}_{\downarrow} \, \ottnt{e}$ reduces the type of $\ottnt{e}$ from
+$\tau_{{\mathrm{2}}}$ to $\tau_{{\mathrm{3}}}$. For example, assume $\Gamma  \vdash  \ottnt{e_{{\mathrm{1}}}}  \ottsym{:}  \mathsf{Int}$ and $\Gamma  \vdash  \ottnt{e_{{\mathrm{2}}}}  \ottsym{:}  \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \star  \ottsym{.}  \ottmv{x}  \ottsym{)} \, \mathsf{Int}$. Note that the following reduction holds:
+\[ \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \star  \ottsym{.}  \ottmv{x}  \ottsym{)} \, \mathsf{Int}  \longrightarrow  \mathsf{Int}\]
 Thus, we can obtain the following derivation of $\ottnt{e_{{\mathrm{1}}}}$ and $\ottnt{e_{{\mathrm{2}}}}$:
 \[
-\inferrule{\Gamma  \vdash  \ottnt{e_{{\mathrm{1}}}}  \ottsym{:}  \kw{Int} \\ \Gamma  \vdash  \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \star  \ottsym{.}  \ottmv{x}  \ottsym{)} \, \kw{Int}  \ottsym{:}  \star \\ \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \star  \ottsym{.}  \ottmv{x}  \ottsym{)} \, \kw{Int}  \longrightarrow  \kw{Int}}{\Gamma  \vdash  \ottsym{(}  \kw{cast}^{\uparrow} \, \ottsym{[}  \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \star  \ottsym{.}  \ottmv{x}  \ottsym{)} \, \kw{Int}  \ottsym{]} \,  \ottnt{e_{{\mathrm{1}}}}  \ottsym{)}  \ottsym{:}  \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \star  \ottsym{.}  \ottmv{x}  \ottsym{)} \, \kw{Int}}
+\inferrule{\Gamma  \vdash  \ottnt{e_{{\mathrm{1}}}}  \ottsym{:}  \mathsf{Int} \\ \Gamma  \vdash  \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \star  \ottsym{.}  \ottmv{x}  \ottsym{)} \, \mathsf{Int}  \ottsym{:}  \star \\ \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \star  \ottsym{.}  \ottmv{x}  \ottsym{)} \, \mathsf{Int}  \longrightarrow  \mathsf{Int}}{\Gamma  \vdash  \ottsym{(}  \mathsf{cast}^{\uparrow} \, \ottsym{[}  \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \star  \ottsym{.}  \ottmv{x}  \ottsym{)} \, \mathsf{Int}  \ottsym{]} \,  \ottnt{e_{{\mathrm{1}}}}  \ottsym{)}  \ottsym{:}  \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \star  \ottsym{.}  \ottmv{x}  \ottsym{)} \, \mathsf{Int}}
 \]
 \[
-\inferrule{\Gamma  \vdash  \ottnt{e_{{\mathrm{2}}}}  \ottsym{:}  \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \star  \ottsym{.}  \ottmv{x}  \ottsym{)} \, \kw{Int} \\ \Gamma  \vdash  \kw{Int}  \ottsym{:}  \star \\ \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \star  \ottsym{.}  \ottmv{x}  \ottsym{)} \, \kw{Int}  \longrightarrow  \kw{Int}}{\Gamma  \vdash  \ottsym{(}  \kw{cast}_{\downarrow} \, \ottnt{e_{{\mathrm{2}}}}  \ottsym{)}  \ottsym{:}  \kw{Int}}
+\inferrule{\Gamma  \vdash  \ottnt{e_{{\mathrm{2}}}}  \ottsym{:}  \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \star  \ottsym{.}  \ottmv{x}  \ottsym{)} \, \mathsf{Int} \\ \Gamma  \vdash  \mathsf{Int}  \ottsym{:}  \star \\ \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \star  \ottsym{.}  \ottmv{x}  \ottsym{)} \, \mathsf{Int}  \longrightarrow  \mathsf{Int}}{\Gamma  \vdash  \ottsym{(}  \mathsf{cast}_{\downarrow} \, \ottnt{e_{{\mathrm{2}}}}  \ottsym{)}  \ottsym{:}  \mathsf{Int}}
 \]
 
 \bruno{More details please! Show worked out examples with a typing 
@@ -169,7 +169,7 @@ $ \Pi $-notation to represent dependent function types.
 However, a higher-kind polymorphic function type such as $\Pi \, \ottmv{x}  \ottsym{:}  \Box  \ottsym{.}  \ottmv{x}  \rightarrow  \ottmv{x}$ is not allowed in \cc, because $\Box$ is
 the highest sort that can not be typed. While $ \Pi $-notation in
 \ecore is more expressive and does not have such limitation because of
-the axiom $\star:\star$. In the source language, we
+the axiom $\star:\star$. In the surface language, we
 interchangeably use the arrow form $\ottsym{(}  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{)}  \rightarrow  \tau_{{\mathrm{2}}}$ of the product for
 clarity. By convention, we also use the syntactic sugar $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}$ to represent the product if $\ottmv{x}$ does not occur free in
 $\tau_{{\mathrm{2}}}$.
@@ -182,7 +182,7 @@ operators. Thus, types of expressions are equal only if they are
 syntactically equal, i.e. satisfy the $\alpha$-equality.
 
 \begin{figure}
-    \ottdefnctx{}
+    \ottdefnctx{}\ottinterrule
     \ottdefnexpr{}
     \caption{Typing rules of \ecore}
     \label{fig:ecore:typing}
@@ -211,13 +211,13 @@ $\tau_{{\mathrm{2}}}$ follows the one-step reduction, i.e. if $\tau_{{\mathrm{1}
 to show such $\tau_{{\mathrm{2}}}$ is \emph{unique} with respect to the one-step reduction,
 or equivalently, reducing $\tau_{{\mathrm{1}}}$ by one step will get only a sole result
 $\tau_{{\mathrm{2}}}$. Otherwise, assume $\ottnt{e}:\tau_{{\mathrm{1}}}$ and there exists $\tau'_{{\mathrm{2}}}$ such that
-$\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}$ and $\tau_{{\mathrm{1}}}  \longrightarrow  \tau'_{{\mathrm{2}}}$. Then the type of $\kw{cast}_{\downarrow} \, \ottnt{e}$ can be
+$\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}$ and $\tau_{{\mathrm{1}}}  \longrightarrow  \tau'_{{\mathrm{2}}}$. Then the type of $\mathsf{cast}_{\downarrow} \, \ottnt{e}$ can be
 either $\tau_{{\mathrm{2}}}$ or $\tau'_{{\mathrm{2}}}$ by rule \ruleref{T\_CastDown}, which is not
 decidable. The property is proven by the following lemma:
 
-\begin{lem}[Uniqueness of One-step Reduction]\label{lem:ecore:unique}
-	The relation $ \longrightarrow $, i.e. one-step reduction, is unique in the sense that
-given $\ottnt{e}$ there is at most one $\ottnt{e'}$ such that $\ottnt{e}  \longrightarrow  \ottnt{e'}$.
+\begin{lem}[Decidability of One-step Reduction]\label{lem:ecore:unique}
+	The one-step reduction $ \longrightarrow $ is called decidable if 
+given $\ottnt{e}$ there is a unique $\ottnt{e'}$ such that $\ottnt{e}  \longrightarrow  \ottnt{e'}$ or no such $\ottnt{e'}$.
 \end{lem}
 
 \begin{proof}
@@ -232,10 +232,10 @@ syntactically equal. Thus, checking if $\tau_{{\mathrm{1}}}  \longrightarrow  \t
 \ruleref{T\_CastUp} and \ruleref{T\_CastDown} are therefore decidable. We can
 conclude the decidability of type checking:
 
-\begin{lem}[Decidability of Type Checking \ecore]\label{lem:ecore:decide}
-	There is a decidable algorithm which given $\Gamma, \ottnt{e}$ computes the unique
+\begin{thm}[Decidability of Type Checking \ecore]\label{lem:ecore:decide}
+	There is an algorithm which given $\Gamma, \ottnt{e}$ computes the unique
 $\tau$ such that $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$ or reports there is no such $\tau$.
-\end{lem}
+\end{thm}
 
 \begin{proof}
 	By induction on the structure of $\ottnt{e}$.
@@ -251,30 +251,30 @@ examine the $\beta$-equivalence of terms, which is decidable only if every term
 has a normal form.
 
 \paragraph{Cast Operators in $n$ steps}
-Because of the uniqueness of one-step reduction, we can generalize one-step
+Because of the decidability of one-step reduction, we can generalize one-step
 \cast operators to $n$-step. Suppose $\ottnt{e} : \tau$ and we have sequences of
 reduction $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}  \longrightarrow  \dots  \longrightarrow  \tau_{\ottmv{n}}  \longrightarrow  \tau$
 and $\tau  \longrightarrow  \sigma_{{\mathrm{1}}}  \longrightarrow  \sigma_{{\mathrm{2}}}  \longrightarrow  \dots  \longrightarrow  \sigma_{\ottmv{n}}$. We can
 define $n$-step \cast operators as follows:
 \begin{flalign*}
-    & \kw{cast}_{\uparrow}^n  [ \tau_{{\mathrm{1}}}, \dots, \tau_{\ottmv{n}} ] \ottnt{e} &  \triangleq ~  &  \kw{cast}^{\uparrow}  [ \tau_{{\mathrm{1}}} ]
-( \kw{cast}^{\uparrow}  [ \tau_{{\mathrm{2}}} ] (\dots (  \kw{cast}^{\uparrow}  [ \tau_{\ottmv{n}} ] \ottnt{e} ) \dots )) \\
-    & \kw{cast}_{\downarrow}^n  \ottnt{e} &  \triangleq ~  & \underbrace{ \kw{cast}_{\downarrow}  ( \kw{cast}_{\downarrow}  (\dots
-(  \kw{cast}_{\downarrow} }_n \ottnt{e}) \dots ))
+    & \mathsf{cast}_{\uparrow}^n  [ \tau_{{\mathrm{1}}}, \dots, \tau_{\ottmv{n}} ] \ottnt{e} &  \triangleq ~  &  \mathsf{cast}^{\uparrow}  [ \tau_{{\mathrm{1}}} ]
+( \mathsf{cast}^{\uparrow}  [ \tau_{{\mathrm{2}}} ] (\dots (  \mathsf{cast}^{\uparrow}  [ \tau_{\ottmv{n}} ] \ottnt{e} ) \dots )) \\
+    & \mathsf{cast}_{\downarrow}^n  \ottnt{e} &  \triangleq ~  & \underbrace{ \mathsf{cast}_{\downarrow}  ( \mathsf{cast}_{\downarrow}  (\dots
+(  \mathsf{cast}_{\downarrow} }_n \ottnt{e}) \dots ))
 \end{flalign*}
 By rules \ruleref{T\_CastUp} and \ruleref{T\_CastDown}, we have the following
 typing results:
 \[\begin{array}{lll}
-    & \kw{cast}_{\uparrow}^n  [ \tau_{{\mathrm{1}}}, \dots, \tau_{\ottmv{n}} ] \ottnt{e} & : \tau_{{\mathrm{1}}} \\
-    & \kw{cast}_{\downarrow}^n  \ottnt{e} & : \sigma_{\ottmv{n}}
+    & \mathsf{cast}_{\uparrow}^n  [ \tau_{{\mathrm{1}}}, \dots, \tau_{\ottmv{n}} ] \ottnt{e} & : \tau_{{\mathrm{1}}} \\
+    & \mathsf{cast}_{\downarrow}^n  \ottnt{e} & : \sigma_{\ottmv{n}}
 \end{array}\]
 
 From Lemma \ref{lem:ecore:unique}, we immediately have the following corollary
 for $n$-step reduction:
 
-\begin{lem}[Uniqueness of $n$-step Reduction]\label{lem:ecore:uniquen}
-	The $n$-step reduction $ \longrightarrow_n $ is unique in the sense that given $\ottnt{e}$
-there is at most one $\ottnt{e'}$ such that $\ottnt{e}  \longrightarrow_n  \ottnt{e'}$.
+\begin{lem}[Decidability of $n$-step Reduction]\label{lem:ecore:uniquen}
+	The $n$-step reduction $ \longrightarrow_n $ is called decidable if 
+    given $\ottnt{e}$ there is a unique $\ottnt{e'}$ such that $\ottnt{e}  \longrightarrow_n  \ottnt{e'}$ or no such $\ottnt{e'}$.
 \end{lem}
 
 \begin{proof}
@@ -285,11 +285,11 @@ reduction steps.
 Thus, $\tau_{{\mathrm{1}}}  \longrightarrow_n  \tau$ and $\tau  \longrightarrow_n  \sigma_{\ottmv{n}}$ are unique by Lemma
 \ref{lem:ecore:uniquen}. The intermediate types in $\tau_{{\mathrm{1}}}  \longrightarrow_n  \tau$,
 i.e. $\tau_{{\mathrm{2}}}, \dots, \tau_{\ottmv{n}}$, can be uniquely determined. Thus, we can leave
-them out in the $ \kw{cast}_{\uparrow}^n $ operator. Finally, we can have $n$-step \cast
+them out in the $ \mathsf{cast}_{\uparrow}^n $ operator. Finally, we can have $n$-step \cast
 operators with the following form:
 \[\begin{array}{lll}
-    &\kw{cast}_{\uparrow}^n \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]} \,  \ottnt{e} & : \tau_{{\mathrm{1}}} \\
-    &\kw{cast}_{\downarrow}^n \, \ottnt{e} & : \sigma_{\ottmv{n}}
+    &\mathsf{cast}_{\uparrow}^n \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]} \,  \ottnt{e} & : \tau_{{\mathrm{1}}} \\
+    &\mathsf{cast}_{\downarrow}^n \, \ottnt{e} & : \sigma_{\ottmv{n}}
 \end{array}\]
 
 \paragraph{Type-safety}
@@ -306,9 +306,9 @@ follows:
     By induction on the derivation of $\Gamma_{{\mathrm{1}}}  \ottsym{,}  \ottmv{x}  \ottsym{:}  \sigma  \ottsym{,}  \Gamma_{{\mathrm{2}}}  \vdash  \ottnt{e_{{\mathrm{1}}}}  \ottsym{:}  \tau$.
 \end{proof}
 
-\begin{lem}[Subject Reduction]\label{lem:ecore:reduct}
+\begin{thm}[Subject Reduction]\label{lem:ecore:reduct}
 If $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \sigma$ and $\ottnt{e}  \twoheadrightarrow  e'$ then $\Gamma  \vdash  \ottnt{e'}  \ottsym{:}  \sigma$.
-\end{lem}
+\end{thm}
 
 \begin{proof}
     (\emph{Sketch}) We prove the case for one-step reduction, i.e. $\ottnt{e}  \longrightarrow  \ottnt{e'}$. The lemma can follow by induction on the number of one-step reductions
@@ -317,11 +317,11 @@ of $\ottnt{e}  \twoheadrightarrow  \ottnt{e'}$.
 reduction $ \longrightarrow $.
 \end{proof}
 
-\begin{lem}[Progress]\label{lem:ecore:prog}
-If $\vdash  \ottnt{e}  \ottsym{:}  \sigma$ then either $\ottnt{e}$ is a value $v$ or there exists $\ottnt{e}'$
+\begin{thm}[Progress]\label{lem:ecore:prog}
+If $\varnothing  \vdash  \ottnt{e}  \ottsym{:}  \sigma$ then either $\ottnt{e}$ is a value $v$ or there exists $\ottnt{e}'$
 such that $\ottnt{e}  \longrightarrow  \ottnt{e'}$.
-\end{lem}
+\end{thm}
 
 \begin{proof}
-    By induction on the derivation of $\vdash  \ottnt{e}  \ottsym{:}  \sigma$.
+    By induction on the derivation of $\varnothing  \vdash  \ottnt{e}  \ottsym{:}  \sigma$.
 \end{proof}

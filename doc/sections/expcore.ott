@@ -2,11 +2,11 @@
 
 embed {{ tex-preamble
   \newcommand{\labeledjudge}[1]{\vdash_{\!\!\mathsf{#1} } }
-  \newcommand{\kw}[1]{\mathsf{#1} }
+  \newcommand{\kw}[1]{\mathbf{#1} }
 }}
 
 %%% Metavariables
-metavar x, y, z, d, X, D, K, N, R, th {{ tex \theta }}, aa {{ tex \alpha }}, bb {{ tex b }}, nn {{ tex n }} ::= {{ com Variable names }}
+metavar x, y, z, d, X, D, K, N, R, th {{ tex \theta }}, aa {{ tex \alpha }}, bb {{ tex b }}, nn {{ tex n }}, uu {{ tex u }} ::= {{ com Variable names }}
 indexvar i, j, n, m ::= {{ com Index variables }}
 
 %%% Syntax
@@ -44,6 +44,8 @@ e, t {{ tex \tau }}, T {{ tex \sigma }} :: 'e_' ::=       {{ com Expressions    
   | foldn [ t ] e             :: M:: CastUpMulti
   | unfoldn e                 :: M:: CastDownMulti
   | K << u >> << e >>         :: M:: Constructor
+  | fold [ t ] T              :: M:: Fold
+  | unfold T                  :: M:: Unfold
 
 %% Literals
 lit :: 'lit_' ::=
@@ -94,18 +96,18 @@ terminals :: 'terminals_' ::=
   | -->>     ::  :: nsteps    {{ tex \longrightarrow_n }}
   | ->>      ::  :: msteps    {{ tex \twoheadrightarrow }}
   | |->      ::  :: mapsto    {{ tex \mapsto }}
-  | castup   ::  :: castup    {{ tex \kw{cast}^{\uparrow} }}
+  | castup   ::  :: castup    {{ tex \mathsf{cast}^{\uparrow} }}
   | ]        ::  :: bracketr  {{ tex \ottsym{]} \, }}
   | |-       ::  :: turnstile {{ tex \vdash }}
   | ==       ::  :: equiv     {{ tex \equiv }}
   | =a       ::  :: alphaeq   {{ tex \equiv }}
   | =b       ::  :: betaeq    {{ tex =_{\beta} }}
-  | castdown ::  :: castdown  {{ tex \kw{cast}_{\downarrow} }}
+  | castdown ::  :: castdown  {{ tex \mathsf{cast}_{\downarrow} }}
   | let      ::  :: let       {{ tex \kw{let} }}
   | in       ::  :: key_in    {{ tex \kw{in} }}
   | eqb      ::  :: eqb       {{ tex =_{\beta} }}
-  | int      ::  :: int       {{ tex \kw{Int} }}
-  | bool     ::  :: bool      {{ tex \kw{Bool} }}
+  | int      ::  :: int       {{ tex \mathsf{Int} }}
+  | bool     ::  :: bool      {{ tex \mathsf{Bool} }}
   | three    ::  :: three     {{ tex 3 }}
   | elt      ::  :: elt       {{ tex \in }}
   | *        ::  :: upstar    {{ tex ^{*} }}
@@ -118,13 +120,17 @@ terminals :: 'terminals_' ::=
   | >>       ::  :: vecr      {{ tex }\, }}
   | @        ::  :: marker    {{ tex }}
   | ~>       ::  :: transto   {{ tex \rightsquigarrow }}
+  | ~~>      ::  :: transtohl {{ tex \rightsquigarrow }}
   | (+)      ::  :: union     {{ tex \uplus }}
   | :=       ::  :: define    {{ tex \triangleq ~ }}
   | &        ::  :: align     {{ tex & }}
   | \\\      ::  :: newline   {{ tex \\ & }}
   | @@       ::  :: dummy     {{ tex }}
-  | foldn    ::  :: foldn      {{ tex \kw{cast}_{\uparrow}^n }}
-  | unfoldn  ::  :: unfoldn    {{ tex \kw{cast}_{\downarrow}^n }}
+  | foldn    ::  :: foldn     {{ tex \mathsf{cast}_{\uparrow}^n }}
+  | unfoldn  ::  :: unfoldn   {{ tex \mathsf{cast}_{\downarrow}^n }}
+  | cast     ::  :: cast      {{ tex \mathsf{cast} }}
+  | fold     ::  :: fold      {{ tex \mathsf{fold} }}
+  | unfold   ::  :: unfold    {{ tex \mathsf{unfold} }}
 
 %%% Fomulae
 formula :: 'formula_' ::=
@@ -138,10 +144,8 @@ formula :: 'formula_' ::=
   | e1 == e2                           ::   :: equivalence
   | ( formula )                        ::   :: parens
   | x : t elt G                        ::   :: context_inclusion
-  | |- e : t                           ::   :: empty_context
   | formula \\                         ::   :: lbhack {{ tex [[formula]] \ottlinebreak }}
   | u : A elt Gs                       ::   :: context_inclusion_src
-  | |- E : A                           ::   :: empty_context_src
   | << formula >>                      ::   :: formula_vector
   | E1 = E2                            ::   :: rewrite_src
   | e1 := e2                           ::   :: definition
@@ -149,6 +153,16 @@ formula :: 'formula_' ::=
     {{ tex [[x]] \not \in \kw{dom}([[G]]) }}
   | ee1 =b ee2                         ::   :: beta_equality_coc
   | p1 => E1 elt << p2 => E2 >>        ::   :: pattern_inclusion
+  | |- Gs ~> G  ::   :: trans_context
+    {{ tex \labeledjudge{wf} [[Gs]] [[~>]] [[G]] }}
+  | Gs  |- pgm : A ~> e  ::   :: trans_program 
+    {{ tex [[Gs]] \labeledjudge{pg} [[pgm]] : [[A]] [[~>]] [[e]] }}
+  | Gs  |- decl : Gs' ~> e  ::   :: trans_decl
+    {{ tex [[Gs]] \labeledjudge{d} [[decl]] : [[Gs']] [[~>]] [[e]] }}
+  | Gs  |- p => E : B -> A ~> e  ::   :: trans_pattern
+    {{ tex [[Gs]] \labeledjudge{p} [[p]] [[=>]] [[E]] : [[B]] [[->]] [[A]] [[~>]] [[e]] }}
+  | Gs  |- E : A ~> e  ::   :: trans_expr
+    {{ tex [[Gs]] \labeledjudge{s} [[E]] : [[A]] [[~>]] [[e]] }}
 
 %%% Subrule
 subrules
@@ -243,4 +257,13 @@ e1 e2 --> e1' e2
 e --> e'
 -------------------------- :: CastDown
 castdown e --> castdown e'
+
+defn e --> e' ::  :: step_cast :: 'S_' {{ com One-step reduction }}
+by
+
+---------------------------- :: CastUpE
+castup[t] e --> e
+
+-------------------------- :: CastDownE
+castdown e --> e
 

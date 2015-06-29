@@ -203,95 +203,95 @@ Gs |- E1 : B
 Gs |- case E1 of << p => E2 >> : A
 
 %%% Translation rules
-defn |- Gs ~> G     ::  :: ctxtrans :: 'TRenv_' {{ com Context translation }}
-{{ tex \labeledjudge{wf} [[Gs]] [[~>]] [[G]] }}
+defn |- Gs ~~> G     ::  :: ctxtrans :: 'TRenv_' {{ com Context translation }}
+{{ tex \labeledjudge{wf} [[Gs]] \hlmath{[[~~>]] [[G]]} }}
 by
 
 ---------------- :: Empty
-|- empty ~> empty
+|- empty ~~> empty
 
-|- Gs ~> G
-Gs |- A : s ~> t
+|- Gs ~~> G
+Gs |- A : s ~~> t
 ------------------------- :: Var
-|- Gs, x : A ~> G, x : t
+|- Gs, x : A ~~> G, x : t
 
-defn Gs  |- pgm : A ~> e ::  :: pgmtrans :: 'TRpgm_' {{ com Program translation }}
-{{ tex [[Gs]] \labeledjudge{pg} [[pgm]] : [[A]] [[~>]] [[e]] }}
+defn Gs  |- pgm : A ~~> e ::  :: pgmtrans :: 'TRpgm_' {{ com Program translation }}
+{{ tex [[Gs]] \labeledjudge{pg} [[pgm]] : [[A]] \hlmath{[[~~>]] [[e]]} }}
 by
 
-<< Gs0 |- decl : Gs' ~> e1 >>
+<< Gs0 |- decl : Gs' ~~> e1 >>
 Gs = Gs0, <<Gs'>>
-Gs |- E : A ~> e
+Gs |- E : A ~~> e
 ------------------------------------- :: Pgm
-Gs0 |- (<<decl>>;E) :A ~> <<e1>> (+) e
+Gs0 |- (<<decl>>;E) :A ~~> <<e1>> (+) e
 
 
-defn Gs  |- decl : Gs' ~> e ::  :: decltrans :: 'TRdecl_' {{ com Datatype translation }}
-{{ tex [[Gs]] \labeledjudge{d} [[decl]] : [[Gs']] [[~>]] [[e]] }}
+defn Gs  |- decl : Gs' ~~> e ::  :: decltrans :: 'TRdecl_' {{ com Datatype translation }}
+{{ tex [[Gs]] \labeledjudge{d} [[decl]] : [[Gs']] \hlmath{[[~~>]] [[e]]} }}
 by
 
-Gs |- (<<u:k>>) -> star : star ~> (<<u:T>>) -> star
-<< Gs, D : (<<u:k>>) -> star, << u:k >> |- <<A>> -> D@<<u>> : star ~> <<t>> -> D@<<u>> >>
+Gs |- (<<u:k>>) -> star : star ~~> (<<u:T>>) -> star
+<< Gs, D : (<<u:k>>) -> star, << u:k >> |- <<A>> -> D@<<u>> : star ~~> <<t>> -> D@<<u>> >>
 ------------------------------------------------------------------ :: Data
-Gs |- (data D << u:k >> = << K <<A>> >>) : (D : (<<u:k>>) -> star, << K : (<<u:k>>) -> <<A>> -> D@<<u>> >>) ~> e
+Gs |- (data D << u:k >> = << K <<A>> >>) : (D : (<<u:k>>) -> star, << K : (<<u:k>>) -> <<A>> -> D@<<u>> >>) ~~> e
 
-defn Gs  |- p => E : B -> A ~> e ::  :: pattrans :: 'TRpat_' {{ com Pattern translation }}
-{{ tex [[Gs]] \labeledjudge{p} [[p]] [[=>]] [[E]] : [[B]] [[->]] [[A]] [[~>]] [[e]] }}
+defn Gs  |- p => E : B -> A ~~> e ::  :: pattrans :: 'TRpat_' {{ com Pattern translation }}
+{{ tex [[Gs]] \labeledjudge{p} [[p]] [[=>]] [[E]] : [[B]] [[->]] [[A]] \hlmath{[[~~>]] [[e]]} }}
 by
 
 K : (<<u:k>>)-><<B>>->D@<<u>> elt Gs
-Gs,<<x:B[<< u |-> U >>]>> |- E:A ~> e
-Gs |- B[<< u |-> U >>]:s ~> T
+Gs,<<x:B[<< u |-> U >>]>> |- E:A ~~> e
+Gs |- B[<< u |-> U >>]:s ~~> T
 --------------------------- :: Alt
-Gs |- K <<x:B[<< u |-> U >>]>> => E:D@<<U>>->A ~> \<<x:T>>.e
+Gs |- K <<x:B[<< u |-> U >>]>> => E:D@<<U>>->A ~~> \<<x:T>>.e
 
 
-defn Gs  |- E : A ~> e ::  :: exprtrans :: 'TR_' {{ com Expression translation }}
-{{ tex [[Gs]] \labeledjudge{s} [[E]] : [[A]] [[~>]] [[e]] }}
+defn Gs  |- E : A ~~> e ::  :: exprtrans :: 'TR_' {{ com Expression translation }}
+{{ tex [[Gs]] \labeledjudge{s} [[E]] : [[A]] \hlmath{[[~~>]] [[e]]} }}
 by
 
 ------------------------------ :: Ax
-empty |- star : star ~> star
+empty |- star : star ~~> star
 
-|- Gs ~> G
+|- Gs ~~> G
 x:A elt Gs
 ------------- :: Var
-Gs |- x:A ~> x
+Gs |- x:A ~~> x
 
-Gs |- E1 : (Pi x:A2.A1) ~> e1
-Gs |- E2 : A2 ~> e2
+Gs |- E1 : (Pi x:A2.A1) ~~> e1
+Gs |- E2 : A2 ~~> e2
 ---------------------------------- :: App
-Gs |- E1 E2 : A1[x |-> E2] ~> e1 e2
+Gs |- E1 E2 : A1[x |-> E2] ~~> e1 e2
 
-Gs, x : A1 |- E : A2 ~> e
-Gs |- (Pi x:A1.A2) : s ~> Pi x:t1.t2
+Gs, x : A1 |- E : A2 ~~> e
+Gs |- (Pi x:A1.A2) : s ~~> Pi x:t1.t2
 ------------------------------------ :: Lam
-Gs |- (\x:A1.E):(Pi x:A1.A2) ~> \x:t1.e
+Gs |- (\x:A1.E):(Pi x:A1.A2) ~~> \x:t1.e
 
-Gs |- A1 : s ~> t1
-Gs, x:A1 |- A2:r ~> t2
+Gs |- A1 : s ~~> t1
+Gs, x:A1 |- A2:r ~~> t2
 ---------------------- :: Pi
-Gs |- (Pi x:A1.A2):r ~> Pi x:t1.t2
+Gs |- (Pi x:A1.A2):r ~~> Pi x:t1.t2
 
-Gs |- E : A2 ~> e
-Gs |- A1 : s ~> t1
+Gs |- E : A2 ~~> e
+Gs |- A1 : s ~~> t1
 A1 --> A2
 ------------------------------------- :: CastUp
-Gs |- (castup[A1] E):A1 ~> castup[t1] e
+Gs |- (castup[A1] E):A1 ~~> castup[t1] e
 
-Gs |- E : A1 ~> e
-Gs |- A2 : s ~> t2
+Gs |- E : A1 ~~> e
+Gs |- A2 : s ~~> t2
 A1 --> A2
 ------------------------------------ :: CastDown
-Gs |- (castdown E) : A2 ~> castdown e
+Gs |- (castdown E) : A2 ~~> castdown e
 
-Gs, x:A |- E:A ~> e
-Gs |- A:s ~> t
+Gs, x:A |- E:A ~~> e
+Gs |- A:s ~~> t
 ------------------------------- :: Mu
-Gs |- (mu x:A . E):A ~> mu x:t.e
+Gs |- (mu x:A . E):A ~~> mu x:t.e
 
-Gs |- E1 : B ~> e1
-<< Gs |- p => E2 : B -> A ~> e2 >>
-<< Gs |- A : s ~> t >>
+Gs |- E1 : B ~~> e1
+<< Gs |- p => E2 : B -> A ~~> e2 >>
+<< Gs |- A : s ~~> t >>
 ---------------------------------------- :: Case
-Gs |- case E1 of << p => E2 >> : A ~> (unfoldn e1) t <<e2>>
+Gs |- case E1 of << p => E2 >> : A ~~> (unfoldn e1) t <<e2>>
