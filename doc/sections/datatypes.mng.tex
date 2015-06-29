@@ -10,15 +10,16 @@
 % \item Encode GADTs and maybe other Haskell extensions? GADTs seems challenging, so perhaps some other examples would be datatypes like $Fix f$, and $Monad$ as a record. Could formalize records in Haskell style.
 % \end{itemize}
 
-In this section, we present a surface language built on top of \name with
-features that are convenient for functional programming: user-defined
-datatypes, and pattern matching. Thanks to the expressiveness of
-\name, all these features can be elaborated into the core language
-without extending the built-in language constructs of \name. In what
-follows, we first give the syntax of the surface language, followed by
-the extended typing rules, then we show the formal translation rules
-that translates a surface language expression to an expression in
-\name. Finally we prove the type-safety of the translation.
+In this section, we present a surface language \sufcc, built on top of
+\name with features that are convenient for functional programming:
+user-defined datatypes, and pattern matching. Thanks to the
+expressiveness of \name, all these features can be elaborated into the
+core language without extending the built-in language constructs of
+\name. In what follows, we first give the syntax of the surface
+language, followed by the extended typing rules, then we show the
+formal translation rules that translates a surface language expression
+to an expression in \name. Finally we prove the type-safety of the
+translation.
 
 \subsection{Extended Syntax}
 
@@ -26,13 +27,13 @@ that translates a surface language expression to an expression in
 % \newcommand{\data}{\mathbf{data}} \newcommand{\where}{\mathbf{where}}
 % \newcommand{\letbb}{\mathbf{let}} \newcommand{\inb}{\mathbf{in}}
 
-The full syntax of the surface language is defined in Figure~\ref{fig:surface:syntax}. Compared with \name, the surface language has a new syntax category: a program, consisting of a list of datatype declarations, followed by a expression. An \emph{algebraic data type} $D$ is introduced as a top-level \textbf{data} declaration with its \emph{data constructors}. For the purpose of presentation, we sometimes adopt the following syntactic convention:
+The full syntax of \sufcc is defined in Figure~\ref{fig:surface:syntax}. Compared with \name, \sufcc has a new syntax category: a program, consisting of a list of datatype declarations, followed by a expression. An \emph{algebraic data type} $D$ is introduced as a top-level \textbf{data} declaration with its \emph{data constructors}. For the purpose of presentation, we sometimes adopt the following syntactic convention:
 \[
 \overline{\tau}^n \rightarrow \tau_r \equiv \tau_1 \rightarrow \dots \rightarrow \tau_n \rightarrow \tau_r
 \]
 The type of a data constructor $K$ has the form:
 \[
-[[K : (<<u:k>>) -> <<A>> -> D@<<u>>]]
+[[K : (<<u:k>>) -> (<<x : A>>) -> D@<<u>>]]
 \]
 \bruno{this looks a bit odd for a number of reasons: firstly why to
   insist on having the quantified variables in the same order as the
@@ -43,16 +44,19 @@ It seems to me that
 [[K : (<<x:k>>) -> D@<<u>>]]
 \]
 where all variables $u$ are bound ($u \in \overline{x}$) would be
-better. 
-}
-The quantified type variables $[[<<u>>]]$ appear in the same order in
-the return type $[[D@<<u>>]]$. Note that the use of dependent product
-to tie together the type constructor arguments ($[[(<<u:k>>)]]$) makes
-it possible to let the type of some type constructor arguments depend
-on other type constructor arguments. The \textbf{case} expression is
-conventional, used to break up values built with data constructors.
-The patterns of a case expression are flat (no nested patterns), and
-bind value variables.
+better.  } \jeremy{changed!  $[[(<<u:k>>)]]$ are for the arguments of
+a type constructor, $[[(<<x:A>>)]]$ are for the arguments of a data
+constrcutor}
+% The quantified type variables $[[<<u>>]]$ appear in the same order in
+% the return type $[[D@<<u>>]]$.
+Note that the use of the dependent product in the type of a data
+constructor (e.g., $[[(<<u:k>>)]]$) makes it possible to let the type
+of some type constructor arguments depend on other type constructor
+arguments, while in Haskell, this is not possible, becuase the arrow
+$\rightarrow$ can be seen as an independent product type. The
+\textbf{case} expression is conventional, used to break up values
+built with data constructors.  The patterns of a case expression are
+flat (no nested patterns), and bind value variables.
 
 \begin{figure*}
 \centering
@@ -101,12 +105,12 @@ bind value variables.
 %   \caption{Syntax of \sufcc ($e$ for terms; $\tau,\sigma,\upsilon$ for types; $\kappa$ for kinds)}\label{fig:datasyn}
 % \end{figure}
 
-For the sake of programming, the surface language employs some
-syntactic sugar. A non-dependent function type can be written as
-$[[A1 -> A2]]$. A dependent function type $[[Pi x : A1 . A2]]$ is
-abbreviated as $[[(x : A1) -> A2]]$ for easy reading. We also
-introduce a Haskell-like record syntax, which is desugared to
-datatypes with accompanying selector functions.
+For the sake of programming, \sufcc employs some syntactic sugar. A
+non-dependent function type can be written as $[[A1 -> A2]]$. A
+dependent function type $[[Pi x : A1 . A2]]$ is abbreviated as
+$[[(x : A1) -> A2]]$ for easy reading. We also introduce a
+Haskell-like record syntax, which is desugared to datatypes with
+accompanying selector functions.
 
 % \begin{figure}[ht]
 % \centering
@@ -123,54 +127,75 @@ datatypes with accompanying selector functions.
 % \end{figure}
 
 \subsection{Extended Typing Rules}
-\bruno{For typing and translation show only one figure (Figure 8), since the
-  typing figure is just a subset. We can use gray to highlight the
-  parts which belong to the translation.}
+\bruno{For typing and translation show only one figure (Figure 8),
+  since the typing figure is just a subset. We can use gray to
+  highlight the parts which belong to the translation.}
+\jeremy{adjusted!}
 
-Figure~\ref{fig:surface:typing} defines the type system of the surface
-language. Several new typing judgments appear in the type system. The
-use of different subscripts of the judgments is to be distinct from
-the one used in \name. Most rules of the type system are standard for
-systems based on \coc, including the rules for the well-formedness of
-contexts (\ruleref{EnvS\_Empty}, \ruleref{EnvS\_Var}), inferring the
-types of variables (\ruleref{TS\_Var}), and dependent application
-(\ruleref{TS\_App}). Two judgments $[[Gs |- pgm : A]]$ and
+Figure~\ref{fig:source:translate} defines the type system of the
+surface language (ignore the gray parts for the moment). Several new
+typing judgments appear in the type system. The use of different
+subscripts of the judgments is to be distinct from the one used in
+\name. Most rules of the type system are standard for systems based on
+\coc, including the rules for the well-formedness of contexts
+(\ruleref{TRenv\_Empty}, \ruleref{TRenv\_Var}), inferring the types of
+variables (\ruleref{TR\_Var}), and dependent application
+(\ruleref{TR\_App}). Two judgments $[[Gs |- pgm : A]]$ and
 $[[Gs |- decl : Gs']]$ are of the essence to the type checking of the
 surface language. The former type checks a whole program, and the
 latter type checks datatype declarations.
 
-Rule \ruleref{TSpgm\_Pgm} type checks a whole program. It first
+Rule \ruleref{TRpgm\_Pgm} type checks a whole program. It first
 type-checks the declarations, which in return gives a new typing
 environment. Combined with the original environment, it then continues
 to type check the expression and return the result type. Rule
-\ruleref{TSpgm\_Data} is used to type check datatype declarations. It
+\ruleref{TRpgm\_Data} is used to type check datatype declarations. It
 first ensures the well-formedness of the type of the type constructor
 application (of kind $\star$). Note that since our system adopts
-$\star : \star$, this means we can express kind polymophism in the
-type parameters. Finally it make sure the types of data constructors
-are valid.
+$\star : \star$, this means we can express kind polymophism for
+datatypes. Finally it make sure the types of data constructors are
+valid.
 
-Rules \ruleref{TS\_Case} and \ruleref{Tpat\_Alt} handle the type
+Rules \ruleref{TR\_Case} and \ruleref{TRpat\_Alt} handle the type
 checking of case expressions. The conclusion of \ruleref{TS\_Case}
-binds the right types to the scrutinee expression $[[E1]]$ and
-alternatives $\overline{p \Rightarrow E_2}$. The first premise of
+binds the right types to the scrutinee $[[E1]]$ and alternatives
+$\overline{p \Rightarrow E_2}$. The first premise of
 \ruleref{Tpat\_Alt} binds the actual type constructor arguments to
 $[[<<u>>]]$. The second premise checks whether the types of the
 right-hand sides of each alternative, instantiated to the actual type
 constructor arguments $[[<<u>>]]$, are equal. Finally the third
 premise checks the well-formedness of the types of data constructor
-arguments.
-\bruno{Mention that we do not support refinement, as in GADTs?}
+arguments.  \bruno{Mention that we do not support refinement, as in
+  GADTs?} \jeremy{done!}
+
+As can be seen, currently \sufcc does not support refinement on the
+final result of each data constructor, as in GADTs. However, our
+encoding method does support some form of GADTs, as is discussed in
+\S\ref{Discussion}.
 
 \begin{figure*}
-\ottdefnctxsrc{}
-\ottdefnpgmsrc{}
-\ottdefndeclsrc{}
-\ottdefnpatsrc{}
-\ottdefnexprsrc{}
-\caption{Typing rules of surface language}
-\label{fig:surface:typing}
+\ottdefnctxtrans{}
+\ottdefnpgmtrans{}
+\ottdefndecltrans{}
+\begin{align*}
+[[ e := & let D : (<<u:T>>) -> star = mu X : (<<u:T>>) -> star . \ <<u:T>> . (aa:star) -> << (<<t>>[D |-> X] -> aa) >> -> aa in \\\let Ki : (<<u:T>>) -> <<t>> -> D@<<u>> = \ <<u:T>> . \<<x:t>> . foldn [D@<<u>>] (\aa:star.\<<bb : <<t>> -> aa >> . bbi <<x>>) in @@ ]]
+\end{align*}
+\ottdefnpattrans{}
+\ottdefnexprtrans{}
+\caption{Type directed translation rules of source language}
+\label{fig:source:translate}
 \end{figure*}
+
+
+% \begin{figure*}
+% \ottdefnctxsrc{}
+% \ottdefnpgmsrc{}
+% \ottdefndeclsrc{}
+% \ottdefnpatsrc{}
+% \ottdefnexprsrc{}
+% \caption{Typing rules of surface language}
+% \label{fig:surface:typing}
+% \end{figure*}
 
 % \newcommand{\ctx}[2][\Gamma]{#1 \vdash #2}
 % \newcommand{\ctxz}[1]{\ctx[\varnothing]{#1}}
@@ -197,33 +222,43 @@ We use a type-directed translation. The basic translation rules have the form:
 \[
 [[Gs  |- E : A ~> e]]
 \]
-
 It states that \name expression $[[e]]$ is the translation of the
-surface expression $[[E]]$ of type $[[A]]$.
-Figure~\ref{fig:source:translate} defines the translation rules, which
-are the typing rules in Figure~\ref{fig:surface:typing} extended with
-the resulting expression $[[e]]$. In the translation, we require that
-applications of constructors to be \emph{saturated}.\bruno{Any
-  partiular reasons for this?}
+surface expression $[[E]]$ of type $[[A]]$.  The gray parts in
+Figure~\ref{fig:source:translate} defines the translation
+rules. \bruno{Any partiular reasons for this?} \jeremy{deleted}
 
-Among others, Rules \ruleref{TRdecl\_Data}, \ruleref{TRpat\_Alt} and \ruleref{TR\_Case} are of the essence to the translation. Rule \ruleref{TR\_Case} translates case expressions into applications by first translating the scrutinee expression, casting it down to the right type. It is then applied to the result type of the body expression and a list of translated \name expressions of its alternatives. Rule \ruleref{TRpat\_Alt} tells how to translate each alternative. Basically it translates an alternative into a lambda abstraction, where each bound variable in the pattern corresponds to a bound variable in the lambda abstraction in the same order. The body in the alternative is recursively translated and treated as the body of the lambda abstraction.
+Among others, Rules \ruleref{TRdecl\_Data}, \ruleref{TRpat\_Alt} and
+\ruleref{TR\_Case} are of the essence to the translation. Rule
+\ruleref{TR\_Case} translates case expressions into applications by
+first translating the scrutinee expression, casting it down to the
+right type. It is then applied to the result type of the body
+expression and a list of translated \name expressions of its
+alternatives. Rule \ruleref{TRpat\_Alt} tells how to translate each
+alternative. Basically it translates an alternative into a lambda
+abstraction, where each bound variable in the pattern corresponds to a
+bound variable in the lambda abstraction in the same order. The body
+in the alternative is recursively translated and treated as the body
+of the lambda abstraction. Note that due to the rigidness of the
+translation, pattern matching must be exhaustive, and the order of
+patterns matters (the same order as in the datatype declaration).
 
-Rule \ruleref{TRDecl\_Data} does the most heavy work and deserves further explanation. First of all, it results in an incomplete expression (as can be seen by the incomplete \emph{let} expressions), The result expression is supposed to be prepended to the translation of the last expression to form a complete \name expression, as specified by Rule \ruleref{TRpgm\_Pgm}. Furthermore, each type constructor is translated to a recursive type, of which the body is a type-level lambda abstraction. What is interesting is that each recursive mention of the datatype in the data constructor parameters is replaced with the recursive variable $[[X]]$. Note that for the moment, the result type variable $[[aa]]$ is restricted to have kind $\star$. This could pose difficulties when translating GADTs as we will discussion in the future work. Each data constructor is translated to a lambda abstraction. Notice how we use $[[castup]]$ in the lambda body to get the right type.
+Rule \ruleref{TRDecl\_Data} does the most heavy work and deserves
+further explanation. First of all, it results in an incomplete
+expression (as can be seen by the incomplete $\mathsf{let}$
+expressions), The result expression is supposed to be prepended to the
+translation of the last expression to form a complete \name
+expression, as specified by Rule \ruleref{TRpgm\_Pgm}. Furthermore,
+each type constructor is translated to a recursive type, of which the
+body is a type-level lambda abstraction. What is interesting is that
+each recursive mention of the datatype in the data constructor
+parameters is replaced with the recursive variable $[[X]]$. Note that
+for the moment, the result type variable $[[aa]]$ is restricted to
+have kind $\star$. This could pose difficulties when translating GADTs
+as we will discussion in the future work. Each data constructor is
+translated to a lambda abstraction. Notice how we use $[[castup]]$ in
+the lambda body to get the right type.
 
 The rest of the translation rules hold few surprises.
-
-\begin{figure*}
-\ottdefnctxtrans{}
-\ottdefnpgmtrans{}
-\ottdefndecltrans{}
-\begin{align*}
-[[ e := & let D : (<<u:T>>) -> star = mu X : (<<u:T>>) -> star . \ <<u:T>> . (aa:star) -> << (<<t>>[D |-> X] -> aa) >> -> aa in \\\let Ki : (<<u:T>>) -> <<t>> -> D@<<u>> = \ <<u:T>> . \<<x:t>> . foldn [D@<<u>>] (\aa:star.\<<bb : <<t>> -> aa >> . bbi <<x>>) in @@ ]]
-\end{align*}
-\ottdefnpattrans{}
-\ottdefnexprtrans{}
-\caption{Translation rules of source language}
-\label{fig:source:translate}
-\end{figure*}
 
 \subsection{Type-safefy of Translation}
 
