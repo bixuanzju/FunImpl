@@ -19,7 +19,7 @@ trans env (App f a) = do
   case tf of
     Pi x at rt -> do
       (ta, a') <- trans env a
-      unless (alphaEq ta at) $ throwError "Bad function argument type"
+      unless (alphaEq ta at) $ throwError $ "Bad function argument type" ++ show f
       return (subst x a rt, App f' a')
     _ -> throwError "Non-function in application"
 trans env (Lam s t e) = do

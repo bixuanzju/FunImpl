@@ -6,8 +6,6 @@
 %format letrec = "\mathbf{letrec}"
 %format rcrd = "\mathbf{rcrd}"
 
-\newcommand{\sufcc}{$\lambda C_{\mathsf{suf}}$\xspace}
-
 \section{\sufcc by Example}
 \label{sec:app}
 
