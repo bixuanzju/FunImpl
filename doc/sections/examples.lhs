@@ -340,8 +340,44 @@ should be about the point, not about the particular example!} \jeremy{This secti
 Haskell needs sophisticated extensions~\cite{fc:pro} in order for
 being able to use ordinary datatypes as kinds, and data constructors
 as types. With the full power of dependent types, data promotion is
-made easy in \sufcc.
+made trivial in \sufcc.
 
+As a last example, we show a representation of a labeled binary tree,
+where each node is labeled with its depth in the tree. Below is the
+definition:
+
+\begin{figure}[h!]
+  \begin{spec}
+    data PTree (n : Nat) = Empty
+      | Fork nat (PTree (S n)) (PTree (S n));
+  \end{spec}
+\end{figure}
+
+Notice how the datatype \emph{Nat} is ``promoted'' to be used in the
+kind level. Next we can construct such a binary tree that keeps track
+of its depth statically:
+
+\begin{figure}[h!]
+  \begin{spec}
+    Fork Z 1 (Empty (S Z)) (Empty (S Z))
+  \end{spec}
+\end{figure}
+
+If we accidentally write the wrong depth, for example:
+
+\begin{figure}[h!]
+  \begin{spec}
+    Fork Z 1 (Empty (S Z)) (Empty Z)
+  \end{spec}
+\end{figure}
+
+The above will fail to pass type checking.
+
+\bruno{Two questions: firstly does it work? secondly do we support GADT syntax now?}  \jeremy{changed to a simple binary tree example}
+
+\bruno{More examples? closed type families; dependent types?} \jeremy{had hard time thinking of a simple, non-recursive example for type families}
+
+\begin{comment}
 As a last example, we show a representation of well-scoped lambda
 terms using de Bruijn notation. In this notation, a variable is
 represented as a number -- its de Bruijn index, where the number $k$
@@ -386,7 +422,4 @@ shown below \jeremy{write printer function}:
       B a
   \end{spec}
 \end{figure}
-
-\bruno{Two questions: firstly does it work? secondly do we support GADT syntax now?}  \jeremy{Besides the GADT syntax, it works! We may want to move this example to the discussion part}
-
-\bruno{More examples? closed type families; dependent types?} \jeremy{had hard time thinking of a simple, non-recursive example for type families}
+\end{comment}
