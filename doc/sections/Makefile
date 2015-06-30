@@ -19,6 +19,9 @@ examples.tex: examples.lhs
 overview.mng.tex: overview.lhs
 	lhs2tex -o $@ $^ --poly
 
+discussion.mng.tex: discussion.lhs
+	lhs2tex -o $@ $^ --poly
+
 %.tex: %.mng.tex $(OTT_FILES)
 	ott $(OTT_OPTS) -tex_filter $< $@ $(OTT_FILES)
 	@perl -pi -e 'print $(WARN_MSG) if $$. == 1' $@

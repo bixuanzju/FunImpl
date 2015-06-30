@@ -1,3 +1,96 @@
+%% ODER: format ==         = "\mathrel{==}"
+%% ODER: format /=         = "\neq "
+%
+%
+\makeatletter
+\@ifundefined{lhs2tex.lhs2tex.sty.read}%
+  {\@namedef{lhs2tex.lhs2tex.sty.read}{}%
+   \newcommand\SkipToFmtEnd{}%
+   \newcommand\EndFmtInput{}%
+   \long\def\SkipToFmtEnd#1\EndFmtInput{}%
+  }\SkipToFmtEnd
+
+\newcommand\ReadOnlyOnce[1]{\@ifundefined{#1}{\@namedef{#1}{}}\SkipToFmtEnd}
+\usepackage{amstext}
+\usepackage{amssymb}
+\usepackage{stmaryrd}
+\DeclareFontFamily{OT1}{cmtex}{}
+\DeclareFontShape{OT1}{cmtex}{m}{n}
+  {<5><6><7><8>cmtex8
+   <9>cmtex9
+   <10><10.95><12><14.4><17.28><20.74><24.88>cmtex10}{}
+\DeclareFontShape{OT1}{cmtex}{m}{it}
+  {<-> ssub * cmtt/m/it}{}
+\newcommand{\texfamily}{\fontfamily{cmtex}\selectfont}
+\DeclareFontShape{OT1}{cmtt}{bx}{n}
+  {<5><6><7><8>cmtt8
+   <9>cmbtt9
+   <10><10.95><12><14.4><17.28><20.74><24.88>cmbtt10}{}
+\DeclareFontShape{OT1}{cmtex}{bx}{n}
+  {<-> ssub * cmtt/bx/n}{}
+\newcommand{\tex}[1]{\text{\texfamily#1}}	% NEU
+
+\newcommand{\Sp}{\hskip.33334em\relax}
+
+
+\newcommand{\Conid}[1]{\mathit{#1}}
+\newcommand{\Varid}[1]{\mathit{#1}}
+\newcommand{\anonymous}{\kern0.06em \vbox{\hrule\@width.5em}}
+\newcommand{\plus}{\mathbin{+\!\!\!+}}
+\newcommand{\bind}{\mathbin{>\!\!\!>\mkern-6.7mu=}}
+\newcommand{\rbind}{\mathbin{=\mkern-6.7mu<\!\!\!<}}% suggested by Neil Mitchell
+\newcommand{\sequ}{\mathbin{>\!\!\!>}}
+\renewcommand{\leq}{\leqslant}
+\renewcommand{\geq}{\geqslant}
+\usepackage{polytable}
+
+%mathindent has to be defined
+\@ifundefined{mathindent}%
+  {\newdimen\mathindent\mathindent\leftmargini}%
+  {}%
+
+\def\resethooks{%
+  \global\let\SaveRestoreHook\empty
+  \global\let\ColumnHook\empty}
+\newcommand*{\savecolumns}[1][default]%
+  {\g@addto@macro\SaveRestoreHook{\savecolumns[#1]}}
+\newcommand*{\restorecolumns}[1][default]%
+  {\g@addto@macro\SaveRestoreHook{\restorecolumns[#1]}}
+\newcommand*{\aligncolumn}[2]%
+  {\g@addto@macro\ColumnHook{\column{#1}{#2}}}
+
+\resethooks
+
+\newcommand{\onelinecommentchars}{\quad-{}- }
+\newcommand{\commentbeginchars}{\enskip\{-}
+\newcommand{\commentendchars}{-\}\enskip}
+
+\newcommand{\visiblecomments}{%
+  \let\onelinecomment=\onelinecommentchars
+  \let\commentbegin=\commentbeginchars
+  \let\commentend=\commentendchars}
+
+\newcommand{\invisiblecomments}{%
+  \let\onelinecomment=\empty
+  \let\commentbegin=\empty
+  \let\commentend=\empty}
+
+\visiblecomments
+
+\newlength{\blanklineskip}
+\setlength{\blanklineskip}{0.66084ex}
+
+\newcommand{\hsindent}[1]{\quad}% default is fixed indentation
+\let\hspre\empty
+\let\hspost\empty
+\newcommand{\NB}{\textbf{NB}}
+\newcommand{\Todo}[1]{$\langle$\textbf{To do:}~#1$\rangle$}
+
+\EndFmtInput
+\makeatother
+%
+
+
 \section{Discussion}
 \paragraph{More Type-level Computation}
 
@@ -6,4 +99,113 @@
 
 Explicit type \cast operators $[[castup]]$ and $[[castdown]]$ are part of the core design of the language. They are generalized from $\kw{fold}$ and $\kw{unfold}$ of iso-recursive types. By convention, $[[castup]]$ follows $\kw{fold}$ as a value in the language, which means it cannot be further reduced during the evaluation. Thus, it is likely to have many $[[castup]]$ constructs leaving in terms after evaluation. This will be a performance issue when considering code generation -- too many $[[castup]]$ constructs will dramatically increase the size of the program, which causes runtime overhead and affects the performance of the language.
 
-In fact, we can safely erase \cast operators during code generation, because they do not perform any real transformation of a term other than changing its type. 
+In fact, we can safely erase \cast operators during code generation, because they do not perform any real transformation of a term other than changing its type.
+
+\paragraph{Encoding of GADTs}
+
+Our translation rules also open opportunity for encoding GADTs. In our
+experiment, we have several running examples of encoding GADTs. Below
+we show a GATD-encoded representation of well-scoped lambda terms
+using de Bruijn notation.
+
+In this notation, a variable is represented as a number -- its de
+Bruijn index, where the number $k$ stands for the variable bound by
+the $k$'s enclosing $\lambda$. Using the GADT syntax, below is the
+definition of lambda terms:
+
+\begin{figure}[H]
+  \begingroup\par\noindent\advance\leftskip\mathindent\(
+\begin{pboxed}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{7}{@{}>{\hspre}c<{\hspost}@{}}%
+\column{7E}{@{}l@{}}%
+\column{10}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[5]{}\mathbf{data}\;\Conid{Fin}\mathbin{:}\Conid{Nat}\to \star\mathrel{=}{}\<[E]%
+\\
+\>[5]{}\hsindent{5}{}\<[10]%
+\>[10]{}\Varid{fzero}\mathbin{:}(\Varid{n}\mathbin{:}\Conid{Nat})\to \Conid{Fin}\;(\Conid{S}\;\Varid{n}){}\<[E]%
+\\
+\>[5]{}\hsindent{2}{}\<[7]%
+\>[7]{}\mid {}\<[7E]%
+\>[10]{}\Varid{fsucc}\mathbin{:}(\Varid{n}\mathbin{:}\Conid{Nat})\to \Conid{Fin}\;\Varid{n}\to \Conid{Fin}\;(\Conid{S}\;\Varid{n});{}\<[E]%
+\\
+\>[5]{}\mathbf{data}\;\Conid{Term}\mathbin{:}\Conid{Nat}\to \star\mathrel{=}{}\<[E]%
+\\
+\>[5]{}\hsindent{5}{}\<[10]%
+\>[10]{}\Conid{Var}\mathbin{:}(\Varid{n}\mathbin{:}\Conid{Nat})\to \Conid{Fin}\;\Varid{n}\to \Conid{Term}\;\Varid{n}{}\<[E]%
+\\
+\>[5]{}\hsindent{2}{}\<[7]%
+\>[7]{}\mid {}\<[7E]%
+\>[10]{}\Conid{Lam}\mathbin{:}(\Varid{n}\mathbin{:}\Conid{Nat})\to \Conid{Term}\;(\Conid{S}\;\Varid{n})\to \Conid{Term}\;\Varid{n}{}\<[E]%
+\\
+\>[5]{}\hsindent{2}{}\<[7]%
+\>[7]{}\mid {}\<[7E]%
+\>[10]{}\Conid{App}\mathbin{:}(\Varid{n}\mathbin{:}\Conid{Nat})\to \Conid{Term}\;\Varid{n}\to \Conid{Term}\;\Varid{n}\to \Conid{Term}\;\Varid{n};{}\<[E]%
+\ColumnHook
+\end{pboxed}
+\)\par\noindent\endgroup\resethooks
+\end{figure}
+
+The datatype \emph{Fin n} is used to restrict the the de Brujin index,
+so that it lies between $0$ to $n - 1$. The type of a closed term is
+simply \ensuremath{\Conid{Term}\;\Conid{Z}}, for instance, a lambda term $\lambda x.\,\lambda y.\,
+x$ is represented as (we use decimal numbers instead of peano natural
+numbers):
+
+\begin{figure}[H]
+  \begingroup\par\noindent\advance\leftskip\mathindent\(
+\begin{pboxed}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[5]{}\Conid{Lam}\;\mathrm{0}\;(\Conid{Lam}\;\mathrm{1}\;(\Conid{Var}\;\mathrm{2}\;(\Varid{fsucc}\;\mathrm{1}\;(\Varid{fzero}\;\mathrm{0})))){}\<[E]%
+\ColumnHook
+\end{pboxed}
+\)\par\noindent\endgroup\resethooks
+\end{figure}
+
+If we accidentally write the wrong index, the program would fail to
+pass type checking.
+
+We do not have space to present a complete
+encoding, but instead show the encoding of \emph{Fin}:
+
+\begin{figure}[H]
+  \begingroup\par\noindent\advance\leftskip\mathindent\(
+\begin{pboxed}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{7}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{9}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[5]{}\mathbf{let}\;\Conid{Fin}\mathbin{:}\Conid{Nat}\to \star\mathrel{=}{}\<[E]%
+\\
+\>[5]{}\hsindent{2}{}\<[7]%
+\>[7]{}\mathsf{mu}\;\Conid{X}\mathbin{:}\Conid{Nat}\to \star.\,\lambda \Varid{a}\mathbin{:}\Conid{Nat}.\,{}\<[E]%
+\\
+\>[7]{}\hsindent{2}{}\<[9]%
+\>[9]{}(\Conid{B}\mathbin{:}\Conid{Nat}\to \star)\to {}\<[E]%
+\\
+\>[7]{}\hsindent{2}{}\<[9]%
+\>[9]{}((\Varid{n}\mathbin{:}\Conid{Nat})\to \Conid{B}\;(\Conid{S}\;\Varid{n}))\to {}\<[E]%
+\\
+\>[7]{}\hsindent{2}{}\<[9]%
+\>[9]{}((\Varid{n}\mathbin{:}\Conid{Nat})\to \Conid{X}\;\Varid{n}\to \Conid{B}\;(\Conid{S}\;\Varid{n}))\to {}\<[E]%
+\\
+\>[7]{}\hsindent{2}{}\<[9]%
+\>[9]{}\Conid{B}\;\Varid{a}{}\<[E]%
+\ColumnHook
+\end{pboxed}
+\)\par\noindent\endgroup\resethooks
+\end{figure}
+
+The key issue in encoding GATDs lies in type of variable $B$. In
+ordinary datatype encoding, $B$ is fixed to have type $\star$, while
+in GADTs, its type is the same as the variable $X$ (possibly
+higher-kinded). Currently, we have to manually interpret the type
+according to the particular use of some GADTs. We are investigating if
+there exits a general way to do that.
+
+\paragraph{Using Recursive Functions at the Type Level}
