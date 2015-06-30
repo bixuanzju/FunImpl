@@ -13,13 +13,7 @@ expcore.ott.tex: $(OTT_FILES)
 	@perl -pi -e 's/^\\ottpremise/\\\\ /g' $@
 	@perl -pi -e 's/^(.*\\ottlinebreak.*)$$/\\\\$$1/g' $@
 
-examples.tex: examples.lhs
-	lhs2tex -o $@ $^ --poly
-
-overview.mng.tex: overview.lhs
-	lhs2tex -o $@ $^ --poly
-
-discussion.mng.tex: discussion.lhs
+%.mng.tex: %.lhs
 	lhs2tex -o $@ $^ --poly
 
 %.tex: %.mng.tex $(OTT_FILES)
