@@ -92,20 +92,49 @@
 
 
 \section{Discussion}
-\paragraph{More Type-level Computation}
 
+\paragraph{Eliminating Cast Operators}
 
-\paragraph{Erasure of \cast Operators}
+Explicit type \cast operators $[[castup]]$ and $[[castdown]]$ are
+generalized from $[[fold]]$ and $[[unfold]]$ of iso-recursive
+types. By convention, $[[castup]]$ follows $[[fold]]$ as a value, so
+it cannot be further reduced during the evaluation. This may cause
+semantics and performance issues.
 
-Explicit type \cast operators $[[castup]]$ and $[[castdown]]$ are part of the core design of the language. They are generalized from $\kw{fold}$ and $\kw{unfold}$ of iso-recursive types. By convention, $[[castup]]$ follows $\kw{fold}$ as a value in the language, which means it cannot be further reduced during the evaluation. Thus, it is likely to have many $[[castup]]$ constructs leaving in terms after evaluation. This will be a performance issue when considering code generation -- too many $[[castup]]$ constructs will dramatically increase the size of the program, which causes runtime overhead and affects the performance of the language.
+To show the semantics issue, suppose there is a non-terminating term
+$\mathit{loop}$. It should loop forever when evaluated. But if it is
+wrapped by $[[castup]]$ like $[[castup]]~[ [[t]] ]~\mathit{loop}$, the
+evaluation stops immediately. So the dynamic semantics of a term-level
+expression wrapped by $[[castup]]$ might differ from the original. The
+performance issue may occur during code generation. Since $[[castup]]$
+will remain after evaluation, too many $[[castup]]$ constructs can
+increase the size of the program and cause runtime overhead.
 
-In fact, we can safely erase \cast operators during code generation, because they do not perform any real transformation of a term other than changing its type.
+In fact, \cast operators can be safely eliminated after type checking,
+because they do not actually transform a term other than changing its
+type. There are two choices of when to remove \cast operators, during
+evaluation or code generation. The following alternative reduction
+rules can eliminate \cast during evaluation:
+\ottusedrule{\ottdruleSXXCastUpE{}}
+\ottusedrule{\ottdruleSXXCastDownE{}} Moreover, $[[castup]]$ is no
+more treated as a value. With such modification, we can obtain
+$[[castup]]~[ [[t]] ]~\mathit{loop} [[-->]] \mathit{loop}$. So
+$[[castup]]$ will not interfere with the original dynamic semantics of
+terms. But noting that $[[castup [t] e]]$ or $[[castdown e]]$ has
+different types from $[[e]]$, types of terms are not preserved during
+evaluation. This breaks the subject reduction theorem, and
+consequently type-safety.
+
+Thus, we stick to the semantics of iso-recursive types for \cast
+operators which has type preservation. And we prefer to eliminate
+all \cast operators during type erasure to address the potential
+performance issue of code generation.
 
 \paragraph{Encoding of GADTs}
 
 Our translation rules also open opportunity for encoding GADTs. In our
 experiment, we have several running examples of encoding GADTs. Below
-we show a GATD-encoded representation of well-scoped lambda terms
+we show a GADT-encoded representation of well-scoped lambda terms
 using de Bruijn notation.
 
 In this notation, a variable is represented as a number -- its de
@@ -201,7 +230,7 @@ encoding, but instead show the encoding of \emph{Fin}:
 \)\par\noindent\endgroup\resethooks
 \end{figure}
 
-The key issue in encoding GATDs lies in type of variable $B$. In
+The key issue in encoding GADTs lies in type of variable $B$. In
 ordinary datatype encoding, $B$ is fixed to have type $\star$, while
 in GADTs, its type is the same as the variable $X$ (possibly
 higher-kinded). Currently, we have to manually interpret the type
