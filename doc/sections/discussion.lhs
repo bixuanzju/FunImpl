@@ -1,10 +1,5 @@
 %include polycode.fmt
-
-%format . = ".\,"
-%format mu = "\mathsf{mu}"
-%format * = "\star"
-%format letrec = "\mathbf{letrec}"
-%format rcrd = "\mathbf{rcrd}"
+%include format.fmt
 
 \section{Discussion}
 \paragraph{More Type-level Computation}
@@ -28,46 +23,36 @@ Bruijn index, where the number $k$ stands for the variable bound by
 the $k$'s enclosing $\lambda$. Using the GADT syntax, below is the
 definition of lambda terms:
 
-\begin{figure}[H]
-  \begin{spec}
-    data Fin : Nat -> * =
-         fzero : (n : Nat) -> Fin (S n)
-      |  fsucc : (n : Nat) -> Fin n -> Fin (S n);
-    data Term : Nat -> * =
-         Var : (n : Nat) -> Fin n -> Term n
-      |  Lam : (n : Nat) -> Term (S n) -> Term n
-      |  App : (n : Nat) -> Term n -> Term n -> Term n;
-  \end{spec}
-\end{figure}
+< data Fin : Nat -> * =
+<      fzero : (n : Nat) -> Fin (S n)
+<   |  fsucc : (n : Nat) -> Fin n -> Fin (S n);
+<
+< data Term : Nat -> * =
+<      Var : (n : Nat) -> Fin n -> Term n
+<   |  Lam : (n : Nat) -> Term (S n) -> Term n
+<   |  App : (n : Nat) -> Term n -> Term n -> Term n;
 
 The datatype \emph{Fin n} is used to restrict the the de Brujin index,
 so that it lies between $0$ to $n - 1$. The type of a closed term is
-simply |Term Z|, for instance, a lambda term $\lambda x.\,\lambda y.\,
-x$ is represented as (we use decimal numbers instead of peano natural
-numbers):
+simply |Term Z|, for instance, a lambda term
+$\lambda x.\,\lambda y.\, x$ is represented as (for the presentation,
+we use decimal numbers instead of Peano numbers):
 
-\begin{figure}[H]
-  \begin{spec}
-    Lam 0 (Lam 1 (Var 2 (fsucc 1 (fzero 0))))
-  \end{spec}
-\end{figure}
+< Lam 0 (Lam 1 (Var 2 (fsucc 1 (fzero 0))))
 
 If we accidentally write the wrong index, the program would fail to
 pass type checking.
 
-We do not have space to present a complete
-encoding, but instead show the encoding of \emph{Fin}:
 
-\begin{figure}[H]
-  \begin{spec}
-    let Fin : Nat -> * =
-      mu X : Nat -> * . \ a : Nat .
-        (B : Nat -> *) ->
-        ((n : Nat) -> B (S n)) ->
-        ((n : Nat) -> X n -> B (S n)) ->
-        B a
-  \end{spec}
-\end{figure}
+We do not have space to present a complete encoding, but instead show
+the encoding of \emph{Fin}:
+
+< let Fin : Nat -> * =
+<   mu X : Nat -> * . \ a : Nat .
+<     (B : Nat -> *) ->
+<     ((n : Nat) -> B (S n)) ->
+<     ((n : Nat) -> X n -> B (S n)) ->
+<     B a
 
 The key issue in encoding GATDs lies in type of variable $B$. In
 ordinary datatype encoding, $B$ is fixed to have type $\star$, while

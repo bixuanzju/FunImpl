@@ -284,21 +284,20 @@ rule: \ottusedrule{\ottdruleTccXXConv{}}
 
 The conversion rule allows one to derive $e:[[t2]]$ from the
 derivation of $e:[[t1]]$ and the $\beta$-equality of $[[t1]]$ and
-$[[t2]]$. This rule is important to \emph{automatically} allows 
-terms with equivalent types to be considered type-compatible. 
-To illustrate, let us consider a simple example. Suppose
-we have a built-in base type $[[int]]$ and: 
+$[[t2]]$. This rule is important to \emph{automatically} allows terms
+with equivalent types to be considered type-compatible.  The following
+example illustrates the use of the conversion rule:
 \[
 f \equiv [[\x:(\y:star.y)int.x]]
 \]
-Here $f$ is a simple identity function. However, the type 
-of $x$ (i.e., $[[(\y:star.y)int]]$), which is the argument of $f$, is interesting: it is 
-an identity function on types, applied to an integer. 
-Without the conversion rule, $f$ cannot be
-applied to, say $3$ in \coc. However, given that $f$ is actually
-$\beta$-convertible to $[[\x:int.x]]$, the conversion rule allows
-the application of $f$ to $3$ by implicitly converting
-$[[\x:(\y:star.y)int.x]]$ to $[[\x:int.x]]$.
+Here $f$ is a simple identity function. Notice that the type of $x$
+(i.e., $[[(\y:star.y)int]]$), which is the argument of $f$, is
+interesting: it is an identity function on types, applied to an
+integer.  Without the conversion rule, $f$ cannot be applied to, say
+$3$ in \coc. However, given that $f$ is actually $\beta$-convertible
+to $[[\x:int.x]]$, the conversion rule allows the application of $f$
+to $3$ by implicitly converting $[[\x:(\y:star.y)int.x]]$ to
+$[[\x:int.x]]$.
 
 \paragraph{Decidability of Type-Checking and Strong Normalization} 
 While the conversion rule in \coc brings a lot of convenience, an
@@ -312,13 +311,11 @@ termination), thus rendering the type system undecidable.
 
 To illustrate the problem of the conversion rule with general
 recursion, let us consider a somewhat contrived example. Suppose that
-$d$ is a ``dependent type'' where
-\[d : [[int -> star]]\]
-and $d\,3$ or $d\,100$ all yield the same type. With general recursion
-at hand, we can image a term $z$ that has type \[d\,\mathsf{loop}\]
-where $\mathsf{loop}$ stands for any diverging computation of type
-$[[int]]$. What would happen if we try to type check the following
-application: \[ [[(\x: d three.x)z]]\]
+$d$ is a ``dependent type'' that has type $[[int -> star]]$. With
+general recursion at hand, we can image a term $z$ that has type
+$d\,\mathsf{loop}$, where $\mathsf{loop}$ stands for any diverging
+computation of type $[[int]]$. What would happen if we try to type
+check the following application: \[ [[(\x: d three.x)z]]\]
 Under the normal typing rules of \coc, the type checker would get
 stuck as it tries to do $\beta$-equality on two terms: $d\,3$ and
 $d\,\mathsf{loop}$, where the latter is non-terminating.  \bruno{show
@@ -326,7 +323,7 @@ $d\,\mathsf{loop}$, where the latter is non-terminating.  \bruno{show
 
 \subsection{An Alternative to the Conversion Rule: Explicit Casts}
 
-\bruno{Mention somewhere that the cast rules do \emph{one-step}
+\bruno{Mention somewhere that the \cast rules do \emph{one-step}
   reductions.} \jeremy{done! see last paragraph, also put beta
   reduction before beta expansion} In contrast to the implicit
 reduction rules of \coc, \name makes it explicit as to when and where
@@ -345,32 +342,33 @@ example. Suppose that
 and term $z$ has type
 \[ [[(\y:star.y)int]] \]
 $ g\,z $ is an ill-typed application, whereas $ g\,([[castdown z]]) $
-is type correct. This is witnessed by
+is well-typed. This is witnessed by
 $[[(\y:star.y)int]] \rightarrow_{\beta} [[int]]$, which is a beta
-reduction for term $[[(\y:star.y)int]]$. \bruno{explain why this is a
+reduction of $[[(\y:star.y)int]]$. \bruno{explain why this is a
   reduction} \jeremy{done!}
 
 \paragraph{Beta Expansion} The dual operation of $[[castdown]]$ is
-$[[castup]]$, which allows a type conversion provided that the resulting
-type is a \emph{beta expansion} of the original type of the term.
-Consider the same example from \S\ref{sec:coc}. In \name, $f\,3$ is an
-ill-typed application. Instead we must write the application as
+$[[castup]]$, which allows a type conversion provided that the
+resulting type is a \emph{beta expansion} of the original type of the
+term.  Let us revisit the example from \S\ref{sec:coc}. In \name,
+$f\,3$ is an ill-typed application. Instead we must write the
+application as
 \[ f\,([[castup[(\y:star.y)int] three]]) \]
-\bruno{how to put a space before $3$?} \jeremy{fixed!} The intuition
-is that, $[[castup]]$ is actually doing a type conversion becuase the
-type of $ 3 $ is $ [[int]] $, and $ [[(\y:star.y)int]] $ is the beta
-expansion of $[[int]]$ (witnessed by
+\bruno{how to put a space before $3$?} \jeremy{fixed!} Intuitively,
+$[[castup]]$ is doing a type conversion, as the type of $ 3 $ is
+$ [[int]] $, and $ [[(\y:star.y)int]] $ is the beta expansion of
+$[[int]]$ (witnessed by
 $[[(\y:star.y)int]] \rightarrow_{\beta} [[int]]$). \bruno{explain why
   this is a beta expansion} \jeremy{done!} Notice that for
 $[[castup]]$ to work, we need to provide the resulting type as
 argument. This is because for the same term, there are more than one
 choices for beta expansions (e.g., $1 + 2$ and $2 + 1$ are both the
-beta expansions for $3$). \bruno{explain why for beta expansions we
+beta expansions of $3$). \bruno{explain why for beta expansions we
   need to provide the resulting type as argument} \jeremy{done!}
 
-A final point to make is that the cast rules specify \emph{one-step}
+A final point to make is that the \cast rules specify \emph{one-step}
 reduction. This enables us to have more control over type-level
-computation. The full technical details about cast rules are presented
+computation. The full technical details about \cast rules are presented
 in \S\ref{sec:ecore}.
 
 \subsection{Decidability without Strong Normalization}
@@ -393,16 +391,16 @@ even in the presence of non-terminating programs at type level.
 % $d\,\mathsf{loop}$, where the latter is non-terminating.
 
 To illustrate, let us consider the same example discussed in
-\S\ref{sec:coc}. Now the type checker won't get stuck when
+\S\ref{sec:coc}. Now the type checker will not get stuck when
 type-checking the following application:
 \[ [[(\x: d three.x)z]] \]
-where the type of $z$ is $d\,\mathsf{loop}$.  This is because in \name, type checker
-only does syntactic comparison between $d\,3$ and $d\,\mathsf{loop}$,
-instead of $\beta$-equality. Therefore it rejects the above
-application as ill-typed. Indeed it is impossible to type-check the
-application even with the use of $[[castup]]$ and/or $[[castdown]]$:
-one would need to write infinite number of $[[castdown]]$'s to make
-the type checker loop forever (e.g.,
+where the type of $z$ is $d\,\mathsf{loop}$.  This is because in
+\name, the type checker only does syntactic comparison between $d\,3$
+and $d\,\mathsf{loop}$, instead of $\beta$-equality. Therefore it
+rejects the above application as ill-typed. Indeed it is impossible to
+type-check the application even with the use of $[[castup]]$ and/or
+$[[castdown]]$: one would need to write infinite number of
+$[[castdown]]$'s to make the type checker loop forever (e.g.,
 $([[\x:d three.x]])([[castdown]]([[castdown]] \dots z))$). But it is
 impossible to write such program in reality.
 
@@ -429,44 +427,52 @@ features!
 \paragraph{Recursion}
 
 The $\mu$ primitive can be used to define recursive functions.  For
-example the factorial function is defined as follows:
-\[
-  \miu{f}{\mathsf{Int} \rightarrow \mathsf{Int}}{\lam{x}{\mathsf{Int}}{\mathsf{if}\,(x == 0)\,\mathsf{then}\,1\,\mathsf{else}\,x * f\,(x - 1)}}
-\]
+example, the factorial function:
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[3]{}\mu\;\Varid{f}\mathbin{:}\Conid{Int}\to \Conid{Int}.\,\mathbf{if}\;\Varid{x}==\mathrm{0}\;\mathbf{then}\;\mathrm{1}\;\mathbf{else}\;\Varid{x}\;\times\;\Varid{f}\;(\Varid{x}\mathbin{-}\mathrm{1}){}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
 The above recursive definition works because of the dynamic semantics of the
 $\mu$ primitive: \ottusedrule{\ottdruleSXXMu{}} which is exactly doing
-recursive unfolding of the same term.
+recursive unfolding of itself.
+
+It is worth noting that the type $[[t]]$ in \ruleref{S\_Mu} is not
+restricted to function types. This extra freedom allows us to define a
+record of mutually recursive functions as the fixed point of a
+function on records.
 
 % The dynamic semantics of $\mu$ requires the recursive binder to satisfy (omit type annotations for clarity):  \[ \mu f.\,E = (\lambda f.\,E) (\mu f.\,E) \] which, however, does not terminate in strict languages. Therefore, to loosen the function-type restriction to allow any types, the sensible choice for the evaluation strategy is \emph{call-by-name}.
 
 \subsubsection{Recursive types}
 In the literature on type systems, there are two approaches to
-recursive types. One is called \emph{equi-recursive}, the other
+recursive types, namely \emph{equi-recursive} and
 \emph{iso-recursive}. The \emph{iso-recursive} approach treats a
 recursive type and its unfolding as different, but isomorphic. The
 isomorphism between a recursive type and its one step unfolding is
 witnessed by traditionally \fold and \unfold operations. In \name, the
 isomorphism is witnessed by first $[[castup]]$, then
 $[[castdown]]$. \bruno{Explain that the casts generalize fold and
-  unfold!}  \jeremy{done!} At first sight, the cast rules share some
+  unfold!}  \jeremy{done!} At first sight, the \cast rules share some
 similarities with \fold and \unfold, but $[[castup]]$ and
 $[[castdown]]$ actually generalize \fold and \unfold: they can convert
 any types, not just recursive types. To demonstrate the use of the
-cast rules, let us consider a classic example of a recursive type, the
-so-called ``hungry'' type~\cite{tapl}:
+\cast rules, let us consider a classic example of a recursive type,
+the so-called ``hungry'' type~\cite{tapl}:
 $H = \miu{\sigma}{\star}{\mathsf{Int} \rightarrow \sigma}$. A term $z$
 of type $H$ can accept any number of integers and return a new
 function that is hungry for more, as illustrated below:
-
 \begin{align*}
 [[castdown z]] &: [[int]][[->]]H  \\
 [[castdown(castdown z)]] &: [[int]][[->]][[int]][[->]]H \\
 [[castdown]]([[castdown]] \dots z) &: [[int]][[->]][[int]][[->]]\dots[[->]]H
 \end{align*}
 
-Due to the unification of recursive types and recursion, we can use
-the same $\mu$ primitive to write both recursive types and recursion
-with ease.
+% Due to the unification of recursive types and recursion, we can use
+% the same $\mu$ primitive to write both recursive types and recursion
+% with ease.
 
 \paragraph{Call-by-Name}
 Due to the unification, the \emph{call-by-value} evaluation strategy
@@ -498,14 +504,13 @@ simplifies our system. We return to this issue in \S\ref{sec:related}.
 
 \subsection{Encoding Datatypes}
 
-
-With the explicit type conversion rules and the $\mu$ primitive, it is
-easy to encode recursive datatypes and recursive functions using
+The explicit type conversion rules and the $\mu$ primitive facilitates
+the encoding of recursive datatypes and recursive functions over
 datatypes. While inductive datatypes can be encoded using either the
 Church or the Scott encoding, we adopt the Scott encoding as it
-encodes case analysis, making it more convenient to
-encode pattern matching. We demonstrate the encoding method using a
-simple datatype as a running example: Peano numbers.
+encodes case analysis, making it more convenient to encode pattern
+matching. We demonstrate the encoding method using a simple datatype
+as a running example: Peano numbers.
 
 The datatype declaration for Peano numbers in Haskell is:
 \begin{hscode}\SaveRestoreHook
@@ -515,57 +520,51 @@ The datatype declaration for Peano numbers in Haskell is:
 \>[4]{}\mathbf{data}\;\Conid{Nat}\mathrel{=}\Conid{Z}\mid \Conid{S}\;\Conid{Nat}{}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
-In the Scott encoding, the encoding of the \emph{Nat} datatype reflects
-how its two constructors are going to be used. Since \emph{Nat} is a
-recursive datatype, we have to use recursive types at some point to
-reflect its recursive nature. As it turns out, the \emph{Nat} datatype
-can be represented as \ensuremath{\mu\;\Conid{X}\mathbin{:}\star.\,\Pi\;\Conid{B}\mathbin{:}\star.\,\Conid{B}\to (\Conid{X}\to \Conid{B})\to \Conid{B}}.
-
-As can be seen, in the function arrow \ensuremath{\Conid{B}\to (\Conid{X}\to \Conid{B})\to \Conid{B}}, $B$
-corresponds to the type of the constructor \emph{Z}, and \ensuremath{\Conid{X}\to \Conid{B}}
-corresponds to the type of the constructor \emph{S}. The intuition is
-that any use of the datatype in the data constructors is replaced with
-the recursive type variable ($X$ in the case), and we make the
-resulting type variable ($B$ in this case) universally quantified so
-that elements of the datatype with different result types can be used
-in the same program~\cite{gadts}.
-
-Now its two constructors can be encoded correspondingly as below:
+In the Scott encoding, the encoding of the \emph{Nat} datatype
+reflects how its two constructors are going to be used. Since
+\emph{Nat} is a recursive datatype, we have to use recursive types at
+some point to reflect its recursive nature. As it turns out, the typed
+Scott encoding of \emph{Nat} is:
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{3}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[3]{}\mathbf{let}\;\Conid{Z}\mathbin{:}\Conid{Nat}\mathrel{=}\mathsf{cast}^\uparrow\;[\mskip1.5mu \Conid{Nat}\mskip1.5mu]\;(\lambda \Conid{B}\mathbin{:}\star.\,\lambda \Varid{z}\mathbin{:}\Conid{B}.\,\lambda \Varid{f}\mathbin{:}\Conid{Nat}\to \Conid{B}.\,\Varid{z}){}\<[E]%
-\\
-\>[3]{}\mathbf{in}{}\<[E]%
-\\
-\>[3]{}\mathbf{let}\;\Conid{S}\mathbin{:}\Conid{Nat}\to \Conid{Nat}\mathrel{=}\lambda \Varid{n}\mathbin{:}\Conid{Nat}.\,{}\<[E]%
-\\
-\>[3]{}\hsindent{2}{}\<[5]%
-\>[5]{}\mathsf{cast}^\uparrow\;[\mskip1.5mu \Conid{Nat}\mskip1.5mu]\;(\lambda \Conid{B}\mathbin{:}\star.\,\lambda \Varid{z}\mathbin{:}\Conid{B}.\,\lambda \Varid{f}\mathbin{:}\Conid{Nat}\to \Conid{B}.\,\Varid{f}\;\Varid{n}){}\<[E]%
+\>[3]{}\mu\;\Conid{X}\mathbin{:}\star.\,\Pi\;\Conid{B}\mathbin{:}\star.\,\Conid{B}\to (\Conid{X}\to \Conid{B})\to \Conid{B}{}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
+The function type \ensuremath{\Conid{B}\to (\Conid{X}\to \Conid{B})\to \Conid{B}} demystifies the recursive
+nature of \emph{Nat}: $B$ corresponds to the type of the constructor
+\emph{Z}, and \ensuremath{\Conid{X}\to \Conid{B}} corresponds to the type of the constructor
+\emph{S}. The intuition is that any recursive use of the datatype in
+the data constructors is replaced with the variable ($X$ in the case)
+bound by $\mu$, and we make the resulting variable ($B$ in this case)
+universally quantified so that elements of the datatype with different
+result types can be used in the same program~\cite{gadts}.
 
-Thanks to the explicit type conversion rules, we can make use of the
-$[[castup]]$ operation to do type conversion between the recursive
-type and its unfolding.
-
-As the last example, let us see how we can define recursive functions
-using the \emph{Nat} datatype. A simple example would be recursively
-adding two natural numbers, which can be defined as below:
+Its two constructors can be encoded correspondingly via the \cast rules:
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{3}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[3]{}\Conid{Z}\mathrel{=}\mathsf{cast}^\uparrow\;[\mskip1.5mu \Conid{Nat}\mskip1.5mu]\;(\lambda \Conid{B}\mathbin{:}\star.\,\lambda \Varid{z}\mathbin{:}\Conid{B}.\,\lambda \Varid{f}\mathbin{:}\Conid{Nat}\to \Conid{B}.\,\Varid{z}){}\<[E]%
+\\
+\>[3]{}\Conid{S}\mathrel{=}\lambda \Varid{n}\mathbin{:}\Conid{Nat}.\,\mathsf{cast}^\uparrow\;[\mskip1.5mu \Conid{Nat}\mskip1.5mu]\;(\lambda \Conid{B}\mathbin{:}\star.\,\lambda \Varid{z}\mathbin{:}\Conid{B}.\,\lambda \Varid{f}\mathbin{:}\Conid{Nat}\to \Conid{B}.\,\Varid{f}\;\Varid{n}){}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+Thanks to the \cast rules, we can make use of the $[[castup]]$
+operation to do type conversion between the recursive type and its
+unfolding.
+
+The last example defines a recursive function that adds two natural
+numbers:
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{7}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[3]{}\mathbf{let}\;\Varid{add}\mathbin{:}\Conid{Nat}\to \Conid{Nat}\to \Conid{Nat}\mathrel{=}\mu\;\Varid{f}\mathbin{:}\Conid{Nat}\to \Conid{Nat}\to \Conid{Nat}.\,{}\<[E]%
+\>[3]{}\mu\;\Varid{f}\mathbin{:}\Conid{Nat}\to \Conid{Nat}\to \Conid{Nat}.\,\lambda \Varid{n}\mathbin{:}\Conid{Nat}.\,\lambda \Varid{m}\mathbin{:}\Conid{Nat}.\,{}\<[E]%
 \\
-\>[3]{}\hsindent{2}{}\<[5]%
-\>[5]{}\lambda \Varid{n}\mathbin{:}\Conid{Nat}.\,\lambda \Varid{m}\mathbin{:}\Conid{Nat}.\,{}\<[E]%
-\\
-\>[5]{}\hsindent{2}{}\<[7]%
+\>[3]{}\hsindent{4}{}\<[7]%
 \>[7]{}(\mathsf{cast}_\downarrow\;\Varid{n})\;\Conid{Nat}\;\Varid{m}\;(\lambda \Varid{n'}\mathbin{:}\Conid{Nat}.\,\Conid{S}\;(\Varid{f}\;\Varid{n'}\;\Varid{m})){}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks

@@ -1,10 +1,7 @@
 %include polycode.fmt
+%include format.fmt
 
-%format . = ".\,"
 %format mu = "\mathsf{mu}"
-%format * = "\star"
-%format letrec = "\mathbf{letrec}"
-%format rcrd = "\mathbf{rcrd}"
 
 \section{\sufcc by Example}
 \label{sec:app}
