@@ -1,4 +1,4 @@
-%include lhs2TeX.fmt
+%include polycode.fmt
 
 %format . = ".\,"
 %format mu = "\mathsf{mu}"

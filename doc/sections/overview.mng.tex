@@ -89,6 +89,174 @@
 \EndFmtInput
 \makeatother
 %
+%
+%
+%
+%
+%
+% This package provides two environments suitable to take the place
+% of hscode, called "plainhscode" and "arrayhscode". 
+%
+% The plain environment surrounds each code block by vertical space,
+% and it uses \abovedisplayskip and \belowdisplayskip to get spacing
+% similar to formulas. Note that if these dimensions are changed,
+% the spacing around displayed math formulas changes as well.
+% All code is indented using \leftskip.
+%
+% Changed 19.08.2004 to reflect changes in colorcode. Should work with
+% CodeGroup.sty.
+%
+\ReadOnlyOnce{polycode.fmt}%
+\makeatletter
+
+\newcommand{\hsnewpar}[1]%
+  {{\parskip=0pt\parindent=0pt\par\vskip #1\noindent}}
+
+% can be used, for instance, to redefine the code size, by setting the
+% command to \small or something alike
+\newcommand{\hscodestyle}{}
+
+% The command \sethscode can be used to switch the code formatting
+% behaviour by mapping the hscode environment in the subst directive
+% to a new LaTeX environment.
+
+\newcommand{\sethscode}[1]%
+  {\expandafter\let\expandafter\hscode\csname #1\endcsname
+   \expandafter\let\expandafter\endhscode\csname end#1\endcsname}
+
+% "compatibility" mode restores the non-polycode.fmt layout.
+
+\newenvironment{compathscode}%
+  {\par\noindent
+   \advance\leftskip\mathindent
+   \hscodestyle
+   \let\\=\@normalcr
+   \let\hspre\(\let\hspost\)%
+   \pboxed}%
+  {\endpboxed\)%
+   \par\noindent
+   \ignorespacesafterend}
+
+\newcommand{\compaths}{\sethscode{compathscode}}
+
+% "plain" mode is the proposed default.
+% It should now work with \centering.
+% This required some changes. The old version
+% is still available for reference as oldplainhscode.
+
+\newenvironment{plainhscode}%
+  {\hsnewpar\abovedisplayskip
+   \advance\leftskip\mathindent
+   \hscodestyle
+   \let\hspre\(\let\hspost\)%
+   \pboxed}%
+  {\endpboxed%
+   \hsnewpar\belowdisplayskip
+   \ignorespacesafterend}
+
+\newenvironment{oldplainhscode}%
+  {\hsnewpar\abovedisplayskip
+   \advance\leftskip\mathindent
+   \hscodestyle
+   \let\\=\@normalcr
+   \(\pboxed}%
+  {\endpboxed\)%
+   \hsnewpar\belowdisplayskip
+   \ignorespacesafterend}
+
+% Here, we make plainhscode the default environment.
+
+\newcommand{\plainhs}{\sethscode{plainhscode}}
+\newcommand{\oldplainhs}{\sethscode{oldplainhscode}}
+\plainhs
+
+% The arrayhscode is like plain, but makes use of polytable's
+% parray environment which disallows page breaks in code blocks.
+
+\newenvironment{arrayhscode}%
+  {\hsnewpar\abovedisplayskip
+   \advance\leftskip\mathindent
+   \hscodestyle
+   \let\\=\@normalcr
+   \(\parray}%
+  {\endparray\)%
+   \hsnewpar\belowdisplayskip
+   \ignorespacesafterend}
+
+\newcommand{\arrayhs}{\sethscode{arrayhscode}}
+
+% The mathhscode environment also makes use of polytable's parray 
+% environment. It is supposed to be used only inside math mode 
+% (I used it to typeset the type rules in my thesis).
+
+\newenvironment{mathhscode}%
+  {\parray}{\endparray}
+
+\newcommand{\mathhs}{\sethscode{mathhscode}}
+
+% texths is similar to mathhs, but works in text mode.
+
+\newenvironment{texthscode}%
+  {\(\parray}{\endparray\)}
+
+\newcommand{\texths}{\sethscode{texthscode}}
+
+% The framed environment places code in a framed box.
+
+\def\codeframewidth{\arrayrulewidth}
+\RequirePackage{calc}
+
+\newenvironment{framedhscode}%
+  {\parskip=\abovedisplayskip\par\noindent
+   \hscodestyle
+   \arrayrulewidth=\codeframewidth
+   \tabular{@{}|p{\linewidth-2\arraycolsep-2\arrayrulewidth-2pt}|@{}}%
+   \hline\framedhslinecorrect\\{-1.5ex}%
+   \let\endoflinesave=\\
+   \let\\=\@normalcr
+   \(\pboxed}%
+  {\endpboxed\)%
+   \framedhslinecorrect\endoflinesave{.5ex}\hline
+   \endtabular
+   \parskip=\belowdisplayskip\par\noindent
+   \ignorespacesafterend}
+
+\newcommand{\framedhslinecorrect}[2]%
+  {#1[#2]}
+
+\newcommand{\framedhs}{\sethscode{framedhscode}}
+
+% The inlinehscode environment is an experimental environment
+% that can be used to typeset displayed code inline.
+
+\newenvironment{inlinehscode}%
+  {\(\def\column##1##2{}%
+   \let\>\undefined\let\<\undefined\let\\\undefined
+   \newcommand\>[1][]{}\newcommand\<[1][]{}\newcommand\\[1][]{}%
+   \def\fromto##1##2##3{##3}%
+   \def\nextline{}}{\) }%
+
+\newcommand{\inlinehs}{\sethscode{inlinehscode}}
+
+% The joincode environment is a separate environment that
+% can be used to surround and thereby connect multiple code
+% blocks.
+
+\newenvironment{joincode}%
+  {\let\orighscode=\hscode
+   \let\origendhscode=\endhscode
+   \def\endhscode{\def\hscode{\endgroup\def\@currenvir{hscode}\\}\begingroup}
+   %\let\SaveRestoreHook=\empty
+   %\let\ColumnHook=\empty
+   %\let\resethooks=\empty
+   \orighscode\def\hscode{\endgroup\def\@currenvir{hscode}}}%
+  {\origendhscode
+   \global\let\hscode=\orighscode
+   \global\let\endhscode=\origendhscode}%
+
+\makeatother
+\EndFmtInput
+%
 
 \section{Overview}
 
@@ -96,7 +264,9 @@ This section informally introduces the main features of \name. In
 particular, this section shows how the explicit casts in \name can be
 used instead of the typical conversion rule present in calculi such as
 the calculus of constructions. The formal details of \name are
-presented in \S\ref{sec:ecore}.
+presented in \S\ref{sec:ecore}. \jeremy{to distinguish code from
+  \sufcc and \name, we may want to use different fonts, e.g., {\tt
+    typewriter font} for \sufcc}
 
 \subsection{The Calculus of Constructions and the Conversion Rule}
 \label{sec:coc}
@@ -105,7 +275,7 @@ The calculus of constructions (\coc)~\cite{coc} is a powerful
 higher-order typed lambda calculus supporting dependent types (among
 various other features).  A crutial
 feature of \coc is the so-called \emph{conversion}
-rule as shown below: \ottusedrule{\ottdruleTccXXConv{}}
+rule: \ottusedrule{\ottdruleTccXXConv{}}
 
 %For the most part \name is similar to the \emph{Calculus of Constructions}
 %(\coc)~\cite{coc}, which is a higher-order typed lambda calculus.
@@ -117,7 +287,10 @@ derivation of $e:[[t1]]$ and the $\beta$-equality of $[[t1]]$ and
 $[[t2]]$. This rule is important to \emph{automatically} allows 
 terms with equivalent types to be considered type-compatible. 
 To illustrate, let us consider a simple example. Suppose
-we have a built-in base type $[[int]]$ and \[f \equiv [[\x:(\y:star.y)int.x]] \]
+we have a built-in base type $[[int]]$ and: 
+\[
+f \equiv [[\x:(\y:star.y)int.x]]
+\]
 Here $f$ is a simple identity function. However, the type 
 of $x$ (i.e., $[[(\y:star.y)int]]$), which is the argument of $f$, is interesting: it is 
 an identity function on types, applied to an integer. 
@@ -266,9 +439,6 @@ recursive unfolding of the same term.
 
 % The dynamic semantics of $\mu$ requires the recursive binder to satisfy (omit type annotations for clarity):  \[ \mu f.\,E = (\lambda f.\,E) (\mu f.\,E) \] which, however, does not terminate in strict languages. Therefore, to loosen the function-type restriction to allow any types, the sensible choice for the evaluation strategy is \emph{call-by-name}.
 
-\newcommand{\fold}{{\bf $\mathsf{fold}$}\xspace}
-\newcommand{\unfold}{{\bf $\mathsf{unfold}$}\xspace}
-
 \subsubsection{Recursive types}
 In the literature on type systems, there are two approaches to
 recursive types. One is called \emph{equi-recursive}, the other
@@ -338,15 +508,13 @@ encode pattern matching. We demonstrate the encoding method using a
 simple datatype as a running example: Peano numbers.
 
 The datatype declaration for Peano numbers in Haskell is:
-\begingroup\par\noindent\advance\leftskip\mathindent\(
-\begin{pboxed}\SaveRestoreHook
+\begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{4}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
 \>[4]{}\mathbf{data}\;\Conid{Nat}\mathrel{=}\Conid{Z}\mid \Conid{S}\;\Conid{Nat}{}\<[E]%
 \ColumnHook
-\end{pboxed}
-\)\par\noindent\endgroup\resethooks
+\end{hscode}\resethooks
 In the Scott encoding, the encoding of the \emph{Nat} datatype reflects
 how its two constructors are going to be used. Since \emph{Nat} is a
 recursive datatype, we have to use recursive types at some point to
@@ -363,10 +531,7 @@ that elements of the datatype with different result types can be used
 in the same program~\cite{gadts}.
 
 Now its two constructors can be encoded correspondingly as below:
-
-\begin{figure}[h!]
-\begingroup\par\noindent\advance\leftskip\mathindent\(
-\begin{pboxed}\SaveRestoreHook
+\begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{3}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{5}{@{}>{\hspre}l<{\hspost}@{}}%
@@ -380,17 +545,16 @@ Now its two constructors can be encoded correspondingly as below:
 \>[3]{}\hsindent{2}{}\<[5]%
 \>[5]{}\mathsf{cast}^\uparrow\;[\mskip1.5mu \Conid{Nat}\mskip1.5mu]\;(\lambda \Conid{B}\mathbin{:}\star.\,\lambda \Varid{z}\mathbin{:}\Conid{B}.\,\lambda \Varid{f}\mathbin{:}\Conid{Nat}\to \Conid{B}.\,\Varid{f}\;\Varid{n}){}\<[E]%
 \ColumnHook
-\end{pboxed}
-\)\par\noindent\endgroup\resethooks
-\end{figure}
+\end{hscode}\resethooks
 
-Thanks to the explicit type conversion rules, we can make use of the $[[castup]]$ operation to do type conversion between the recursive type and its unfolding.
+Thanks to the explicit type conversion rules, we can make use of the
+$[[castup]]$ operation to do type conversion between the recursive
+type and its unfolding.
 
-As the last example, let us see how we can define recursive functions using the \emph{Nat} datatype. A simple example would be recursively adding two natural numbers, which can be defined as below:
-
-\begin{figure}[h!]
-\begingroup\par\noindent\advance\leftskip\mathindent\(
-\begin{pboxed}\SaveRestoreHook
+As the last example, let us see how we can define recursive functions
+using the \emph{Nat} datatype. A simple example would be recursively
+adding two natural numbers, which can be defined as below:
+\begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{3}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{5}{@{}>{\hspre}l<{\hspost}@{}}%
@@ -404,10 +568,7 @@ As the last example, let us see how we can define recursive functions using the 
 \>[5]{}\hsindent{2}{}\<[7]%
 \>[7]{}(\mathsf{cast}_\downarrow\;\Varid{n})\;\Conid{Nat}\;\Varid{m}\;(\lambda \Varid{n'}\mathbin{:}\Conid{Nat}.\,\Conid{S}\;(\Varid{f}\;\Varid{n'}\;\Varid{m})){}\<[E]%
 \ColumnHook
-\end{pboxed}
-\)\par\noindent\endgroup\resethooks
-\end{figure}
-
+\end{hscode}\resethooks
 The above definition quite resembles case analysis commonly seen in
 modern functional programming languages. (We formalize the encoding of
 case analysis in \S\ref{sec:surface}.)

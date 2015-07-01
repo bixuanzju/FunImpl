@@ -1,3 +1,4 @@
+%%% !!! WARNING: AUTO GENERATED. DO NOT MODIFY !!! %%%
 %% ODER: format ==         = "\mathrel{==}"
 %% ODER: format /=         = "\neq "
 %
@@ -89,6 +90,174 @@
 \EndFmtInput
 \makeatother
 %
+%
+%
+%
+%
+%
+% This package provides two environments suitable to take the place
+% of hscode, called "plainhscode" and "arrayhscode". 
+%
+% The plain environment surrounds each code block by vertical space,
+% and it uses \abovedisplayskip and \belowdisplayskip to get spacing
+% similar to formulas. Note that if these dimensions are changed,
+% the spacing around displayed math formulas changes as well.
+% All code is indented using \leftskip.
+%
+% Changed 19.08.2004 to reflect changes in colorcode. Should work with
+% CodeGroup.sty.
+%
+\ReadOnlyOnce{polycode.fmt}%
+\makeatletter
+
+\newcommand{\hsnewpar}[1]%
+  {{\parskip=0pt\parindent=0pt\par\vskip #1\noindent}}
+
+% can be used, for instance, to redefine the code size, by setting the
+% command to \small or something alike
+\newcommand{\hscodestyle}{}
+
+% The command \sethscode can be used to switch the code formatting
+% behaviour by mapping the hscode environment in the subst directive
+% to a new LaTeX environment.
+
+\newcommand{\sethscode}[1]%
+  {\expandafter\let\expandafter\hscode\csname #1\endcsname
+   \expandafter\let\expandafter\endhscode\csname end#1\endcsname}
+
+% "compatibility" mode restores the non-polycode.fmt layout.
+
+\newenvironment{compathscode}%
+  {\par\noindent
+   \advance\leftskip\mathindent
+   \hscodestyle
+   \let\\=\@normalcr
+   \let\hspre\(\let\hspost\)%
+   \pboxed}%
+  {\endpboxed\)%
+   \par\noindent
+   \ignorespacesafterend}
+
+\newcommand{\compaths}{\sethscode{compathscode}}
+
+% "plain" mode is the proposed default.
+% It should now work with \centering.
+% This required some changes. The old version
+% is still available for reference as oldplainhscode.
+
+\newenvironment{plainhscode}%
+  {\hsnewpar\abovedisplayskip
+   \advance\leftskip\mathindent
+   \hscodestyle
+   \let\hspre\(\let\hspost\)%
+   \pboxed}%
+  {\endpboxed%
+   \hsnewpar\belowdisplayskip
+   \ignorespacesafterend}
+
+\newenvironment{oldplainhscode}%
+  {\hsnewpar\abovedisplayskip
+   \advance\leftskip\mathindent
+   \hscodestyle
+   \let\\=\@normalcr
+   \(\pboxed}%
+  {\endpboxed\)%
+   \hsnewpar\belowdisplayskip
+   \ignorespacesafterend}
+
+% Here, we make plainhscode the default environment.
+
+\newcommand{\plainhs}{\sethscode{plainhscode}}
+\newcommand{\oldplainhs}{\sethscode{oldplainhscode}}
+\plainhs
+
+% The arrayhscode is like plain, but makes use of polytable's
+% parray environment which disallows page breaks in code blocks.
+
+\newenvironment{arrayhscode}%
+  {\hsnewpar\abovedisplayskip
+   \advance\leftskip\mathindent
+   \hscodestyle
+   \let\\=\@normalcr
+   \(\parray}%
+  {\endparray\)%
+   \hsnewpar\belowdisplayskip
+   \ignorespacesafterend}
+
+\newcommand{\arrayhs}{\sethscode{arrayhscode}}
+
+% The mathhscode environment also makes use of polytable's parray 
+% environment. It is supposed to be used only inside math mode 
+% (I used it to typeset the type rules in my thesis).
+
+\newenvironment{mathhscode}%
+  {\parray}{\endparray}
+
+\newcommand{\mathhs}{\sethscode{mathhscode}}
+
+% texths is similar to mathhs, but works in text mode.
+
+\newenvironment{texthscode}%
+  {\(\parray}{\endparray\)}
+
+\newcommand{\texths}{\sethscode{texthscode}}
+
+% The framed environment places code in a framed box.
+
+\def\codeframewidth{\arrayrulewidth}
+\RequirePackage{calc}
+
+\newenvironment{framedhscode}%
+  {\parskip=\abovedisplayskip\par\noindent
+   \hscodestyle
+   \arrayrulewidth=\codeframewidth
+   \tabular{@{}|p{\linewidth-2\arraycolsep-2\arrayrulewidth-2pt}|@{}}%
+   \hline\framedhslinecorrect\\{-1.5ex}%
+   \let\endoflinesave=\\
+   \let\\=\@normalcr
+   \(\pboxed}%
+  {\endpboxed\)%
+   \framedhslinecorrect\endoflinesave{.5ex}\hline
+   \endtabular
+   \parskip=\belowdisplayskip\par\noindent
+   \ignorespacesafterend}
+
+\newcommand{\framedhslinecorrect}[2]%
+  {#1[#2]}
+
+\newcommand{\framedhs}{\sethscode{framedhscode}}
+
+% The inlinehscode environment is an experimental environment
+% that can be used to typeset displayed code inline.
+
+\newenvironment{inlinehscode}%
+  {\(\def\column##1##2{}%
+   \let\>\undefined\let\<\undefined\let\\\undefined
+   \newcommand\>[1][]{}\newcommand\<[1][]{}\newcommand\\[1][]{}%
+   \def\fromto##1##2##3{##3}%
+   \def\nextline{}}{\) }%
+
+\newcommand{\inlinehs}{\sethscode{inlinehscode}}
+
+% The joincode environment is a separate environment that
+% can be used to surround and thereby connect multiple code
+% blocks.
+
+\newenvironment{joincode}%
+  {\let\orighscode=\hscode
+   \let\origendhscode=\endhscode
+   \def\endhscode{\def\hscode{\endgroup\def\@currenvir{hscode}\\}\begingroup}
+   %\let\SaveRestoreHook=\empty
+   %\let\ColumnHook=\empty
+   %\let\resethooks=\empty
+   \orighscode\def\hscode{\endgroup\def\@currenvir{hscode}}}%
+  {\origendhscode
+   \global\let\hscode=\orighscode
+   \global\let\endhscode=\origendhscode}%
+
+\makeatother
+\EndFmtInput
+%
 
 
 \section{\sufcc by Example}
@@ -116,8 +285,7 @@ meta-language is used to encode the binders of the object language. We
 show that \name can handle PHOAS by encoding lambda calculus as below:
 
 \begin{figure}[h!]
-\begingroup\par\noindent\advance\leftskip\mathindent\(
-\begin{pboxed}\SaveRestoreHook
+\begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{4}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
@@ -132,8 +300,7 @@ show that \name can handle PHOAS by encoding lambda calculus as below:
 \>[B]{}\hsindent{4}{}\<[4]%
 \>[4]{}\mid \Conid{App}\;(\Conid{PLambda}\;\Varid{a})\;(\Conid{PLambda}\;\Varid{a});{}\<[E]%
 \ColumnHook
-\end{pboxed}
-\)\par\noindent\endgroup\resethooks
+\end{hscode}\resethooks
 \end{figure}
 
 Next we define the evaluator for our lambda calculus. One advantage of
@@ -141,8 +308,7 @@ PHOAS is that, environments are implicitly handled by the
 meta-language, thus the type of the evaluator is simply \ensuremath{\Varid{plambda}\;\Varid{value}\to \Varid{value}}. The code is presented in Figure~\ref{fig:phoas}.
 
 \begin{figure}[ht]
-\begingroup\par\noindent\advance\leftskip\mathindent\(
-\begin{pboxed}\SaveRestoreHook
+\begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{4}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{6}{@{}>{\hspre}l<{\hspost}@{}}%
@@ -196,8 +362,7 @@ meta-language, thus the type of the evaluator is simply \ensuremath{\Varid{plamb
 \\
 \>[B]{}\mathbf{in}{}\<[E]%
 \ColumnHook
-\end{pboxed}
-\)\par\noindent\endgroup\resethooks
+\end{hscode}\resethooks
   \caption{Lambda Calculus in PHAOS}
   \label{fig:phoas}
 \end{figure}
@@ -206,8 +371,7 @@ Now we can evaluate some lambda expression and get the result back as
 in Figure~\ref{fig:pex}
 
 \begin{figure}[ht]
-\begingroup\par\noindent\advance\leftskip\mathindent\(
-\begin{pboxed}\SaveRestoreHook
+\begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{3}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{5}{@{}>{\hspre}l<{\hspost}@{}}%
@@ -241,8 +405,7 @@ in Figure~\ref{fig:pex}
 \\
 \>[B]{}\mathbf{in}\;\Varid{show}\;(\Varid{eval}\;\Varid{example})\mbox{\onelinecomment  return 42}{}\<[E]%
 \ColumnHook
-\end{pboxed}
-\)\par\noindent\endgroup\resethooks
+\end{hscode}\resethooks
 \caption{Example of using PHOAS}
 \label{fig:pex}
 \end{figure}
@@ -253,18 +416,13 @@ Conventional datatypes like natural numbers or polymorphic lists can
 be easily defined in \sufcc, \bruno{This is not name; its the source
   language built on top of name!} \jeremy{changed} as in Haskell. For
 example, below is the definition of polymorphic lists:
-
-\begin{figure}[H]
-\begingroup\par\noindent\advance\leftskip\mathindent\(
-\begin{pboxed}\SaveRestoreHook
+\begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{4}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[3]{}\mathbf{data}\;\Conid{List}\;(\Varid{a}\mathbin{:}\star)\mathrel{=}\Conid{Nil}\mid \Conid{Cons}\;\Varid{a}\;(\Conid{List}\;\Varid{a});{}\<[E]%
+\>[4]{}\mathbf{data}\;\Conid{List}\;(\Varid{a}\mathbin{:}\star)\mathrel{=}\Conid{Nil}\mid \Conid{Cons}\;\Varid{a}\;(\Conid{List}\;\Varid{a});{}\<[E]%
 \ColumnHook
-\end{pboxed}
-\)\par\noindent\endgroup\resethooks
-\end{figure}
+\end{hscode}\resethooks
 
 Because \sufcc \bruno{You'll have to stop referring to \name in this
   section. You may want to consider giving the source language a
@@ -272,37 +430,31 @@ Because \sufcc \bruno{You'll have to stop referring to \name in this
 needs to be accompanied with a corresponding kind expression. The use
 of the above datatype is best illustrated by the \emph{length}
 function:
-
-\begin{figure}[h!]
-  \begingroup\par\noindent\advance\leftskip\mathindent\(
-\begin{pboxed}\SaveRestoreHook
+\begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{5}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{7}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{10}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{8}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[5]{}\mathbf{letrec}\;\Varid{length}\mathbin{:}(\Varid{a}\mathbin{:}\star)\to \Conid{List}\;\Varid{a}\to \Varid{nat}\mathrel{=}{}\<[E]%
+\>[3]{}\mathbf{letrec}\;\Varid{length}\mathbin{:}(\Varid{a}\mathbin{:}\star)\to \Conid{List}\;\Varid{a}\to \Varid{nat}\mathrel{=}{}\<[E]%
 \\
-\>[5]{}\hsindent{2}{}\<[7]%
-\>[7]{}\lambda \Varid{a}\mathbin{:}\star.\,\lambda \Varid{l}\mathbin{:}\Conid{List}\;\Varid{a}.\,\mathbf{case}\;\Varid{l}\;\mathbf{of}{}\<[E]%
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\lambda \Varid{a}\mathbin{:}\star.\,\lambda \Varid{l}\mathbin{:}\Conid{List}\;\Varid{a}.\,\mathbf{case}\;\Varid{l}\;\mathbf{of}{}\<[E]%
 \\
-\>[7]{}\hsindent{3}{}\<[10]%
-\>[10]{}\Conid{Nil}\Rightarrow \mathrm{0}{}\<[E]%
+\>[5]{}\hsindent{3}{}\<[8]%
+\>[8]{}\Conid{Nil}\Rightarrow \mathrm{0}{}\<[E]%
 \\
-\>[5]{}\hsindent{2}{}\<[7]%
-\>[7]{}\mid {}\<[10]%
-\>[10]{}\Conid{Cons}\;(\Varid{x}\mathbin{:}\Varid{a})\;(\Varid{xs}\mathbin{:}\Conid{List}\;\Varid{a})\Rightarrow \mathrm{1}\mathbin{+}\Varid{length}\;\Varid{a}\;\Varid{xs}{}\<[E]%
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\mid {}\<[8]%
+\>[8]{}\Conid{Cons}\;(\Varid{x}\mathbin{:}\Varid{a})\;(\Varid{xs}\mathbin{:}\Conid{List}\;\Varid{a})\Rightarrow \mathrm{1}\mathbin{+}\Varid{length}\;\Varid{a}\;\Varid{xs}{}\<[E]%
 \\
-\>[5]{}\mathbf{in}{}\<[E]%
+\>[3]{}\mathbf{in}{}\<[E]%
 \\
-\>[5]{}\mathbf{let}\;\Varid{test}\mathbin{:}\Conid{List}\;\Varid{nat}\mathrel{=}\Conid{Cons}\;\Varid{nat}\;\mathrm{1}\;(\Conid{Cons}\;\Varid{nat}\;\mathrm{2}\;(\Conid{Nil}\;\Varid{nat})){}\<[E]%
+\>[3]{}\mathbf{let}\;\Varid{test}\mathbin{:}\Conid{List}\;\Varid{nat}\mathrel{=}\Conid{Cons}\;\Varid{nat}\;\mathrm{1}\;(\Conid{Cons}\;\Varid{nat}\;\mathrm{2}\;(\Conid{Nil}\;\Varid{nat})){}\<[E]%
 \\
-\>[5]{}\mathbf{in}\;\Varid{length}\;\Varid{nat}\;\Varid{test}\mbox{\onelinecomment  return 2}{}\<[E]%
+\>[3]{}\mathbf{in}\;\Varid{length}\;\Varid{nat}\;\Varid{test}\mbox{\onelinecomment  return 2}{}\<[E]%
 \ColumnHook
-\end{pboxed}
-\)\par\noindent\endgroup\resethooks
-\end{figure}
-
+\end{hscode}\resethooks
 \subsubsection{Higher-kinded Types}
 Higher-kinded types are types that take other types and produce a new
 type. To support higher-kinded types, languages like Haskell have to
@@ -313,56 +465,44 @@ higher-kinded types.) \bruno{Probably want to mention $F_{\omega}$}
 \jeremy{done!}  Given that \sufcc subsumes System $F_{\omega}$, we can
 easily construct higher-kinded types. We show this by an example of
 encoding the \emph{Functor} class:
-
-\begin{figure}[h!]
-  \begingroup\par\noindent\advance\leftskip\mathindent\(
-\begin{pboxed}\SaveRestoreHook
+\begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{5}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{7}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[5]{}\mathbf{rcrd}\;\Conid{Functor}\;(\Varid{f}\mathbin{:}\star\to \star)\mathrel{=}{}\<[E]%
+\>[3]{}\mathbf{rcrd}\;\Conid{Functor}\;(\Varid{f}\mathbin{:}\star\to \star)\mathrel{=}{}\<[E]%
 \\
-\>[5]{}\hsindent{2}{}\<[7]%
-\>[7]{}\Conid{Func}\;\{\mskip1.5mu \Varid{fmap}\mathbin{:}(\Varid{a}\mathbin{:}\star)\to (\Varid{b}\mathbin{:}\star)\to \Varid{f}\;\Varid{a}\to \Varid{f}\;\Varid{b}\mskip1.5mu\};{}\<[E]%
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\Conid{Func}\;\{\mskip1.5mu \Varid{fmap}\mathbin{:}(\Varid{a}\mathbin{:}\star)\to (\Varid{b}\mathbin{:}\star)\to \Varid{f}\;\Varid{a}\to \Varid{f}\;\Varid{b}\mskip1.5mu\};{}\<[E]%
 \ColumnHook
-\end{pboxed}
-\)\par\noindent\endgroup\resethooks
-\end{figure}
-
+\end{hscode}\resethooks
 A functor is just a record that has only one field \emph{fmap}. A
-Functor instance of the \emph{Maybe} datatype is simply:
-
-\begin{figure}[h!]
-  \begingroup\par\noindent\advance\leftskip\mathindent\(
-\begin{pboxed}\SaveRestoreHook
+Functor instance of the \emph{Maybe} datatype is:
+\begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{6}{@{}>{\hspre}c<{\hspost}@{}}%
+\column{6E}{@{}l@{}}%
 \column{7}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{8}{@{}>{\hspre}c<{\hspost}@{}}%
-\column{8E}{@{}l@{}}%
 \column{9}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{11}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[5]{}\mathbf{let}\;\Varid{maybeInst}\mathbin{:}\Conid{Functor}\;\Conid{Maybe}\mathrel{=}{}\<[E]%
+\>[3]{}\mathbf{let}\;\Varid{maybeInst}\mathbin{:}\Conid{Functor}\;\Conid{Maybe}\mathrel{=}{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\Conid{Func}\;\Conid{Maybe}\;(\lambda \Varid{a}\mathbin{:}\star.\,\lambda \Varid{b}\mathbin{:}\star.\,\lambda \Varid{f}\mathbin{:}\Varid{a}\to \Varid{b}.\,\lambda \Varid{x}\mathbin{:}\Conid{Maybe}\;\Varid{a}.\,{}\<[E]%
 \\
 \>[5]{}\hsindent{2}{}\<[7]%
-\>[7]{}\Conid{Func}\;\Conid{Maybe}\;(\lambda \Varid{a}\mathbin{:}\star.\,\lambda \Varid{b}\mathbin{:}\star.\,\lambda \Varid{f}\mathbin{:}\Varid{a}\to \Varid{b}.\,\lambda \Varid{x}\mathbin{:}\Conid{Maybe}\;\Varid{a}.\,{}\<[E]%
+\>[7]{}\mathbf{case}\;\Varid{x}\;\mathbf{of}{}\<[E]%
 \\
 \>[7]{}\hsindent{2}{}\<[9]%
-\>[9]{}\mathbf{case}\;\Varid{x}\;\mathbf{of}{}\<[E]%
+\>[9]{}\Conid{Nothing}\Rightarrow \Conid{Nothing}\;\Varid{b}{}\<[E]%
 \\
-\>[9]{}\hsindent{2}{}\<[11]%
-\>[11]{}\Conid{Nothing}\Rightarrow \Conid{Nothing}\;\Varid{b}{}\<[E]%
-\\
-\>[7]{}\hsindent{1}{}\<[8]%
-\>[8]{}\mid {}\<[8E]%
-\>[11]{}\Conid{Just}\;(\Varid{z}\mathbin{:}\Varid{a})\Rightarrow \Conid{Just}\;\Varid{b}\;(\Varid{f}\;\Varid{z})){}\<[E]%
+\>[5]{}\hsindent{1}{}\<[6]%
+\>[6]{}\mid {}\<[6E]%
+\>[9]{}\Conid{Just}\;(\Varid{z}\mathbin{:}\Varid{a})\Rightarrow \Conid{Just}\;\Varid{b}\;(\Varid{f}\;\Varid{z})){}\<[E]%
 \ColumnHook
-\end{pboxed}
-\)\par\noindent\endgroup\resethooks
-\end{figure}
-
+\end{hscode}\resethooks
 \subsubsection{HOAS}
 
 \emph{Higher-order abstract syntax} is a representation of abstract
@@ -374,10 +514,7 @@ the left side of a function arrow) \bruno{explain where!}
 HOAS due to the restrictiveness of their termination checkers. However
 \sufcc is able to express HOAS in a straightforward way. We show an
 example of encoding a simple lambda calculus:
-
-\begin{figure}[h!]
-\begingroup\par\noindent\advance\leftskip\mathindent\(
-\begin{pboxed}\SaveRestoreHook
+\begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{3}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{5}{@{}>{\hspre}c<{\hspost}@{}}%
@@ -394,71 +531,62 @@ example of encoding a simple lambda calculus:
 \>[5]{}\mid {}\<[5E]%
 \>[8]{}\Conid{App}\;\Conid{Exp}\;\Conid{Exp};{}\<[E]%
 \ColumnHook
-\end{pboxed}
-\)\par\noindent\endgroup\resethooks
-\end{figure}
+\end{hscode}\resethooks
 
 Next we define the evaluator for our lambda calculus. As noted
 by~\cite{Fegaras1996}, the evaluation function needs an extra function
-\emph{reify} to invert the result of evaluation. The code is presented
-in Figure~\ref{fig:hoas}.
-
-\begin{figure}[ht]
-\begingroup\par\noindent\advance\leftskip\mathindent\(
-\begin{pboxed}\SaveRestoreHook
+\emph{reify} to invert the result of evaluation.
+\begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{3}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{7}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{9}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{11}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{13}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{15}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[B]{}\mathbf{data}\;\Conid{Value}\mathrel{=}\Conid{VI}\;\Varid{nat}\mid \Conid{VF}\;(\Conid{Value}\to \Conid{Value});{}\<[E]%
+\>[3]{}\mathbf{data}\;\Conid{Value}\mathrel{=}\Conid{VI}\;\Varid{nat}\mid \Conid{VF}\;(\Conid{Value}\to \Conid{Value});{}\<[E]%
 \\
-\>[B]{}\mathbf{rcrd}\;\Conid{Eval}\mathrel{=}\Conid{Ev}\;\{\mskip1.5mu \Varid{eval'}\mathbin{:}\Conid{Exp}\to \Conid{Value},\Varid{reify'}\mathbin{:}\Conid{Value}\to \Conid{Exp}\mskip1.5mu\};{}\<[E]%
+\>[3]{}\mathbf{rcrd}\;\Conid{Eval}\mathrel{=}\Conid{Ev}\;\{\mskip1.5mu \Varid{eval'}\mathbin{:}\Conid{Exp}\to \Conid{Value},\Varid{reify'}\mathbin{:}\Conid{Value}\to \Conid{Exp}\mskip1.5mu\};{}\<[E]%
 \\
-\>[B]{}\mathbf{let}\;\Varid{f}\mathbin{:}\Conid{Eval}\mathrel{=}\mathsf{mu}\;\Varid{f'}\mathbin{:}\Conid{Eval}.\,{}\<[E]%
+\>[3]{}\mathbf{let}\;\Varid{f}\mathbin{:}\Conid{Eval}\mathrel{=}\mathsf{mu}\;\Varid{f'}\mathbin{:}\Conid{Eval}.\,{}\<[E]%
 \\
-\>[B]{}\hsindent{3}{}\<[3]%
-\>[3]{}\Conid{Ev}\;{}\<[7]%
-\>[7]{}(\lambda \Varid{e}\mathbin{:}\Conid{Exp}.\,\mathbf{case}\;\Varid{e}\;\mathbf{of}{}\<[E]%
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\Conid{Ev}\;{}\<[9]%
+\>[9]{}(\lambda \Varid{e}\mathbin{:}\Conid{Exp}.\,\mathbf{case}\;\Varid{e}\;\mathbf{of}{}\<[E]%
 \\
-\>[7]{}\hsindent{2}{}\<[9]%
-\>[9]{}\Conid{Num}\;(\Varid{n}\mathbin{:}\Varid{nat})\Rightarrow \Conid{VI}\;\Varid{n}{}\<[E]%
+\>[9]{}\hsindent{2}{}\<[11]%
+\>[11]{}\Conid{Num}\;(\Varid{n}\mathbin{:}\Varid{nat})\Rightarrow \Conid{VI}\;\Varid{n}{}\<[E]%
 \\
-\>[7]{}\mid \Conid{Lam}\;(\Varid{fun}\mathbin{:}\Conid{Exp}\to \Conid{Exp})\Rightarrow {}\<[E]%
+\>[9]{}\mid \Conid{Lam}\;(\Varid{fun}\mathbin{:}\Conid{Exp}\to \Conid{Exp})\Rightarrow {}\<[E]%
 \\
-\>[7]{}\hsindent{4}{}\<[11]%
-\>[11]{}\Conid{VF}\;(\lambda \Varid{e'}\mathbin{:}\Conid{Value}.\,\Varid{eval'}\;\Varid{f'}\;(\Varid{fun}\;(\Varid{reify'}\;\Varid{f'}\;\Varid{e'}))){}\<[E]%
+\>[9]{}\hsindent{4}{}\<[13]%
+\>[13]{}\Conid{VF}\;(\lambda \Varid{e'}\mathbin{:}\Conid{Value}.\,\Varid{eval'}\;\Varid{f'}\;(\Varid{fun}\;(\Varid{reify'}\;\Varid{f'}\;\Varid{e'}))){}\<[E]%
 \\
-\>[7]{}\mid \Conid{App}\;(\Varid{a}\mathbin{:}\Conid{Exp})\;(\Varid{b}\mathbin{:}\Conid{Exp})\Rightarrow {}\<[E]%
+\>[9]{}\mid \Conid{App}\;(\Varid{a}\mathbin{:}\Conid{Exp})\;(\Varid{b}\mathbin{:}\Conid{Exp})\Rightarrow {}\<[E]%
 \\
-\>[7]{}\hsindent{4}{}\<[11]%
-\>[11]{}\mathbf{case}\;\Varid{eval'}\;\Varid{f'}\;\Varid{a}\;\mathbf{of}{}\<[E]%
+\>[9]{}\hsindent{4}{}\<[13]%
+\>[13]{}\mathbf{case}\;\Varid{eval'}\;\Varid{f'}\;\Varid{a}\;\mathbf{of}{}\<[E]%
 \\
-\>[11]{}\hsindent{2}{}\<[13]%
-\>[13]{}\Conid{VI}\;(\Varid{n}\mathbin{:}\Varid{nat})\Rightarrow \Varid{error}{}\<[E]%
+\>[13]{}\hsindent{2}{}\<[15]%
+\>[15]{}\Conid{VI}\;(\Varid{n}\mathbin{:}\Varid{nat})\Rightarrow \Varid{error}{}\<[E]%
 \\
-\>[7]{}\hsindent{4}{}\<[11]%
-\>[11]{}\mid \Conid{VF}\;(\Varid{fun}\mathbin{:}\Conid{Value}\to \Conid{Value})\Rightarrow \Varid{fun}\;(\Varid{eval'}\;\Varid{f'}\;\Varid{b}))\;{}\<[E]%
+\>[9]{}\hsindent{4}{}\<[13]%
+\>[13]{}\mid \Conid{VF}\;(\Varid{fun}\mathbin{:}\Conid{Value}\to \Conid{Value})\Rightarrow \Varid{fun}\;(\Varid{eval'}\;\Varid{f'}\;\Varid{b}))\;{}\<[E]%
 \\
-\>[7]{}(\lambda \Varid{v}\mathbin{:}\Conid{Value}.\,\mathbf{case}\;\Varid{v}\;\mathbf{of}{}\<[E]%
+\>[9]{}(\lambda \Varid{v}\mathbin{:}\Conid{Value}.\,\mathbf{case}\;\Varid{v}\;\mathbf{of}{}\<[E]%
 \\
-\>[7]{}\hsindent{2}{}\<[9]%
-\>[9]{}\Conid{VI}\;(\Varid{n}\mathbin{:}\Varid{nat})\Rightarrow \Conid{Num}\;\Varid{n}{}\<[E]%
+\>[9]{}\hsindent{2}{}\<[11]%
+\>[11]{}\Conid{VI}\;(\Varid{n}\mathbin{:}\Varid{nat})\Rightarrow \Conid{Num}\;\Varid{n}{}\<[E]%
 \\
-\>[7]{}\mid \Conid{VF}\;(\Varid{fun}\mathbin{:}\Conid{Value}\to \Conid{Value})\Rightarrow {}\<[E]%
+\>[9]{}\mid \Conid{VF}\;(\Varid{fun}\mathbin{:}\Conid{Value}\to \Conid{Value})\Rightarrow {}\<[E]%
 \\
-\>[7]{}\hsindent{4}{}\<[11]%
-\>[11]{}\Conid{Lam}\;(\lambda \Varid{e'}\mathbin{:}\Conid{Exp}.\,(\Varid{reify'}\;\Varid{f'}\;(\Varid{fun}\;(\Varid{eval'}\;\Varid{f'}\;\Varid{e'}))))){}\<[E]%
+\>[9]{}\hsindent{4}{}\<[13]%
+\>[13]{}\Conid{Lam}\;(\lambda \Varid{e'}\mathbin{:}\Conid{Exp}.\,(\Varid{reify'}\;\Varid{f'}\;(\Varid{fun}\;(\Varid{eval'}\;\Varid{f'}\;\Varid{e'}))))){}\<[E]%
 \\
-\>[B]{}\mathbf{in}\;\mathbf{let}\;\Varid{eval}\mathbin{:}\Conid{Exp}\to \Conid{Value}\mathrel{=}\Varid{eval'}\;\Varid{f}\;\mathbf{in}{}\<[E]%
+\>[3]{}\mathbf{in}\;\mathbf{let}\;\Varid{eval}\mathbin{:}\Conid{Exp}\to \Conid{Value}\mathrel{=}\Varid{eval'}\;\Varid{f}\;\mathbf{in}{}\<[E]%
 \ColumnHook
-\end{pboxed}
-\)\par\noindent\endgroup\resethooks
-  \caption{An evaluator for the HOAS-encoded lambda calculus.}
-  \label{fig:hoas}
-\end{figure}
+\end{hscode}\resethooks
 
 The definition of the evaluator is quite straightforward, although it
 is worth noting that the evaluator is a partial function that can
@@ -466,10 +594,7 @@ cause run-time errors. Thanks to the flexibility of the $\mu$
 primitive, mutual recursion can be encoded by using records!
 
 Evaluation of a lambda expression proceeds as follows:
-
-\begin{figure}[H]
-  \begingroup\par\noindent\advance\leftskip\mathindent\(
-\begin{pboxed}\SaveRestoreHook
+\begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{3}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{25}{@{}>{\hspre}l<{\hspost}@{}}%
@@ -481,56 +606,36 @@ Evaluation of a lambda expression proceeds as follows:
 \\
 \>[3]{}\mathbf{in}\;\Varid{show}\;(\Varid{eval}\;\Varid{test})\mbox{\onelinecomment  return 42}{}\<[E]%
 \ColumnHook
-\end{pboxed}
-\)\par\noindent\endgroup\resethooks
-\end{figure}
-
+\end{hscode}\resethooks
 \subsubsection{Fix as a Datatype}
 The type-level \emph{Fix} is a good example to demonstrate the
-expressiveness of \sufcc. The definition is simply:
-
-\begin{figure}[H]
-  \begingroup\par\noindent\advance\leftskip\mathindent\(
-\begin{pboxed}\SaveRestoreHook
+expressiveness of \sufcc. The definition is:
+\begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[5]{}\mathbf{rcrd}\;\Conid{Fix}\;(\Varid{f}\mathbin{:}\star\to \star)\mathrel{=}\Conid{In}\;\{\mskip1.5mu \Varid{out}\mathbin{:}(\Varid{f}\;(\Conid{Fix}\;\Varid{f}))\mskip1.5mu\};{}\<[E]%
+\>[3]{}\mathbf{rcrd}\;\Conid{Fix}\;(\Varid{f}\mathbin{:}\star\to \star)\mathrel{=}\Conid{In}\;\{\mskip1.5mu \Varid{out}\mathbin{:}(\Varid{f}\;(\Conid{Fix}\;\Varid{f}))\mskip1.5mu\};{}\<[E]%
 \ColumnHook
-\end{pboxed}
-\)\par\noindent\endgroup\resethooks
-\end{figure}
-
+\end{hscode}\resethooks
 The record notation also introduces the selector function: \ensuremath{\Varid{out}\mathbin{:}(\Varid{f}\mathbin{:}\star\to \star)\to \Conid{Fix}\;\Varid{f}\to \Varid{f}\;(\Conid{Fix}\;\Varid{f})}.  The \emph{Fix} datatype is
 interesting in that now we can define recursive datatypes in a
 non-recursive way. For instance, a non-recursive definition for
 natural numbers is:
-
-\begin{figure}[H]
-  \begingroup\par\noindent\advance\leftskip\mathindent\(
-\begin{pboxed}\SaveRestoreHook
+\begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[5]{}\mathbf{data}\;\Conid{NatF}\;(\Varid{self}\mathbin{:}\star)\mathrel{=}\Conid{Zero}\mid \Conid{Succ}\;\Varid{self};{}\<[E]%
+\>[3]{}\mathbf{data}\;\Conid{NatF}\;(\Varid{self}\mathbin{:}\star)\mathrel{=}\Conid{Zero}\mid \Conid{Succ}\;\Varid{self};{}\<[E]%
 \ColumnHook
-\end{pboxed}
-\)\par\noindent\endgroup\resethooks
-\end{figure}
-
+\end{hscode}\resethooks
 And the recursive version is just a synonym:
-
-\begin{figure}[H]
-  \begingroup\par\noindent\advance\leftskip\mathindent\(
-\begin{pboxed}\SaveRestoreHook
+\begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[5]{}\mathbf{let}\;\Conid{Nat}\mathbin{:}\star\mathrel{=}\Conid{Fix}\;\Conid{NatF}{}\<[E]%
+\>[3]{}\mathbf{let}\;\Conid{Nat}\mathbin{:}\star\mathrel{=}\Conid{Fix}\;\Conid{NatF}{}\<[E]%
 \ColumnHook
-\end{pboxed}
-\)\par\noindent\endgroup\resethooks
-\end{figure}
+\end{hscode}\resethooks
 
 Note that now we can use the above \emph{Nat} anywhere, including the
 left-hand side of a function arrow, which is a potential source of
@@ -543,31 +648,25 @@ explicitly controlled, we can safely use \emph{Fix} in the program.
 Given \emph{fmap}, many recursive shcemes can be defined, for example
 we can have \emph{catamorphism}~\cite{Meijer1991} \bruno{reference?}
 \jeremy{done!} or generic function fold:
-
-\begin{figure}[H]
-  \begingroup\par\noindent\advance\leftskip\mathindent\(
-\begin{pboxed}\SaveRestoreHook
+\begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{5}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{7}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{9}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{20}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{18}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[5]{}\mathbf{letrec}\;\Varid{cata}\mathbin{:}{}\<[20]%
-\>[20]{}(\Varid{f}\mathbin{:}\star\to \star)\to (\Varid{a}\mathbin{:}\star)\to {}\<[E]%
+\>[3]{}\mathbf{letrec}\;\Varid{cata}\mathbin{:}{}\<[18]%
+\>[18]{}(\Varid{f}\mathbin{:}\star\to \star)\to (\Varid{a}\mathbin{:}\star)\to {}\<[E]%
 \\
-\>[20]{}\Conid{Functor}\;\Varid{f}\to (\Varid{f}\;\Varid{a}\to \Varid{a})\to \Conid{Fix}\;\Varid{f}\to \Varid{a}\mathrel{=}{}\<[E]%
+\>[18]{}\Conid{Functor}\;\Varid{f}\to (\Varid{f}\;\Varid{a}\to \Varid{a})\to \Conid{Fix}\;\Varid{f}\to \Varid{a}\mathrel{=}{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\lambda \Varid{f}\mathbin{:}\star\to \star.\,\lambda \Varid{a}\mathbin{:}\star.\,\lambda \Varid{m}\mathbin{:}\Conid{Functor}\;\Varid{f}.\,\lambda \Varid{g}\mathbin{:}\Varid{f}\;\Varid{a}\to \Varid{a}.\,\lambda \Varid{t}\mathbin{:}\Conid{Fix}\;\Varid{f}.\,{}\<[E]%
 \\
 \>[5]{}\hsindent{2}{}\<[7]%
-\>[7]{}\lambda \Varid{f}\mathbin{:}\star\to \star.\,\lambda \Varid{a}\mathbin{:}\star.\,\lambda \Varid{m}\mathbin{:}\Conid{Functor}\;\Varid{f}.\,\lambda \Varid{g}\mathbin{:}\Varid{f}\;\Varid{a}\to \Varid{a}.\,\lambda \Varid{t}\mathbin{:}\Conid{Fix}\;\Varid{f}.\,{}\<[E]%
-\\
-\>[7]{}\hsindent{2}{}\<[9]%
-\>[9]{}\Varid{g}\;(\Varid{fmap}\;\Varid{f}\;\Varid{m}\;(\Conid{Fix}\;\Varid{f})\;\Varid{a}\;(\Varid{cata}\;\Varid{f}\;\Varid{a}\;\Varid{m}\;\Varid{g})\;(\Varid{out}\;\Varid{f}\;\Varid{t})){}\<[E]%
+\>[7]{}\Varid{g}\;(\Varid{fmap}\;\Varid{f}\;\Varid{m}\;(\Conid{Fix}\;\Varid{f})\;\Varid{a}\;(\Varid{cata}\;\Varid{f}\;\Varid{a}\;\Varid{m}\;\Varid{g})\;(\Varid{out}\;\Varid{f}\;\Varid{t})){}\<[E]%
 \ColumnHook
-\end{pboxed}
-\)\par\noindent\endgroup\resethooks
-\end{figure}
-
+\end{hscode}\resethooks
 \subsubsection{Kind Polymophism}
 In Haskell, System FC~\cite{fc:pro} \bruno{reference} \jeremy{done!}
 was proposed to support kind polymorphism. However it separates
@@ -576,39 +675,27 @@ implementation and future extensions. \sufcc natively allows datatype
 definitions to have polymorphic kinds. Here is an example, taken
 from~\cite{fc:pro}, of a datatype that benefits from kind polymophism:
 a higher-kinded fixpoint combinator:
-
-\begin{figure}[H]
-  \begingroup\par\noindent\advance\leftskip\mathindent\(
-\begin{pboxed}\SaveRestoreHook
+\begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{5}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{7}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[5]{}\mathbf{data}\;\Conid{Mu}\;(\Varid{k}\mathbin{:}\star)\;(\Varid{f}\mathbin{:}(\Varid{k}\to \star)\to \Varid{k}\to \star)\;(\Varid{a}\mathbin{:}\Varid{k})\mathrel{=}{}\<[E]%
+\>[3]{}\mathbf{data}\;\Conid{Mu}\;(\Varid{k}\mathbin{:}\star)\;(\Varid{f}\mathbin{:}(\Varid{k}\to \star)\to \Varid{k}\to \star)\;(\Varid{a}\mathbin{:}\Varid{k})\mathrel{=}{}\<[E]%
 \\
-\>[5]{}\hsindent{2}{}\<[7]%
-\>[7]{}\Conid{Roll}\;(\Varid{f}\;(\Conid{Mu}\;\Varid{k}\;\Varid{f})\;\Varid{a});{}\<[E]%
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\Conid{Roll}\;(\Varid{f}\;(\Conid{Mu}\;\Varid{k}\;\Varid{f})\;\Varid{a});{}\<[E]%
 \ColumnHook
-\end{pboxed}
-\)\par\noindent\endgroup\resethooks
-\end{figure}
-
+\end{hscode}\resethooks
 \emph{Mu} can be used to construct polymorphic recursive types of any kind, for instance:
-
-\begin{figure}[H]
-  \begingroup\par\noindent\advance\leftskip\mathindent\(
-\begin{pboxed}\SaveRestoreHook
+\begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[5]{}\mathbf{data}\;\Conid{Listf}\;(\Varid{f}\mathbin{:}\star\to \star)\;(\Varid{a}\mathbin{:}\star)\mathrel{=}\Conid{Nil}\mid \Conid{Cons}\;\Varid{a}\;(\Varid{f}\;\Varid{a});{}\<[E]%
+\>[3]{}\mathbf{data}\;\Conid{Listf}\;(\Varid{f}\mathbin{:}\star\to \star)\;(\Varid{a}\mathbin{:}\star)\mathrel{=}\Conid{Nil}\mid \Conid{Cons}\;\Varid{a}\;(\Varid{f}\;\Varid{a});{}\<[E]%
 \\
-\>[5]{}\mathbf{let}\;\Conid{List}\mathbin{:}\star\to \star\mathrel{=}\lambda \Varid{a}\mathbin{:}\star.\,\Conid{Mu}\star\Conid{Listf}\;\Varid{a}{}\<[E]%
+\>[3]{}\mathbf{let}\;\Conid{List}\mathbin{:}\star\to \star\mathrel{=}\lambda \Varid{a}\mathbin{:}\star.\,\Conid{Mu}\star\Conid{Listf}\;\Varid{a}{}\<[E]%
 \ColumnHook
-\end{pboxed}
-\)\par\noindent\endgroup\resethooks
-\end{figure}
-
+\end{hscode}\resethooks
 \subsubsection{Nested Datatypes}
 
 A nested datatype~\cite{nesteddt} \bruno{reference} \jeremy{done!},
@@ -619,10 +706,7 @@ polymorphic recursion. We show that \sufcc is capable of defining all
 useful functions over a nested datatype. A simple example would be the
 type \emph{Pow} of power trees, whose size is exactly a power of two,
 declared as follows:
-
-\begin{figure}[H]
-\begingroup\par\noindent\advance\leftskip\mathindent\(
-\begin{pboxed}\SaveRestoreHook
+\begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{3}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
@@ -630,18 +714,12 @@ declared as follows:
 \\
 \>[3]{}\mathbf{data}\;\Conid{Pow}\;(\Varid{a}\mathbin{:}\star)\mathrel{=}\Conid{Zero}\;\Varid{a}\mid \Conid{Succ}\;(\Conid{Pow}\;(\Conid{PairT}\;\Varid{a}));{}\<[E]%
 \ColumnHook
-\end{pboxed}
-\)\par\noindent\endgroup\resethooks
-\end{figure}
-
+\end{hscode}\resethooks
 Notice that the recursive mention of \emph{Pow} does not hold
 \emph{a}, but \emph{PairT a}. This means every time we use a
 \emph{Succ} constructor, the size of the pairs doubles. In case you
 are curious about the encoding of \emph{Pow}, here is the one:
-
-\begin{figure}[H]
-\begingroup\par\noindent\advance\leftskip\mathindent\(
-\begin{pboxed}\SaveRestoreHook
+\begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{3}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{7}{@{}>{\hspre}l<{\hspost}@{}}%
@@ -651,55 +729,48 @@ are curious about the encoding of \emph{Pow}, here is the one:
 \>[3]{}\hsindent{4}{}\<[7]%
 \>[7]{}\lambda \Varid{a}\mathbin{:}\star.\,(\Conid{B}\mathbin{:}\star)\to (\Varid{a}\to \Conid{B})\to (\Conid{X}\;(\Conid{PairT}\;\Varid{a})\to \Conid{B})\to \Conid{B}{}\<[E]%
 \ColumnHook
-\end{pboxed}
-\)\par\noindent\endgroup\resethooks
-\end{figure}
-
-Notice how the higher-kinded type variable \ensuremath{\Conid{X}\mathbin{:}\star\to \star} helps encoding nested datatypes. Below is a simple function \emph{toList} that transforms a power tree into a list:
-
-\begin{figure}[H]
-  \begingroup\par\noindent\advance\leftskip\mathindent\(
-\begin{pboxed}\SaveRestoreHook
+\end{hscode}\resethooks
+Notice how the higher-kinded type variable \ensuremath{\Conid{X}\mathbin{:}\star\to \star} helps encoding
+nested datatypes. Below is a simple function \emph{toList} that
+transforms a power tree into a list:
+\begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{5}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{7}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{8}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{10}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{12}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{14}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{15}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{17}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{19}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[5]{}\mathbf{letrec}\;\Varid{toList}\mathbin{:}(\Varid{a}\mathbin{:}\star)\to \Conid{Pow}\;\Varid{a}\to \Conid{List}\;\Varid{a}\mathrel{=}{}\<[E]%
+\>[3]{}\mathbf{letrec}\;\Varid{toList}\mathbin{:}(\Varid{a}\mathbin{:}\star)\to \Conid{Pow}\;\Varid{a}\to \Conid{List}\;\Varid{a}\mathrel{=}{}\<[E]%
 \\
-\>[5]{}\hsindent{2}{}\<[7]%
-\>[7]{}\lambda \Varid{a}\mathbin{:}\star.\,\lambda \Varid{t}\mathbin{:}\Conid{Pow}\;\Varid{a}.\,\mathbf{case}\;\Varid{t}\;\mathbf{of}{}\<[E]%
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\lambda \Varid{a}\mathbin{:}\star.\,\lambda \Varid{t}\mathbin{:}\Conid{Pow}\;\Varid{a}.\,\mathbf{case}\;\Varid{t}\;\mathbf{of}{}\<[E]%
 \\
-\>[7]{}\hsindent{3}{}\<[10]%
-\>[10]{}\Conid{Zero}\;(\Varid{x}\mathbin{:}\Varid{a})\Rightarrow \Conid{Cons}\;\Varid{a}\;\Varid{x}\;(\Conid{Nil}\;\Varid{a}){}\<[E]%
+\>[5]{}\hsindent{3}{}\<[8]%
+\>[8]{}\Conid{Zero}\;(\Varid{x}\mathbin{:}\Varid{a})\Rightarrow \Conid{Cons}\;\Varid{a}\;\Varid{x}\;(\Conid{Nil}\;\Varid{a}){}\<[E]%
 \\
-\>[5]{}\hsindent{2}{}\<[7]%
-\>[7]{}\mid {}\<[10]%
-\>[10]{}\Conid{Succ}\;(\Varid{c}\mathbin{:}\Conid{Pow}\;(\Conid{PairT}\;\Varid{a}))\Rightarrow {}\<[E]%
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\mid {}\<[8]%
+\>[8]{}\Conid{Succ}\;(\Varid{c}\mathbin{:}\Conid{Pow}\;(\Conid{PairT}\;\Varid{a}))\Rightarrow {}\<[E]%
+\\
+\>[8]{}\hsindent{2}{}\<[10]%
+\>[10]{}\Varid{concatMap}\;(\Conid{PairT}\;\Varid{a})\;\Varid{a}\;{}\<[E]%
 \\
 \>[10]{}\hsindent{2}{}\<[12]%
-\>[12]{}\Varid{concatMap}\;(\Conid{PairT}\;\Varid{a})\;\Varid{a}\;{}\<[E]%
+\>[12]{}(\lambda \Varid{x}\mathbin{:}\Conid{PairT}\;\Varid{a}.\,\mathbf{case}\;\Varid{x}\;\mathbf{of}{}\<[E]%
 \\
-\>[12]{}\hsindent{2}{}\<[14]%
-\>[14]{}(\lambda \Varid{x}\mathbin{:}\Conid{PairT}\;\Varid{a}.\,\mathbf{case}\;\Varid{x}\;\mathbf{of}{}\<[E]%
+\>[12]{}\hsindent{3}{}\<[15]%
+\>[15]{}\Conid{P}\;(\Varid{m}\mathbin{:}\Varid{a})\;(\Varid{n}\mathbin{:}\Varid{a})\Rightarrow {}\<[E]%
 \\
-\>[14]{}\hsindent{3}{}\<[17]%
-\>[17]{}\Conid{P}\;(\Varid{m}\mathbin{:}\Varid{a})\;(\Varid{n}\mathbin{:}\Varid{a})\Rightarrow {}\<[E]%
+\>[15]{}\hsindent{2}{}\<[17]%
+\>[17]{}\Conid{Cons}\;\Varid{a}\;\Varid{m}\;(\Conid{Cons}\;\Varid{a}\;\Varid{n}\;(\Conid{Nil}\;\Varid{a})))\;{}\<[E]%
 \\
-\>[17]{}\hsindent{2}{}\<[19]%
-\>[19]{}\Conid{Cons}\;\Varid{a}\;\Varid{m}\;(\Conid{Cons}\;\Varid{a}\;\Varid{n}\;(\Conid{Nil}\;\Varid{a})))\;{}\<[E]%
-\\
-\>[12]{}\hsindent{2}{}\<[14]%
-\>[14]{}(\Varid{toList}\;(\Conid{PairT}\;\Varid{a})\;\Varid{c}){}\<[E]%
+\>[10]{}\hsindent{2}{}\<[12]%
+\>[12]{}(\Varid{toList}\;(\Conid{PairT}\;\Varid{a})\;\Varid{c}){}\<[E]%
 \ColumnHook
-\end{pboxed}
-\)\par\noindent\endgroup\resethooks
-\end{figure}
-
+\end{hscode}\resethooks
 \subsubsection{Data Promotion}
 \bruno{what is the point that we are trying to make with this example? Title is wrong;
 should be about the point, not about the particular example!} \jeremy{This section shows we can do data promotion much more easily than in Haskell}
@@ -712,53 +783,33 @@ made trivial in \sufcc.
 As a last example, we show a representation of a labeled binary tree,
 where each node is labeled with its depth in the tree. Below is the
 definition:
-
-\begin{figure}[h!]
-  \begingroup\par\noindent\advance\leftskip\mathindent\(
-\begin{pboxed}\SaveRestoreHook
+\begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{5}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{7}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[5]{}\mathbf{data}\;\Conid{PTree}\;(\Varid{n}\mathbin{:}\Conid{Nat})\mathrel{=}\Conid{Empty}{}\<[E]%
+\>[3]{}\mathbf{data}\;\Conid{PTree}\;(\Varid{n}\mathbin{:}\Conid{Nat})\mathrel{=}\Conid{Empty}{}\<[E]%
 \\
-\>[5]{}\hsindent{2}{}\<[7]%
-\>[7]{}\mid \Conid{Fork}\;\Varid{nat}\;(\Conid{PTree}\;(\Conid{S}\;\Varid{n}))\;(\Conid{PTree}\;(\Conid{S}\;\Varid{n}));{}\<[E]%
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\mid \Conid{Fork}\;\Varid{nat}\;(\Conid{PTree}\;(\Conid{S}\;\Varid{n}))\;(\Conid{PTree}\;(\Conid{S}\;\Varid{n}));{}\<[E]%
 \ColumnHook
-\end{pboxed}
-\)\par\noindent\endgroup\resethooks
-\end{figure}
-
+\end{hscode}\resethooks
 Notice how the datatype \emph{Nat} is ``promoted'' to be used in the
 kind level. Next we can construct such a binary tree that keeps track
-of its depth statically:
-
-\begin{figure}[h!]
-  \begingroup\par\noindent\advance\leftskip\mathindent\(
-\begin{pboxed}\SaveRestoreHook
+of its depth statically:\begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[5]{}\Conid{Fork}\;\Conid{Z}\;\mathrm{1}\;(\Conid{Empty}\;(\Conid{S}\;\Conid{Z}))\;(\Conid{Empty}\;(\Conid{S}\;\Conid{Z})){}\<[E]%
+\>[3]{}\Conid{Fork}\;\Conid{Z}\;\mathrm{1}\;(\Conid{Empty}\;(\Conid{S}\;\Conid{Z}))\;(\Conid{Empty}\;(\Conid{S}\;\Conid{Z})){}\<[E]%
 \ColumnHook
-\end{pboxed}
-\)\par\noindent\endgroup\resethooks
-\end{figure}
-
-If we accidentally write the wrong depth, for example:
-
-\begin{figure}[h!]
-  \begingroup\par\noindent\advance\leftskip\mathindent\(
-\begin{pboxed}\SaveRestoreHook
+\end{hscode}\resethooks
+If we accidentally write the wrong depth, for example:\begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[5]{}\Conid{Fork}\;\Conid{Z}\;\mathrm{1}\;(\Conid{Empty}\;(\Conid{S}\;\Conid{Z}))\;(\Conid{Empty}\;\Conid{Z}){}\<[E]%
+\>[3]{}\Conid{Fork}\;\Conid{Z}\;\mathrm{1}\;(\Conid{Empty}\;(\Conid{S}\;\Conid{Z}))\;(\Conid{Empty}\;\Conid{Z}){}\<[E]%
 \ColumnHook
-\end{pboxed}
-\)\par\noindent\endgroup\resethooks
-\end{figure}
-
+\end{hscode}\resethooks
 The above will fail to pass type checking.
 
 \bruno{Two questions: firstly does it work? secondly do we support GADT syntax now?}  \jeremy{changed to a simple binary tree example}

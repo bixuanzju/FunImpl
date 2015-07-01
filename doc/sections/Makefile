@@ -14,7 +14,7 @@ expcore.ott.tex: $(OTT_FILES)
 	@perl -pi -e 's/^(.*\\ottlinebreak.*)$$/\\\\$$1/g' $@
 
 %.mng.tex: %.lhs
-	lhs2tex -o $@ $^ --poly
+	lhs2tex -o $@ $^
 
 %.tex: %.mng.tex $(OTT_FILES)
 	ott $(OTT_OPTS) -tex_filter $< $@ $(OTT_FILES)

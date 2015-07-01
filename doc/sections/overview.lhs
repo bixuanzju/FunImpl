@@ -1,4 +1,4 @@
-%include lhs2TeX.fmt
+%include polycode.fmt
 
 \section{Overview}
 
@@ -6,7 +6,9 @@ This section informally introduces the main features of \name. In
 particular, this section shows how the explicit casts in \name can be
 used instead of the typical conversion rule present in calculi such as
 the calculus of constructions. The formal details of \name are
-presented in \S\ref{sec:ecore}.
+presented in \S\ref{sec:ecore}. \jeremy{to distinguish code from
+  \sufcc and \name, we may want to use different fonts, e.g., {\tt
+    typewriter font} for \sufcc}
 
 \subsection{The Calculus of Constructions and the Conversion Rule}
 \label{sec:coc}
@@ -15,7 +17,7 @@ The calculus of constructions (\coc)~\cite{coc} is a powerful
 higher-order typed lambda calculus supporting dependent types (among
 various other features).  A crutial
 feature of \coc is the so-called \emph{conversion}
-rule as shown below: \ottusedrule{\ottdruleTccXXConv{}}
+rule: \ottusedrule{\ottdruleTccXXConv{}}
 
 %For the most part \name is similar to the \emph{Calculus of Constructions}
 %(\coc)~\cite{coc}, which is a higher-order typed lambda calculus.
@@ -27,7 +29,10 @@ derivation of $e:[[t1]]$ and the $\beta$-equality of $[[t1]]$ and
 $[[t2]]$. This rule is important to \emph{automatically} allows 
 terms with equivalent types to be considered type-compatible. 
 To illustrate, let us consider a simple example. Suppose
-we have a built-in base type $[[int]]$ and \[f \equiv [[\x:(\y:star.y)int.x]] \]
+we have a built-in base type $[[int]]$ and: 
+\[
+f \equiv [[\x:(\y:star.y)int.x]]
+\]
 Here $f$ is a simple identity function. However, the type 
 of $x$ (i.e., $[[(\y:star.y)int]]$), which is the argument of $f$, is interesting: it is 
 an identity function on types, applied to an integer. 
@@ -176,9 +181,6 @@ recursive unfolding of the same term.
 
 % The dynamic semantics of $\mu$ requires the recursive binder to satisfy (omit type annotations for clarity):  \[ \mu f.\,E = (\lambda f.\,E) (\mu f.\,E) \] which, however, does not terminate in strict languages. Therefore, to loosen the function-type restriction to allow any types, the sensible choice for the evaluation strategy is \emph{call-by-name}.
 
-\newcommand{\fold}{{\bf $\mathsf{fold}$}\xspace}
-\newcommand{\unfold}{{\bf $\mathsf{unfold}$}\xspace}
-
 \subsubsection{Recursive types}
 In the literature on type systems, there are two approaches to
 recursive types. One is called \emph{equi-recursive}, the other
@@ -274,26 +276,23 @@ in the same program~\cite{gadts}.
 
 Now its two constructors can be encoded correspondingly as below:
 
-\begin{figure}[h!]
-\begin{spec}
-  let Z : Nat = castup[Nat] (\ B : * . \ z : B . \ f : Nat -> B . z)
-  in
-  let S : Nat -> Nat = \ n : Nat .
-    castup[Nat] (\ B : * . \ z : B . \ f : Nat -> B . f n)
-\end{spec}
-\end{figure}
+< let Z : Nat = castup[Nat] (\ B : * . \ z : B . \ f : Nat -> B . z)
+< in
+< let S : Nat -> Nat = \ n : Nat .
+<   castup[Nat] (\ B : * . \ z : B . \ f : Nat -> B . f n)
 
-Thanks to the explicit type conversion rules, we can make use of the $[[castup]]$ operation to do type conversion between the recursive type and its unfolding.
 
-As the last example, let us see how we can define recursive functions using the \emph{Nat} datatype. A simple example would be recursively adding two natural numbers, which can be defined as below:
+Thanks to the explicit type conversion rules, we can make use of the
+$[[castup]]$ operation to do type conversion between the recursive
+type and its unfolding.
 
-\begin{figure}[h!]
-\begin{spec}
-  let add : Nat -> Nat -> Nat = mu f : Nat -> Nat -> Nat .
-    \ n : Nat . \ m : Nat .
-      (castdown n) Nat m (\ n' : Nat . S (f n' m))
-\end{spec}
-\end{figure}
+As the last example, let us see how we can define recursive functions
+using the \emph{Nat} datatype. A simple example would be recursively
+adding two natural numbers, which can be defined as below:
+
+< let add : Nat -> Nat -> Nat = mu f : Nat -> Nat -> Nat .
+<   \ n : Nat . \ m : Nat .
+<     (castdown n) Nat m (\ n' : Nat . S (f n' m))
 
 The above definition quite resembles case analysis commonly seen in
 modern functional programming languages. (We formalize the encoding of
