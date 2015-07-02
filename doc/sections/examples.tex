@@ -272,7 +272,8 @@ This sections shows a number of programs written in the surface
 language \sufcc, which is built on top of \name. Most of these
 examples either require non-trivial extensions of Haskell, or are
 non-trivial to encode in dependently typed language like Coq or
-Agda. The formalization of the surface language is presented in
+Agda. All examples shown in this section are runnable in our prototype
+interpreter. The formalization of the surface language is presented in
 Section~\ref{sec:surface}.
 
 \begin{comment}
@@ -464,7 +465,7 @@ System $F_{\omega}$~\cite{systemfw}, which naively supports
 higher-kinded types.) \bruno{Probably want to mention $F_{\omega}$}
 \jeremy{done!}  Given that \sufcc subsumes System $F_{\omega}$, we can
 easily construct higher-kinded types. We show this by an example of
-encoding the \emph{Functor} class:
+encoding a \emph{functor} :
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{3}{@{}>{\hspre}l<{\hspost}@{}}%
@@ -476,8 +477,9 @@ encoding the \emph{Functor} class:
 \>[5]{}\Conid{Func}\;\{\mskip1.5mu \Varid{fmap}\mathbin{:}(\Varid{a}\mathbin{:}\star)\to (\Varid{b}\mathbin{:}\star)\to (\Varid{a}\to \Varid{b})\to \Varid{f}\;\Varid{a}\to \Varid{f}\;\Varid{b}\mskip1.5mu\};{}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
-A functor is just a record that has only one field \emph{fmap}. A
-Functor instance of the \emph{Maybe} datatype is:
+Here we use a record (by using \ensuremath{\mathbf{rcrd}} keyword) to represent a functor,
+whose only field is a single method, called \emph{fmap}. The functor
+instance of the \emph{Maybe} datatype is:
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{3}{@{}>{\hspre}l<{\hspost}@{}}%
@@ -549,7 +551,7 @@ by~\cite{Fegaras1996}, the evaluation function needs an extra function
 \\
 \>[3]{}\mathbf{rcrd}\;\Conid{Eval}\mathrel{=}\Conid{Ev}\;\{\mskip1.5mu \Varid{eval'}\mathbin{:}\Conid{Exp}\to \Conid{Value},\Varid{reify'}\mathbin{:}\Conid{Value}\to \Conid{Exp}\mskip1.5mu\};{}\<[E]%
 \\
-\>[3]{}\mathbf{let}\;\Varid{f}\mathbin{:}\Conid{Eval}\mathrel{=}\mathsf{mu}\;\Varid{f'}\mathbin{:}\Conid{Eval}.\,{}\<[E]%
+\>[3]{}\mathbf{letrec}\;\Varid{ev}\mathbin{:}\Conid{Eval}\mathrel{=}{}\<[E]%
 \\
 \>[3]{}\hsindent{2}{}\<[5]%
 \>[5]{}\Conid{Ev}\;{}\<[9]%
@@ -561,18 +563,18 @@ by~\cite{Fegaras1996}, the evaluation function needs an extra function
 \>[9]{}\mid \Conid{Lam}\;(\Varid{fun}\mathbin{:}\Conid{Exp}\to \Conid{Exp})\Rightarrow {}\<[E]%
 \\
 \>[9]{}\hsindent{4}{}\<[13]%
-\>[13]{}\Conid{VF}\;(\lambda \Varid{e'}\mathbin{:}\Conid{Value}.\,\Varid{eval'}\;\Varid{f'}\;(\Varid{fun}\;(\Varid{reify'}\;\Varid{f'}\;\Varid{e'}))){}\<[E]%
+\>[13]{}\Conid{VF}\;(\lambda \Varid{e'}\mathbin{:}\Conid{Value}.\,\Varid{eval'}\;\Varid{ev}\;(\Varid{fun}\;(\Varid{reify'}\;\Varid{ev}\;\Varid{e'}))){}\<[E]%
 \\
 \>[9]{}\mid \Conid{App}\;(\Varid{a}\mathbin{:}\Conid{Exp})\;(\Varid{b}\mathbin{:}\Conid{Exp})\Rightarrow {}\<[E]%
 \\
 \>[9]{}\hsindent{4}{}\<[13]%
-\>[13]{}\mathbf{case}\;\Varid{eval'}\;\Varid{f'}\;\Varid{a}\;\mathbf{of}{}\<[E]%
+\>[13]{}\mathbf{case}\;\Varid{eval'}\;\Varid{ev}\;\Varid{a}\;\mathbf{of}{}\<[E]%
 \\
 \>[13]{}\hsindent{2}{}\<[15]%
 \>[15]{}\Conid{VI}\;(\Varid{n}\mathbin{:}\Varid{nat})\Rightarrow \Varid{error}{}\<[E]%
 \\
 \>[9]{}\hsindent{4}{}\<[13]%
-\>[13]{}\mid \Conid{VF}\;(\Varid{fun}\mathbin{:}\Conid{Value}\to \Conid{Value})\Rightarrow \Varid{fun}\;(\Varid{eval'}\;\Varid{f'}\;\Varid{b}))\;{}\<[E]%
+\>[13]{}\mid \Conid{VF}\;(\Varid{fun}\mathbin{:}\Conid{Value}\to \Conid{Value})\Rightarrow \Varid{fun}\;(\Varid{eval'}\;\Varid{ev}\;\Varid{b}))\;{}\<[E]%
 \\
 \>[9]{}(\lambda \Varid{v}\mathbin{:}\Conid{Value}.\,\mathbf{case}\;\Varid{v}\;\mathbf{of}{}\<[E]%
 \\
@@ -582,9 +584,9 @@ by~\cite{Fegaras1996}, the evaluation function needs an extra function
 \>[9]{}\mid \Conid{VF}\;(\Varid{fun}\mathbin{:}\Conid{Value}\to \Conid{Value})\Rightarrow {}\<[E]%
 \\
 \>[9]{}\hsindent{4}{}\<[13]%
-\>[13]{}\Conid{Lam}\;(\lambda \Varid{e'}\mathbin{:}\Conid{Exp}.\,(\Varid{reify'}\;\Varid{f'}\;(\Varid{fun}\;(\Varid{eval'}\;\Varid{f'}\;\Varid{e'}))))){}\<[E]%
+\>[13]{}\Conid{Lam}\;(\lambda \Varid{e'}\mathbin{:}\Conid{Exp}.\,(\Varid{reify'}\;\Varid{ev}\;(\Varid{fun}\;(\Varid{eval'}\;\Varid{ev}\;\Varid{e'}))))){}\<[E]%
 \\
-\>[3]{}\mathbf{in}\;\mathbf{let}\;\Varid{eval}\mathbin{:}\Conid{Exp}\to \Conid{Value}\mathrel{=}\Varid{eval'}\;\Varid{f}\;\mathbf{in}{}\<[E]%
+\>[3]{}\mathbf{in}\;\mathbf{let}\;\Varid{eval}\mathbin{:}\Conid{Exp}\to \Conid{Value}\mathrel{=}\Varid{eval'}\;\Varid{ev}{}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
 

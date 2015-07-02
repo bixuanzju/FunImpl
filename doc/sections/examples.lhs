@@ -15,7 +15,8 @@ This sections shows a number of programs written in the surface
 language \sufcc, which is built on top of \name. Most of these
 examples either require non-trivial extensions of Haskell, or are
 non-trivial to encode in dependently typed language like Coq or
-Agda. The formalization of the surface language is presented in
+Agda. All examples shown in this section are runnable in our prototype
+interpreter. The formalization of the surface language is presented in
 Section~\ref{sec:surface}.
 
 \begin{comment}
@@ -116,13 +117,14 @@ System $F_{\omega}$~\cite{systemfw}, which naively supports
 higher-kinded types.) \bruno{Probably want to mention $F_{\omega}$}
 \jeremy{done!}  Given that \sufcc subsumes System $F_{\omega}$, we can
 easily construct higher-kinded types. We show this by an example of
-encoding the \emph{Functor} class:
+encoding a \emph{functor} :
 
 < rcrd Functor (f : * -> *) =
 <   Func {fmap : (a : *) -> (b : *) -> (a -> b) -> f a -> f b};
 
-A functor is just a record that has only one field \emph{fmap}. A
-Functor instance of the \emph{Maybe} datatype is:
+Here we use a record (by using |rcrd| keyword) to represent a functor,
+whose only field is a single method, called \emph{fmap}. The functor
+instance of the \emph{Maybe} datatype is:
 
 < let maybeInst : Functor Maybe =
 <   Func Maybe (\ a : * . \ b : * . \f : a -> b . \ x : Maybe a .
@@ -153,20 +155,20 @@ by~\cite{Fegaras1996}, the evaluation function needs an extra function
 
 < data Value = VI (n : nat) | VF (f : Value -> Value);
 < rcrd Eval = Ev { eval' : Exp -> Value, reify' : Value -> Exp };
-< let f : Eval = mu f' : Eval .
+< letrec ev : Eval =
 <   Ev  (\ e : Exp . case e of
 <         Num (n : nat) => VI n
 <       | Lam (fun : Exp -> Exp) =>
-<           VF (\e' : Value . eval' f' (fun (reify' f' e')))
+<           VF (\e' : Value . eval' ev (fun (reify' ev e')))
 <       | App (a : Exp) (b : Exp) =>
-<           case eval' f' a of
+<           case eval' ev a of
 <             VI (n : nat) => error
-<           | VF (fun : Value -> Value) => fun (eval' f' b))
+<           | VF (fun : Value -> Value) => fun (eval' ev b))
 <       (\v : Value . case v of
 <         VI (n : nat) => Num n
 <       | VF (fun : Value -> Value) =>
-<           Lam (\e' : Exp . (reify' f' (fun (eval' f' e')))))
-< in let eval : Exp -> Value = eval' f in
+<           Lam (\e' : Exp . (reify' ev (fun (eval' ev e')))))
+< in let eval : Exp -> Value = eval' ev
 
 
 The definition of the evaluator is quite straightforward, although it
