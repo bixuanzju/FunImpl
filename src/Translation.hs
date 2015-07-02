@@ -2,6 +2,7 @@ module Translation where
 
 import Control.Monad (unless, mapAndUnzipM)
 import Control.Monad.Except (throwError)
+import Control.Arrow (second)
 -- import Parser
 -- import Debug.Trace
 
@@ -40,17 +41,15 @@ trans env (Mu i t e) = do
   unless (alphaEq t te) $ throwError "Bad recursive type"
   (_, t') <- trans env t
   return (t, Mu i t' e')
-trans env (F n t1 e) = do
-  (t2, e') <- trans env e
-  (_, t1') <- trans env t1
-  t2' <- reductN n t1
-  unless (alphaEq t2 t2') $ throwError "Bad fold expression"
-  return (t1, F n t1' e')
+
+-- Note that in the surface language, casts should not appear.
+-- Here we return as it is
+trans _ (F n t1 e) = do
+  return (t1, F n t1 e)
 trans env (U n e) = do
-  (t1, e') <- trans env e
+  (t1, _) <- trans env e
   t2 <- reductN n t1
-  trans env t2
-  return (t2, U n e')
+  return (t2, U n e)
 
 -- TODO: Lack 1) exhaustive test 2) overlap test
 trans env (Case e alts) = do
@@ -89,27 +88,26 @@ trans env (Data db@(DB tc tca constrs) e) = do
   let tct = mkProdType (Kind Star) tca
   let du = foldl App (Var tc) (map (Var . fst) tca)
   let dcArgs = map constrParams constrs
-  let dcArgChains = map (chainType (Var "B0")) dcArgs
-  let transTC' = map (chainType (Var "B0") . map (substVar tc "X")) dcArgs
+  let dcArgChains = map (mkProdType (Var "B0")) dcArgs
+  let transTC' = map (mkProdType (Var "B0") . map (second (substVar tc "X"))) dcArgs
   let transTC = (tc, (tct, Mu "X" tct
                              (genLambdas tca (Pi "B0" (Kind Star) (chainType (Var "B0") transTC')))))
 
-  let tduList = map (chainType du . constrParams) constrs
-  let dctList = map (\tdu -> foldr (\(u, k) tau -> Pi u k tau) tdu tca) tduList
+  let tduList = map (mkProdType du . constrParams) constrs
+  let dctList = map (`mkProdType` tca) tduList
 
   let arity = length tca
   let transDC = zip (map constrName constrs)
                   (zip dctList
                      (map
                         (\(i, taus) ->
-                           let xs = genVarsAndTypes 'x' taus
-                               cs = genVarsAndTypes 'c' dcArgChains
+                           let cs = genVarsAndTypes 'c' dcArgChains
                            in genLambdas tca
-                                (genLambdas xs
+                                (genLambdas taus
                                    (F (arity + 1) du
                                       (Lam "B0" (Kind Star)
                                          (genLambdas cs
-                                            (foldl App (Var ('c' : show i)) (map (Var . fst) xs)))))))
+                                            (foldl App (Var ('c' : show i)) (map (Var . fst) taus)))))))
                         (zip [0 :: Int ..] dcArgs)))
   return (t, foldr (\(n, (kt, ke)) body -> Let n kt ke body) e' (transTC : transDC))
 

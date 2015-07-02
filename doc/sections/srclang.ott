@@ -10,8 +10,8 @@ pgm                                         :: 'pgm_' ::=      {{ com Program }}
   | ( pgm )                                 :: M :: ParenPgm
 
 decl                                        :: 'decl_' ::=     {{ com Declarations }}
-  | data D << u : k >> = << K << A >> >> ::   :: DataDecl   {{ com Datatype declaration }}
-  | data D << u : k >> = K << A >>          :: M :: SDataDecl  {{ com Datatype single }}
+  | data D << u : k >> = << K << x : A >> >> ::   :: DataDecl   {{ com Datatype declaration }}
+  | data D << u : k >> = K << x : A >>          :: M :: SDataDecl  {{ com Datatype single }}
   | data R << u : k >> = K { << N : A >> }  :: M :: RecordDecl {{ com Record declaration }}
   | ( decl )                                :: M :: ParenDecl
   | << decl >>                              :: M :: DeclVec
@@ -137,9 +137,9 @@ defn Gs  |- decl : Gs' ::  :: declsrc :: 'TSdecl_' {{ com Datatype declaration }
 by
 
 Gs |- (<<u:k>>) -> star : star
-<< Gs, D : (<<u:k>>) -> star, << u:k >> |- <<A>> -> D@<<u>> : star >>
+<< Gs, D : (<<u:k>>) -> star, << u:k >> |- (<<x:A>>) -> D@<<u>> : star >>
 ------------------------------------------------------------------ :: Data
-Gs |- (data D << u:k >> = << K <<A>> >>) : (D : (<<u:k>>) -> star, << K : (<<u:k>>) -> <<A>> -> D@<<u>> >>)
+Gs |- (data D << u:k >> = << K <<x:A>> >>) : (D : (<<u:k>>) -> star, << K : (<<u:k>>) -> (<<x:A>>) -> D@<<u>> >>)
 
 defn Gs  |- p => E : B -> A ::  :: patsrc :: 'Tpat_' {{ com Pattern typing }}
 {{ tex [[Gs]] \labeledjudge{p} [[p]] [[=>]] [[E]] : [[B]] [[->]] [[A]] }}
@@ -231,9 +231,9 @@ defn Gs  |- decl : Gs' ~~> e ::  :: decltrans :: 'TRdecl_' {{ com Datatype trans
 by
 
 Gs |- (<<u:k>>) -> star : star ~~> (<<u:T>>) -> star
-<< Gs, D : (<<u:k>>) -> star, << u:k >> |- <<A>> -> D@<<u>> : star ~~> <<t>> -> D@<<u>> >>
+<< Gs, D : (<<u:k>>) -> star, << u:k >> |- (<<x:A>>) -> D@<<u>> : star ~~> (<<x:t>>) -> D@<<u>> >>
 ------------------------------------------------------------------ :: Data
-Gs |- (data D << u:k >> = << K <<A>> >>) : (D : (<<u:k>>) -> star, << K : (<<u:k>>) -> <<A>> -> D@<<u>> >>) ~~> e
+Gs |- (data D << u:k >> = << K <<x:A>> >>) : (D : (<<u:k>>) -> star, << K : (<<u:k>>) -> (<<x:A>>) -> D@<<u>> >>) ~~> e
 
 defn Gs  |- p => E : B -> A ~~> e ::  :: pattrans :: 'TRpat_' {{ com Pattern translation }}
 {{ tex [[Gs]] \labeledjudge{p} [[p]] [[=>]] [[E]] : [[B]] [[->]] [[A]] \hlmath{[[~~>]] [[e]]} }}

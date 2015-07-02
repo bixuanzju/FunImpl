@@ -420,7 +420,7 @@ example, below is the definition of polymorphic lists:
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{4}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[4]{}\mathbf{data}\;\Conid{List}\;(\Varid{a}\mathbin{:}\star)\mathrel{=}\Conid{Nil}\mid \Conid{Cons}\;\Varid{a}\;(\Conid{List}\;\Varid{a});{}\<[E]%
+\>[4]{}\mathbf{data}\;\Conid{List}\;(\Varid{a}\mathbin{:}\star)\mathrel{=}\Conid{Nil}\mid \Conid{Cons}\;(\Varid{x}\mathbin{:}\Varid{a})\;(\Varid{xs}\mathbin{:}\Conid{List}\;\Varid{a});{}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
 
@@ -473,7 +473,7 @@ encoding the \emph{Functor} class:
 \>[3]{}\mathbf{rcrd}\;\Conid{Functor}\;(\Varid{f}\mathbin{:}\star\to \star)\mathrel{=}{}\<[E]%
 \\
 \>[3]{}\hsindent{2}{}\<[5]%
-\>[5]{}\Conid{Func}\;\{\mskip1.5mu \Varid{fmap}\mathbin{:}(\Varid{a}\mathbin{:}\star)\to (\Varid{b}\mathbin{:}\star)\to \Varid{f}\;\Varid{a}\to \Varid{f}\;\Varid{b}\mskip1.5mu\};{}\<[E]%
+\>[5]{}\Conid{Func}\;\{\mskip1.5mu \Varid{fmap}\mathbin{:}(\Varid{a}\mathbin{:}\star)\to (\Varid{b}\mathbin{:}\star)\to (\Varid{a}\to \Varid{b})\to \Varid{f}\;\Varid{a}\to \Varid{f}\;\Varid{b}\mskip1.5mu\};{}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
 A functor is just a record that has only one field \emph{fmap}. A
@@ -521,15 +521,15 @@ example of encoding a simple lambda calculus:
 \column{5E}{@{}l@{}}%
 \column{8}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[3]{}\mathbf{data}\;\Conid{Exp}\mathrel{=}\Conid{Num}\;\Varid{nat}{}\<[E]%
+\>[3]{}\mathbf{data}\;\Conid{Exp}\mathrel{=}\Conid{Num}\;(\Varid{n}\mathbin{:}\Varid{nat}){}\<[E]%
 \\
 \>[3]{}\hsindent{2}{}\<[5]%
 \>[5]{}\mid {}\<[5E]%
-\>[8]{}\Conid{Lam}\;(\Conid{Exp}\to \Conid{Exp}){}\<[E]%
+\>[8]{}\Conid{Lam}\;(\Varid{f}\mathbin{:}\Conid{Exp}\to \Conid{Exp}){}\<[E]%
 \\
 \>[3]{}\hsindent{2}{}\<[5]%
 \>[5]{}\mid {}\<[5E]%
-\>[8]{}\Conid{App}\;\Conid{Exp}\;\Conid{Exp};{}\<[E]%
+\>[8]{}\Conid{App}\;(\Varid{a}\mathbin{:}\Conid{Exp})\;(\Varid{b}\mathbin{:}\Conid{Exp});{}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
 
@@ -545,7 +545,7 @@ by~\cite{Fegaras1996}, the evaluation function needs an extra function
 \column{13}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{15}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[3]{}\mathbf{data}\;\Conid{Value}\mathrel{=}\Conid{VI}\;\Varid{nat}\mid \Conid{VF}\;(\Conid{Value}\to \Conid{Value});{}\<[E]%
+\>[3]{}\mathbf{data}\;\Conid{Value}\mathrel{=}\Conid{VI}\;(\Varid{n}\mathbin{:}\Varid{nat})\mid \Conid{VF}\;(\Varid{f}\mathbin{:}\Conid{Value}\to \Conid{Value});{}\<[E]%
 \\
 \>[3]{}\mathbf{rcrd}\;\Conid{Eval}\mathrel{=}\Conid{Ev}\;\{\mskip1.5mu \Varid{eval'}\mathbin{:}\Conid{Exp}\to \Conid{Value},\Varid{reify'}\mathbin{:}\Conid{Value}\to \Conid{Exp}\mskip1.5mu\};{}\<[E]%
 \\
@@ -614,13 +614,20 @@ expressiveness of \sufcc. The definition is:
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{3}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[3]{}\mathbf{rcrd}\;\Conid{Fix}\;(\Varid{f}\mathbin{:}\star\to \star)\mathrel{=}\Conid{In}\;\{\mskip1.5mu \Varid{out}\mathbin{:}(\Varid{f}\;(\Conid{Fix}\;\Varid{f}))\mskip1.5mu\};{}\<[E]%
+\>[3]{}\mathbf{rcrd}\;\Conid{Fix}\;(\Varid{f}\mathbin{:}\star\to \star)\mathrel{=}\Conid{In}\;\{\mskip1.5mu \Varid{out}\mathbin{:}\Varid{f}\;(\Conid{Fix}\;\Varid{f})\mskip1.5mu\};{}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
-The record notation also introduces the selector function: \ensuremath{\Varid{out}\mathbin{:}(\Varid{f}\mathbin{:}\star\to \star)\to \Conid{Fix}\;\Varid{f}\to \Varid{f}\;(\Conid{Fix}\;\Varid{f})}.  The \emph{Fix} datatype is
-interesting in that now we can define recursive datatypes in a
-non-recursive way. For instance, a non-recursive definition for
-natural numbers is:
+The record notation also introduces the selector function:
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[3]{}\Varid{out}\mathbin{:}(\Varid{f}\mathbin{:}\star\to \star)\to \Conid{Fix}\;\Varid{f}\to \Varid{f}\;(\Conid{Fix}\;\Varid{f}){}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+The \emph{Fix} datatype is interesting in that now we can define
+recursive datatypes in a non-recursive way. For instance, a
+non-recursive definition for natural numbers is:
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{3}{@{}>{\hspre}l<{\hspost}@{}}%
@@ -683,15 +690,19 @@ a higher-kinded fixpoint combinator:
 \>[3]{}\mathbf{data}\;\Conid{Mu}\;(\Varid{k}\mathbin{:}\star)\;(\Varid{f}\mathbin{:}(\Varid{k}\to \star)\to \Varid{k}\to \star)\;(\Varid{a}\mathbin{:}\Varid{k})\mathrel{=}{}\<[E]%
 \\
 \>[3]{}\hsindent{2}{}\<[5]%
-\>[5]{}\Conid{Roll}\;(\Varid{f}\;(\Conid{Mu}\;\Varid{k}\;\Varid{f})\;\Varid{a});{}\<[E]%
+\>[5]{}\Conid{Roll}\;(\Varid{g}\mathbin{:}\Varid{f}\;(\Conid{Mu}\;\Varid{k}\;\Varid{f})\;\Varid{a});{}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
 \emph{Mu} can be used to construct polymorphic recursive types of any kind, for instance:
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[3]{}\mathbf{data}\;\Conid{Listf}\;(\Varid{f}\mathbin{:}\star\to \star)\;(\Varid{a}\mathbin{:}\star)\mathrel{=}\Conid{Nil}\mid \Conid{Cons}\;\Varid{a}\;(\Varid{f}\;\Varid{a});{}\<[E]%
+\>[3]{}\mathbf{data}\;\Conid{Listf}\;(\Varid{f}\mathbin{:}\star\to \star)\;(\Varid{a}\mathbin{:}\star)\mathrel{=}\Conid{Nil}{}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\mid \Conid{Cons}\;(\Varid{x}\mathbin{:}\Varid{a})\;(\Varid{xs}\mathbin{:}(\Varid{f}\;\Varid{a}));{}\<[E]%
 \\
 \>[3]{}\mathbf{let}\;\Conid{List}\mathbin{:}\star\to \star\mathrel{=}\lambda \Varid{a}\mathbin{:}\star.\,\Conid{Mu}\star\Conid{Listf}\;\Varid{a}{}\<[E]%
 \ColumnHook
@@ -709,10 +720,14 @@ declared as follows:
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[3]{}\mathbf{data}\;\Conid{PairT}\;(\Varid{a}\mathbin{:}\star)\mathrel{=}\Conid{P}\;\Varid{a}\;\Varid{a};{}\<[E]%
+\>[3]{}\mathbf{data}\;\Conid{PairT}\;(\Varid{a}\mathbin{:}\star)\mathrel{=}\Conid{P}\;(\Varid{x}\mathbin{:}\Varid{a})\;(\Varid{x}\mathbin{:}\Varid{a});{}\<[E]%
 \\
-\>[3]{}\mathbf{data}\;\Conid{Pow}\;(\Varid{a}\mathbin{:}\star)\mathrel{=}\Conid{Zero}\;\Varid{a}\mid \Conid{Succ}\;(\Conid{Pow}\;(\Conid{PairT}\;\Varid{a}));{}\<[E]%
+\>[3]{}\mathbf{data}\;\Conid{Pow}\;(\Varid{a}\mathbin{:}\star)\mathrel{=}\Conid{Zero}\;(\Varid{n}\mathbin{:}\Varid{a}){}\<[E]%
+\\
+\>[3]{}\hsindent{2}{}\<[5]%
+\>[5]{}\mid \Conid{Succ}\;(\Varid{t}\mathbin{:}\Conid{Pow}\;(\Conid{PairT}\;\Varid{a}));{}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
 Notice that the recursive mention of \emph{Pow} does not hold
@@ -791,7 +806,7 @@ definition:
 \>[3]{}\mathbf{data}\;\Conid{PTree}\;(\Varid{n}\mathbin{:}\Conid{Nat})\mathrel{=}\Conid{Empty}{}\<[E]%
 \\
 \>[3]{}\hsindent{2}{}\<[5]%
-\>[5]{}\mid \Conid{Fork}\;\Varid{nat}\;(\Conid{PTree}\;(\Conid{S}\;\Varid{n}))\;(\Conid{PTree}\;(\Conid{S}\;\Varid{n}));{}\<[E]%
+\>[5]{}\mid \Conid{Fork}\;(\Varid{z}\mathbin{:}\Varid{nat})\;(\Varid{x}\mathbin{:}\Conid{PTree}\;(\Conid{S}\;\Varid{n}))\;(\Varid{y}\mathbin{:}\Conid{PTree}\;(\Conid{S}\;\Varid{n}));{}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
 Notice how the datatype \emph{Nat} is ``promoted'' to be used in the
