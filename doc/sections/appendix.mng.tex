@@ -392,25 +392,23 @@ See Figure \ref{fig:appendix:syntax}.
 \ottu\ottinterrule
 \ottp\ottinterrule
 \ottE\ottinterrule
-\ottV\ottinterrule
 \ottGs}
 \[\ottsurfsugar\] % defined in otthelper.mng.tex
 \caption{Syntax of the surface language}
 \label{fig:appendix:syntax}
 \end{figure*}
 
-\subsection{Operational Semantics}
-\ottdefnstepsrc{}
-\ottusedrule{\ottdruleSCXXCaseMatch{}}
-
 \subsection{Expression Typing}
 See Figure \ref{fig:appendix:typing}.
 \begin{figure*}
-\ottdefnctxsrc{}\ottinterrule
-\ottdefnpgmsrc{}\ottinterrule
-\ottdefndeclsrc{}\ottinterrule
-\ottdefnpatsrc{}\ottinterrule
-\ottdefnexprsrc{}
+\renewcommand{\hlmath}[1]{}
+\renewcommand{\ottdrulename}[1]{\textsc{\replace{#1}{TR}{T}}}
+\renewcommand{\ottcom}[1]{\text{\replace{#1}{translation}{typing}}}
+\ottdefnctxtrans{}\ottinterrule
+\ottdefnpgmtrans{}\ottinterrule
+\ottdefndecltrans{}\ottinterrule % defined in otthelper.mng.tex
+\ottdefnpattrans{}\ottinterrule
+\ottdefnexprtrans{}
 \caption{Typing rules of the surface language}
 \label{fig:appendix:typing}
 \end{figure*}
@@ -430,61 +428,6 @@ See Figure \ref{fig:appendix:translate}.
 
 \section{Proofs about Surface Language}
 \subsection{Type-safety of Translation}
-\begin{lem}[Type-safety of Reduction Translation]\label{lem:appendix:src:redtr}
-If $[[E1 --> E2]]$ and $[[Gs |- E1 : A1 ~> e1]]$, $[[Gs |- E2 : A2 ~> e2]]$ for
-some context $[[Gs]]$, then $[[e1 --> e2]]$.
-\end{lem}
-
-\begin{proof}
-    By induction on the relation $[[E1 --> E2]]$. Most cases are the same as
-core language, which are trivial. We only treat interesting cases
-\ruleref{SC\_Case} and \ruleref{SC\_CaseMatch}.
-    \begin{description}
-        \item[Case \scriptsize{$\ottdruleSCXXCase{}$}:] $\quad$ \\
-        By induction hypothesis, we have 
-        \[\begin{array}{l}
-        [[Gs |- E1 : A ~> e1]] \\ 
-        [[Gs |- E1': A' ~> e1']] \\ 
-        [[e1 --> e1']].
-        \end{array} \]
-        Note that 
-        \[\begin{array}{l}
-            [[Gs |- case E1 of << p => E >> : A ~> (unfoldn e1) t <<e>>]] \\ 
-            [[Gs |- case E1' of << p => E >> : A ~> (unfoldn e1') t <<e>>]]. 
-        \end{array} \] 
-    By \ruleref{S\_CastDown}, we have the result
-\[ [[(unfoldn e1) t <<e>> --> (unfoldn e1') t <<e>>]]. \]
-        \item[Case \scriptsize{$\ottdruleSCXXCaseMatch{}$}:] $\quad$ \\
-        By rule \ruleref{TRdecl\_data}, $[[Ki == \ <<u:T*>> . \<<x:T>> . foldn
-[D@<<u>>] (\aa:star.\<<bb : <<T>> -> aa >> . bbi <<x>>)]]$. By
-\ruleref{TRpat\_Alt} and \ruleref{TR\_Case}, we have 
-        \[
-        [[Gs |- case Ki <<u>>
-        <<E1>> of <<p=>E>> : A ~> (unfoldn (Ki <<u'>> <<e1>>)) t <<e'>>]]
-        \]
-where
-        \[ \begin{array}{ll}
-                [[<<Gs |- u : k ~> uu'>>]]
-                & [[<<Gs |- E1 : A1 ~> e1>>]] \\
-                [[<<Gs |- A1 : star ~> T>>]]
-                & [[<<Gs |- E : A ~> e>>]] \\
-                [[<<e' == \ <<x:T>>.e >>]].
-        \end{array} \]
-        Thus, we have the following reduction sequence:
-        \begin{align*}
-            &[[unfoldn (foldn [D@<<u'>>] (\aa:star.\<<bb : <<T>> -> aa >> . bbi
-<<e1>>)) t <<\ <<x:T>>.e>>]] \\
-            &[[-->>]]  [[(\aa:star.\<<bb : <<T>> -> aa >> . bbi <<e1>>) t <<\
-<<x:T>>.e>>]] \\
-            &[[-->]]  [[(\<<bb : <<T>> -> t >> . bbi <<e1>>) <<\ <<x:T>>.e>>]]
-\\
-            &[[-->]]  [[(\ <<x:T>>.ei) <<e1>>]] \\
-            &[[-->]]  [[ei [<<x |-> e1>>] ]].
-        \end{align*}
-        Note that $[[Gs |- Ei [ << xi |-> E1 >> ] : A ~> ei [ << xi |-> e1 >> ]
-]]$, therefore the reduction sequence above follows the result.
-    \end{description}
-\end{proof}
 
 \begin{thm}[Type-safety of Expression Translation]
 If $[[Gs |- E:A ~> e]]$, $[[Gs |- A:star ~> t]]$ and $[[|- Gs ~> G]]$, then
@@ -548,46 +491,6 @@ A:star~>t]]$.
                 [[Gs |- A1 : s ~> t1]] \qquad [[Gs, x: A1 |- A2 : r ~> t2]]
             \]
             Thus by rule \ruleref{T\_Pi} $[[G |- (Pi x:t1.t2) : star]]$.
-        \item[Case \ruleref{TR\_CastUp}:] Suppose 
-            \[\begin{array}{l}
-                [[Gs |- (castup[A1] E):A1 ~> castup[t1] e]] \\
-                [[Gs |- A1 : star ~> t1]].
-            \end{array}\]
-            By induction hypothesis, we have 
-                \[
-                \begin{array}{ll}
-                [[G |- e : t2]] &
-                [[Gs |- A1 : s ~> t1]] \\
-                [[A1 --> A2]], &
-                \end{array}
-                \]
-            where 
-                \[
-                \begin{array}{ll}
-                [[Gs |- E : A2 ~> e]] &
-                [[Gs |- A2 : star ~> t2]].
-                \end{array}
-                \]
-            By Lemma \ref{lem:appendix:src:redtr}, we can obtain $[[t1 --> t2]]$. Thus, by rule
-            \ruleref{T\_CastUp}, we have $[[G |- castup[t1] e : t1]]$.
-        \item[Case \ruleref{TR\_CastDown}:] Suppose 
-                \[ [[Gs |- (castdown E) : A2 ~> castdown e]] \qquad
-                [[Gs |- A2 : star ~> t2]]. \]
-            By induction hypothesis, we have 
-                \[
-                    [[G |- e : t1]] \qquad
-                    [[A1 --> A2]]
-                \]
-            where
-                \[
-                \begin{array}{ll}
-                [[Gs |- E : A1 ~> e]] & \\
-                [[Gs |- A1 : star ~> t1]] &
-                [[Gs |- A2 : star ~> t2]].
-                \end{array}
-                \]
-            By Lemma \ref{lem:appendix:src:redtr}, we obtain $[[t1 --> t2]]$. 
-            Thus, by rule \ruleref{T\_CastDown}, we have $[[G |- castdown e : t2]]$.
         \item[Case \ruleref{TR\_Mu}:] Suppose 
                 \[\begin{array}{l}
                     [[Gs |- (mu x:A . E):A ~> mu x:t.e]] \\
@@ -598,35 +501,43 @@ A:star~>t]]$.
             Thus by rule \ruleref{T\_Mu}, we have $[[G |- (mu x:t.e) : t]]$.
         \item[Case \ruleref{TR\_Case}:] Suppose 
             \[\begin{array}{l}
-                [[Gs |- case E1 of << p => E2>> : A ~> (unfoldn e1) t <<e2>>]] \\
-                [[Gs |- A : star ~> t]].
+                [[Gs |- case E1 of << p => E2>> : B ~> (unfoldnp e1) T <<e2>>]] \\
+                [[Gs |- B : star ~> T]].
             \end{array}\]
             By induction hypothesis, we have 
             \[\begin{array}{ll}
-                [[Gs |- E1 : B ~> e1]] &
-                [[Gs |- B : star ~> t1]] \\
+                [[Gs |- E1 : A1 ~> e1]] &
+                [[Gs |- A1 : star ~> t1]] \\
                 [[G |- e1 : t1]] &
-                [[<< Gs |- p => E2 : B -> A~> e2 >>]]            
+                [[<< Gs |- p => E2 : A1 -> B ~> e2 >>]]            
             \end{array}\]
             By rule \ruleref{TRpat\_Alt}, we have
             \begin{align*}
-                [[p]] &[[==]] [[K <<x:B1[<< u |-> U >>]>>]] \\
-                [[B]] &[[==]] [[D@<<U>>]] \\
-                [[e2]] &[[==]] [[\ <<x:T>> .e]]
+                [[p]] &[[==]] [[K <<x:A[<< u |-> U >>]>>]] \\
+                [[A1]] &[[==]] [[D@<<U>>n]] \\
+                [[<<e2>>]] &[[==]] [[<<\ <<x:t'>> .e>>]]
             \end{align*}
             where
-            \[\begin{array}{l}
-                [[Gs |- E2 : A ~> e]] \\
-                [[G |- e : t]] \\
-                [[Gs |- B1[<< u |-> U >>]:star ~> T ]]
+            \[\begin{array}{ll}
+                [[<<Gs |- E2 : B ~> e>>]] &
+                [[<<G |- e : T>>]] \\
+                [[<<Gs |- A[<< u |-> U >>]:star ~> t[uu |-> uu']>>]] &
+                [[<<Gs |- U : star ~> uu'>>]] \\
+                [[t']] [[==]] [[ t[uu |-> uu'] ]]
             \end{array}\]
-            By rule \ruleref{TRdecl\_Data}, we have $[[D == mu X : (<<u:T*>>) ->
-            star . \ <<u:T*>> . (aa:star) -> << (<<T>>[D |-> X] -> aa) >> -> aa]]$. Thus,
-            \[ [[t1]] [[==]] [[D]] [[<<T*>>]],\text{ where }[[<<Gs |- U : star ~> T*>>]].\] Then by
+            By rule \ruleref{TRdecl\_Data}, we have $[[D]]  [[ == ]] \ottdeclD$. Thus,
+            \[ [[t1]] [[==]] [[D]] [[<<uu'>>]]^n,\text{ where }[[<<G |- uu' : ro>>]].\] 
+            Note that by operational semantics, the following reduction sequence follows for $[[t1]]$:
+            \begin{align*}
+                [[D]] [[<<uu'>>]]^n~
+                &[[-->]]~ \mathscale[0.7]{[[(\ <<u:ro>>n . (aa:star) -> << ((<<x : t[D |-> X][X |-> D]>>) -> aa) >> -> aa) ]][[<<uu'>>]]^n}\\
+                &[[-->>]]~ [[(aa:star) -> << (<<x:t'>>) -> aa >> -> aa]]
+            \end{align*}
+            Then by
             rule \ruleref{T\_CastDown} and the definition of $n$-step cast operator, the
-            type of $[[unfoldn e1]]$ is \[ [[(aa:star) -> << (<<T>> -> aa) >> -> aa]].\] Note
-            that by rule \ruleref{T\_Lam}, $[[G |- e2 : <<T>> -> t]]$. Therefore, by rule
-            \ruleref{T\_App}, we obtain $[[G |- (unfoldn e1) t <<e2>> : t]]$, which follows
+            type of $[[unfoldnp e1]]$ is \[ [[(aa:star) -> << (<<x:t'>>) -> aa >> -> aa]].\] Note
+            that by rule \ruleref{T\_Lam}, $[[G |- e2 : (<<x:t'>>) -> T]]$. Therefore, by rule
+            \ruleref{T\_App}, we obtain $[[G |- (unfoldnp e1) T <<e2>> : T]]$, which follows
             the result.
     \end{description}
 \end{proof}

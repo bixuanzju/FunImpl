@@ -14,6 +14,13 @@
 \newcommand{\pai}[3]{[[Pi]] #1:#2.\,#3}
 \newcommand{\miu}[3]{[[mu]] #1:#2.\,#3}
 
+\newcommand*{\mathscale}[2][4]{\scalebox{#1}{$#2$}}%
+
+\def\replace#1#2#3{%
+ \def\tmp##1#2{##1#3\tmp}%
+   \tmp#1\stopreplace#2\stopreplace}
+\def\stopreplace#1\stopreplace{}
+
 \newcommand{\ottcoresugar}{%%
 \begin{array}{llll} %
     \text{Syntactic Sugar}\\ %
@@ -35,12 +42,6 @@
         \quad\text{Function type} \\ %
     [[(x:A1)->A2]] & \triangleq & [[Pi x:A1.A2]] & x \in \FV([[A2]]) & %
         \quad\text{Dependent function type} \\ %
-    [[foldn [A1] E]] & [[:=]] & [[castup]] [ [[A1]] ] ([[castup]] [ %
-        [[A2]] ] (\dots ( [[castup [An] E]] ) \dots )) && %
-        \quad\text{Cast up in $n$ steps} \\ %
-    [[unfoldn E]] & [[:=]] & \underbrace{[[castdown]] ([[castdown]] %
-        (\dots ( [[castdown]]}_n [[E]]) \dots )) && %
-        \quad\text{Cast down in $n$ steps} \\ %
     [[data R <<u:k>> = K { <<N:A>> }]] & \triangleq & %
         [[data R <<u:k>> = K <<x:A>>]]; && \quad\text{Record} \\ %
         && [[let]]~[[N]]_i : [[ (<<u:k>>) -> R@<<u>> -> A]]_i = & %
@@ -49,9 +50,17 @@
 \end{array} %
 }
 
+\newcommand{\ottdeclD}{%%
+[[mu X : (<<u:ro>>n) -> star . \ <<u:ro>>n . (aa:star) -> << ((<<x : t[D |-> X]>>) -> aa) >> -> aa]] %
+}
+
+\newcommand{\ottdeclK}{%%
+[[\ <<u:ro>>n . \<<x:t>> . foldnp [D@<<u>>n] (\aa:star.\<<bb : (<<x:t>>) -> aa >> . bbi <<x>>)]] %
+}
+
 \newcommand{\ottdecltrans}{%%
 \begin{array}{ll} %
-    [[e]] [[:=]] & [[ let D : (<<u:T>>) -> star = mu X : (<<u:T>>) -> star . \ <<u:T>> . (aa:star) -> << ((<<x : t[D |-> X]>>) -> aa) >> -> aa in @@ ]] \\ %
-    & [[ let Ki : (<<u:T>>) -> (<<x:t>>) -> D@<<u>> = \ <<u:T>> . \<<x:t>> . foldn [D@<<u>>] (\aa:star.\<<bb : (<<x:t>>) -> aa >> . bbi <<x>>) in @@ ]] %
+    [[e]] [[:=]] & [[ let ]] [[D]] : [[(<<u:ro>>n) -> star]] = \ottdeclD [[ in ]] \\ %
+    & [[ let ]]  [[Ki]] : [[ (<<u:ro>>n) -> (<<x:t>>) -> D@<<u>>n ]] = \ottdeclK [[ in ]] %
 \end{array} %
 }

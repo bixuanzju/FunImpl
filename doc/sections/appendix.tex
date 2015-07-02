@@ -360,25 +360,23 @@ See Figure \ref{fig:appendix:syntax}.
 \ottu\ottinterrule
 \ottp\ottinterrule
 \ottE\ottinterrule
-\ottV\ottinterrule
 \ottGs}
 \[\ottsurfsugar\] % defined in otthelper.mng.tex
 \caption{Syntax of the surface language}
 \label{fig:appendix:syntax}
 \end{figure*}
 
-\subsection{Operational Semantics}
-\ottdefnstepsrc{}
-\ottusedrule{\ottdruleSCXXCaseMatch{}}
-
 \subsection{Expression Typing}
 See Figure \ref{fig:appendix:typing}.
 \begin{figure*}
-\ottdefnctxsrc{}\ottinterrule
-\ottdefnpgmsrc{}\ottinterrule
-\ottdefndeclsrc{}\ottinterrule
-\ottdefnpatsrc{}\ottinterrule
-\ottdefnexprsrc{}
+\renewcommand{\hlmath}[1]{}
+\renewcommand{\ottdrulename}[1]{\textsc{\replace{#1}{TR}{T}}}
+\renewcommand{\ottcom}[1]{\text{\replace{#1}{translation}{typing}}}
+\ottdefnctxtrans{}\ottinterrule
+\ottdefnpgmtrans{}\ottinterrule
+\ottdefndecltrans{}\ottinterrule % defined in otthelper.mng.tex
+\ottdefnpattrans{}\ottinterrule
+\ottdefnexprtrans{}
 \caption{Typing rules of the surface language}
 \label{fig:appendix:typing}
 \end{figure*}
@@ -398,56 +396,6 @@ See Figure \ref{fig:appendix:translate}.
 
 \section{Proofs about Surface Language}
 \subsection{Type-safety of Translation}
-\begin{lem}[Type-safety of Reduction Translation]\label{lem:appendix:src:redtr}
-If $\ottnt{E_{{\mathrm{1}}}}  \longrightarrow  \ottnt{E_{{\mathrm{2}}}}$ and $ \Sigma  \labeledjudge{s}  \ottnt{E_{{\mathrm{1}}}}  :  T_{{\mathrm{1}}}   \rightsquigarrow   \ottnt{e_{{\mathrm{1}}}} $, $ \Sigma  \labeledjudge{s}  \ottnt{E_{{\mathrm{2}}}}  :  T_{{\mathrm{2}}}   \rightsquigarrow   \ottnt{e_{{\mathrm{2}}}} $ for
-some context $\Sigma$, then $\ottnt{e_{{\mathrm{1}}}}  \longrightarrow  \ottnt{e_{{\mathrm{2}}}}$.
-\end{lem}
-
-\begin{proof}
-    By induction on the relation $\ottnt{E_{{\mathrm{1}}}}  \longrightarrow  \ottnt{E_{{\mathrm{2}}}}$. Most cases are the same as
-core language, which are trivial. We only treat interesting cases
-\ruleref{SC\_Case} and \ruleref{SC\_CaseMatch}.
-    \begin{description}
-        \item[Case \scriptsize{$\ottdruleSCXXCase{}$}:] $\quad$ \\
-        By induction hypothesis, we have 
-        \[\begin{array}{l}
-         \Sigma  \labeledjudge{s}  \ottnt{E_{{\mathrm{1}}}}  :  T   \rightsquigarrow   \ottnt{e_{{\mathrm{1}}}}  \\ 
-         \Sigma  \labeledjudge{s}  \ottnt{E'_{{\mathrm{1}}}}  :  T'   \rightsquigarrow   \ottnt{e'_{{\mathrm{1}}}}  \\ 
-        \ottnt{e_{{\mathrm{1}}}}  \longrightarrow  \ottnt{e'_{{\mathrm{1}}}}.
-        \end{array} \]
-        Note that 
-        \[\begin{array}{l}
-             \Sigma  \labeledjudge{s}  \kw{case} \, \ottnt{E_{{\mathrm{1}}}} \, \kw{of} \, \,\overline{  \ottnt{p}  \Rightarrow  \ottnt{E}  }\,  :  T   \rightsquigarrow   \ottsym{(}  \mathsf{cast}_{\downarrow}^n \, \ottnt{e_{{\mathrm{1}}}}  \ottsym{)} \, \tau \, \,\overline{  \ottnt{e}  }\,  \\ 
-             \Sigma  \labeledjudge{s}  \kw{case} \, \ottnt{E'_{{\mathrm{1}}}} \, \kw{of} \, \,\overline{  \ottnt{p}  \Rightarrow  \ottnt{E}  }\,  :  T   \rightsquigarrow   \ottsym{(}  \mathsf{cast}_{\downarrow}^n \, \ottnt{e'_{{\mathrm{1}}}}  \ottsym{)} \, \tau \, \,\overline{  \ottnt{e}  }\, . 
-        \end{array} \] 
-    By \ruleref{S\_CastDown}, we have the result
-\[ \ottsym{(}  \mathsf{cast}_{\downarrow}^n \, \ottnt{e_{{\mathrm{1}}}}  \ottsym{)} \, \tau \, \,\overline{  \ottnt{e}  }\,  \longrightarrow  \ottsym{(}  \mathsf{cast}_{\downarrow}^n \, \ottnt{e'_{{\mathrm{1}}}}  \ottsym{)} \, \tau \, \,\overline{  \ottnt{e}  }\,. \]
-        \item[Case \scriptsize{$\ottdruleSCXXCaseMatch{}$}:] $\quad$ \\
-        By rule \ruleref{TRdecl\_data}, $\ottmv{K_{\ottmv{i}}}  \equiv  \lambda  \,\overline{  \ottnt{u}  \ottsym{:}  \sigma  ^{*}  }\,  \ottsym{.}  \lambda  \,\overline{  \ottmv{x}  \ottsym{:}  \sigma  }\,  \ottsym{.}  \mathsf{cast}_{\uparrow}^n \, \ottsym{[}  \ottmv{D}    \,\overline{  \ottnt{u}  }\,  \ottsym{]} \,  \ottsym{(}  \lambda  \alpha  \ottsym{:}  \star  \ottsym{.}  \lambda  \,\overline{  b  \ottsym{:}  \,\overline{  \sigma  }\,  \rightarrow  \alpha  }\,  \ottsym{.}  b_{\ottmv{i}} \, \,\overline{  \ottmv{x}  }\,  \ottsym{)}$. By
-\ruleref{TRpat\_Alt} and \ruleref{TR\_Case}, we have 
-        \[
-         \Sigma  \labeledjudge{s}  \kw{case} \, \ottmv{K_{\ottmv{i}}} \, \,\overline{  \ottnt{u}  }\, \, \,\overline{  \ottnt{E_{{\mathrm{1}}}}  }\, \, \kw{of} \, \,\overline{  \ottnt{p}  \Rightarrow  \ottnt{E}  }\,  :  T   \rightsquigarrow   \ottsym{(}  \mathsf{cast}_{\downarrow}^n \, \ottsym{(}  \ottmv{K_{\ottmv{i}}}  \,\overline{  \ottnt{u'}  }\,  \,\overline{  \ottnt{e_{{\mathrm{1}}}}  }\,  \ottsym{)}  \ottsym{)} \, \tau \, \,\overline{  \ottnt{e'}  }\, 
-        \]
-where
-        \[ \begin{array}{ll}
-                \,\overline{   \Sigma  \labeledjudge{s}  \ottnt{u}  :  \kappa   \rightsquigarrow   u'   }\,
-                & \,\overline{   \Sigma  \labeledjudge{s}  \ottnt{E_{{\mathrm{1}}}}  :  T_{{\mathrm{1}}}   \rightsquigarrow   \ottnt{e_{{\mathrm{1}}}}   }\, \\
-                \,\overline{   \Sigma  \labeledjudge{s}  T_{{\mathrm{1}}}  :  \star   \rightsquigarrow   \sigma   }\,
-                & \,\overline{   \Sigma  \labeledjudge{s}  \ottnt{E}  :  T   \rightsquigarrow   \ottnt{e}   }\, \\
-                \,\overline{  \ottnt{e'}  \equiv  \lambda  \,\overline{  \ottmv{x}  \ottsym{:}  \sigma  }\,  \ottsym{.}  \ottnt{e}  }\,.
-        \end{array} \]
-        Thus, we have the following reduction sequence:
-        \begin{align*}
-            &\mathsf{cast}_{\downarrow}^n \, \ottsym{(}  \mathsf{cast}_{\uparrow}^n \, \ottsym{[}  \ottmv{D}    \,\overline{  \ottnt{u'}  }\,  \ottsym{]} \,  \ottsym{(}  \lambda  \alpha  \ottsym{:}  \star  \ottsym{.}  \lambda  \,\overline{  b  \ottsym{:}  \,\overline{  \sigma  }\,  \rightarrow  \alpha  }\,  \ottsym{.}  b_{\ottmv{i}} \, \,\overline{  \ottnt{e_{{\mathrm{1}}}}  }\,  \ottsym{)}  \ottsym{)} \, \tau \, \,\overline{  \lambda  \,\overline{  \ottmv{x}  \ottsym{:}  \sigma  }\,  \ottsym{.}  \ottnt{e}  }\, \\
-            & \longrightarrow_n   \ottsym{(}  \lambda  \alpha  \ottsym{:}  \star  \ottsym{.}  \lambda  \,\overline{  b  \ottsym{:}  \,\overline{  \sigma  }\,  \rightarrow  \alpha  }\,  \ottsym{.}  b_{\ottmv{i}} \, \,\overline{  \ottnt{e_{{\mathrm{1}}}}  }\,  \ottsym{)} \, \tau \, \,\overline{  \lambda  \,\overline{  \ottmv{x}  \ottsym{:}  \sigma  }\,  \ottsym{.}  \ottnt{e}  }\, \\
-            & \longrightarrow   \ottsym{(}  \lambda  \,\overline{  b  \ottsym{:}  \,\overline{  \sigma  }\,  \rightarrow  \tau  }\,  \ottsym{.}  b_{\ottmv{i}} \, \,\overline{  \ottnt{e_{{\mathrm{1}}}}  }\,  \ottsym{)} \, \,\overline{  \lambda  \,\overline{  \ottmv{x}  \ottsym{:}  \sigma  }\,  \ottsym{.}  \ottnt{e}  }\,
-\\
-            & \longrightarrow   \ottsym{(}  \lambda  \,\overline{  \ottmv{x}  \ottsym{:}  \sigma  }\,  \ottsym{.}  \ottnt{e_{\ottmv{i}}}  \ottsym{)} \, \,\overline{  \ottnt{e_{{\mathrm{1}}}}  }\, \\
-            & \longrightarrow   \ottnt{e_{\ottmv{i}}}  \ottsym{[}  \,\overline{  \ottmv{x}  \mapsto  \ottnt{e_{{\mathrm{1}}}}  }\,  \ottsym{]} \,.
-        \end{align*}
-        Note that $ \Sigma  \labeledjudge{s}  \ottnt{E_{\ottmv{i}}}  \ottsym{[}  \,\overline{  \ottmv{x_{\ottmv{i}}}  \mapsto  \ottnt{E_{{\mathrm{1}}}}  }\,  \ottsym{]} \,  :  T   \rightsquigarrow   \ottnt{e_{\ottmv{i}}}  \ottsym{[}  \,\overline{  \ottmv{x_{\ottmv{i}}}  \mapsto  \ottnt{e_{{\mathrm{1}}}}  }\,  \ottsym{]} \, $, therefore the reduction sequence above follows the result.
-    \end{description}
-\end{proof}
 
 \begin{thm}[Type-safety of Expression Translation]
 If $ \Sigma  \labeledjudge{s}  \ottnt{E}  :  T   \rightsquigarrow   \ottnt{e} $, $ \Sigma  \labeledjudge{s}  T  :  \star   \rightsquigarrow   \tau $ and $ \labeledjudge{wf}  \Sigma   \rightsquigarrow   \Gamma $, then
@@ -510,46 +458,6 @@ have $ \labeledjudge{wf}  \Sigma   \rightsquigarrow   \Gamma $, then $\ottmv{x}:
                  \Sigma  \labeledjudge{s}  T_{{\mathrm{1}}}  :  \star   \rightsquigarrow   \tau_{{\mathrm{1}}}  \qquad  \Sigma  \ottsym{,}  \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \labeledjudge{s}  T_{{\mathrm{2}}}  :  \star   \rightsquigarrow   \tau_{{\mathrm{2}}} 
             \]
             Thus by rule \ruleref{T\_Pi} $\Gamma  \vdash  \ottsym{(}  \Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}  \ottsym{)}  \ottsym{:}  \star$.
-        \item[Case \ruleref{TR\_CastUp}:] Suppose 
-            \[\begin{array}{l}
-                 \Sigma  \labeledjudge{s}  \ottsym{(}  \mathsf{cast}^{\uparrow} \, \ottsym{[}  T_{{\mathrm{1}}}  \ottsym{]} \,  \ottnt{E}  \ottsym{)}  :  T_{{\mathrm{1}}}   \rightsquigarrow   \mathsf{cast}^{\uparrow} \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]} \,  \ottnt{e}  \\
-                 \Sigma  \labeledjudge{s}  T_{{\mathrm{1}}}  :  \star   \rightsquigarrow   \tau_{{\mathrm{1}}} .
-            \end{array}\]
-            By induction hypothesis, we have 
-                \[
-                \begin{array}{ll}
-                \Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau_{{\mathrm{2}}} &
-                 \Sigma  \labeledjudge{s}  T_{{\mathrm{1}}}  :  \star   \rightsquigarrow   \tau_{{\mathrm{1}}}  \\
-                T_{{\mathrm{1}}}  \longrightarrow  T_{{\mathrm{2}}}, &
-                \end{array}
-                \]
-            where 
-                \[
-                \begin{array}{ll}
-                 \Sigma  \labeledjudge{s}  \ottnt{E}  :  T_{{\mathrm{2}}}   \rightsquigarrow   \ottnt{e}  &
-                 \Sigma  \labeledjudge{s}  T_{{\mathrm{2}}}  :  \star   \rightsquigarrow   \tau_{{\mathrm{2}}} .
-                \end{array}
-                \]
-            By Lemma \ref{lem:appendix:src:redtr}, we can obtain $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}$. Thus, by rule
-            \ruleref{T\_CastUp}, we have $\Gamma  \vdash  \mathsf{cast}^{\uparrow} \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]} \,  \ottnt{e}  \ottsym{:}  \tau_{{\mathrm{1}}}$.
-        \item[Case \ruleref{TR\_CastDown}:] Suppose 
-                \[  \Sigma  \labeledjudge{s}  \ottsym{(}  \mathsf{cast}_{\downarrow} \, \ottnt{E}  \ottsym{)}  :  T_{{\mathrm{2}}}   \rightsquigarrow   \mathsf{cast}_{\downarrow} \, \ottnt{e}  \qquad
-                 \Sigma  \labeledjudge{s}  T_{{\mathrm{2}}}  :  \star   \rightsquigarrow   \tau_{{\mathrm{2}}} . \]
-            By induction hypothesis, we have 
-                \[
-                    \Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau_{{\mathrm{1}}} \qquad
-                    T_{{\mathrm{1}}}  \longrightarrow  T_{{\mathrm{2}}}
-                \]
-            where
-                \[
-                \begin{array}{ll}
-                 \Sigma  \labeledjudge{s}  \ottnt{E}  :  T_{{\mathrm{1}}}   \rightsquigarrow   \ottnt{e}  & \\
-                 \Sigma  \labeledjudge{s}  T_{{\mathrm{1}}}  :  \star   \rightsquigarrow   \tau_{{\mathrm{1}}}  &
-                 \Sigma  \labeledjudge{s}  T_{{\mathrm{2}}}  :  \star   \rightsquigarrow   \tau_{{\mathrm{2}}} .
-                \end{array}
-                \]
-            By Lemma \ref{lem:appendix:src:redtr}, we obtain $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}$. 
-            Thus, by rule \ruleref{T\_CastDown}, we have $\Gamma  \vdash  \mathsf{cast}_{\downarrow} \, \ottnt{e}  \ottsym{:}  \tau_{{\mathrm{2}}}$.
         \item[Case \ruleref{TR\_Mu}:] Suppose 
                 \[\begin{array}{l}
                      \Sigma  \labeledjudge{s}  \ottsym{(}  \mu \, \ottmv{x}  \ottsym{:}  T  \ottsym{.}  \ottnt{E}  \ottsym{)}  :  T   \rightsquigarrow   \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \\
@@ -560,34 +468,43 @@ have $ \labeledjudge{wf}  \Sigma   \rightsquigarrow   \Gamma $, then $\ottmv{x}:
             Thus by rule \ruleref{T\_Mu}, we have $\Gamma  \vdash  \ottsym{(}  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{)}  \ottsym{:}  \tau$.
         \item[Case \ruleref{TR\_Case}:] Suppose 
             \[\begin{array}{l}
-                 \Sigma  \labeledjudge{s}  \kw{case} \, \ottnt{E_{{\mathrm{1}}}} \, \kw{of} \, \,\overline{  \ottnt{p}  \Rightarrow  \ottnt{E_{{\mathrm{2}}}}  }\,  :  T   \rightsquigarrow   \ottsym{(}  \mathsf{cast}_{\downarrow}^n \, \ottnt{e_{{\mathrm{1}}}}  \ottsym{)} \, \tau \, \,\overline{  \ottnt{e_{{\mathrm{2}}}}  }\,  \\
-                 \Sigma  \labeledjudge{s}  T  :  \star   \rightsquigarrow   \tau .
+                 \Sigma  \labeledjudge{s}  \kw{case} \, \ottnt{E_{{\mathrm{1}}}} \, \kw{of} \, \,\overline{  \ottnt{p}  \Rightarrow  \ottnt{E_{{\mathrm{2}}}}  }\,  :  S   \rightsquigarrow   \ottsym{(}  \mathsf{cast}_{\downarrow}^{n+1} \, \ottnt{e_{{\mathrm{1}}}}  \ottsym{)} \, \sigma \, \,\overline{  \ottnt{e_{{\mathrm{2}}}}  }\,  \\
+                 \Sigma  \labeledjudge{s}  S  :  \star   \rightsquigarrow   \sigma .
             \end{array}\]
             By induction hypothesis, we have 
             \[\begin{array}{ll}
-                 \Sigma  \labeledjudge{s}  \ottnt{E_{{\mathrm{1}}}}  :  S   \rightsquigarrow   \ottnt{e_{{\mathrm{1}}}}  &
-                 \Sigma  \labeledjudge{s}  S  :  \star   \rightsquigarrow   \tau_{{\mathrm{1}}}  \\
+                 \Sigma  \labeledjudge{s}  \ottnt{E_{{\mathrm{1}}}}  :  T_{{\mathrm{1}}}   \rightsquigarrow   \ottnt{e_{{\mathrm{1}}}}  &
+                 \Sigma  \labeledjudge{s}  T_{{\mathrm{1}}}  :  \star   \rightsquigarrow   \tau_{{\mathrm{1}}}  \\
                 \Gamma  \vdash  \ottnt{e_{{\mathrm{1}}}}  \ottsym{:}  \tau_{{\mathrm{1}}} &
-                \,\overline{   \Sigma  \labeledjudge{p}  \ottnt{p}   \Rightarrow   \ottnt{E_{{\mathrm{2}}}}  :  S   \rightarrow   T   \rightsquigarrow   \ottnt{e_{{\mathrm{2}}}}   }\,            
+                \,\overline{   \Sigma  \labeledjudge{p}  \ottnt{p}   \Rightarrow   \ottnt{E_{{\mathrm{2}}}}  :  T_{{\mathrm{1}}}   \rightarrow   S   \rightsquigarrow   \ottnt{e_{{\mathrm{2}}}}   }\,            
             \end{array}\]
             By rule \ruleref{TRpat\_Alt}, we have
             \begin{align*}
-                \ottnt{p} & \equiv  \ottmv{K}  \,\overline{  \ottmv{x}  \ottsym{:}  S_{{\mathrm{1}}}  \ottsym{[}  \,\overline{  \ottnt{u}  \mapsto  \upsilon  }\,  \ottsym{]} \,  }\, \\
-                S & \equiv  \ottmv{D}    \,\overline{  \upsilon  }\, \\
-                \ottnt{e_{{\mathrm{2}}}} & \equiv  \lambda  \,\overline{  \ottmv{x}  \ottsym{:}  \sigma  }\,  \ottsym{.}  \ottnt{e}
+                \ottnt{p} & \equiv  \ottmv{K}  \,\overline{  \ottmv{x}  \ottsym{:}  T  \ottsym{[}  \,\overline{  \ottnt{u}  \mapsto  \upsilon  }\,  \ottsym{]} \,  }\, \\
+                T_{{\mathrm{1}}} & \equiv  \ottmv{D}    \,\overline{  \upsilon  }^{n}\, \\
+                \,\overline{  \ottnt{e_{{\mathrm{2}}}}  }\, & \equiv  \,\overline{  \lambda  \,\overline{  \ottmv{x}  \ottsym{:}  \tau'  }\,  \ottsym{.}  \ottnt{e}  }\,
             \end{align*}
             where
-            \[\begin{array}{l}
-                 \Sigma  \labeledjudge{s}  \ottnt{E_{{\mathrm{2}}}}  :  T   \rightsquigarrow   \ottnt{e}  \\
-                \Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau \\
-                 \Sigma  \labeledjudge{s}  S_{{\mathrm{1}}}  \ottsym{[}  \,\overline{  \ottnt{u}  \mapsto  \upsilon  }\,  \ottsym{]} \,  :  \star   \rightsquigarrow   \sigma 
+            \[\begin{array}{ll}
+                \,\overline{   \Sigma  \labeledjudge{s}  \ottnt{E_{{\mathrm{2}}}}  :  S   \rightsquigarrow   \ottnt{e}   }\, &
+                \,\overline{  \Gamma  \vdash  \ottnt{e}  \ottsym{:}  \sigma  }\, \\
+                \,\overline{   \Sigma  \labeledjudge{s}  T  \ottsym{[}  \,\overline{  \ottnt{u}  \mapsto  \upsilon  }\,  \ottsym{]} \,  :  \star   \rightsquigarrow   \tau  \ottsym{[}  u  \mapsto  u'  \ottsym{]} \,   }\, &
+                \,\overline{   \Sigma  \labeledjudge{s}  \upsilon  :  \star   \rightsquigarrow   u'   }\, \\
+                \tau'  \equiv  \tau  \ottsym{[}  u  \mapsto  u'  \ottsym{]} \,
             \end{array}\]
-            By rule \ruleref{TRdecl\_Data}, we have $\ottmv{D}  \equiv  \mu \, \ottmv{X}  \ottsym{:}  \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \sigma  ^{*}  }\,  \ottsym{)}  \rightarrow  \star  \ottsym{.}  \lambda  \,\overline{  \ottnt{u}  \ottsym{:}  \sigma  ^{*}  }\,  \ottsym{.}  \ottsym{(}  \alpha  \ottsym{:}  \star  \ottsym{)}  \rightarrow  \,\overline{  \ottsym{(}  \,\overline{  \sigma  }\,  \ottsym{[}  \ottmv{D}  \mapsto  \ottmv{X}  \ottsym{]} \,  \rightarrow  \alpha  \ottsym{)}  }\,  \rightarrow  \alpha$. Thus,
-            \[ \tau_{{\mathrm{1}}}  \equiv  \ottmv{D} \,\overline{  \sigma  ^{*}  }\,,\text{ where }\,\overline{   \Sigma  \labeledjudge{s}  \upsilon  :  \star   \rightsquigarrow   \sigma  ^{*}   }\,.\] Then by
+            By rule \ruleref{TRdecl\_Data}, we have $\ottmv{D}   \equiv  \ottdeclD$. Thus,
+            \[ \tau_{{\mathrm{1}}}  \equiv  \ottmv{D} \,\overline{  u'  }\,^n,\text{ where }\,\overline{  \Gamma  \vdash  u'  \ottsym{:}  \rho  }\,.\] 
+            Note that by operational semantics, the following reduction sequence follows for $\tau_{{\mathrm{1}}}$:
+            \begin{align*}
+                \ottmv{D} \,\overline{  u'  }\,^n~
+                & \longrightarrow ~ \mathscale[0.7]{\ottsym{(}  \lambda  \,\overline{  \ottnt{u}  \ottsym{:}  \rho  }^{n}\,  \ottsym{.}  \ottsym{(}  \alpha  \ottsym{:}  \star  \ottsym{)}  \rightarrow  \,\overline{  \ottsym{(}  \ottsym{(}  \,\overline{  \ottmv{x}  \ottsym{:}  \tau  \ottsym{[}  \ottmv{D}  \mapsto  \ottmv{X}  \ottsym{]} \,  \ottsym{[}  \ottmv{X}  \mapsto  \ottmv{D}  \ottsym{]} \,  }\,  \ottsym{)}  \rightarrow  \alpha  \ottsym{)}  }\,  \rightarrow  \alpha  \ottsym{)}\,\overline{  u'  }\,^n}\\
+                & \longrightarrow_n ~ \ottsym{(}  \alpha  \ottsym{:}  \star  \ottsym{)}  \rightarrow  \,\overline{  \ottsym{(}  \,\overline{  \ottmv{x}  \ottsym{:}  \tau'  }\,  \ottsym{)}  \rightarrow  \alpha  }\,  \rightarrow  \alpha
+            \end{align*}
+            Then by
             rule \ruleref{T\_CastDown} and the definition of $n$-step cast operator, the
-            type of $\mathsf{cast}_{\downarrow}^n \, \ottnt{e_{{\mathrm{1}}}}$ is \[ \ottsym{(}  \alpha  \ottsym{:}  \star  \ottsym{)}  \rightarrow  \,\overline{  \ottsym{(}  \,\overline{  \sigma  }\,  \rightarrow  \alpha  \ottsym{)}  }\,  \rightarrow  \alpha.\] Note
-            that by rule \ruleref{T\_Lam}, $\Gamma  \vdash  \ottnt{e_{{\mathrm{2}}}}  \ottsym{:}  \,\overline{  \sigma  }\,  \rightarrow  \tau$. Therefore, by rule
-            \ruleref{T\_App}, we obtain $\Gamma  \vdash  \ottsym{(}  \mathsf{cast}_{\downarrow}^n \, \ottnt{e_{{\mathrm{1}}}}  \ottsym{)} \, \tau \, \,\overline{  \ottnt{e_{{\mathrm{2}}}}  }\,  \ottsym{:}  \tau$, which follows
+            type of $\mathsf{cast}_{\downarrow}^{n+1} \, \ottnt{e_{{\mathrm{1}}}}$ is \[ \ottsym{(}  \alpha  \ottsym{:}  \star  \ottsym{)}  \rightarrow  \,\overline{  \ottsym{(}  \,\overline{  \ottmv{x}  \ottsym{:}  \tau'  }\,  \ottsym{)}  \rightarrow  \alpha  }\,  \rightarrow  \alpha.\] Note
+            that by rule \ruleref{T\_Lam}, $\Gamma  \vdash  \ottnt{e_{{\mathrm{2}}}}  \ottsym{:}  \ottsym{(}  \,\overline{  \ottmv{x}  \ottsym{:}  \tau'  }\,  \ottsym{)}  \rightarrow  \sigma$. Therefore, by rule
+            \ruleref{T\_App}, we obtain $\Gamma  \vdash  \ottsym{(}  \mathsf{cast}_{\downarrow}^{n+1} \, \ottnt{e_{{\mathrm{1}}}}  \ottsym{)} \, \sigma \, \,\overline{  \ottnt{e_{{\mathrm{2}}}}  }\,  \ottsym{:}  \sigma$, which follows
             the result.
     \end{description}
 \end{proof}
