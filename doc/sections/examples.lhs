@@ -3,7 +3,7 @@
 
 %format mu = "\mathsf{mu}"
 
-\section{\sufcc by Example}
+\section{Surface Language on Top of \name}
 \label{sec:app}
 
 \bruno{Wrong title! This section is not about \name; it is about source languages that can be built on top of name!} \jeremy{this name for the moment}
@@ -12,7 +12,7 @@
 Text needs to be polsihed. Also the text is lacking references.}
 
 This sections shows a number of programs written in the surface
-language \sufcc, which in built on top of \name. Most of these
+language \sufcc, which is built on top of \name. Most of these
 examples either require non-trivial extensions of Haskell, or are
 non-trivial to encode in dependently typed language like Coq or
 Agda. The formalization of the surface language is presented in
