@@ -13,7 +13,7 @@ indexvar i, j, n, m ::= {{ com Index variables }}
 grammar
 
 %% Expressions
-e, t {{ tex \tau }}, T {{ tex \sigma }} :: 'e_' ::=       {{ com Expressions    }}
+e, t {{ tex \tau }}, T {{ tex \sigma }}, ro {{ tex \rho }} :: 'e_' ::=       {{ com Expressions    }}
   | x                         ::  :: Var        {{ com Variable }}
   | star                      ::  :: Star       {{ com Type of types }}
   | e1 e2                     ::  :: App        {{ com Application }}
@@ -31,10 +31,13 @@ e, t {{ tex \tau }}, T {{ tex \sigma }} :: 'e_' ::=       {{ com Expressions    
   | << e >>                   :: M:: ExprVec
   | e1 (+) e2                 :: M:: ExprUnion
   | ( << u : t1 >> ) -> t2    :: M:: FuncTypeVec
+  | ( << u : t1 >>n ) -> t2   :: M:: FuncTypeVecN
   | ( u : t1 ) -> t2          :: M:: DepFuncType
   | \ << u : t >> . e         :: M:: LamVec
+  | \ << u : t >>n . e        :: M:: LamVecN
   | e1 [ << e2 |-> t2 >> ]    :: M:: SubstVec
   | D @ << u >>               :: M:: Datatype
+  | D @ << u >>n              :: M:: DatatypeN
   | e1 [ D @ << u >> |-> e3 ] :: M:: ExprSubst
   | \\\ e                     :: M:: LineHack
   | & e                       :: M:: AlignHack
@@ -46,6 +49,8 @@ e, t {{ tex \tau }}, T {{ tex \sigma }} :: 'e_' ::=       {{ com Expressions    
   | K << u >> << e >>         :: M:: Constructor
   | fold [ t ] T              :: M:: Fold
   | unfold T                  :: M:: Unfold
+  | foldnp [ t ] e            :: M:: CastUpMultiP
+  | unfoldnp e                :: M:: CastDownMultiP
 
 %% Literals
 lit :: 'lit_' ::=
@@ -118,6 +123,7 @@ terminals :: 'terminals_' ::=
   | of       ::  :: of        {{ tex \kw{of} }}
   | <<       ::  :: vecl      {{ tex \,\overline{ }}
   | >>       ::  :: vecr      {{ tex }\, }}
+  | >>n      ::  :: vecrn     {{ tex }^{n}\, }}
   | @        ::  :: marker    {{ tex }}
   | ~>       ::  :: transto   {{ tex \rightsquigarrow }}
   | ~~>      ::  :: transtohl {{ tex \rightsquigarrow }}
@@ -131,6 +137,8 @@ terminals :: 'terminals_' ::=
   | cast     ::  :: cast      {{ tex \mathsf{cast} }}
   | fold     ::  :: fold      {{ tex \mathsf{fold} }}
   | unfold   ::  :: unfold    {{ tex \mathsf{unfold} }}
+  | foldnp   ::  :: foldnp    {{ tex \mathsf{cast}_{\uparrow}^{n+1} }}
+  | unfoldnp ::  :: unfoldnp  {{ tex \mathsf{cast}_{\downarrow}^{n+1} }}
 
 %%% Fomulae
 formula :: 'formula_' ::=
@@ -163,6 +171,16 @@ formula :: 'formula_' ::=
     {{ tex [[Gs]] \labeledjudge{p} [[p]] [[=>]] [[E]] : [[B]] [[->]] [[A]] [[~>]] [[e]] }}
   | Gs  |- E : A ~> e  ::   :: trans_expr
     {{ tex [[Gs]] \labeledjudge{s} [[E]] : [[A]] [[~>]] [[e]] }}
+  | |- Gs  ::   :: srcty_context
+    {{ tex \labeledjudge{wf} [[Gs]] }}
+  | Gs  |- pgm : A  ::   :: srcty_program 
+    {{ tex [[Gs]] \labeledjudge{pg} [[pgm]] : [[A]] }}
+  | Gs  |- decl : Gs'  ::   :: srcty_decl
+    {{ tex [[Gs]] \labeledjudge{d} [[decl]] : [[Gs']] }}
+  | Gs  |- p => E : B -> A  ::   :: srcty_pattern
+    {{ tex [[Gs]] \labeledjudge{p} [[p]] [[=>]] [[E]] : [[B]] [[->]] [[A]] }}
+  | Gs  |- E : A  ::   :: srcty_expr
+    {{ tex [[Gs]] \labeledjudge{s} [[E]] : [[A]] }}
 
 %%% Subrule
 subrules
@@ -196,8 +214,9 @@ G |- (mu x:t . e):t
 defn G  |- e : t ::  :: expr :: 'T_' {{ com Expression typing }}
 by
 
+|- G
 ---------------------- :: Ax
-empty |- star : star
+G |- star : star
 
 |- G
 x:t elt G

@@ -12,6 +12,7 @@ pgm                                         :: 'pgm_' ::=      {{ com Program }}
 decl                                        :: 'decl_' ::=     {{ com Declarations }}
   | data D << u : k >> = << K << x : A >> >> ::   :: DataDecl   {{ com Datatype declaration }}
   | data D << u : k >> = K << x : A >>          :: M :: SDataDecl  {{ com Datatype single }}
+  | data D << u : k >>n = << K << x : A >> >> :: M :: DataDeclN   {{ com Datatype declaration }}
   | data R << u : k >> = K { << N : A >> }  :: M :: RecordDecl {{ com Record declaration }}
   | ( decl )                                :: M :: ParenDecl
   | << decl >>                              :: M :: DeclVec
@@ -31,8 +32,6 @@ E , A {{ tex T }}, B {{ tex S }}, k {{ tex \kappa }} :: 'es_' ::=       {{ com E
   | E1 E2                  ::  :: App        {{ com Application }}
   | \ x : A . E            ::  :: Lam        {{ com Abstraction }}
   | Pi x : A . B           ::  :: Pi         {{ com Product }}
-  | castup [ A ] E         ::  :: CastUp     {{ com Cast up by expansion}}
-  | castdown E             ::  :: CastDown   {{ com Cast down by reduction }}
   | mu x : A . E           ::  :: Mu         {{ com General recursion }}
   | case E1 of << p => E2 >> ::  :: Case     {{ com Case analysis }}
   | let x : A = E2 in E1   :: M:: LetBinding {{ com Let binding }}
@@ -45,18 +44,12 @@ E , A {{ tex T }}, B {{ tex S }}, k {{ tex \kappa }} :: 'es_' ::=       {{ com E
   | D @ << u >>            :: M:: Datatype
   | ( << u : k >> ) -> A   :: M:: FuncTypeVec
   | \ << u : k >> . E      :: M:: LamVec
+  | D @ << u >>n           :: M:: DatatypeN
+  | ( << u : k >>n ) -> A  :: M:: FuncTypeVecN
+  | \ << u : k >>n . E     :: M:: LamVecN
   | E1 [ << u |-> E2 >> ]  :: M:: SubstVec
   | s                      :: M:: Sort       {{ com Sort }}
   | E *                    :: M:: Starred    {{ com Starred expression }}
-  | foldn [ A ] E          :: M:: CastUpMulti
-  | unfoldn E              :: M:: CastDownMulti
-
-V {{ tex v }} :: 'vs_' ::=                               {{ com Values   }}
-  | star                 ::  :: Star       {{ com Type of types }}
-  | \ x : A . E          ::  :: Lam        {{ com Abstraction  }}
-  | Pi x : A . B         ::  :: Pi         {{ com Product }}
-  | castup [ A ] E       ::  :: CastUp     {{ com Cast up by expansion }}
-  | K << u >> << E >>    ::  :: DataCon    {{ com Data constructor }}
 
 
 %% Contexts
@@ -65,6 +58,7 @@ Gs {{ tex \Sigma }} :: 'Gs_' ::= {{ com Contexts }}
   | Gs , u : A      ::  :: Binding     {{ com Atom binding }}
   | Gs , Gs'        :: M:: CtxBind     {{ com Context binding }}
   | << u : A >>     :: M:: SrcBindVec
+  | << u : A >>n    :: M:: SrcBindVecN
   | u : A           :: M:: SrcBind
   | ( Gs )          :: M:: ParenCtx
   | << Gs >>        :: M:: CtxVec
@@ -73,137 +67,12 @@ Gs {{ tex \Sigma }} :: 'Gs_' ::= {{ com Contexts }}
 defns
 OpSemSrc :: '' ::=
 
-defn E --> E' ::  :: stepsrc :: 'SC_' {{ com One-step reduction }}
-by
-
-----------------------------  :: Beta
-(\x:A.E1) E2 --> E1 [x|->E2]
-
----------------------------- :: CastDownUp
-castdown (castup[A] E) --> E
-
-E1 --> E1'
----------------- :: App
-E1 E2 --> E1' E2
-
-E --> E'
--------------------------- :: CastDown
-castdown E --> castdown E'
-
-------------------------------- :: Mu
-mu x:A.E --> E [x |-> mu x:A.E]
-
-E1 --> E1'
------------------------------------------------------ :: Case
-case E1 of << p => E >> --> case E1' of << p => E >>
-
-
-defn E -->> E' ::  :: stepsrc_multi :: 'SC_' {{ com Case reduction }}
-by
-
-Ki << xi : Ai >> => Ei elt << p => E >>
-------------------------------------- :: CaseMatch
-case Ki <<u>> <<E1>> of <<p=>E>> -->> Ei [ << xi |-> E1 >> ]
-
 %%% Typing rules
 defns
 LintSrc :: '' ::=
 
-defn |- Gs        ::  :: ctxsrc :: 'EnvS_' {{ com Well-formed context }}
-{{ tex \labeledjudge{wf} [[Gs]] }}
-by
-
--------- :: Empty
-|- empty
-
-|- Gs
-Gs |- A : s
------------ :: Var
-|- Gs, x : A
-
-defn Gs  |- pgm : A ::  :: pgmsrc :: 'TSpgm_' {{ com Program context }}
-{{ tex [[Gs]] \labeledjudge{pg} [[pgm]] : [[A]] }}
-by
-
-<< Gs0 |- decl : Gs' >>
-Gs = Gs0, <<Gs'>>
-Gs |- E : A
---------------------- :: Pgm
-Gs0 |- (<<decl>>;E) :A
-
-
-defn Gs  |- decl : Gs' ::  :: declsrc :: 'TSdecl_' {{ com Datatype declaration }}
-{{ tex [[Gs]] \labeledjudge{d} [[decl]] : [[Gs']] }}
-by
-
-Gs |- (<<u:k>>) -> star : star
-<< Gs, D : (<<u:k>>) -> star, << u:k >> |- (<<x:A>>) -> D@<<u>> : star >>
------------------------------------------------------------------- :: Data
-Gs |- (data D << u:k >> = << K <<x:A>> >>) : (D : (<<u:k>>) -> star, << K : (<<u:k>>) -> (<<x:A>>) -> D@<<u>> >>)
-
-defn Gs  |- p => E : B -> A ::  :: patsrc :: 'Tpat_' {{ com Pattern typing }}
-{{ tex [[Gs]] \labeledjudge{p} [[p]] [[=>]] [[E]] : [[B]] [[->]] [[A]] }}
-by
-
-K : (<<u:k>>)-><<B>>->D@<<u>> elt Gs
-Gs,<<x:B[<< u |-> U >>]>> |- E:A
-Gs |- B[<< u |-> U >>]:s
---------------------------- :: Alt
-Gs |- K <<x:B[<< u |-> U >>]>> => E:D@<<U>>->A
-
-
-defn Gs  |- E : A ::  :: exprsrc :: 'TS_' {{ com Expression typing }}
-{{ tex [[Gs]] \labeledjudge{s} [[E]] : [[A]] }}
-by
-
----------------------- :: Ax
-empty |- star : star
-
-|- Gs
-x:A elt Gs
----------- :: Var
-Gs |- x:A
-
-Gs |- E1 : (Pi x:A2.A1)
-Gs |- E2 : A2
------------------------- :: App
-Gs |- E1 E2 : A1[x |-> E2]
-
-Gs, x : A1 |- E : A2
-Gs |- (Pi x:A1.A2) : s
---------------------------- :: Lam
-Gs |- (\x:A1.E):(Pi x:A1.A2)
-
-Gs |- A1 : s
-Gs, x:A1 |- A2:r
-------------------- :: Pi
-Gs |- (Pi x:A1.A2):r
-
-Gs |- E : A2
-Gs |- A1 : s
-A1 --> A2
----------------------- :: CastUp
-Gs |- (castup[A1] E):A1
-
-Gs |- E : A1
-Gs |- A2 : s
-A1 --> A2
----------------------- :: CastDown
-Gs |- (castdown E) : A2
-
-Gs, x:A |- E:A
-Gs |- A:s
-------------------- :: Mu
-Gs |- (mu x:A . E):A
-
-Gs |- E1 : B
-<< Gs |- p => E2 : B -> A >>
-<< Gs |- A : s >>
----------------------------------- :: Case
-Gs |- case E1 of << p => E2 >> : A
-
 %%% Translation rules
-defn |- Gs ~~> G     ::  :: ctxtrans :: 'TRenv_' {{ com Context translation }}
+defn |- Gs ~~> G     ::  :: ctxtrans :: 'TRenv_' {{ com Context well-formedness }}
 {{ tex \labeledjudge{wf} [[Gs]] \hlmath{[[~~>]] [[G]]} }}
 by
 
@@ -230,28 +99,29 @@ defn Gs  |- decl : Gs' ~~> e ::  :: decltrans :: 'TRdecl_' {{ com Datatype trans
 {{ tex [[Gs]] \labeledjudge{d} [[decl]] : [[Gs']] \hlmath{[[~~>]] [[e]]} }}
 by
 
-Gs |- (<<u:k>>) -> star : star ~~> (<<u:T>>) -> star
-<< Gs, D : (<<u:k>>) -> star, << u:k >> |- (<<x:A>>) -> D@<<u>> : star ~~> (<<x:t>>) -> D@<<u>> >>
+Gs |- (<<u:k>>n) -> star : star ~~> (<<u:ro>>n) -> star
+<< Gs, D : (<<u:k>>n) -> star, << u:k >>n |- (<<x:A>>) -> D@<<u>>n : star ~~> (<<x:t>>) -> D@<<u>>n >>
 ------------------------------------------------------------------ :: Data
-Gs |- (data D << u:k >> = << K <<x:A>> >>) : (D : (<<u:k>>) -> star, << K : (<<u:k>>) -> (<<x:A>>) -> D@<<u>> >>) ~~> e
+Gs |- (data D << u:k >>n = << K <<x:A>> >>) : (D : (<<u:k>>n) -> star, << K : (<<u:k>>n) -> (<<x:A>>) -> D@<<u>>n >>) ~~> e
 
-defn Gs  |- p => E : B -> A ~~> e ::  :: pattrans :: 'TRpat_' {{ com Pattern translation }}
-{{ tex [[Gs]] \labeledjudge{p} [[p]] [[=>]] [[E]] : [[B]] [[->]] [[A]] \hlmath{[[~~>]] [[e]]} }}
+defn Gs  |- p => E : A -> B ~~> e ::  :: pattrans :: 'TRpat_' {{ com Pattern translation }}
+{{ tex [[Gs]] \labeledjudge{p} [[p]] [[=>]] [[E]] : [[A]] [[->]] [[B]] \hlmath{[[~~>]] [[e]]} }}
 by
 
-K : (<<u:k>>)-><<B>>->D@<<u>> elt Gs
-Gs,<<x:B[<< u |-> U >>]>> |- E:A ~~> e
-Gs |- B[<< u |-> U >>]:s ~~> T
+K : (<<u:k>>n)->(<<x:A>>)->D@<<u>>n elt Gs
+Gs,<<x:A[<< u |-> U >>]>> |- E:B ~~> e
+Gs |- A[<< u |-> U >>]:s ~~> t
 --------------------------- :: Alt
-Gs |- K <<x:B[<< u |-> U >>]>> => E:D@<<U>>->A ~~> \<<x:T>>.e
+Gs |- K <<x:A[<< u |-> U >>]>> => E:D@<<U>>n ->B ~~> \<<x:t>>.e
 
 
 defn Gs  |- E : A ~~> e ::  :: exprtrans :: 'TR_' {{ com Expression translation }}
 {{ tex [[Gs]] \labeledjudge{s} [[E]] : [[A]] \hlmath{[[~~>]] [[e]]} }}
 by
 
+|- Gs
 ------------------------------ :: Ax
-empty |- star : star ~~> star
+Gs |- star : star ~~> star
 
 |- Gs ~~> G
 x:A elt Gs
@@ -273,25 +143,13 @@ Gs, x:A1 |- A2:r ~~> t2
 ---------------------- :: Pi
 Gs |- (Pi x:A1.A2):r ~~> Pi x:t1.t2
 
-Gs |- E : A2 ~~> e
-Gs |- A1 : s ~~> t1
-A1 --> A2
-------------------------------------- :: CastUp
-Gs |- (castup[A1] E):A1 ~~> castup[t1] e
-
-Gs |- E : A1 ~~> e
-Gs |- A2 : s ~~> t2
-A1 --> A2
------------------------------------- :: CastDown
-Gs |- (castdown E) : A2 ~~> castdown e
-
 Gs, x:A |- E:A ~~> e
 Gs |- A:s ~~> t
 ------------------------------- :: Mu
 Gs |- (mu x:A . E):A ~~> mu x:t.e
 
-Gs |- E1 : B ~~> e1
-<< Gs |- p => E2 : B -> A ~~> e2 >>
-<< Gs |- A : s ~~> t >>
+Gs |- E1 : A ~~> e1
+<< Gs |- p => E2 : A -> B ~~> e2 >>
+<< Gs |- B : s ~~> T >>
 ---------------------------------------- :: Case
-Gs |- case E1 of << p => E2 >> : A ~~> (unfoldn e1) t <<e2>>
+Gs |- case E1 of << p => E2 >> : B ~~> (unfoldnp e1) T <<e2>>
