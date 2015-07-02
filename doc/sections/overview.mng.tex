@@ -264,7 +264,7 @@ This section informally introduces the main features of \name. In
 particular, this section shows how the explicit casts in \name can be
 used instead of the typical conversion rule present in calculi such as
 the calculus of constructions. The formal details of \name are
-presented in \S\ref{sec:ecore}. \jeremy{to distinguish code from
+presented in Section~\ref{sec:ecore}. \jeremy{to distinguish code from
   \sufcc and \name, we may want to use different fonts, e.g., {\tt
     typewriter font} for \sufcc}
 
@@ -350,7 +350,7 @@ reduction of $[[(\y:star.y)int]]$. \bruno{explain why this is a
 \paragraph{Beta Expansion} The dual operation of $[[castdown]]$ is
 $[[castup]]$, which allows a type conversion provided that the
 resulting type is a \emph{beta expansion} of the original type of the
-term.  Let us revisit the example from \S\ref{sec:coc}. In \name,
+term.  Let us revisit the example from Section~\ref{sec:coc}. In \name,
 $f\,3$ is an ill-typed application. Instead we must write the
 application as
 \[ f\,([[castup[(\y:star.y)int] three]]) \]
@@ -369,7 +369,7 @@ beta expansions of $3$). \bruno{explain why for beta expansions we
 A final point to make is that the \cast rules specify \emph{one-step}
 reduction. This enables us to have more control over type-level
 computation. The full technical details about \cast rules are presented
-in \S\ref{sec:ecore}.
+in Section~\ref{sec:ecore}.
 
 \subsection{Decidability without Strong Normalization}
 
@@ -391,7 +391,7 @@ even in the presence of non-terminating programs at type level.
 % $d\,\mathsf{loop}$, where the latter is non-terminating.
 
 To illustrate, let us consider the same example discussed in
-\S\ref{sec:coc}. Now the type checker will not get stuck when
+Section~\ref{sec:coc}. Now the type checker will not get stuck when
 type-checking the following application:
 \[ [[(\x: d three.x)z]] \]
 where the type of $z$ is $d\,\mathsf{loop}$.  This is because in
@@ -499,7 +499,7 @@ which are logically inconsistent as well.
 In light of the fact that we decide to give up consistency, we take
 another step further by declaring that the kind $\star$ is of type
 $\star$. As it turns out, having this rule adds expressiveness and
-simplifies our system. We return to this issue in \S\ref{sec:related}.
+simplifies our system. We return to this issue in Section~\ref{sec:related}.
 
 
 \subsection{Encoding Datatypes}
@@ -570,7 +570,7 @@ numbers:
 \end{hscode}\resethooks
 The above definition quite resembles case analysis commonly seen in
 modern functional programming languages. (We formalize the encoding of
-case analysis in \S\ref{sec:surface}.)
+case analysis in Section~\ref{sec:surface}.)
 
 
 
