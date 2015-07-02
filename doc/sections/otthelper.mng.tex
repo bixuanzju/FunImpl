@@ -42,7 +42,7 @@
         (\dots ( [[castdown]]}_n [[E]]) \dots )) && %
         \quad\text{Cast down in $n$ steps} \\ %
     [[data R <<u:k>> = K { <<N:A>> }]] & \triangleq & %
-        [[data R <<u:k>> = K <<A>>]]; && \quad\text{Record} \\ %
+        [[data R <<u:k>> = K <<x:A>>]]; && \quad\text{Record} \\ %
         && [[let]]~[[N]]_i : [[ (<<u:k>>) -> R@<<u>> -> A]]_i = & %
         \forall i &  \\ %
         && [[\ <<u:k>> . \ y : R <<u>> . case y of K <<x:A>> => x]]_i~[[in]] && \\ %
@@ -51,7 +51,7 @@
 
 \newcommand{\ottdecltrans}{%%
 \begin{array}{ll} %
-    [[e]] [[:=]] & [[ let D : (<<u:T>>) -> star = mu X : (<<u:T>>) -> star . \ <<u:T>> . (aa:star) -> << (<<t>>[D |-> X] -> aa) >> -> aa in @@ ]] \\ %
-    & [[ let Ki : (<<u:T>>) -> <<t>> -> D@<<u>> = \ <<u:T>> . \<<x:t>> . foldn [D@<<u>>] (\aa:star.\<<bb : <<t>> -> aa >> . bbi <<x>>) in @@ ]] %
+    [[e]] [[:=]] & [[ let D : (<<u:T>>) -> star = mu X : (<<u:T>>) -> star . \ <<u:T>> . (aa:star) -> << ((<<x : t[D |-> X]>>) -> aa) >> -> aa in @@ ]] \\ %
+    & [[ let Ki : (<<u:T>>) -> (<<x:t>>) -> D@<<u>> = \ <<u:T>> . \<<x:t>> . foldn [D@<<u>>] (\aa:star.\<<bb : (<<x:t>>) -> aa >> . bbi <<x>>) in @@ ]] %
 \end{array} %
 }

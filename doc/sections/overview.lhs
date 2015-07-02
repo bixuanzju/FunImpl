@@ -7,7 +7,7 @@ This section informally introduces the main features of \name. In
 particular, this section shows how the explicit casts in \name can be
 used instead of the typical conversion rule present in calculi such as
 the calculus of constructions. The formal details of \name are
-presented in \S\ref{sec:ecore}. \jeremy{to distinguish code from
+presented in Section~\ref{sec:ecore}. \jeremy{to distinguish code from
   \sufcc and \name, we may want to use different fonts, e.g., {\tt
     typewriter font} for \sufcc}
 
@@ -42,7 +42,7 @@ to $[[\x:int.x]]$, the conversion rule allows the application of $f$
 to $3$ by implicitly converting $[[\x:(\y:star.y)int.x]]$ to
 $[[\x:int.x]]$.
 
-\paragraph{Decidability of Type-Checking and Strong Normalization} 
+\paragraph{Decidability of Type-Checking and Strong Normalization}
 While the conversion rule in \coc brings a lot of convenience, an
 unfortunate consequence is that it couples decidability of
 type-checking with strong normalization of the
@@ -93,7 +93,7 @@ reduction of $[[(\y:star.y)int]]$. \bruno{explain why this is a
 \paragraph{Beta Expansion} The dual operation of $[[castdown]]$ is
 $[[castup]]$, which allows a type conversion provided that the
 resulting type is a \emph{beta expansion} of the original type of the
-term.  Let us revisit the example from \S\ref{sec:coc}. In \name,
+term.  Let us revisit the example from Section~\ref{sec:coc}. In \name,
 $f\,3$ is an ill-typed application. Instead we must write the
 application as
 \[ f\,([[castup[(\y:star.y)int] three]]) \]
@@ -112,7 +112,7 @@ beta expansions of $3$). \bruno{explain why for beta expansions we
 A final point to make is that the \cast rules specify \emph{one-step}
 reduction. This enables us to have more control over type-level
 computation. The full technical details about \cast rules are presented
-in \S\ref{sec:ecore}.
+in Section~\ref{sec:ecore}.
 
 \subsection{Decidability without Strong Normalization}
 
@@ -134,7 +134,7 @@ even in the presence of non-terminating programs at type level.
 % $d\,\mathsf{loop}$, where the latter is non-terminating.
 
 To illustrate, let us consider the same example discussed in
-\S\ref{sec:coc}. Now the type checker will not get stuck when
+Section~\ref{sec:coc}. Now the type checker will not get stuck when
 type-checking the following application:
 \[ [[(\x: d three.x)z]] \]
 where the type of $z$ is $d\,\mathsf{loop}$.  This is because in
@@ -233,12 +233,24 @@ types, the \emph{call-by-name} evaluation is a sensible choice.
 One consequence of adding general recursion to the type system is that
 the logical consistency of the system is broken. This is a deliberate
 design decision, since our goal is to model languages like Haskell,
-which are logically inconsistent as well.
+which are logically inconsistent as well. In Haskell, we can write a
+``false'' type:
+
+< type False = forall a. a
+
+With general recursion, a value with type |False| is given:
+
+< false :: False
+< false = false
+
+whose denotational semantics is |undefined|, which corresponds to
+inconsistency in logic.
 
 In light of the fact that we decide to give up consistency, we take
-another step further by declaring that the kind $\star$ is of type
-$\star$. As it turns out, having this rule adds expressiveness and
-simplifies our system. We return to this issue in \S\ref{sec:related}.
+another step further by declaring that the kind $\star$ has type
+$\star$. As a consequence, having this rule adds expressiveness and
+simplifies our system (e.g., it will be easy to explicitly quantify
+over kinds). We return to this issue in Section~\ref{sec:related}.
 
 
 \subsection{Encoding Datatypes}
@@ -246,10 +258,10 @@ simplifies our system. We return to this issue in \S\ref{sec:related}.
 The explicit type conversion rules and the $\mu$ primitive facilitates
 the encoding of recursive datatypes and recursive functions over
 datatypes. While inductive datatypes can be encoded using either the
-Church or the Scott encoding, we adopt the Scott encoding as it
-encodes case analysis, making it more convenient to encode pattern
-matching. We demonstrate the encoding method using a simple datatype
-as a running example: Peano numbers.
+Church~\cite{tapl} or the Scott encoding~\cite{encoding:scott}, we
+adopt the Scott encoding as it encodes case analysis, making it more
+convenient to encode pattern matching. We demonstrate the encoding
+method using a simple datatype as a running example: Peano numbers.
 
 The datatype declaration for Peano numbers in Haskell is:
 
@@ -277,9 +289,11 @@ Its two constructors can be encoded correspondingly via the \cast rules:
 < Z = castup[Nat] (\ B : * . \ z : B . \ f : Nat -> B . z)
 < S = \ n : Nat . castup[Nat] (\ B : * . \ z : B . \ f : Nat -> B . f n)
 
-Thanks to the \cast rules, we can make use of the $[[castup]]$
-operation to do type conversion between the recursive type and its
-unfolding.
+Intuitively, each constructor selects a different function from the
+function parameters ($z$ and $f$ in the above example). This provides
+branching in the process flow, based on the constructors. Note that we
+use the $[[castup]]$ operation to do type conversion between the
+recursive type and its unfolding.
 
 The last example defines a recursive function that adds two natural
 numbers:
@@ -288,8 +302,8 @@ numbers:
 <     (castdown n) Nat m (\ n' : Nat . S (f n' m))
 
 The above definition quite resembles case analysis commonly seen in
-modern functional programming languages. (We formalize the encoding of
-case analysis in \S\ref{sec:surface}.)
+modern functional programming languages. We formalize the encoding of
+case analysis in Section~\ref{sec:surface}.
 
 
 

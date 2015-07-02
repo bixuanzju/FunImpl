@@ -119,14 +119,7 @@ ty_param : '(' id ':' expr ')'                  { ($2, $4) }
 constrs_decl : constr_decl                      { [$1] }
              | constr_decl '|' constrs_decl     { $1:$3 }
 
-constr_decl : id types                          { Constructor $1 $2 }
-
-types : {- empty -}                             { [] }
-      | ftype types                             { $1:$2 }
-
-ftype : '(' expr ')'                            { $2 }
-      | nat                                     { Nat }
-      | id                                      { Var $1 }
+constr_decl : id ty_param_list_or_empty { Constructor $1 $2 }
 
 alts : alt %prec ONEALT                         { [$1] }
      | alt '|' alts                             { $1:$3 }

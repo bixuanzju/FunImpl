@@ -33,7 +33,7 @@ data Expr = Var Sym
 data DataBind = DB Sym [(Sym, Type)] [Constructor]
   deriving Eq
 
-data Constructor = Constructor { constrName :: Sym, constrParams :: [Type] }
+data Constructor = Constructor { constrName :: Sym, constrParams :: [(Sym, Type)] }
   deriving Eq
 
 data RecBind = RB Sym [(Sym, Type)] RecField
@@ -126,7 +126,7 @@ instance Pretty DataBind where
     align (equals <+> intersperseBar (map pretty cons) <$$> semi)
 
 instance Pretty Constructor where
-  pretty (Constructor n ts) = hsep $ text n : map pretty ts
+  pretty (Constructor n ts) = hsep $ text n : map (\(tv, tk) -> parens (pretty tv <+> colon <+> pretty tk)) ts
 
 intersperseBar :: [Doc] -> Doc
 intersperseBar = foldl1 (\acc x -> acc <$$> char '|' <+> x)

@@ -13,89 +13,84 @@ main :: IO ()
 main = defaultMain tests
 
 tests :: TestTree
-tests = testGroup "Tests" [substTest, patternTest, recordTest, recurTest, kindPolyTest]
+tests = testGroup "Tests" [substTest, codeInPaper]
 
 -- natdt :: String
 -- natdt = "data nat = zero | suc nat;"
 
 listdt :: String
-listdt = "data list (a : *) = nil | cons a (list a);"
+listdt = "data List (a : *) = Nil | Cons (x:a) (xs : List a);"
 
 maybedt :: String
-maybedt = "data maybe (a : *) = nothing | just a;"
+maybedt = "data Maybe (a : *) = Nothing | Just (x:a);"
 
-monad :: String
-monad = "rcrd monad (m : * -> *) = mo { return : pi a : * . a -> m a, bind : pi a : *. pi b : *. m a -> (a -> m b) -> m b};"
+natdt :: String
+natdt = "data Nat = Z | S (n:Nat);"
 
--- listtest :: Expr
--- listtest = let Right (Progm [e]) = parseExpr $ listdt ++ "\\ x : (list nat) . cons nat 0 x"
---            in e
+-- pairdt :: String
+-- pairdt = "data PairT (a : *) (b : *) = Pair (x:a) (y:b);"
 
-pattest :: Expr
-pattest =
-  let Right (Progm [e]) = parseExpr $ listdt ++ "let alist : list nat = cons nat 1 (cons nat 2 (nil nat)) in let head : list nat -> nat = \\ x : list nat . case x of nil => 1000 | cons (x : nat) (xs : list nat) => x in head alist"
+functor :: String
+functor = "rcrd Functor (f : * -> *) = Func {fmap : (a : *) -> (b : *) -> (a -> b) -> f a -> f b};"
+
+datatypes :: Expr
+datatypes =
+  let Right (Progm [e]) = parseExpr $ listdt ++ "letrec length : (a : *) -> List a -> nat = \\ a : * . \\l : List a . case l of Nil => 0 |  Cons (x : a) (xs : List a) => 1 + length a xs in let test : List nat = Cons nat 1 (Cons nat 2 (Nil nat)) in length nat test"
+  in e
+
+higherKinded :: Expr
+higherKinded =
+  let Right (Progm [e]) = parseExpr $ maybedt ++ functor ++ "let maybeInst : Functor Maybe = Func Maybe (\\ a : * . \\ b : * . \\f : a -> b . \\ x : Maybe a . case x of Nothing => Nothing b |  Just (z : a) => Just b (f z)) in maybeInst"
   in e
 
 hoas :: Expr
 hoas =
-  let Right (Progm [e]) = parseExpr "data Exp = Num nat | Lam (Exp -> Exp) | App Exp Exp; data Value = VI nat | VF (Value -> Value); rcrd Eval = Ev { eval' : Exp -> Value, reify' : Value -> Exp}; let f : Eval= mu f' : Eval . Ev (\\ e : Exp . case e of Num (n : nat) => VI n | Lam (fun : Exp -> Exp) => VF (\\e' : Value . eval' f' (fun (reify' f' e'))) | App (a : Exp) (b : Exp) => case eval' f' a of VI (n : nat) => error | VF (fun : Value -> Value) => fun (eval' f' b)) (\\v : Value . case v of VI (n : nat) => Num n | VF (fun : Value -> Value) => Lam (\\e' : Exp . (reify' f' (fun (eval' f' e'))))) in let eval : Exp -> Value = eval' f in let show : Value -> nat = \\v : Value . case v of VI (n : nat) => n | VF (fun : Value -> Value) => error in let test : Exp = App (Lam (\\ f : Exp . App f (Num 42))) (Lam (\\ g : Exp. g)) in show (eval test)"
+  let Right (Progm [e]) = parseExpr "data Exp = Num (n : nat) |  Lam (f : Exp -> Exp) |  App (a : Exp) (b : Exp); data Value = VI (n : nat) | VF (f : Value -> Value); rcrd Eval = Ev { eval' : Exp -> Value, reify' : Value -> Exp }; let f : Eval = mu f' : Eval . Ev  (\\ e : Exp . case e of Num (n : nat) => VI n | Lam (fun : Exp -> Exp) => VF (\\e' : Value . eval' f' (fun (reify' f' e'))) | App (a : Exp) (b : Exp) => case eval' f' a of VI (n : nat) => error | VF (fun : Value -> Value) => fun (eval' f' b)) (\\v : Value . case v of VI (n : nat) => Num n | VF (fun : Value -> Value) => Lam (\\e' : Exp . (reify' f' (fun (eval' f' e'))))) in let eval : Exp -> Value = eval' f in let show : Value -> nat = \\v : Value . case v of VI (n : nat) => n | VF (fun : Value -> Value) => error in let test : Exp = App (Lam (\\ f : Exp . App f (Num 42))) (Lam (\\g : Exp. g)) in show (eval test)"
   in e
 
-perfectBinaryTree :: Expr
-perfectBinaryTree =
-  let Right (Progm [e]) = parseExpr "data Nat = Z | S Nat; data PairT (a : *) (b : *) = Pair a b; data B (a : *) = One a | Two (B (PairT a a)); data List (a : *) = Nil | Cons a (List a); letrec pairs : (a : *) -> List a -> List (PairT a a) = \\ a : * . \\ xs : List a . case xs of Nil => Nil (PairT a a) | Cons (y : a) (ys : List a) => case ys of Nil => Nil (PairT a a) | Cons (y' : a) (ys' : List a) => Cons (PairT a a) (Pair a a y y') (pairs a ys') in letrec fromList : (a : *) -> List a -> B a = \\ a : * . \\xs : List a . case xs of Nil => Two a (fromList (PairT a a) (pairs a (Nil a))) | Cons (x : a) (xs' : List a) => case xs' of Nil => One a x | Cons (y : a) (zs : List a) => Two a (fromList (PairT a a) (pairs a xs)) in letrec take : Nat -> List nat -> List nat = \\ n : Nat . \\ l : List nat . case n of Z => Nil nat | S (m : Nat) => case l of Nil => Nil nat | Cons (x : nat) (xs : List nat) => Cons nat x (take m xs) in letrec repeat : nat -> List nat = \\ x : nat . Cons nat x (repeat x) in letrec twos : (a : *) -> B a -> nat = \\ a : * . \\x : B a . case x of One (y : a) => 0 | Two (c : B (PairT a a)) => 1 + twos (PairT a a) c in let powerTwo : Nat -> nat = \\ n : Nat . twos nat (fromList nat (take n (repeat 1))) in powerTwo (S (S (S (S Z))))"
+fixAsDatatype :: Expr
+fixAsDatatype =
+  let Right (Progm [e]) = parseExpr $ functor ++ "rcrd Fix (f : * -> *) = In {out : (f (Fix f)) }; letrec cata : (f : * -> *) -> (a : *) -> Functor f -> (f a -> a) -> Fix f -> a = \\f : * -> * . \\ a : * . \\ m : Functor f . \\ g : f a -> a. \\ t : Fix f . g (fmap f m (Fix f) a (cata f a m g) (out f t)) in cata"
   in e
 
 kindPoly :: Expr
-kindPoly = let Right (Progm [e]) = parseExpr $ listdt ++ "data TApp (k : *) (f : k -> *) (a : k) = MkTApp (f a); MkTApp * (\\ x : * . x) nat (fold 1 [(\\ x : * . x) nat] 3)"
-             in e
+kindPoly =
+  let Right (Progm [e]) = parseExpr "data Mu (k : *) (f : (k -> *) -> k -> *) (a : k) = Roll (g : (f (Mu k f) a)); data Listf (f : * -> *) (a : *) = Nil | Cons (x : a) (xs : (f a)); let List : * -> * = \\a : * . Mu * Listf a in List"
+  in e
 
-recordtest :: Expr
-recordtest = let Right (Progm [e]) = parseExpr $ listdt ++ "rcrd person = p { name : nat, addr : list nat}; addr (p 0 (cons nat 0 (nil nat)))"
-             in e
+nestedDT :: Expr
+nestedDT =
+  let Right (Progm [e]) = parseExpr $ listdt ++ "data PairT (a : *) = P (x : a) (x : a); data Pow (a : *) = Zero (n : a) | Succ (t : Pow (PairT a)); letrec foldr : (a : *) -> (b : *) -> (a -> b -> b) -> b -> List a -> b = \\a : * . \\b : * . \\f : a -> b -> b . \\y : b . \\l : List a . case l of Nil => y | Cons (x : a) (xs : List a) => f x (foldr a b f y xs) in letrec append : (a : *) -> List a -> List a -> List a = \\a : * . \\l : List a . \\m : List a . case l of Nil => m | Cons (x : a) (xs : List a) => Cons a x (append a xs m) in let concatMap : (a : *) -> (b : *) -> (a -> List b) -> List a -> List b = \\a : * . \\b : * . \\f : a -> List b . foldr a (List b) (\\x : a . \\y : List b . append b (f x) y) (Nil b) in letrec toList : (a : *) -> Pow a -> List a = \\a : * . \\t : Pow a . case t of Zero (x : a) => Cons a x (Nil a) | Succ (c : Pow (PairT a)) => concatMap (PairT a) a (\\ x : PairT a . case x of P (m : a) (n : a) => Cons a m (Cons a n (Nil a))) (toList (PairT a) c) in let head : List nat -> nat = \\ x : List nat . case x of Nil => error | Cons (x : nat) (xs : List nat) => x in let tail : List nat -> List nat = \\ x : List nat . case x of Nil => Nil nat | Cons (y : nat) (ys : List nat) => ys in let test : Pow nat = Succ nat (Zero (PairT nat) (P nat 42 43)) in head (toList nat test)"
+  in e
 
-recordtest2 :: Expr
-recordtest2 = let Right (Progm [e]) = parseExpr $ maybedt ++ monad ++ "let inst : monad maybe = (mo maybe (\\ a : * . \\ x : a . nothing a) (\\ a : *. \\ b : *. \\ x : maybe a . \\ f : a -> maybe b . case x of nothing => nothing b | just (y : a) => f y)) in return maybe inst nat 0"
-             in e
+dataPro :: Expr
+dataPro =
+  let Right (Progm [e]) = parseExpr $ natdt ++ "data PTree (n : Nat) = Empty | Fork (z : nat) (x : PTree (S n)) (y : PTree (S n)); Fork Z 1 (Empty (S Z)) (Empty (S Z))"
+  in e
 
-recurtest :: Expr
-recurtest = let Right (Progm [e]) = parseExpr $ listdt ++ "letrec length : list nat -> nat = \\ l : list nat . case l of nil => 0 | cons (x : nat) (xs : list nat) => (length xs) + 1 in length (cons nat 0 (nil nat))"
-             in e
-
-recurTest :: TestTree
-recurTest =
-  testGroup "Recursive function"
-    [testCase "length of lists" $
-      (trans [] (desugar recurtest) >>= (\(_, e) -> eval (desugar e))) @?= Right (Lit 1)]
-
-kindPolyTest :: TestTree
-kindPolyTest =
-  testGroup "Kind polymorphism"
-    [testCase "data TApp (k : *) (f : k -> *) (a : k) = MkTApp (f a)" $
-      isRight (trans [] (desugar kindPoly) >>= (\(_, e) -> tcheck [] (desugar e))) @?= True]
-
-recordTest :: TestTree
-recordTest =
-  testGroup "Record check"
-    [ testCase "record" $
-      (trans [] (desugar recordtest) >>= (\(t, _) -> return t)) @?= Right (App (Var "list") Nat)
-    , testCase "monad" $
-      (trans [] (desugar recordtest2) >>= (\(t, _) -> return t)) @?= Right (App (Var "maybe") Nat)
-    ]
-
-patternTest :: TestTree
-patternTest =
-  testGroup "Pattern matching check"
-    [ testCase "typecheck: case analysis" $
-      (trans [] (desugar pattest) >>= (\(_, e) -> tcheck [] (desugar e))) @?= Right Nat
-    , testCase "evaluation: case analysis" $
-      (trans [] (desugar pattest) >>= (\(_, e) -> eval (desugar e))) @?= Right (Lit 1)
-    , testCase "typecheck: HOAS" $
+codeInPaper :: TestTree
+codeInPaper =
+  testGroup "Examples in the paper"
+    [ testCase "Datatypes: typecheck" $
+      (trans [] (desugar datatypes) >>= (\(_, e) -> tcheck [] (desugar e))) @?= Right Nat
+    , testCase "Datatypes: eval" $
+      (trans [] (desugar datatypes) >>= (\(_, e) -> eval (desugar e))) @?= Right (Lit 2)
+    , testCase "Higher-kinded Types: typecheck" $
+      isRight (trans [] (desugar higherKinded) >>= (\(_, e) -> tcheck [] (desugar e))) @?= True
+    , testCase "HOAS: typecheck" $
       (trans [] (desugar hoas) >>= (\(_, e) -> tcheck [] (desugar e))) @?= Right Nat
-    , testCase "evaluation: HOAS" $
+    , testCase "HOAS: eval" $
       (trans [] (desugar hoas) >>= (\(_, e) -> eval (desugar e))) @?= Right (Lit 42)
-    , testCase "evaluation: Perfect binary tree" $
-      (trans [] (desugar perfectBinaryTree) >>= (\(_, e) -> eval (desugar e))) @?= Right (Lit 2)
+    , testCase "Fix as a Datatype: typecheck" $
+      isRight (trans [] (desugar fixAsDatatype) >>= (\(_, e) -> tcheck [] (desugar e))) @?= True
+    , testCase "Kind Polymophism: typecheck" $
+      isRight (trans [] (desugar kindPoly) >>= (\(_, e) -> tcheck [] (desugar e))) @?= True
+    , testCase "Nested Datatypes: typecheck" $
+      (trans [] (desugar nestedDT) >>= (\(_, e) -> tcheck [] (desugar e))) @?= Right Nat
+    , testCase "Nested Datatypes: eval" $
+      (trans [] (desugar nestedDT) >>= (\(_, e) -> eval (desugar e))) @?= Right (Lit 43)
+    , testCase "Data Promotion: typecheck" $
+      isRight (trans [] (desugar dataPro) >>= (\(_, e) -> tcheck [] (desugar e))) @?= True
     ]
 
 substTest :: TestTree

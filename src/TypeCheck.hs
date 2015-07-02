@@ -7,6 +7,7 @@ import Control.Monad.Except (throwError)
 
 import Syntax
 import Expr
+import Utils
 
 type Env = [(Sym, Type)]
 
@@ -121,7 +122,7 @@ tcdatatypes env (DB tc tca constrs) = do
 
   -- check data constructors
   let du = foldl App (Var tc) (map (Var . fst) tca)
-  let tduList = map (chainType du . constrParams) constrs
+  let tduList = map (mkProdType du . constrParams) constrs
   dcts <- mapM (tcheck (reverse tca ++ ((tc, tct) : env))) tduList -- Note: reverse type parameters list (tca)
   unless (all (== Kind Star) dcts) $ throwError "Bad data constructor arguments"
 
@@ -133,12 +134,6 @@ getActualTypes :: Type -> TC [Type]
 getActualTypes (App a b) = getActualTypes a >>= \ts -> return (b : ts)
 getActualTypes (Var _) = return []
 getActualTypes _ = throwError "Bad scrutinee type"
-
-chainType :: Type -> [Type] -> Type
-chainType = foldr (Pi "")
-
-mkProdType :: Type -> [(Sym, Type)] -> Type
-mkProdType = foldr (\(n, t1) t2 -> Pi n t1 t2)
 
 -- allowedKinds :: [(Type, Type)]
 -- allowedKinds =

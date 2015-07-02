@@ -128,7 +128,7 @@ desugar (Rec (RB n params field) e) =
                                         (Var (map fst xs !! i))
                                     ])))
                          [0 :: Int .. length taus - 1]))
-      lastExpr = Data (DB n params [Constructor (recordName field) taus])
+      lastExpr = Data (DB n params [Constructor (recordName field) (selector field)])
                    (desugar (foldr (\(name, (kt, ke)) body -> Let name kt ke body) e selExprs))
   in lastExpr
 desugar (Data bind e) = Data bind (desugar e)

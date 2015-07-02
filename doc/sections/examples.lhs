@@ -16,7 +16,7 @@ language \sufcc, which in built on top of \name. Most of these
 examples either require non-trivial extensions of Haskell, or are
 non-trivial to encode in dependently typed language like Coq or
 Agda. The formalization of the surface language is presented in
-\S\ref{sec:surface}.
+Section~\ref{sec:surface}.
 
 \begin{comment}
 \subsection{Parametric HOAS}
@@ -89,7 +89,7 @@ be easily defined in \sufcc, \bruno{This is not name; its the source
   language built on top of name!} \jeremy{changed} as in Haskell. For
 example, below is the definition of polymorphic lists:
 
-<  data List (a : *) = Nil | Cons a (List a);
+<  data List (a : *) = Nil | Cons (x : a) (xs : List a);
 
 
 Because \sufcc \bruno{You'll have to stop referring to \name in this
@@ -119,7 +119,7 @@ easily construct higher-kinded types. We show this by an example of
 encoding the \emph{Functor} class:
 
 < rcrd Functor (f : * -> *) =
-<   Func {fmap : (a : *) -> (b : *) -> f a -> f b};
+<   Func {fmap : (a : *) -> (b : *) -> (a -> b) -> f a -> f b};
 
 A functor is just a record that has only one field \emph{fmap}. A
 Functor instance of the \emph{Maybe} datatype is:
@@ -142,16 +142,16 @@ HOAS due to the restrictiveness of their termination checkers. However
 \sufcc is able to express HOAS in a straightforward way. We show an
 example of encoding a simple lambda calculus:
 
-< data Exp = Num nat
-<   |  Lam (Exp -> Exp)
-<   |  App Exp Exp;
+< data Exp = Num (n : nat)
+<   |  Lam (f : Exp -> Exp)
+<   |  App (a : Exp) (b : Exp);
 
 
 Next we define the evaluator for our lambda calculus. As noted
 by~\cite{Fegaras1996}, the evaluation function needs an extra function
 \emph{reify} to invert the result of evaluation.
 
-< data Value = VI nat | VF (Value -> Value);
+< data Value = VI (n : nat) | VF (f : Value -> Value);
 < rcrd Eval = Ev { eval' : Exp -> Value, reify' : Value -> Exp };
 < let f : Eval = mu f' : Eval .
 <   Ev  (\ e : Exp . case e of
@@ -184,13 +184,15 @@ Evaluation of a lambda expression proceeds as follows:
 The type-level \emph{Fix} is a good example to demonstrate the
 expressiveness of \sufcc. The definition is:
 
-< rcrd Fix (f : * -> *) = In {out : (f (Fix f)) };
+< rcrd Fix (f : * -> *) = In {out : f (Fix f) };
 
-The record notation also introduces the selector function: |out : (f :
-* -> *) -> Fix f -> f (Fix f)|.  The \emph{Fix} datatype is
-interesting in that now we can define recursive datatypes in a
-non-recursive way. For instance, a non-recursive definition for
-natural numbers is:
+The record notation also introduces the selector function:
+
+< out : (f : * -> *) -> Fix f -> f (Fix f)
+
+The \emph{Fix} datatype is interesting in that now we can define
+recursive datatypes in a non-recursive way. For instance, a
+non-recursive definition for natural numbers is:
 
 < data NatF (self : *) = Zero | Succ self;
 
@@ -226,11 +228,12 @@ from~\cite{fc:pro}, of a datatype that benefits from kind polymophism:
 a higher-kinded fixpoint combinator:
 
 < data Mu (k : *) (f : (k -> *) -> k -> *) (a : k) =
-<   Roll (f (Mu k f) a);
+<   Roll (g : f (Mu k f) a);
 
 \emph{Mu} can be used to construct polymorphic recursive types of any kind, for instance:
 
-< data Listf (f : * -> *) (a : *) = Nil | Cons a (f a);
+< data Listf (f : * -> *) (a : *) = Nil
+<   | Cons (x : a) (xs : (f a));
 < let List : * -> * = \a : * . Mu * Listf a
 
 \subsubsection{Nested Datatypes}
@@ -244,8 +247,9 @@ useful functions over a nested datatype. A simple example would be the
 type \emph{Pow} of power trees, whose size is exactly a power of two,
 declared as follows:
 
-< data PairT (a : *) = P a a;
-< data Pow (a : *) = Zero a | Succ (Pow (PairT a));
+< data PairT (a : *) = P (x : a) (x : a);
+< data Pow (a : *) = Zero (n : a)
+<   | Succ (t : Pow (PairT a));
 
 Notice that the recursive mention of \emph{Pow} does not hold
 \emph{a}, but \emph{PairT a}. This means every time we use a
@@ -283,7 +287,7 @@ where each node is labeled with its depth in the tree. Below is the
 definition:
 
 < data PTree (n : Nat) = Empty
-<   | Fork nat (PTree (S n)) (PTree (S n));
+<   | Fork (z : nat) (x : PTree (S n)) (y : PTree (S n));
 
 Notice how the datatype \emph{Nat} is ``promoted'' to be used in the
 kind level. Next we can construct such a binary tree that keeps track

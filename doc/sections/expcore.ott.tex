@@ -80,7 +80,7 @@
 
 \newcommand{\ottdecl}{
 \ottrulehead{\ottnt{decl}}{::=}{\ottcom{Declarations}}\ottprodnewline
-\ottfirstprodline{|}{\kw{data} \, \ottmv{D}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{=}  \,\overline{  \ottmv{K}  \,\overline{  T  }\,  }\,}{}{}{}{\ottcom{Datatype declaration}}}
+\ottfirstprodline{|}{\kw{data} \, \ottmv{D}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{=}  \,\overline{  \ottmv{K}  \,\overline{  \ottmv{x}  \ottsym{:}  T  }\,  }\,}{}{}{}{\ottcom{Datatype declaration}}}
 
 \newcommand{\ottp}{
 \ottrulehead{\ottnt{p}}{::=}{\ottcom{Patterns}}\ottprodnewline
@@ -442,9 +442,9 @@
 %% defn declsrc
 \newcommand{\ottdruleTSdeclXXData}[1]{\ottdrule[#1]{%
 { \Sigma  \labeledjudge{s}  \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{)}  \rightarrow  \star  :  \star }%
-\\ {\,\overline{   \Sigma  \ottsym{,}  \ottmv{D}  \ottsym{:}  \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{)}  \rightarrow  \star  \ottsym{,}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \labeledjudge{s}  \,\overline{  T  }\,  \rightarrow  \ottmv{D}    \,\overline{  \ottnt{u}  }\,  :  \star   }\,}%
+\\ {\,\overline{   \Sigma  \ottsym{,}  \ottmv{D}  \ottsym{:}  \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{)}  \rightarrow  \star  \ottsym{,}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \labeledjudge{s}  \ottsym{(}  \,\overline{  \ottmv{x}  \ottsym{:}  T  }\,  \ottsym{)}  \rightarrow  \ottmv{D}    \,\overline{  \ottnt{u}  }\,  :  \star   }\,}%
 }{
- \Sigma  \labeledjudge{d}  \ottsym{(}  \kw{data} \, \ottmv{D}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{=}  \,\overline{  \ottmv{K}  \,\overline{  T  }\,  }\,  \ottsym{)}  :  \ottsym{(}  \ottmv{D}  \ottsym{:}  \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{)}  \rightarrow  \star  \ottsym{,}  \,\overline{  \ottmv{K}  \ottsym{:}  \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{)}  \rightarrow  \,\overline{  T  }\,  \rightarrow  \ottmv{D}    \,\overline{  \ottnt{u}  }\,  }\,  \ottsym{)} }{%
+ \Sigma  \labeledjudge{d}  \ottsym{(}  \kw{data} \, \ottmv{D}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{=}  \,\overline{  \ottmv{K}  \,\overline{  \ottmv{x}  \ottsym{:}  T  }\,  }\,  \ottsym{)}  :  \ottsym{(}  \ottmv{D}  \ottsym{:}  \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{)}  \rightarrow  \star  \ottsym{,}  \,\overline{  \ottmv{K}  \ottsym{:}  \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{)}  \rightarrow  \ottsym{(}  \,\overline{  \ottmv{x}  \ottsym{:}  T  }\,  \ottsym{)}  \rightarrow  \ottmv{D}    \,\overline{  \ottnt{u}  }\,  }\,  \ottsym{)} }{%
 {\ottdrulename{TSdecl\_Data}}{}%
 }}
 
@@ -598,9 +598,9 @@
 %% defn decltrans
 \newcommand{\ottdruleTRdeclXXData}[1]{\ottdrule[#1]{%
 { \Sigma  \labeledjudge{s}  \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{)}  \rightarrow  \star  :  \star  \hlmath{ \rightsquigarrow   \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \sigma  }\,  \ottsym{)}  \rightarrow  \star } }%
-\\ {\,\overline{   \Sigma  \ottsym{,}  \ottmv{D}  \ottsym{:}  \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{)}  \rightarrow  \star  \ottsym{,}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \labeledjudge{s}  \,\overline{  T  }\,  \rightarrow  \ottmv{D}    \,\overline{  \ottnt{u}  }\,  :  \star  \hlmath{ \rightsquigarrow   \,\overline{  \tau  }\,  \rightarrow  \ottmv{D}    \,\overline{  \ottnt{u}  }\, }   }\,}%
+\\ {\,\overline{   \Sigma  \ottsym{,}  \ottmv{D}  \ottsym{:}  \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{)}  \rightarrow  \star  \ottsym{,}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \labeledjudge{s}  \ottsym{(}  \,\overline{  \ottmv{x}  \ottsym{:}  T  }\,  \ottsym{)}  \rightarrow  \ottmv{D}    \,\overline{  \ottnt{u}  }\,  :  \star  \hlmath{ \rightsquigarrow   \ottsym{(}  \,\overline{  \ottmv{x}  \ottsym{:}  \tau  }\,  \ottsym{)}  \rightarrow  \ottmv{D}    \,\overline{  \ottnt{u}  }\, }   }\,}%
 }{
- \Sigma  \labeledjudge{d}  \ottsym{(}  \kw{data} \, \ottmv{D}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{=}  \,\overline{  \ottmv{K}  \,\overline{  T  }\,  }\,  \ottsym{)}  :  \ottsym{(}  \ottmv{D}  \ottsym{:}  \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{)}  \rightarrow  \star  \ottsym{,}  \,\overline{  \ottmv{K}  \ottsym{:}  \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{)}  \rightarrow  \,\overline{  T  }\,  \rightarrow  \ottmv{D}    \,\overline{  \ottnt{u}  }\,  }\,  \ottsym{)}  \hlmath{ \rightsquigarrow   \ottnt{e} } }{%
+ \Sigma  \labeledjudge{d}  \ottsym{(}  \kw{data} \, \ottmv{D}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{=}  \,\overline{  \ottmv{K}  \,\overline{  \ottmv{x}  \ottsym{:}  T  }\,  }\,  \ottsym{)}  :  \ottsym{(}  \ottmv{D}  \ottsym{:}  \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{)}  \rightarrow  \star  \ottsym{,}  \,\overline{  \ottmv{K}  \ottsym{:}  \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{)}  \rightarrow  \ottsym{(}  \,\overline{  \ottmv{x}  \ottsym{:}  T  }\,  \ottsym{)}  \rightarrow  \ottmv{D}    \,\overline{  \ottnt{u}  }\,  }\,  \ottsym{)}  \hlmath{ \rightsquigarrow   \ottnt{e} } }{%
 {\ottdrulename{TRdecl\_Data}}{}%
 }}
 
