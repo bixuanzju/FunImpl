@@ -529,10 +529,10 @@ over kinds). We return to this issue in Section~\ref{sec:related}.
 The explicit type conversion rules and the $\mu$ primitive facilitates
 the encoding of recursive datatypes and recursive functions over
 datatypes. While inductive datatypes can be encoded using either the
-Church or the Scott encoding, we adopt the Scott encoding as it
-encodes case analysis, making it more convenient to encode pattern
-matching. We demonstrate the encoding method using a simple datatype
-as a running example: Peano numbers.
+Church~\cite{tapl} or the Scott encoding~\cite{encoding:scott}, we
+adopt the Scott encoding as it encodes case analysis, making it more
+convenient to encode pattern matching. We demonstrate the encoding
+method using a simple datatype as a running example: Peano numbers.
 
 The datatype declaration for Peano numbers in Haskell is:
 \begin{hscode}\SaveRestoreHook
@@ -573,9 +573,11 @@ Its two constructors can be encoded correspondingly via the \cast rules:
 \>[3]{}\Conid{S}\mathrel{=}\lambda \Varid{n}\mathbin{:}\Conid{Nat}.\,\mathsf{cast}^\uparrow\;[\mskip1.5mu \Conid{Nat}\mskip1.5mu]\;(\lambda \Conid{B}\mathbin{:}\star.\,\lambda \Varid{z}\mathbin{:}\Conid{B}.\,\lambda \Varid{f}\mathbin{:}\Conid{Nat}\to \Conid{B}.\,\Varid{f}\;\Varid{n}){}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
-Thanks to the \cast rules, we can make use of the $ \mathsf{cast}^{\uparrow} $
-operation to do type conversion between the recursive type and its
-unfolding.
+Intuitively, each constructor selects a different function from the
+function parameters ($z$ and $f$ in the above example). This provides
+branching in the process flow, based on the constructors. Note that we
+use the $ \mathsf{cast}^{\uparrow} $ operation to do type conversion between the
+recursive type and its unfolding.
 
 The last example defines a recursive function that adds two natural
 numbers:
@@ -591,8 +593,8 @@ numbers:
 \ColumnHook
 \end{hscode}\resethooks
 The above definition quite resembles case analysis commonly seen in
-modern functional programming languages. (We formalize the encoding of
-case analysis in Section~\ref{sec:surface}.)
+modern functional programming languages. We formalize the encoding of
+case analysis in Section~\ref{sec:surface}.
 
 
 

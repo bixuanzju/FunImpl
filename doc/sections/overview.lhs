@@ -258,10 +258,10 @@ over kinds). We return to this issue in Section~\ref{sec:related}.
 The explicit type conversion rules and the $\mu$ primitive facilitates
 the encoding of recursive datatypes and recursive functions over
 datatypes. While inductive datatypes can be encoded using either the
-Church or the Scott encoding, we adopt the Scott encoding as it
-encodes case analysis, making it more convenient to encode pattern
-matching. We demonstrate the encoding method using a simple datatype
-as a running example: Peano numbers.
+Church~\cite{tapl} or the Scott encoding~\cite{encoding:scott}, we
+adopt the Scott encoding as it encodes case analysis, making it more
+convenient to encode pattern matching. We demonstrate the encoding
+method using a simple datatype as a running example: Peano numbers.
 
 The datatype declaration for Peano numbers in Haskell is:
 
@@ -289,9 +289,11 @@ Its two constructors can be encoded correspondingly via the \cast rules:
 < Z = castup[Nat] (\ B : * . \ z : B . \ f : Nat -> B . z)
 < S = \ n : Nat . castup[Nat] (\ B : * . \ z : B . \ f : Nat -> B . f n)
 
-Thanks to the \cast rules, we can make use of the $[[castup]]$
-operation to do type conversion between the recursive type and its
-unfolding.
+Intuitively, each constructor selects a different function from the
+function parameters ($z$ and $f$ in the above example). This provides
+branching in the process flow, based on the constructors. Note that we
+use the $[[castup]]$ operation to do type conversion between the
+recursive type and its unfolding.
 
 The last example defines a recursive function that adds two natural
 numbers:
@@ -300,8 +302,8 @@ numbers:
 <     (castdown n) Nat m (\ n' : Nat . S (f n' m))
 
 The above definition quite resembles case analysis commonly seen in
-modern functional programming languages. (We formalize the encoding of
-case analysis in Section~\ref{sec:surface}.)
+modern functional programming languages. We formalize the encoding of
+case analysis in Section~\ref{sec:surface}.
 
 
 
