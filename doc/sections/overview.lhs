@@ -42,7 +42,7 @@ to $[[\x:int.x]]$, the conversion rule allows the application of $f$
 to $3$ by implicitly converting $[[\x:(\y:star.y)int.x]]$ to
 $[[\x:int.x]]$.
 
-\paragraph{Decidability of Type-Checking and Strong Normalization} 
+\paragraph{Decidability of Type-Checking and Strong Normalization}
 While the conversion rule in \coc brings a lot of convenience, an
 unfortunate consequence is that it couples decidability of
 type-checking with strong normalization of the
@@ -233,12 +233,24 @@ types, the \emph{call-by-name} evaluation is a sensible choice.
 One consequence of adding general recursion to the type system is that
 the logical consistency of the system is broken. This is a deliberate
 design decision, since our goal is to model languages like Haskell,
-which are logically inconsistent as well.
+which are logically inconsistent as well. In Haskell, we can write a
+``false'' type:
+
+< type False = forall a. a
+
+With general recursion, a value with type |False| is given:
+
+< false :: False
+< false = false
+
+whose denotational semantics is |undefined|, which corresponds to
+inconsistency in logic.
 
 In light of the fact that we decide to give up consistency, we take
-another step further by declaring that the kind $\star$ is of type
-$\star$. As it turns out, having this rule adds expressiveness and
-simplifies our system. We return to this issue in Section~\ref{sec:related}.
+another step further by declaring that the kind $\star$ has type
+$\star$. As a consequence, having this rule adds expressiveness and
+simplifies our system (e.g., it will be easy to explicitly quantify
+over kinds). We return to this issue in Section~\ref{sec:related}.
 
 
 \subsection{Encoding Datatypes}

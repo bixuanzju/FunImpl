@@ -300,7 +300,7 @@ to $\lambda  \ottmv{x}  \ottsym{:}  \mathsf{Int}  \ottsym{.}  \ottmv{x}$, the co
 to $3$ by implicitly converting $\lambda  \ottmv{x}  \ottsym{:}  \ottsym{(}  \lambda  \ottmv{y}  \ottsym{:}  \star  \ottsym{.}  \ottmv{y}  \ottsym{)} \, \mathsf{Int}  \ottsym{.}  \ottmv{x}$ to
 $\lambda  \ottmv{x}  \ottsym{:}  \mathsf{Int}  \ottsym{.}  \ottmv{x}$.
 
-\paragraph{Decidability of Type-Checking and Strong Normalization} 
+\paragraph{Decidability of Type-Checking and Strong Normalization}
 While the conversion rule in \coc brings a lot of convenience, an
 unfortunate consequence is that it couples decidability of
 type-checking with strong normalization of the
@@ -495,12 +495,33 @@ types, the \emph{call-by-name} evaluation is a sensible choice.
 One consequence of adding general recursion to the type system is that
 the logical consistency of the system is broken. This is a deliberate
 design decision, since our goal is to model languages like Haskell,
-which are logically inconsistent as well.
+which are logically inconsistent as well. In Haskell, we can write a
+``false'' type:
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[3]{}\mathbf{type}\;\Conid{False}\mathrel{=}\Varid{forall}\;\Varid{a}.\,\Varid{a}{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+With general recursion, a value with type \ensuremath{\Conid{False}} is given:
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[3]{}\Varid{false}\mathbin{::}\Conid{False}{}\<[E]%
+\\
+\>[3]{}\Varid{false}\mathrel{=}\Varid{false}{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+whose denotational semantics is \ensuremath{\bot }, which corresponds to
+inconsistency in logic.
 
 In light of the fact that we decide to give up consistency, we take
-another step further by declaring that the kind $\star$ is of type
-$\star$. As it turns out, having this rule adds expressiveness and
-simplifies our system. We return to this issue in Section~\ref{sec:related}.
+another step further by declaring that the kind $\star$ has type
+$\star$. As a consequence, having this rule adds expressiveness and
+simplifies our system (e.g., it will be easy to explicitly quantify
+over kinds). We return to this issue in Section~\ref{sec:related}.
 
 
 \subsection{Encoding Datatypes}
