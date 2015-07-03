@@ -39,7 +39,7 @@ merge types and kinds together by including only a single sort
 $[[star]]$ and an impredicative axiom $[[star]]:[[star]]$. 
 
 
-\paragraph{Explicit type conversion}
+\paragraph{Explicit Type Conversion}
 
 We introduce two new primitives $[[castup]]$ and $[[castdown]]$
 (pronounced as "cast up" and "cast down") to replace the implicit
@@ -47,17 +47,17 @@ conversion rule of \cc with a \emph{one-step} explicit type
 conversion. They represent two directions of type conversion:
 $[[castdown]]$ stands for the $\beta$-reduction of types, while
 $[[castup]]$ is the inverse. % (Examples will be given in later typing sections).
-
 Though \cast primitives make the syntax verbose when type conversion
 is heavily used, the implementation of type checking is simplified:
 the typing rules of \ecore become syntax-directed without \cc's
 implicit conversion rule. \bruno{I think the following point should be
 made in the source language section, not here.}
-Considering the core language is
-compiler-oriented, end-users will not directly use them. 
-Some type
-conversions can be generated through the translation of the source
-language (\S \ref{sec:surface}).
+% Considering the core language is
+% compiler-oriented, end-users will not directly use them. 
+% Some type
+% conversions can be generated through the translation of the source
+% language (\S \ref{sec:surface}).
+\linus{Revised. Section 6 has mentioned this.}
 
 \begin{figure}
     \gram{\ottec\ottinterrule
@@ -65,7 +65,7 @@ language (\S \ref{sec:surface}).
         \ottv}
     \caption{Syntax of \ecore}
     \label{fig:ecore:syntax}
-\end{figure}\bruno{Product should be dependent product. }
+\end{figure}\bruno{Product should be dependent product. }\linus{Corrected in all figures.}
 
 \subsection{Operational Semantics}\label{sec:ecore:opsem}
 
@@ -328,14 +328,13 @@ reduction steps.
 Suppose $[[e]] : [[t]]$ and there exists a reduction sequence
 $[[t1]] [[-->]] [[t2]] [[-->]] \dots [[-->]] [[tn]] [[-->]] [[t]]$,
 the following typing of $[[foldn]]$ holds:
-$
+\[
     [[foldn]] [ [[t1]], \dots, [[tn]] ] [[e]] : [[t1]].
-$
-
+\]
 Note that $[[t1]] [[-->>]] [[t]]$ are decidable by Lemma
 \ref{lem:ecore:uniquen}. Thus, the intermediate types in $[[t1]] [[-->>]] [[t]]$,
-i.e. $[[t2]], \dots, [[tn]]$, can be uniquely determined. Thus, we can leave
+i.e. $[[t2]], \dots, [[tn]]$, can be uniquely determined. So we can leave
 them out in the $[[foldn]]$ operator with the following form:
-$
+\[
     [[foldn [t1] e]] : [[t1]].
-$
+\]
