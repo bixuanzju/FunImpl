@@ -10,7 +10,7 @@ pgm                                         :: 'pgm_' ::=      {{ com Program }}
   | ( pgm )                                 :: M :: ParenPgm
 
 decl                                        :: 'decl_' ::=     {{ com Declarations }}
-  | data D << u : k >> = << K << x : A >> >>  ::   :: DataDecl   {{ com Datatype declaration }}
+  | data D << u : k >> = << K << x : A >> >>  ::   :: DataDecl   {{ com Datatype Declaration }}
   | data D << u : k >> = K << x : A >>        :: M :: SDataDecl  {{ com Datatype single }}
   | data D << u : k >>n = << K << x : A >> >> :: M :: DataDeclN   {{ com Datatype declaration }}
   | data D << u : k >>n = K << x : A >>       :: M :: SDataDeclN  {{ com Datatype single }}
@@ -25,18 +25,18 @@ p                                           :: 'pat_' ::=      {{ com Patterns }
 
 u, U {{ tex \upsilon }}                     :: 'u_'   ::=      {{ com Atoms }}
   | x                                       ::  :: Var         {{ com Variable }}
-  | K                                       ::  :: DCon        {{ com Data constructor }}
+  | K                                       ::  :: DCon        {{ com Data Constructor }}
 
 %% Expressions
 E , A {{ tex T }}, B {{ tex S }}, k {{ tex \kappa }} :: 'es_' ::=       {{ com Expressions    }}
   | u                      ::  :: Atom       {{ com Atom }}
-  | star                   ::  :: Star       {{ com Type of types }}
+  | star                   ::  :: Star       {{ com Type of Types }}
   | E1 E2                  ::  :: App        {{ com Application }}
   | \ x : A . E            ::  :: Lam        {{ com Abstraction }}
-  | Pi x : A . B           ::  :: Pi         {{ com Product }}
-  | mu x : A . E           ::  :: Mu         {{ com General recursion }}
-  | case E1 of << p => E2 >> ::  :: Case     {{ com Case analysis }}
-  | let x : A = E2 in E1   :: M:: LetBinding {{ com Let binding }}
+  | Pi x : A . B           ::  :: Pi         {{ com Dependent Product }}
+  | mu x : A . E           ::  :: Mu         {{ com Polymorphic Recursion }}
+  | case E1 of << p => E2 >> ::  :: Case     {{ com Case Analysis }}
+  | let x : A = E2 in E1   :: M:: LetBinding {{ com Let Binding }}
   | E1 [ x |-> E2 ]        :: M:: Sub        {{ com Substitution }}
   | ( E )                  :: M:: Parens     {{ com Parenthesized expression }}
   | A1 -> A2               :: M:: FuncType   {{ com Function type }}
@@ -57,8 +57,8 @@ E , A {{ tex T }}, B {{ tex S }}, k {{ tex \kappa }} :: 'es_' ::=       {{ com E
 %% Contexts
 Gs {{ tex \Sigma }} :: 'Gs_' ::= {{ com Contexts }}
   | empty           ::  :: Empty       {{ com Empty }}
-  | Gs , u : A      ::  :: Binding     {{ com Atom binding }}
-  | Gs , Gs'        :: M:: CtxBind     {{ com Context binding }}
+  | Gs , u : A      ::  :: Binding     {{ com Atom Binding }}
+  | Gs , Gs'        :: M:: CtxBind     {{ com Context Binding }}
   | << u : A >>     :: M:: SrcBindVec
   | << u : A >>n    :: M:: SrcBindVecN
   | u : A           :: M:: SrcBind
