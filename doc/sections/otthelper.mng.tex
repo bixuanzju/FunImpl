@@ -24,14 +24,15 @@
 \newcommand{\ottcoresugar}{%%
 \begin{array}{llll} %
     \text{Syntactic Sugar}\\ %
-    \quad [[A1->A2]] & \triangleq & [[Pi x:A1.A2]] \quad x \not \in %
+    \quad [[A1->A2]] & \triangleq & [[Pi x:A1.A2]] \qquad x \not \in %
         \FV([[A2]]) \\ %
-    \quad [[(x:A1)->A2]] & \triangleq & [[Pi x:A1.A2]] \quad x \in \FV([[A2]]) %
+    \quad [[(x:A1)->A2]] & \triangleq & [[Pi x:A1.A2]] %
         \\ %
-    \quad [[foldn [t1] e]] & [[:=]] & [[castup]] [ [[t1]] ] ([[castup]] [ %
-        [[t2]] ] (\dots ( [[castup [tn] e]] ) \dots )) \\ %
+    \quad [[let x : t = e2 in e1]] & [[:=]] & [[ e1 [x |-> e2] ]] \qquad [[G |- e2 : t]] \\ %
+    \quad [[foldn [t1] e]] & [[:=]] & \mathscale[0.9]{[[castup]] [ [[t1]] ] ([[castup]] [ %
+        [[t2]] ] (\dots ( [[castup [tn] e]] ) \dots ))} \\ %
     \quad [[unfoldn e]] & [[:=]] & \underbrace{[[castdown]] ([[castdown]] %
-        (\dots ( [[castdown]]}_n [[e]]) \dots )) %
+        (\dots ( [[castdown]]}_n [[e]]) \dots ))
 \end{array} %
 }
 
@@ -40,27 +41,27 @@
     &&&& \text{Syntactic Sugar} \\ %
     [[A1->A2]] & \triangleq & [[Pi x:A1.A2]] & x \not \in \FV([[A2]]) & %
         \quad\text{Function type} \\ %
-    [[(x:A1)->A2]] & \triangleq & [[Pi x:A1.A2]] & x \in \FV([[A2]]) & %
+    [[(x:A1)->A2]] & \triangleq & [[Pi x:A1.A2]] &  & %
         \quad\text{Dependent function type} \\ %
-    [[data R <<u:k>> = K { <<N:A>> }]] & \triangleq & %
-        [[data R <<u:k>> = K <<x:A>>]]; && \quad\text{Record} \\ %
-        && [[let]]~[[N]]_i : [[ (<<u:k>>) -> R@<<u>> -> A]]_i = & %
-        \forall i &  \\ %
-        && [[\ <<u:k>> . \ y : R <<u>> . case y of K <<x:A>> => x]]_i~[[in]] && \\ %
+    [[data R <<u:k>>n = K { <<N:A>> }]] & \triangleq & %
+        [[data R <<u:k>>n = K <<x:A>>]]; && \quad\text{Record} \\ %
+        && [[let]]~[[N]]_i : [[ (<<u:k>>n) -> R@<<u>>n -> A]]_i = & %
+        i =1,2,\dots,n &  \\ %
+        && [[\ <<u:k>>n . \ y : R@<<u>>n . case y of K <<x:A>> => x]]_i~[[in]] && \\ %
 \end{array} %
 }
 
 \newcommand{\ottdeclD}{%%
-[[mu X : (<<u:ro>>n) -> star . \ <<u:ro>>n . (aa:star) -> << ((<<x : t[D |-> X]>>) -> aa) >> -> aa]] %
+[[mu X : (<<u:ro>>n) -> star . \ <<u:ro>>n . (bb:star) -> << ((<<x : t[D |-> X]>>) -> bb) >> -> bb]] %
 }
 
 \newcommand{\ottdeclK}{%%
-[[\ <<u:ro>>n . \<<x:t>> . foldnp [D@<<u>>n] (\aa:star.\<<bb : (<<x:t>>) -> aa >> . bbi <<x>>)]] %
+[[\ <<u:ro>>n . \<<x:t>> . foldnp [D@<<u>>n] (\bb:star.\<<cc : (<<x:t>>) -> bb >> . cci <<x>>)]] %
 }
 
 \newcommand{\ottdecltrans}{%%
 \begin{array}{ll} %
-    [[e]] [[:=]] & [[ let ]] [[D]] : [[(<<u:ro>>n) -> star]] = \ottdeclD [[ in ]] \\ %
-    & [[ let ]]  [[Ki]] : [[ (<<u:ro>>n) -> (<<x:t>>) -> D@<<u>>n ]] = \ottdeclK [[ in ]] %
+    [[e]] [[:=]] & [[ let ]]~[[D]] : [[(<<u:ro>>n) -> star]] = \ottdeclD~[[ in ]] \\ %
+    & [[ let ]]~[[Ki]] : [[ (<<u:ro>>n) -> (<<x:t>>) -> D@<<u>>n ]] = \ottdeclK~[[ in ]] %
 \end{array} %
 }
