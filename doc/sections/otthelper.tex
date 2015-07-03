@@ -25,14 +25,15 @@
 \newcommand{\ottcoresugar}{%%
 \begin{array}{llll} %
     \text{Syntactic Sugar}\\ %
-    \quad T_{{\mathrm{1}}}  \rightarrow  T_{{\mathrm{2}}} & \triangleq & \Pi \, \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{.}  T_{{\mathrm{2}}} \quad x \not \in %
+    \quad T_{{\mathrm{1}}}  \rightarrow  T_{{\mathrm{2}}} & \triangleq & \Pi \, \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{.}  T_{{\mathrm{2}}} \qquad x \not \in %
         \FV(T_{{\mathrm{2}}}) \\ %
     \quad \ottsym{(}  \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{)}  \rightarrow  T_{{\mathrm{2}}} & \triangleq & \Pi \, \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{.}  T_{{\mathrm{2}}} %
         \\ %
-    \quad \mathsf{cast}_{\uparrow}^n \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]} \,  \ottnt{e} &  \triangleq ~  &  \mathsf{cast}^{\uparrow}  [ \tau_{{\mathrm{1}}} ] ( \mathsf{cast}^{\uparrow}  [ %
-        \tau_{{\mathrm{2}}} ] (\dots ( \mathsf{cast}^{\uparrow} \, \ottsym{[}  \tau_{\ottmv{n}}  \ottsym{]} \,  \ottnt{e} ) \dots )) \\ %
+    \quad \kw{let} \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{=}  \ottnt{e_{{\mathrm{2}}}} \, \kw{in} \, \ottnt{e_{{\mathrm{1}}}} &  \triangleq ~  & \ottnt{e_{{\mathrm{1}}}}  \ottsym{[}  \ottmv{x}  \mapsto  \ottnt{e_{{\mathrm{2}}}}  \ottsym{]} \, \qquad \Gamma  \vdash  \ottnt{e_{{\mathrm{2}}}}  \ottsym{:}  \tau \\ %
+    \quad \mathsf{cast}_{\uparrow}^n \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]} \,  \ottnt{e} &  \triangleq ~  & \mathscale[0.9]{ \mathsf{cast}^{\uparrow}  [ \tau_{{\mathrm{1}}} ] ( \mathsf{cast}^{\uparrow}  [ %
+        \tau_{{\mathrm{2}}} ] (\dots ( \mathsf{cast}^{\uparrow} \, \ottsym{[}  \tau_{\ottmv{n}}  \ottsym{]} \,  \ottnt{e} ) \dots ))} \\ %
     \quad \mathsf{cast}_{\downarrow}^n \, \ottnt{e} &  \triangleq ~  & \underbrace{ \mathsf{cast}_{\downarrow}  ( \mathsf{cast}_{\downarrow}  %
-        (\dots (  \mathsf{cast}_{\downarrow} }_n \ottnt{e}) \dots )) %
+        (\dots (  \mathsf{cast}_{\downarrow} }_n \ottnt{e}) \dots ))
 \end{array} %
 }
 
