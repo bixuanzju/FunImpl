@@ -30,7 +30,7 @@
 
 \newcommand{\ottmetavars}{
 \ottmetavartabular{
- $ \ottmv{x} ,\, \ottmv{y} ,\, \ottmv{z} ,\, \ottmv{d} ,\, \ottmv{X} ,\, \ottmv{D} ,\, \ottmv{K} ,\, \ottmv{N} ,\, \ottmv{R} ,\, \theta ,\, \alpha ,\, b ,\, n ,\, u $ & \ottcom{Variable names} \\
+ $ \ottmv{x} ,\, \ottmv{y} ,\, \ottmv{z} ,\, \ottmv{d} ,\, \ottmv{X} ,\, \ottmv{D} ,\, \ottmv{K} ,\, \ottmv{N} ,\, \ottmv{R} ,\, \theta ,\, c ,\, b ,\, n ,\, u $ & \ottcom{Variable names} \\
  $ \ottmv{i} ,\, \ottmv{j} ,\, \ottmv{n} ,\, \ottmv{m} $ & \ottcom{Index variables} \\
 }}
 
@@ -447,7 +447,7 @@
 \newcommand{\ottdruleTRXXCase}[1]{\ottdrule[#1]{%
 { \Sigma  \labeledjudge{s}  \ottnt{E_{{\mathrm{1}}}}  :  T  \hlmath{ \rightsquigarrow   \ottnt{e_{{\mathrm{1}}}} } }%
 \\ {\,\overline{   \Sigma  \labeledjudge{p}  \ottnt{p}   \Rightarrow   \ottnt{E_{{\mathrm{2}}}}  :  T   \rightarrow   S  \hlmath{ \rightsquigarrow   \ottnt{e_{{\mathrm{2}}}} }   }\,}%
-\\ {\,\overline{   \Sigma  \labeledjudge{s}  S  :  \star  \hlmath{ \rightsquigarrow   \sigma }   }\,}%
+\\ { \Sigma  \labeledjudge{s}  S  :  \star  \hlmath{ \rightsquigarrow   \sigma } }%
 }{
  \Sigma  \labeledjudge{s}  \kw{case} \, \ottnt{E_{{\mathrm{1}}}} \, \kw{of} \, \,\overline{  \ottnt{p}  \Rightarrow  \ottnt{E_{{\mathrm{2}}}}  }\,  :  S  \hlmath{ \rightsquigarrow   \ottsym{(}  \mathsf{cast}_{\downarrow}^{n+1} \, \ottnt{e_{{\mathrm{1}}}}  \ottsym{)} \, \sigma \, \,\overline{  \ottnt{e_{{\mathrm{2}}}}  }\, } }{%
 {\ottdrulename{TR\_Case}}{}%

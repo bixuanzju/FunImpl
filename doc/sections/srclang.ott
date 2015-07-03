@@ -10,12 +10,14 @@ pgm                                         :: 'pgm_' ::=      {{ com Program }}
   | ( pgm )                                 :: M :: ParenPgm
 
 decl                                        :: 'decl_' ::=     {{ com Declarations }}
-  | data D << u : k >> = << K << x : A >> >> ::   :: DataDecl   {{ com Datatype declaration }}
-  | data D << u : k >> = K << x : A >>          :: M :: SDataDecl  {{ com Datatype single }}
+  | data D << u : k >> = << K << x : A >> >>  ::   :: DataDecl   {{ com Datatype declaration }}
+  | data D << u : k >> = K << x : A >>        :: M :: SDataDecl  {{ com Datatype single }}
   | data D << u : k >>n = << K << x : A >> >> :: M :: DataDeclN   {{ com Datatype declaration }}
-  | data R << u : k >> = K { << N : A >> }  :: M :: RecordDecl {{ com Record declaration }}
-  | ( decl )                                :: M :: ParenDecl
-  | << decl >>                              :: M :: DeclVec
+  | data D << u : k >>n = K << x : A >>       :: M :: SDataDeclN  {{ com Datatype single }}
+  | data R << u : k >> = K { << N : A >> }    :: M :: RecordDecl {{ com Record declaration }}
+  | data R << u : k >>n = K { << N : A >> }   :: M :: RecordDeclN {{ com Record declaration }}
+  | ( decl )                                  :: M :: ParenDecl
+  | << decl >>                                :: M :: DeclVec
 
 p                                           :: 'pat_' ::=      {{ com Patterns }}
   | K << x : A >>                           ::   :: Pattern    {{ com Pattern }}
@@ -150,6 +152,6 @@ Gs |- (mu x:A . E):A ~~> mu x:t.e
 
 Gs |- E1 : A ~~> e1
 << Gs |- p => E2 : A -> B ~~> e2 >>
-<< Gs |- B : s ~~> T >>
+Gs |- B : s ~~> T
 ---------------------------------------- :: Case
 Gs |- case E1 of << p => E2 >> : B ~~> (unfoldnp e1) T <<e2>>

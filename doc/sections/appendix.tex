@@ -187,13 +187,13 @@ unique type of $\ottmv{x}$ if $\ottmv{x}  \ottsym{:}  \tau \, \in \, \Gamma$.
 		\item[Case $\ottnt{e}=\ottnt{e_{{\mathrm{1}}}} \, \ottnt{e_{{\mathrm{2}}}}$:] By rule \ruleref{T\_App} and introduction
 hypothesis, there exist unique expressions $\tau_{{\mathrm{1}}}$ and $\tau_{{\mathrm{2}}}$ such that $\Gamma  \vdash  \ottnt{e_{{\mathrm{1}}}}  \ottsym{:}  \ottsym{(}  \Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}  \ottsym{)}$, $\Gamma  \vdash  \ottnt{e_{{\mathrm{2}}}}  \ottsym{:}  \tau_{{\mathrm{1}}}$. Thus, from Lemma
 \ref{lem:appendix:gen}, $\tau_{{\mathrm{2}}}  \ottsym{[}  \ottmv{x}  \mapsto  \ottnt{e_{{\mathrm{2}}}}  \ottsym{]} \,$ is the unique type of $\ottnt{e}$.
-		\item[Case $\lambda  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}$:] By rule \ruleref{T\_Lam} and introduction
+		\item[Case $\ottnt{e}  \ottsym{=}  \lambda  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}$:] By rule \ruleref{T\_Lam} and introduction
 hypothesis, there exist unique expressions $\tau_{{\mathrm{2}}}$ such that $\Gamma  \vdash  \ottsym{(}  \Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}  \ottsym{)}  \ottsym{:}  \star$ and $\Gamma  \ottsym{,}  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \vdash  \ottnt{e}  \ottsym{:}  \tau_{{\mathrm{2}}}$. Thus, from Lemma
 \ref{lem:appendix:gen}, $\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}$ is the unique type of $\ottnt{e}$.
-		\item[Case $\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}$:] By rule \ruleref{T\_Pi} and introduction
+		\item[Case $\ottnt{e}  \ottsym{=}  \Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}$:] By rule \ruleref{T\_Pi} and introduction
 hypothesis, we have $\Gamma  \vdash  \tau_{{\mathrm{1}}}  \ottsym{:}  \star$ and $\Gamma  \ottsym{,}  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \vdash  \tau_{{\mathrm{2}}}  \ottsym{:}  \star$. Thus, from Lemma
 \ref{lem:appendix:gen}, $\star$ is the unique type of $\ottnt{e}$.
-		\item[Case $\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}$:] By rule \ruleref{T\_Mu} and introduction
+		\item[Case $\ottnt{e}  \ottsym{=}  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e_{{\mathrm{1}}}}$:] By rule \ruleref{T\_Mu} and introduction
 hypothesis, we have $\Gamma  \vdash  \tau  \ottsym{:}  \star$ and $\Gamma  \ottsym{,}  \ottmv{x}  \ottsym{:}  \tau  \vdash  \ottnt{e}  \ottsym{:}  \tau$. Thus, from Lemma
 \ref{lem:appendix:gen}, $\tau$ is the unique type of $\ottnt{e}$.
 		\item[Case $\ottnt{e}=\mathsf{cast}^{\uparrow} \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]} \,  \ottnt{e_{{\mathrm{1}}}}$:] From the premises of rule
@@ -370,7 +370,7 @@ See Figure \ref{fig:appendix:syntax}.
 See Figure \ref{fig:appendix:typing}.
 \begin{figure*}
 \renewcommand{\hlmath}[1]{}
-\renewcommand{\ottdrulename}[1]{\textsc{\replace{#1}{TR}{T}}}
+\renewcommand{\ottdrulename}[1]{\textsc{\replace{#1}{TR}{TS}}}
 \renewcommand{\ottcom}[1]{\text{\replace{#1}{translation}{typing}}}
 \ottdefnctxtrans{}\ottinterrule
 \ottdefnpgmtrans{}\ottinterrule
@@ -417,10 +417,10 @@ have $ \labeledjudge{wf}  \Sigma   \rightsquigarrow   \Gamma $, then $\ottmv{x}:
             \end{array} \]
             By induction
             hypothesis, we have 
-            \[
-            \Gamma  \vdash  \ottnt{e_{{\mathrm{1}}}}  \ottsym{:}  \ottsym{(}  \Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{2}}}  \ottsym{.}  \tau_{{\mathrm{1}}}  \ottsym{)} \qquad
+            $
+            \Gamma  \vdash  \ottnt{e_{{\mathrm{1}}}}  \ottsym{:}  \ottsym{(}  \Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{2}}}  \ottsym{.}  \tau_{{\mathrm{1}}}  \ottsym{)},
             \Gamma  \vdash  \ottnt{e_{{\mathrm{2}}}}  \ottsym{:}  \tau_{{\mathrm{2}}},
-            \]
+            $
             where
             \[\begin{array}{l}
               \Sigma  \labeledjudge{s}  \ottnt{E_{{\mathrm{1}}}}  :  \ottsym{(}  \Pi \, \ottmv{x}  \ottsym{:}  T_{{\mathrm{2}}}  \ottsym{.}  T_{{\mathrm{1}}}  \ottsym{)}   \rightsquigarrow   \ottnt{e_{{\mathrm{1}}}}  \\
@@ -434,10 +434,10 @@ have $ \labeledjudge{wf}  \Sigma   \rightsquigarrow   \Gamma $, then $\ottmv{x}:
              \Sigma  \labeledjudge{s}  \Pi \, \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{.}  T_{{\mathrm{2}}}  :  \star   \rightsquigarrow   \Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}} .
             \end{array} \]
             By induction hypothesis, we have 
-            \[
-            \Gamma  \ottsym{,}  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \vdash  \ottnt{e}  \ottsym{:}  \tau_{{\mathrm{2}}}\qquad
+            $
+            \Gamma  \ottsym{,}  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \vdash  \ottnt{e}  \ottsym{:}  \tau_{{\mathrm{2}}},
             \Gamma  \vdash  \Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}  \ottsym{:}  \star
-            \]
+            $
             where 
             \[
             \begin{array}{ll}
@@ -450,14 +450,14 @@ have $ \labeledjudge{wf}  \Sigma   \rightsquigarrow   \Gamma $, then $\ottmv{x}:
         \item[Case \ruleref{TR\_Pi}:] Suppose 
                 \[  \Sigma  \labeledjudge{s}  \ottsym{(}  \Pi \, \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{.}  T_{{\mathrm{2}}}  \ottsym{)}  :  \star   \rightsquigarrow   \Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}} . \] 
             By induction hypothesis, we have 
-            \[
-                \Gamma  \vdash  \tau_{{\mathrm{1}}}  \ottsym{:}  \star \qquad \Gamma  \ottsym{,}  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \vdash  \tau_{{\mathrm{2}}}  \ottsym{:}  \star
-            \]
+            $
+                \Gamma  \vdash  \tau_{{\mathrm{1}}}  \ottsym{:}  \star, \Gamma  \ottsym{,}  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \vdash  \tau_{{\mathrm{2}}}  \ottsym{:}  \star
+            $
             where
-            \[
-                 \Sigma  \labeledjudge{s}  T_{{\mathrm{1}}}  :  \star   \rightsquigarrow   \tau_{{\mathrm{1}}}  \qquad  \Sigma  \ottsym{,}  \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \labeledjudge{s}  T_{{\mathrm{2}}}  :  \star   \rightsquigarrow   \tau_{{\mathrm{2}}} 
-            \]
-            Thus by rule \ruleref{T\_Pi} $\Gamma  \vdash  \ottsym{(}  \Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}  \ottsym{)}  \ottsym{:}  \star$.
+            $
+                 \Sigma  \labeledjudge{s}  T_{{\mathrm{1}}}  :  \star   \rightsquigarrow   \tau_{{\mathrm{1}}} ,  \Sigma  \ottsym{,}  \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \labeledjudge{s}  T_{{\mathrm{2}}}  :  \star   \rightsquigarrow   \tau_{{\mathrm{2}}} 
+            $
+            Thus by rule \ruleref{T\_Pi} we have $\Gamma  \vdash  \ottsym{(}  \Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}  \ottsym{)}  \ottsym{:}  \star$.
         \item[Case \ruleref{TR\_Mu}:] Suppose 
                 \[\begin{array}{l}
                      \Sigma  \labeledjudge{s}  \ottsym{(}  \mu \, \ottmv{x}  \ottsym{:}  T  \ottsym{.}  \ottnt{E}  \ottsym{)}  :  T   \rightsquigarrow   \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \\
@@ -497,12 +497,12 @@ have $ \labeledjudge{wf}  \Sigma   \rightsquigarrow   \Gamma $, then $\ottmv{x}:
             Note that by operational semantics, the following reduction sequence follows for $\tau_{{\mathrm{1}}}$:
             \begin{align*}
                 \ottmv{D} \,\overline{  u'  }\,^n~
-                & \longrightarrow ~ \mathscale[0.7]{\ottsym{(}  \lambda  \,\overline{  \ottnt{u}  \ottsym{:}  \rho  }^{n}\,  \ottsym{.}  \ottsym{(}  \alpha  \ottsym{:}  \star  \ottsym{)}  \rightarrow  \,\overline{  \ottsym{(}  \ottsym{(}  \,\overline{  \ottmv{x}  \ottsym{:}  \tau  \ottsym{[}  \ottmv{D}  \mapsto  \ottmv{X}  \ottsym{]} \,  \ottsym{[}  \ottmv{X}  \mapsto  \ottmv{D}  \ottsym{]} \,  }\,  \ottsym{)}  \rightarrow  \alpha  \ottsym{)}  }\,  \rightarrow  \alpha  \ottsym{)}\,\overline{  u'  }\,^n}\\
-                & \longrightarrow_n ~ \ottsym{(}  \alpha  \ottsym{:}  \star  \ottsym{)}  \rightarrow  \,\overline{  \ottsym{(}  \,\overline{  \ottmv{x}  \ottsym{:}  \tau'  }\,  \ottsym{)}  \rightarrow  \alpha  }\,  \rightarrow  \alpha
+                & \longrightarrow ~ \mathscale[0.7]{\ottsym{(}  \lambda  \,\overline{  \ottnt{u}  \ottsym{:}  \rho  }^{n}\,  \ottsym{.}  \ottsym{(}  b  \ottsym{:}  \star  \ottsym{)}  \rightarrow  \,\overline{  \ottsym{(}  \ottsym{(}  \,\overline{  \ottmv{x}  \ottsym{:}  \tau  \ottsym{[}  \ottmv{D}  \mapsto  \ottmv{X}  \ottsym{]} \,  \ottsym{[}  \ottmv{X}  \mapsto  \ottmv{D}  \ottsym{]} \,  }\,  \ottsym{)}  \rightarrow  b  \ottsym{)}  }\,  \rightarrow  b  \ottsym{)}\,\overline{  u'  }\,^n}\\
+                & \longrightarrow_n ~ \ottsym{(}  b  \ottsym{:}  \star  \ottsym{)}  \rightarrow  \,\overline{  \ottsym{(}  \,\overline{  \ottmv{x}  \ottsym{:}  \tau'  }\,  \ottsym{)}  \rightarrow  b  }\,  \rightarrow  b
             \end{align*}
             Then by
             rule \ruleref{T\_CastDown} and the definition of $n$-step cast operator, the
-            type of $\mathsf{cast}_{\downarrow}^{n+1} \, \ottnt{e_{{\mathrm{1}}}}$ is \[ \ottsym{(}  \alpha  \ottsym{:}  \star  \ottsym{)}  \rightarrow  \,\overline{  \ottsym{(}  \,\overline{  \ottmv{x}  \ottsym{:}  \tau'  }\,  \ottsym{)}  \rightarrow  \alpha  }\,  \rightarrow  \alpha.\] Note
+            type of $\mathsf{cast}_{\downarrow}^{n+1} \, \ottnt{e_{{\mathrm{1}}}}$ is \[ \ottsym{(}  b  \ottsym{:}  \star  \ottsym{)}  \rightarrow  \,\overline{  \ottsym{(}  \,\overline{  \ottmv{x}  \ottsym{:}  \tau'  }\,  \ottsym{)}  \rightarrow  b  }\,  \rightarrow  b.\] Note
             that by rule \ruleref{T\_Lam}, $\Gamma  \vdash  \ottnt{e_{{\mathrm{2}}}}  \ottsym{:}  \ottsym{(}  \,\overline{  \ottmv{x}  \ottsym{:}  \tau'  }\,  \ottsym{)}  \rightarrow  \sigma$. Therefore, by rule
             \ruleref{T\_App}, we obtain $\Gamma  \vdash  \ottsym{(}  \mathsf{cast}_{\downarrow}^{n+1} \, \ottnt{e_{{\mathrm{1}}}}  \ottsym{)} \, \sigma \, \,\overline{  \ottnt{e_{{\mathrm{2}}}}  }\,  \ottsym{:}  \sigma$, which follows
             the result.

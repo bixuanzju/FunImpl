@@ -240,7 +240,7 @@ each type constructor is translated to a recursive type, of which the
 body is a type-level lambda abstraction. What is interesting is that
 each recursive mention of the datatype in the data constructor
 parameters is replaced with the recursive variable $\ottmv{X}$. Note that
-for the moment, the result type variable $\alpha$ is restricted to
+for the moment, the result type variable $b$ is restricted to
 have kind $\star$. This could pose difficulties when translating GADTs
 as we will discussion in the future work. Each data constructor is
 translated to a lambda abstraction. Notice how we use $ \mathsf{cast}^{\uparrow} $ in

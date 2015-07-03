@@ -208,14 +208,14 @@ unique type of $[[x]]$ if $[[x:t elt G]]$.
 hypothesis, there exist unique expressions $[[t1]]$ and $[[t2]]$ such that $[[G
 |- e1 : (Pi x:t1.t2)]]$, $[[G |- e2:t1]]$. Thus, from Lemma
 \ref{lem:appendix:gen}, $[[t2[x |-> e2] ]]$ is the unique type of $[[e]]$.
-		\item[Case $[[\x:t1.e1]]$:] By rule \ruleref{T\_Lam} and introduction
+		\item[Case $[[e=\x:t1.e1]]$:] By rule \ruleref{T\_Lam} and introduction
 hypothesis, there exist unique expressions $[[t2]]$ such that $[[G |- (Pi
 x:t1.t2):s]]$ and $[[G,x:t1 |- e:t2]]$. Thus, from Lemma
 \ref{lem:appendix:gen}, $[[Pi x:t1.t2 ]]$ is the unique type of $[[e]]$.
-		\item[Case $[[Pi x:t1.t2]]$:] By rule \ruleref{T\_Pi} and introduction
+		\item[Case $[[e=Pi x:t1.t2]]$:] By rule \ruleref{T\_Pi} and introduction
 hypothesis, we have $[[G |- t1:s]]$ and $[[G, x:t1 |- t2:s]]$. Thus, from Lemma
 \ref{lem:appendix:gen}, $[[s]]$ is the unique type of $[[e]]$.
-		\item[Case $[[mu x:t.e1]]$:] By rule \ruleref{T\_Mu} and introduction
+		\item[Case $[[e=mu x:t.e1]]$:] By rule \ruleref{T\_Mu} and introduction
 hypothesis, we have $[[G |- t:s]]$ and $[[G, x:t|-e:t]]$. Thus, from Lemma
 \ref{lem:appendix:gen}, $[[t]]$ is the unique type of $[[e]]$.
 		\item[Case $[[e]]=[[castup [t1] e1]]$:] From the premises of rule
@@ -402,7 +402,7 @@ See Figure \ref{fig:appendix:syntax}.
 See Figure \ref{fig:appendix:typing}.
 \begin{figure*}
 \renewcommand{\hlmath}[1]{}
-\renewcommand{\ottdrulename}[1]{\textsc{\replace{#1}{TR}{T}}}
+\renewcommand{\ottdrulename}[1]{\textsc{\replace{#1}{TR}{TS}}}
 \renewcommand{\ottcom}[1]{\text{\replace{#1}{translation}{typing}}}
 \ottdefnctxtrans{}\ottinterrule
 \ottdefnpgmtrans{}\ottinterrule
@@ -450,10 +450,10 @@ A:star~>t]]$.
             \end{array} \]
             By induction
             hypothesis, we have 
-            \[
-            [[G |- e1 : (Pi x:t2.t1)]] \qquad
+            $
+            [[G |- e1 : (Pi x:t2.t1)]],
             [[G |- e2:t2]],
-            \]
+            $
             where
             \[\begin{array}{l}
              [[Gs |- E1 : (Pi x:A2.A1) ~> e1]] \\
@@ -467,10 +467,10 @@ A:star~>t]]$.
             [[Gs |- Pi x:A1.A2 : star ~> Pi x:t1.t2]].
             \end{array} \]
             By induction hypothesis, we have 
-            \[
-            [[G, x : t1 |- e:t2]]\qquad
+            $
+            [[G, x : t1 |- e:t2]],
             [[G |- Pi x:t1.t2 : star]]
-            \]
+            $
             where 
             \[
             \begin{array}{ll}
@@ -483,14 +483,14 @@ A:star~>t]]$.
         \item[Case \ruleref{TR\_Pi}:] Suppose 
                 \[ [[Gs |- (Pi x:A1.A2):r ~> Pi x:t1.t2]]. \] 
             By induction hypothesis, we have 
-            \[
-                [[G |- t1 : star]] \qquad [[G, x : t1 |- t2 : star]]
-            \]
+            $
+                [[G |- t1 : star]], [[G, x : t1 |- t2 : star]]
+            $
             where
-            \[
-                [[Gs |- A1 : s ~> t1]] \qquad [[Gs, x: A1 |- A2 : r ~> t2]]
-            \]
-            Thus by rule \ruleref{T\_Pi} $[[G |- (Pi x:t1.t2) : star]]$.
+            $
+                [[Gs |- A1 : s ~> t1]], [[Gs, x: A1 |- A2 : r ~> t2]]
+            $
+            Thus by rule \ruleref{T\_Pi} we have $[[G |- (Pi x:t1.t2) : star]]$.
         \item[Case \ruleref{TR\_Mu}:] Suppose 
                 \[\begin{array}{l}
                     [[Gs |- (mu x:A . E):A ~> mu x:t.e]] \\
@@ -530,12 +530,12 @@ A:star~>t]]$.
             Note that by operational semantics, the following reduction sequence follows for $[[t1]]$:
             \begin{align*}
                 [[D]] [[<<uu'>>]]^n~
-                &[[-->]]~ \mathscale[0.7]{[[(\ <<u:ro>>n . (aa:star) -> << ((<<x : t[D |-> X][X |-> D]>>) -> aa) >> -> aa) ]][[<<uu'>>]]^n}\\
-                &[[-->>]]~ [[(aa:star) -> << (<<x:t'>>) -> aa >> -> aa]]
+                &[[-->]]~ \mathscale[0.7]{[[(\ <<u:ro>>n . (bb:star) -> << ((<<x : t[D |-> X][X |-> D]>>) -> bb) >> -> bb) ]][[<<uu'>>]]^n}\\
+                &[[-->>]]~ [[(bb:star) -> << (<<x:t'>>) -> bb >> -> bb]]
             \end{align*}
             Then by
             rule \ruleref{T\_CastDown} and the definition of $n$-step cast operator, the
-            type of $[[unfoldnp e1]]$ is \[ [[(aa:star) -> << (<<x:t'>>) -> aa >> -> aa]].\] Note
+            type of $[[unfoldnp e1]]$ is \[ [[(bb:star) -> << (<<x:t'>>) -> bb >> -> bb]].\] Note
             that by rule \ruleref{T\_Lam}, $[[G |- e2 : (<<x:t'>>) -> T]]$. Therefore, by rule
             \ruleref{T\_App}, we obtain $[[G |- (unfoldnp e1) T <<e2>> : T]]$, which follows
             the result.

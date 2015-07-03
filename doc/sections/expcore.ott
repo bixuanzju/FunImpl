@@ -6,7 +6,7 @@ embed {{ tex-preamble
 }}
 
 %%% Metavariables
-metavar x, y, z, d, X, D, K, N, R, th {{ tex \theta }}, aa {{ tex \alpha }}, bb {{ tex b }}, nn {{ tex n }}, uu {{ tex u }} ::= {{ com Variable names }}
+metavar x, y, z, d, X, D, K, N, R, th {{ tex \theta }}, cc {{ tex c }}, bb {{ tex b }}, nn {{ tex n }}, uu {{ tex u }} ::= {{ com Variable names }}
 indexvar i, j, n, m ::= {{ com Index variables }}
 
 %%% Syntax

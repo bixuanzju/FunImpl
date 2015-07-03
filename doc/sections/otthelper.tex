@@ -27,7 +27,7 @@
     \text{Syntactic Sugar}\\ %
     \quad T_{{\mathrm{1}}}  \rightarrow  T_{{\mathrm{2}}} & \triangleq & \Pi \, \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{.}  T_{{\mathrm{2}}} \quad x \not \in %
         \FV(T_{{\mathrm{2}}}) \\ %
-    \quad \ottsym{(}  \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{)}  \rightarrow  T_{{\mathrm{2}}} & \triangleq & \Pi \, \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{.}  T_{{\mathrm{2}}} \quad x \in \FV(T_{{\mathrm{2}}}) %
+    \quad \ottsym{(}  \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{)}  \rightarrow  T_{{\mathrm{2}}} & \triangleq & \Pi \, \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{.}  T_{{\mathrm{2}}} %
         \\ %
     \quad \mathsf{cast}_{\uparrow}^n \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]} \,  \ottnt{e} &  \triangleq ~  &  \mathsf{cast}^{\uparrow}  [ \tau_{{\mathrm{1}}} ] ( \mathsf{cast}^{\uparrow}  [ %
         \tau_{{\mathrm{2}}} ] (\dots ( \mathsf{cast}^{\uparrow} \, \ottsym{[}  \tau_{\ottmv{n}}  \ottsym{]} \,  \ottnt{e} ) \dots )) \\ %
@@ -41,27 +41,27 @@
     &&&& \text{Syntactic Sugar} \\ %
     T_{{\mathrm{1}}}  \rightarrow  T_{{\mathrm{2}}} & \triangleq & \Pi \, \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{.}  T_{{\mathrm{2}}} & x \not \in \FV(T_{{\mathrm{2}}}) & %
         \quad\text{Function type} \\ %
-    \ottsym{(}  \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{)}  \rightarrow  T_{{\mathrm{2}}} & \triangleq & \Pi \, \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{.}  T_{{\mathrm{2}}} & x \in \FV(T_{{\mathrm{2}}}) & %
+    \ottsym{(}  \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{)}  \rightarrow  T_{{\mathrm{2}}} & \triangleq & \Pi \, \ottmv{x}  \ottsym{:}  T_{{\mathrm{1}}}  \ottsym{.}  T_{{\mathrm{2}}} &  & %
         \quad\text{Dependent function type} \\ %
-    \kw{data} \, \ottmv{R}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{=}  \ottmv{K}  \ottsym{\{}  \,\overline{  \ottmv{N}  \ottsym{:}  T  }\,  \ottsym{\}} & \triangleq & %
-        \kw{data} \, \ottmv{R}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{=}  \ottmv{K}  \,\overline{  \ottmv{x}  \ottsym{:}  T  }\,; && \quad\text{Record} \\ %
-        &&  \kw{let} ~\ottmv{N}_i : \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{)}  \rightarrow  \ottmv{R}    \,\overline{  \ottnt{u}  }\,  \rightarrow  T_i = & %
-        \forall i &  \\ %
-        && \lambda  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{.}  \lambda  \ottmv{y}  \ottsym{:}  \ottmv{R} \, \,\overline{  \ottnt{u}  }\,  \ottsym{.}  \kw{case} \, \ottmv{y} \, \kw{of} \, \ottmv{K}  \,\overline{  \ottmv{x}  \ottsym{:}  T  }\,  \Rightarrow  \ottmv{x}_i~ \kw{in}  && \\ %
+    \kw{data} \, \ottmv{R}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }^{n}\,  \ottsym{=}  \ottmv{K}  \ottsym{\{}  \,\overline{  \ottmv{N}  \ottsym{:}  T  }\,  \ottsym{\}} & \triangleq & %
+        \kw{data} \, \ottmv{R}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }^{n}\,  \ottsym{=}  \ottmv{K}  \,\overline{  \ottmv{x}  \ottsym{:}  T  }\,; && \quad\text{Record} \\ %
+        &&  \kw{let} ~\ottmv{N}_i : \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }^{n}\,  \ottsym{)}  \rightarrow  \ottmv{R}    \,\overline{  \ottnt{u}  }^{n}\,  \rightarrow  T_i = & %
+        i =1,2,\dots,n &  \\ %
+        && \lambda  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }^{n}\,  \ottsym{.}  \lambda  \ottmv{y}  \ottsym{:}  \ottmv{R}    \,\overline{  \ottnt{u}  }^{n}\,  \ottsym{.}  \kw{case} \, \ottmv{y} \, \kw{of} \, \ottmv{K}  \,\overline{  \ottmv{x}  \ottsym{:}  T  }\,  \Rightarrow  \ottmv{x}_i~ \kw{in}  && \\ %
 \end{array} %
 }
 
 \newcommand{\ottdeclD}{%%
-\mu \, \ottmv{X}  \ottsym{:}  \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \rho  }^{n}\,  \ottsym{)}  \rightarrow  \star  \ottsym{.}  \lambda  \,\overline{  \ottnt{u}  \ottsym{:}  \rho  }^{n}\,  \ottsym{.}  \ottsym{(}  \alpha  \ottsym{:}  \star  \ottsym{)}  \rightarrow  \,\overline{  \ottsym{(}  \ottsym{(}  \,\overline{  \ottmv{x}  \ottsym{:}  \tau  \ottsym{[}  \ottmv{D}  \mapsto  \ottmv{X}  \ottsym{]} \,  }\,  \ottsym{)}  \rightarrow  \alpha  \ottsym{)}  }\,  \rightarrow  \alpha %
+\mu \, \ottmv{X}  \ottsym{:}  \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \rho  }^{n}\,  \ottsym{)}  \rightarrow  \star  \ottsym{.}  \lambda  \,\overline{  \ottnt{u}  \ottsym{:}  \rho  }^{n}\,  \ottsym{.}  \ottsym{(}  b  \ottsym{:}  \star  \ottsym{)}  \rightarrow  \,\overline{  \ottsym{(}  \ottsym{(}  \,\overline{  \ottmv{x}  \ottsym{:}  \tau  \ottsym{[}  \ottmv{D}  \mapsto  \ottmv{X}  \ottsym{]} \,  }\,  \ottsym{)}  \rightarrow  b  \ottsym{)}  }\,  \rightarrow  b %
 }
 
 \newcommand{\ottdeclK}{%%
-\lambda  \,\overline{  \ottnt{u}  \ottsym{:}  \rho  }^{n}\,  \ottsym{.}  \lambda  \,\overline{  \ottmv{x}  \ottsym{:}  \tau  }\,  \ottsym{.}  \mathsf{cast}_{\uparrow}^{n+1} \, \ottsym{[}  \ottmv{D}    \,\overline{  \ottnt{u}  }^{n}\,  \ottsym{]} \,  \ottsym{(}  \lambda  \alpha  \ottsym{:}  \star  \ottsym{.}  \lambda  \,\overline{  b  \ottsym{:}  \ottsym{(}  \,\overline{  \ottmv{x}  \ottsym{:}  \tau  }\,  \ottsym{)}  \rightarrow  \alpha  }\,  \ottsym{.}  b_{\ottmv{i}} \, \,\overline{  \ottmv{x}  }\,  \ottsym{)} %
+\lambda  \,\overline{  \ottnt{u}  \ottsym{:}  \rho  }^{n}\,  \ottsym{.}  \lambda  \,\overline{  \ottmv{x}  \ottsym{:}  \tau  }\,  \ottsym{.}  \mathsf{cast}_{\uparrow}^{n+1} \, \ottsym{[}  \ottmv{D}    \,\overline{  \ottnt{u}  }^{n}\,  \ottsym{]} \,  \ottsym{(}  \lambda  b  \ottsym{:}  \star  \ottsym{.}  \lambda  \,\overline{  c  \ottsym{:}  \ottsym{(}  \,\overline{  \ottmv{x}  \ottsym{:}  \tau  }\,  \ottsym{)}  \rightarrow  b  }\,  \ottsym{.}  c_{\ottmv{i}} \, \,\overline{  \ottmv{x}  }\,  \ottsym{)} %
 }
 
 \newcommand{\ottdecltrans}{%%
 \begin{array}{ll} %
-    \ottnt{e}  \triangleq ~  &  \kw{let}  \ottmv{D} : \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \rho  }^{n}\,  \ottsym{)}  \rightarrow  \star = \ottdeclD  \kw{in}  \\ %
-    &  \kw{let}   \ottmv{K_{\ottmv{i}}} : \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \rho  }^{n}\,  \ottsym{)}  \rightarrow  \ottsym{(}  \,\overline{  \ottmv{x}  \ottsym{:}  \tau  }\,  \ottsym{)}  \rightarrow  \ottmv{D}    \,\overline{  \ottnt{u}  }^{n}\, = \ottdeclK  \kw{in}  %
+    \ottnt{e}  \triangleq ~  &  \kw{let} ~\ottmv{D} : \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \rho  }^{n}\,  \ottsym{)}  \rightarrow  \star = \ottdeclD~ \kw{in}  \\ %
+    &  \kw{let} ~\ottmv{K_{\ottmv{i}}} : \ottsym{(}  \,\overline{  \ottnt{u}  \ottsym{:}  \rho  }^{n}\,  \ottsym{)}  \rightarrow  \ottsym{(}  \,\overline{  \ottmv{x}  \ottsym{:}  \tau  }\,  \ottsym{)}  \rightarrow  \ottmv{D}    \,\overline{  \ottnt{u}  }^{n}\, = \ottdeclK~ \kw{in}  %
 \end{array} %
 }
