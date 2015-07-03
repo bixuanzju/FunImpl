@@ -5,7 +5,7 @@
 \label{sec:discuss}
 
 \paragraph{More Type-level Computation}
-
+\jeremy{dependent pattern matching, recursive functions on the type level}
 
 \paragraph{Eliminating Cast Operators}
 
