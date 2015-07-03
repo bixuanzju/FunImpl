@@ -11,7 +11,7 @@ of constructions, \ecore has decidable type-checking. However, unlike
 the strong normalization of the calculus. 
 In rest of this
 section, we demonstrate the syntax, operational semantics, typing
-rules and meta-theory of \ecore.
+rules and meta-theory of \ecore.\bruno{Mention where to find the proofs!}
 
 %\ecore is a subset of the core
 %language \name without general recursion. By explicitly controlling the
@@ -218,18 +218,19 @@ For the decidability, we need to show there exists a type checking algorithm,
 which never loops forever and returns a unique type for a well-formed
 expression $\ottnt{e}$. This is done by induction on the length of $\ottnt{e}$ and
 ranging over typing rules. Most expression typing rules, which have only typing
-judgements in premises, are already decidable by induction hypothesis. Thus, it
+judgements in premises, are already decidable by the induction hypothesis. Thus, it
 is straightforward to follow the syntax-directed judgement to derive a unique
 type checking result.
 
 The critical case is for rules \ruleref{T\_CastUp} and \ruleref{T\_CastDown}.
 Both rules contain a premise that needs to judge if two types $\tau_{{\mathrm{1}}}$ and
-$\tau_{{\mathrm{2}}}$ follows the one-step reduction, i.e. if $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}$ holds. We need
+$\tau_{{\mathrm{2}}}$ follow the one-step reduction, i.e. if $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}$ holds. We need
 to show such $\tau_{{\mathrm{2}}}$ is \emph{unique} with respect to the one-step reduction,
 or equivalently, reducing $\tau_{{\mathrm{1}}}$ by one step will get only a sole result
 $\tau_{{\mathrm{2}}}$. Otherwise, assume $\ottnt{e}:\tau_{{\mathrm{1}}}$ and there exists $\tau'_{{\mathrm{2}}}$ such that
 $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}$ and $\tau_{{\mathrm{1}}}  \longrightarrow  \tau'_{{\mathrm{2}}}$. Then the type of $\mathsf{cast}_{\downarrow} \, \ottnt{e}$ can be
-either $\tau_{{\mathrm{2}}}$ or $\tau'_{{\mathrm{2}}}$ by rule \ruleref{T\_CastDown}, which is not
+either $\tau_{{\mathrm{2}}}$ or $\tau'_{{\mathrm{2}}}$ by rule \ruleref{T\_CastDown}, which
+would not be
 decidable. The property is proven by the following lemma:
 
 \begin{lem}[Decidability of One-step Reduction]\label{lem:ecore:unique}
@@ -258,7 +259,7 @@ $\tau$ such that $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$ or reports there 
 	By induction on the structure of $\ottnt{e}$.
 \end{proof}
 
-Note that when proving the decidability of type checking, we do not rely on the
+We emphasize that when proving the decidability of type checking, we do not rely on the
 on strong normalization. Intuitively, because explicit type conversion rules use one-step
 reduction, which already has a decidable checking algorithm according to Lemma
 \ref{lem:ecore:unique}. We do not need to further require the normalization of
@@ -269,7 +270,7 @@ examine the $\beta$-equivalence of terms, which is decidable only if every term
 has a normal form.
 
 \paragraph{Type-safety}
-Proof of the type-safety (or type soundness) of \ecore is fairly standard by subject
+The proof of the type-safety (or type soundness) of \ecore is fairly standard by subject
 reduction (or preservation) and progress lemmas. The subject reduction proof
 relies on the substitution lemma. We give the proof sketch of related lemmas as
 follows:

@@ -28,10 +28,12 @@ recursion. Nevertheless general recursion allows a large number
 of programs that can be expressed in programming languages such 
 as Haskell to be expressed in \name as well.
 
-For syntax, we add the polymorphic recursion operator $ \mu $ to
-represent general recursion on both term and type level in the same
-form $\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$. For operational semantics, we add the rule
-\ruleref{S\_Mu} to define the unrolling operation of a recursion,
+For syntax, we add the polymorphic recursion operator $\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$ to
+represent general recursion in both terms and types.
+\bruno{what do you mean by polymorphic?  Perhaps a sentence is needed
+  to clarify that}. 
+For operational semantics, we add the rule
+\ruleref{S\_Mu} to define the unrolling operation of recursion,
 which results in $\ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]} \,$. For typing, we add the
 rule \ruleref{T\_Mu} for checking the validity of a polymorphic
 recursive term. The rule ensures that the polymorphic recursion $\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$ should have the same type $\tau$ as the binder $\ottmv{x}$
@@ -48,15 +50,18 @@ and also the inner expression $\ottnt{e}$.
 \subsection{Recursion as Term and Type}
 \paragraph{Term-level Recursion}
 
-In \name, $ \mu $-operator works as a \emph{fixpoint} on the term
+In \name, the $ \mu $-operator works as a \emph{fixpoint} on the term
 level. By rule \ruleref{S\_Mu}, evaluating a term $\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$ will
-substitute all $\ottmv{x}$ in $e$ with the whole $ \mu $-term itself,
+substitute all $\ottmv{x}$'s in $e$ with the whole $ \mu $-term itself,
 resulting in the unrolling $\ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]} \,$. The
 $ \mu $-term is equivalent to a recursive function that should be
 allowed to unroll without restriction. Therefore, the definition of
 values is not changed in \name and $ \mu $-term is not treated as a
 value. This is different from conventional term-level fixpoint that is
-usually treated as values \cite{zombie:popl14}.
+usually treated as values \cite{zombie:popl14}\bruno{I don't follow
+  this? What is TAPL's treatement of recursion for example? I guess 
+you are saying that in zombie recursion produces a value. But is this
+the standard? or is zombie that is special?}.
 
 Recall the factorial function example (\S
 \ref{sec:overview:recursion}), which can be defined as a $ \mu $-term
