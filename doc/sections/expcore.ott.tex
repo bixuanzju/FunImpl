@@ -37,13 +37,13 @@
 \newcommand{\otte}{
 \ottrulehead{\ottnt{e}  ,\ \tau  ,\ \sigma  ,\ \rho}{::=}{\ottcom{Expressions}}\ottprodnewline
 \ottfirstprodline{|}{\ottmv{x}}{}{}{}{\ottcom{Variable}}\ottprodnewline
-\ottprodline{|}{\star}{}{}{}{\ottcom{Type of types}}\ottprodnewline
+\ottprodline{|}{\star}{}{}{}{\ottcom{Type of Types}}\ottprodnewline
 \ottprodline{|}{\ottnt{e_{{\mathrm{1}}}} \, \ottnt{e_{{\mathrm{2}}}}}{}{}{}{\ottcom{Application}}\ottprodnewline
 \ottprodline{|}{\lambda  \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}}{}{}{}{\ottcom{Abstraction}}\ottprodnewline
-\ottprodline{|}{\Pi \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \sigma}{}{}{}{\ottcom{Product}}\ottprodnewline
-\ottprodline{|}{\mathsf{cast}^{\uparrow} \, \ottsym{[}  \tau  \ottsym{]} \,  \ottnt{e}}{}{}{}{\ottcom{Cast up by expansion}}\ottprodnewline
-\ottprodline{|}{\mathsf{cast}_{\downarrow} \, \ottnt{e}}{}{}{}{\ottcom{Cast down by reduction}}\ottprodnewline
-\ottprodline{|}{\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}}{}{}{}{\ottcom{General recursion}}}
+\ottprodline{|}{\Pi \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \sigma}{}{}{}{\ottcom{Dependent Product}}\ottprodnewline
+\ottprodline{|}{\mathsf{cast}^{\uparrow} \, \ottsym{[}  \tau  \ottsym{]} \,  \ottnt{e}}{}{}{}{\ottcom{Cast Up by Expansion}}\ottprodnewline
+\ottprodline{|}{\mathsf{cast}_{\downarrow} \, \ottnt{e}}{}{}{}{\ottcom{Cast Down by Reduction}}\ottprodnewline
+\ottprodline{|}{\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}}{}{}{}{\ottcom{Polymorphic Recursion}}}
 
 \newcommand{\ottlit}{
 \ottrulehead{\ottnt{lit}}{::=}{}}
@@ -55,24 +55,24 @@
 \newcommand{\ottG}{
 \ottrulehead{\Gamma}{::=}{\ottcom{Contexts}}\ottprodnewline
 \ottfirstprodline{|}{\varnothing}{}{}{}{\ottcom{Empty}}\ottprodnewline
-\ottprodline{|}{\Gamma  \ottsym{,}  \ottmv{x}  \ottsym{:}  \tau}{}{}{}{\ottcom{Variable binding}}}
+\ottprodline{|}{\Gamma  \ottsym{,}  \ottmv{x}  \ottsym{:}  \tau}{}{}{}{\ottcom{Variable Binding}}}
 
 \newcommand{\ottv}{
 \ottrulehead{\ottnt{v}}{::=}{\ottcom{Values}}\ottprodnewline
-\ottfirstprodline{|}{\star}{}{}{}{\ottcom{Type of types}}\ottprodnewline
+\ottfirstprodline{|}{\star}{}{}{}{\ottcom{Type of Types}}\ottprodnewline
 \ottprodline{|}{\lambda  \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}}{}{}{}{\ottcom{Abstraction}}\ottprodnewline
-\ottprodline{|}{\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}}{}{}{}{\ottcom{Product}}\ottprodnewline
-\ottprodline{|}{\mathsf{cast}^{\uparrow} \, \ottsym{[}  \tau  \ottsym{]} \,  \ottnt{e}}{}{}{}{\ottcom{Cast up by expansion}}}
+\ottprodline{|}{\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}}{}{}{}{\ottcom{Dependent Product}}\ottprodnewline
+\ottprodline{|}{\mathsf{cast}^{\uparrow} \, \ottsym{[}  \tau  \ottsym{]} \,  \ottnt{e}}{}{}{}{\ottcom{Cast Up by Expansion}}}
 
 \newcommand{\ottec}{
 \ottrulehead{e  ,\ \tau  ,\ \sigma}{::=}{\ottcom{Expressions}}\ottprodnewline
 \ottfirstprodline{|}{\ottmv{x}}{}{}{}{\ottcom{Variable}}\ottprodnewline
-\ottprodline{|}{\star}{}{}{}{\ottcom{Type of types}}\ottprodnewline
+\ottprodline{|}{\star}{}{}{}{\ottcom{Type of Types}}\ottprodnewline
 \ottprodline{|}{e_{{\mathrm{1}}} \, e_{{\mathrm{2}}}}{}{}{}{\ottcom{Application}}\ottprodnewline
 \ottprodline{|}{\lambda  \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  e}{}{}{}{\ottcom{Abstraction}}\ottprodnewline
-\ottprodline{|}{\Pi \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \sigma}{}{}{}{\ottcom{Product}}\ottprodnewline
-\ottprodline{|}{\mathsf{cast}^{\uparrow} \, \ottsym{[}  \tau  \ottsym{]} \,  e}{}{}{}{\ottcom{Cast up by expansion}}\ottprodnewline
-\ottprodline{|}{\mathsf{cast}_{\downarrow} \, e}{}{}{}{\ottcom{Cast down by reduction}}}
+\ottprodline{|}{\Pi \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \sigma}{}{}{}{\ottcom{Dependent Product}}\ottprodnewline
+\ottprodline{|}{\mathsf{cast}^{\uparrow} \, \ottsym{[}  \tau  \ottsym{]} \,  e}{}{}{}{\ottcom{Cast Up by Expansion}}\ottprodnewline
+\ottprodline{|}{\mathsf{cast}_{\downarrow} \, e}{}{}{}{\ottcom{Cast Down by Reduction}}}
 
 \newcommand{\ottpgm}{
 \ottrulehead{\ottnt{pgm}}{::=}{\ottcom{Program}}\ottprodnewline
@@ -80,7 +80,7 @@
 
 \newcommand{\ottdecl}{
 \ottrulehead{\ottnt{decl}}{::=}{\ottcom{Declarations}}\ottprodnewline
-\ottfirstprodline{|}{\kw{data} \, \ottmv{D}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{=}  \,\overline{  \ottmv{K}  \,\overline{  \ottmv{x}  \ottsym{:}  T  }\,  }\,}{}{}{}{\ottcom{Datatype declaration}}}
+\ottfirstprodline{|}{\kw{data} \, \ottmv{D}  \,\overline{  \ottnt{u}  \ottsym{:}  \kappa  }\,  \ottsym{=}  \,\overline{  \ottmv{K}  \,\overline{  \ottmv{x}  \ottsym{:}  T  }\,  }\,}{}{}{}{\ottcom{Datatype Declaration}}}
 
 \newcommand{\ottp}{
 \ottrulehead{\ottnt{p}}{::=}{\ottcom{Patterns}}\ottprodnewline
@@ -89,22 +89,22 @@
 \newcommand{\ottu}{
 \ottrulehead{\ottnt{u}  ,\ \upsilon}{::=}{\ottcom{Atoms}}\ottprodnewline
 \ottfirstprodline{|}{\ottmv{x}}{}{}{}{\ottcom{Variable}}\ottprodnewline
-\ottprodline{|}{\ottmv{K}}{}{}{}{\ottcom{Data constructor}}}
+\ottprodline{|}{\ottmv{K}}{}{}{}{\ottcom{Data Constructor}}}
 
 \newcommand{\ottE}{
 \ottrulehead{\ottnt{E}  ,\ T  ,\ S  ,\ \kappa}{::=}{\ottcom{Expressions}}\ottprodnewline
 \ottfirstprodline{|}{\ottnt{u}}{}{}{}{\ottcom{Atom}}\ottprodnewline
-\ottprodline{|}{\star}{}{}{}{\ottcom{Type of types}}\ottprodnewline
+\ottprodline{|}{\star}{}{}{}{\ottcom{Type of Types}}\ottprodnewline
 \ottprodline{|}{\ottnt{E_{{\mathrm{1}}}} \, \ottnt{E_{{\mathrm{2}}}}}{}{}{}{\ottcom{Application}}\ottprodnewline
 \ottprodline{|}{\lambda  \ottmv{x}  \ottsym{:}  T  \ottsym{.}  \ottnt{E}}{}{}{}{\ottcom{Abstraction}}\ottprodnewline
-\ottprodline{|}{\Pi \, \ottmv{x}  \ottsym{:}  T  \ottsym{.}  S}{}{}{}{\ottcom{Product}}\ottprodnewline
-\ottprodline{|}{\mu \, \ottmv{x}  \ottsym{:}  T  \ottsym{.}  \ottnt{E}}{}{}{}{\ottcom{General recursion}}\ottprodnewline
-\ottprodline{|}{\kw{case} \, \ottnt{E_{{\mathrm{1}}}} \, \kw{of} \, \,\overline{  \ottnt{p}  \Rightarrow  \ottnt{E_{{\mathrm{2}}}}  }\,}{}{}{}{\ottcom{Case analysis}}}
+\ottprodline{|}{\Pi \, \ottmv{x}  \ottsym{:}  T  \ottsym{.}  S}{}{}{}{\ottcom{Dependent Product}}\ottprodnewline
+\ottprodline{|}{\mu \, \ottmv{x}  \ottsym{:}  T  \ottsym{.}  \ottnt{E}}{}{}{}{\ottcom{Polymorphic Recursion}}\ottprodnewline
+\ottprodline{|}{\kw{case} \, \ottnt{E_{{\mathrm{1}}}} \, \kw{of} \, \,\overline{  \ottnt{p}  \Rightarrow  \ottnt{E_{{\mathrm{2}}}}  }\,}{}{}{}{\ottcom{Case Analysis}}}
 
 \newcommand{\ottGs}{
 \ottrulehead{\Sigma}{::=}{\ottcom{Contexts}}\ottprodnewline
 \ottfirstprodline{|}{\varnothing}{}{}{}{\ottcom{Empty}}\ottprodnewline
-\ottprodline{|}{\Sigma  \ottsym{,}  \ottnt{u}  \ottsym{:}  T}{}{}{}{\ottcom{Atom binding}}}
+\ottprodline{|}{\Sigma  \ottsym{,}  \ottnt{u}  \ottsym{:}  T}{}{}{}{\ottcom{Atom Binding}}}
 
 \newcommand{\ottee}{
 \ottrulehead{e  ,\ \tau}{::=}{\ottcom{Expressions}}\ottprodnewline

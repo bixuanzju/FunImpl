@@ -10,7 +10,7 @@ of constructions, \ecore has decidable type-checking. However, unlike
 the strong normalization of the calculus. 
 In rest of this
 section, we demonstrate the syntax, operational semantics, typing
-rules and meta-theory of \ecore.
+rules and meta-theory of \ecore.\bruno{Mention where to find the proofs!}
 
 %\ecore is a subset of the core
 %language \name without general recursion. By explicitly controlling the
@@ -25,7 +25,7 @@ expressions, contexts and values. \ecore uses a unified syntactic
 representation for different levels of expressions by following the
 \emph{pure type system} (PTS) representation of \cc. Therefore, there
 is no syntactic distinction between terms, types or kinds. This design
-brings the economy for type checking, since one set of rules can cover
+brings economy for type checking, since one set of rules can cover
 all syntactic levels. By convention, we use metavariables $[[t]]$ and
 $[[T]]$ for an expression on the type-level position and $e$ for one
 on the term level.
@@ -34,27 +34,30 @@ on the term level.
 Traditionally in \cc, there are two distinct
 sorts $[[star]]$ and $[[square]]$ representing the type of
 \emph{types} and \emph{sorts} respectively, and an axiom
-$[[star]]:[[square]]$ specifying the relation. In \ecore, we further
+$[[star]]:[[square]]$ specifying the relation between the two sorts. In \ecore, we further
 merge types and kinds together by including only a single sort
 $[[star]]$ and an impredicative axiom $[[star]]:[[star]]$. 
 
 
-\paragraph{Explicit type conversion}
+\paragraph{Explicit Type Conversion}
 
 We introduce two new primitives $[[castup]]$ and $[[castdown]]$
-(pronounced as "cast up" and "cast down") to replace implicit
-conversion rule of \cc with \emph{one-step} explicit type
+(pronounced as "cast up" and "cast down") to replace the implicit
+conversion rule of \cc with a \emph{one-step} explicit type
 conversion. They represent two directions of type conversion:
 $[[castdown]]$ stands for the $\beta$-reduction of types, while
-$[[castup]]$ is the inverse (Examples will be given in later typing sections).
-
+$[[castup]]$ is the inverse. % (Examples will be given in later typing sections).
 Though \cast primitives make the syntax verbose when type conversion
-is heavily used, the implementation of type checking is simplified
-because typing rules of \ecore become type-directed without \cc's
-implicit conversion rule. Considering the core language is
-compiler-oriented, end-users will not directly use them. Some type
-conversions can be generated through the translation of the source
-language (\S \ref{sec:surface}).
+is heavily used, the implementation of type checking is simplified:
+the typing rules of \ecore become syntax-directed without \cc's
+implicit conversion rule. \bruno{I think the following point should be
+made in the source language section, not here.}
+% Considering the core language is
+% compiler-oriented, end-users will not directly use them. 
+% Some type
+% conversions can be generated through the translation of the source
+% language (\S \ref{sec:surface}).
+\linus{Revised. Section 6 has mentioned this.}
 
 \begin{figure}
     \gram{\ottec\ottinterrule
@@ -62,18 +65,18 @@ language (\S \ref{sec:surface}).
         \ottv}
     \caption{Syntax of \ecore}
     \label{fig:ecore:syntax}
-\end{figure}
+\end{figure}\bruno{Product should be dependent product. }\linus{Corrected in all figures.}
 
 \subsection{Operational Semantics}\label{sec:ecore:opsem}
 
 Figure \ref{fig:ecore:opsem} shows the \emph{call-by-name} operational
 semantics, defined by one-step reduction. Two base cases include
 \ruleref{S\_Beta} for $\beta$-reduction and \ruleref{S\_CastDownUp}
-for cast canceling. Two inductive case, \ruleref{S\_App} and
+for cast canceling. Two inductive cases, \ruleref{S\_App} and
 \ruleref{S\_CastDown}, define reduction in the head position of an
 application, and in the $[[castdown]]$ inner expression
-respectively. The reduction rules are \emph{weak} in the sense that it
-is not allowed to reduce inside a $\lambda$-term or $[[castup]]$-term
+respectively. The reduction rules are \emph{weak} in the sense that they
+are not allowed to reduce inside a $\lambda$-term or $[[castup]]$-term
 which is viewed as a value (see Figure \ref{fig:ecore:syntax}).
 
 To evaluate the value of a term-level expression, we apply the
@@ -129,15 +132,15 @@ check the type well-formedness of the dependent function.
 We focus on rules \ruleref{T\_CastUp} and \ruleref{T\_CastDown} that
 define the semantics of \cast operators and replace the conversion
 rule of \cc~(see Section~\ref{sec:coc}). The relation between the original
-and converted type is defined by one-step reduction (see
-\ref{fig:ecore:opsem}). Specifically speaking, if given a judgement
+and converted type is defined by one-step reduction (see Figure
+\ref{fig:ecore:opsem}). Given a judgement
 $[[G |- e : t2]]$ and relation $[[t1 --> t2]] [[-->]] [[t3]]$, then
 $[[castup [t1] e]]$ expands the type of $[[e]]$ from $[[t2]]$ to
 $[[t1]]$, while $[[castdown e]]$ reduces the type of $[[e]]$ from
 $[[t2]]$ to $[[t3]]$. For example, assume $[[G |- e1 : int]]$ and $[[G |- e2 :
 (\x : star.x) int]]$. Note that the following reduction holds:
 \[ [[(\x : star.x) int --> int]]\]
-Thus, we can obtain the following derivation of $[[e1]]$ and $[[e2]]$:
+Thus, we can obtain the following derivations:
 \[
 \inferrule{[[G |- e1 : int]] \\ [[G |- (\x : star.x) int : star]] \\ [[(\x :
 star.x) int --> int]]}{[[G |- (castup[(\x : star.x) int] e1):(\x : star.x)
@@ -147,9 +150,6 @@ int]]}
 \inferrule{[[G |- e2 : (\x : star.x) int]] \\ [[G |- int : star]] \\ [[(\x :
 star.x) int --> int]]}{[[G |- (castdown e2):int]]}
 \]
-
-\bruno{More details please! Show worked out examples with a typing 
-derivation.} \linus{Fixed.}
 
 Importantly, in \ecore term-level and type-level computation are treated 
 differently. Term-level computation is dealt in the usual way, by 
@@ -179,19 +179,16 @@ typing results:
     &[[unfoldn]] [[e]] & : [[Tn]]
 \end{array}\]
 
-\paragraph{Type in Type}
-\bruno{I have moved this text from the previous section. 
-This is where you should talk about the \emph{typing} consequences 
-of the * : * axiom.} \linus{Noted with thanks.}
+\paragraph{Benefits of Type in Type}
 In the context of \cc, if a term $[[x]]$ has the type $[[t1]]$, and
 $[[t2]]$ is a type, i.e. $[[x]]:[[t1]]:[[star]]$ and
 $[[t2]]:[[square]]$, we call the type $[[Pi x:t1.t2]]$ a
 \emph{dependent product}. \ecore follows \cc to use the same
 $[[Pi]]$-notation to represent dependent function types.
 
-However, a higher-kind polymorphic function type such as $[[Pi
+However, a higher-kinded polymorphic function type such as $[[Pi
     x:square.x->x]]$ is not allowed in \cc, because $[[square]]$ is
-the highest sort that can not be typed. While $[[Pi]]$-notation in
+the highest sort, and it cannot be typed. In contrast $[[Pi]]$-notation in
 \ecore is more expressive and does not have such limitation because of
 the axiom $[[star]]:[[star]]$. In the surface language, we
 interchangeably use the arrow form $[[(x:t1)->t2]]$ of the product for
@@ -216,8 +213,8 @@ syntactically equal, i.e. satisfy the $\alpha$-equality.
 \subsection{Meta-theory}\label{sec:ecore:meta}
 We now discuss the meta-theory of \ecore. We focus on two properties: the
 decidability of type checking and the type-safety of the language. First, we
-want to show type checking \ecore is decidable without normalizing property.
-The type checker will not be stuck by type-level non-termination. Second, the
+show that type checking \ecore is decidable without requiring strong
+normalization. Second, the
 language is type safe, proven by standard subject reduction and progress
 lemmas.
 
@@ -226,18 +223,19 @@ For the decidability, we need to show there exists a type checking algorithm,
 which never loops forever and returns a unique type for a well-formed
 expression $[[e]]$. This is done by induction on the length of $[[e]]$ and
 ranging over typing rules. Most expression typing rules, which have only typing
-judgements in premises, are already decidable by induction hypothesis. Thus, it
+judgements in premises, are already decidable by the induction hypothesis. Thus, it
 is straightforward to follow the syntax-directed judgement to derive a unique
 type checking result.
 
 The critical case is for rules \ruleref{T\_CastUp} and \ruleref{T\_CastDown}.
 Both rules contain a premise that needs to judge if two types $[[t1]]$ and
-$[[t2]]$ follows the one-step reduction, i.e. if $[[t1 --> t2]]$ holds. We need
+$[[t2]]$ follow the one-step reduction, i.e. if $[[t1 --> t2]]$ holds. We need
 to show such $[[t2]]$ is \emph{unique} with respect to the one-step reduction,
 or equivalently, reducing $[[t1]]$ by one step will get only a sole result
 $[[t2]]$. Otherwise, assume $[[e]]:[[t1]]$ and there exists $[[t2']]$ such that
 $[[t1 --> t2]]$ and $[[t1 --> t2']]$. Then the type of $[[castdown e]]$ can be
-either $[[t2]]$ or $[[t2']]$ by rule \ruleref{T\_CastDown}, which is not
+either $[[t2]]$ or $[[t2']]$ by rule \ruleref{T\_CastDown}, which
+would not be
 decidable. The property is proven by the following lemma:
 
 \begin{lem}[Decidability of One-step Reduction]\label{lem:ecore:unique}
@@ -266,17 +264,18 @@ $[[t]]$ such that $[[G |- e:t]]$ or reports there is no such $[[t]]$.
 	By induction on the structure of $[[e]]$.
 \end{proof}
 
-Note that when proving the decidability of type checking, we do not rely on the
-normalizing property. Because explicit type conversion rules use one-step
+We emphasize that when proving the decidability of type checking, we do not rely on the
+on strong normalization. Intuitively, because explicit type conversion rules use one-step
 reduction, which already has a decidable checking algorithm according to Lemma
 \ref{lem:ecore:unique}. We do not need to further require the normalization of
-terms. This is different from the proof for \cc which requires the language is
+terms. This is different from the proof for \cc which requires the
+language to be strongly
 normalizing \cite{pts:normalize}. Because \cc's conversion rule needs to
 examine the $\beta$-equivalence of terms, which is decidable only if every term
 has a normal form.
 
 \paragraph{Type-safety}
-Proof of the type-safety (or type soundness) of \ecore is fairly standard by subject
+The proof of the type-safety (or type soundness) of \ecore is fairly standard by subject
 reduction (or preservation) and progress lemmas. The subject reduction proof
 relies on the substitution lemma. We give the proof sketch of related lemmas as
 follows:
@@ -329,14 +328,13 @@ reduction steps.
 Suppose $[[e]] : [[t]]$ and there exists a reduction sequence
 $[[t1]] [[-->]] [[t2]] [[-->]] \dots [[-->]] [[tn]] [[-->]] [[t]]$,
 the following typing of $[[foldn]]$ holds:
-$
+\[
     [[foldn]] [ [[t1]], \dots, [[tn]] ] [[e]] : [[t1]].
-$
-
+\]
 Note that $[[t1]] [[-->>]] [[t]]$ are decidable by Lemma
 \ref{lem:ecore:uniquen}. Thus, the intermediate types in $[[t1]] [[-->>]] [[t]]$,
-i.e. $[[t2]], \dots, [[tn]]$, can be uniquely determined. Thus, we can leave
+i.e. $[[t2]], \dots, [[tn]]$, can be uniquely determined. So we can leave
 them out in the $[[foldn]]$ operator with the following form:
-$
+\[
     [[foldn [t1] e]] : [[t1]].
-$
+\]

@@ -15,13 +15,13 @@ grammar
 %% Expressions
 e, t {{ tex \tau }}, T {{ tex \sigma }}, ro {{ tex \rho }} :: 'e_' ::=       {{ com Expressions    }}
   | x                         ::  :: Var        {{ com Variable }}
-  | star                      ::  :: Star       {{ com Type of types }}
+  | star                      ::  :: Star       {{ com Type of Types }}
   | e1 e2                     ::  :: App        {{ com Application }}
   | \ x : t . e               ::  :: Lam        {{ com Abstraction }}
-  | Pi x : t  . T             ::  :: Pi         {{ com Product }}
-  | castup [ t ] e            ::  :: CastUp     {{ com Cast up by expansion}}
-  | castdown e                ::  :: CastDown   {{ com Cast down by reduction }}
-  | mu x : t . e              ::  :: Mu         {{ com General recursion }}
+  | Pi x : t  . T             ::  :: Pi         {{ com Dependent Product }}
+  | castup [ t ] e            ::  :: CastUp     {{ com Cast Up by Expansion}}
+  | castdown e                ::  :: CastDown   {{ com Cast Down by Reduction }}
+  | mu x : t . e              ::  :: Mu         {{ com Polymorphic Recursion }}
   | e1 [ x |-> e2 ]           :: M:: Sub        {{ com Substitution }}
   | ( e )                     :: M:: Parens     {{ com Parenthesized expression }}
   | let x : t = e2 in e1      :: M:: LetBinding {{ com Let binding }}
@@ -65,28 +65,28 @@ s {{ tex \star }}, r {{ tex \star }} :: 's_' ::= {{ com Sorts }}
 %% Contexts
 G {{ tex \Gamma }} :: 'G_' ::= {{ com Contexts }}
   | empty          ::  :: Empty       {{ com Empty }}
-  | G , x : t      ::  :: Binding     {{ com Variable binding }}
-  | G , G'         :: M:: CtxBind     {{ com Context binding }}
+  | G , x : t      ::  :: Binding     {{ com Variable Binding }}
+  | G , G'         :: M:: CtxBind     {{ com Context Binding }}
   | G [ x |-> e ]  :: M:: CtxSubst    {{ com Context substitution }}
   | G *            :: M:: CtxStar     {{ com Starred context }}
   | ee : tt         :: M:: BindCoC
 
 %% Values
 v :: 'v_' ::=                               {{ com Values   }}
-  | star                 ::  :: Star       {{ com Type of types }}
+  | star                 ::  :: Star       {{ com Type of Types }}
   | \ x : t . e          ::  :: Lam        {{ com Abstraction  }}
-  | Pi x : t1 . t2       ::  :: Pi         {{ com Product }}
-  | castup [ t ] e       ::  :: CastUp     {{ com Cast up by expansion }}
+  | Pi x : t1 . t2       ::  :: Pi         {{ com Dependent Product }}
+  | castup [ t ] e       ::  :: CastUp     {{ com Cast Up by Expansion }}
 
 %% Explicit core
 ec {{ tex e }}, tc {{ tex \tau }}, Tc {{ tex \sigma }} :: 'ec_' ::=       {{ com Expressions    }}
   | x                           ::  :: Var        {{ com Variable }}
-  | star                        ::  :: Star       {{ com Type of types }}
+  | star                        ::  :: Star       {{ com Type of Types }}
   | ec1 ec2                     ::  :: App        {{ com Application }}
   | \ x : tc . ec               ::  :: Lam        {{ com Abstraction }}
-  | Pi x : tc . Tc              ::  :: Pi         {{ com Product }}
-  | castup [ tc ] ec            ::  :: CastUp     {{ com Cast up by expansion}}
-  | castdown ec                 ::  :: CastDown   {{ com Cast down by reduction }}
+  | Pi x : tc . Tc              ::  :: Pi         {{ com Dependent Product }}
+  | castup [ tc ] ec            ::  :: CastUp     {{ com Cast Up by Expansion}}
+  | castdown ec                 ::  :: CastDown   {{ com Cast Down by Reduction }}
 
 %%% Terminals
 terminals :: 'terminals_' ::=

@@ -11,7 +11,7 @@ of constructions, \ecore has decidable type-checking. However, unlike
 the strong normalization of the calculus. 
 In rest of this
 section, we demonstrate the syntax, operational semantics, typing
-rules and meta-theory of \ecore.
+rules and meta-theory of \ecore.\bruno{Mention where to find the proofs!}
 
 %\ecore is a subset of the core
 %language \name without general recursion. By explicitly controlling the
@@ -26,7 +26,7 @@ expressions, contexts and values. \ecore uses a unified syntactic
 representation for different levels of expressions by following the
 \emph{pure type system} (PTS) representation of \cc. Therefore, there
 is no syntactic distinction between terms, types or kinds. This design
-brings the economy for type checking, since one set of rules can cover
+brings economy for type checking, since one set of rules can cover
 all syntactic levels. By convention, we use metavariables $\tau$ and
 $\sigma$ for an expression on the type-level position and $e$ for one
 on the term level.
@@ -35,27 +35,30 @@ on the term level.
 Traditionally in \cc, there are two distinct
 sorts $\star$ and $\Box$ representing the type of
 \emph{types} and \emph{sorts} respectively, and an axiom
-$\star:\Box$ specifying the relation. In \ecore, we further
+$\star:\Box$ specifying the relation between the two sorts. In \ecore, we further
 merge types and kinds together by including only a single sort
 $\star$ and an impredicative axiom $\star:\star$. 
 
 
-\paragraph{Explicit type conversion}
+\paragraph{Explicit Type Conversion}
 
 We introduce two new primitives $ \mathsf{cast}^{\uparrow} $ and $ \mathsf{cast}_{\downarrow} $
-(pronounced as "cast up" and "cast down") to replace implicit
-conversion rule of \cc with \emph{one-step} explicit type
+(pronounced as "cast up" and "cast down") to replace the implicit
+conversion rule of \cc with a \emph{one-step} explicit type
 conversion. They represent two directions of type conversion:
 $ \mathsf{cast}_{\downarrow} $ stands for the $\beta$-reduction of types, while
-$ \mathsf{cast}^{\uparrow} $ is the inverse (Examples will be given in later typing sections).
-
+$ \mathsf{cast}^{\uparrow} $ is the inverse. % (Examples will be given in later typing sections).
 Though \cast primitives make the syntax verbose when type conversion
-is heavily used, the implementation of type checking is simplified
-because typing rules of \ecore become type-directed without \cc's
-implicit conversion rule. Considering the core language is
-compiler-oriented, end-users will not directly use them. Some type
-conversions can be generated through the translation of the source
-language (\S \ref{sec:surface}).
+is heavily used, the implementation of type checking is simplified:
+the typing rules of \ecore become syntax-directed without \cc's
+implicit conversion rule. \bruno{I think the following point should be
+made in the source language section, not here.}
+% Considering the core language is
+% compiler-oriented, end-users will not directly use them. 
+% Some type
+% conversions can be generated through the translation of the source
+% language (\S \ref{sec:surface}).
+\linus{Revised. Section 6 has mentioned this.}
 
 \begin{figure}
     \gram{\ottec\ottinterrule
@@ -63,18 +66,18 @@ language (\S \ref{sec:surface}).
         \ottv}
     \caption{Syntax of \ecore}
     \label{fig:ecore:syntax}
-\end{figure}
+\end{figure}\bruno{Product should be dependent product. }\linus{Corrected in all figures.}
 
 \subsection{Operational Semantics}\label{sec:ecore:opsem}
 
 Figure \ref{fig:ecore:opsem} shows the \emph{call-by-name} operational
 semantics, defined by one-step reduction. Two base cases include
 \ruleref{S\_Beta} for $\beta$-reduction and \ruleref{S\_CastDownUp}
-for cast canceling. Two inductive case, \ruleref{S\_App} and
+for cast canceling. Two inductive cases, \ruleref{S\_App} and
 \ruleref{S\_CastDown}, define reduction in the head position of an
 application, and in the $ \mathsf{cast}_{\downarrow} $ inner expression
-respectively. The reduction rules are \emph{weak} in the sense that it
-is not allowed to reduce inside a $\lambda$-term or $ \mathsf{cast}^{\uparrow} $-term
+respectively. The reduction rules are \emph{weak} in the sense that they
+are not allowed to reduce inside a $\lambda$-term or $ \mathsf{cast}^{\uparrow} $-term
 which is viewed as a value (see Figure \ref{fig:ecore:syntax}).
 
 To evaluate the value of a term-level expression, we apply the
@@ -130,23 +133,20 @@ check the type well-formedness of the dependent function.
 We focus on rules \ruleref{T\_CastUp} and \ruleref{T\_CastDown} that
 define the semantics of \cast operators and replace the conversion
 rule of \cc~(see Section~\ref{sec:coc}). The relation between the original
-and converted type is defined by one-step reduction (see
-\ref{fig:ecore:opsem}). Specifically speaking, if given a judgement
+and converted type is defined by one-step reduction (see Figure
+\ref{fig:ecore:opsem}). Given a judgement
 $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau_{{\mathrm{2}}}$ and relation $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}  \longrightarrow  \tau_{{\mathrm{3}}}$, then
 $\mathsf{cast}^{\uparrow} \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]} \,  \ottnt{e}$ expands the type of $\ottnt{e}$ from $\tau_{{\mathrm{2}}}$ to
 $\tau_{{\mathrm{1}}}$, while $\mathsf{cast}_{\downarrow} \, \ottnt{e}$ reduces the type of $\ottnt{e}$ from
 $\tau_{{\mathrm{2}}}$ to $\tau_{{\mathrm{3}}}$. For example, assume $\Gamma  \vdash  \ottnt{e_{{\mathrm{1}}}}  \ottsym{:}  \mathsf{Int}$ and $\Gamma  \vdash  \ottnt{e_{{\mathrm{2}}}}  \ottsym{:}  \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \star  \ottsym{.}  \ottmv{x}  \ottsym{)} \, \mathsf{Int}$. Note that the following reduction holds:
 \[ \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \star  \ottsym{.}  \ottmv{x}  \ottsym{)} \, \mathsf{Int}  \longrightarrow  \mathsf{Int}\]
-Thus, we can obtain the following derivation of $\ottnt{e_{{\mathrm{1}}}}$ and $\ottnt{e_{{\mathrm{2}}}}$:
+Thus, we can obtain the following derivations:
 \[
 \inferrule{\Gamma  \vdash  \ottnt{e_{{\mathrm{1}}}}  \ottsym{:}  \mathsf{Int} \\ \Gamma  \vdash  \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \star  \ottsym{.}  \ottmv{x}  \ottsym{)} \, \mathsf{Int}  \ottsym{:}  \star \\ \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \star  \ottsym{.}  \ottmv{x}  \ottsym{)} \, \mathsf{Int}  \longrightarrow  \mathsf{Int}}{\Gamma  \vdash  \ottsym{(}  \mathsf{cast}^{\uparrow} \, \ottsym{[}  \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \star  \ottsym{.}  \ottmv{x}  \ottsym{)} \, \mathsf{Int}  \ottsym{]} \,  \ottnt{e_{{\mathrm{1}}}}  \ottsym{)}  \ottsym{:}  \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \star  \ottsym{.}  \ottmv{x}  \ottsym{)} \, \mathsf{Int}}
 \]
 \[
 \inferrule{\Gamma  \vdash  \ottnt{e_{{\mathrm{2}}}}  \ottsym{:}  \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \star  \ottsym{.}  \ottmv{x}  \ottsym{)} \, \mathsf{Int} \\ \Gamma  \vdash  \mathsf{Int}  \ottsym{:}  \star \\ \ottsym{(}  \lambda  \ottmv{x}  \ottsym{:}  \star  \ottsym{.}  \ottmv{x}  \ottsym{)} \, \mathsf{Int}  \longrightarrow  \mathsf{Int}}{\Gamma  \vdash  \ottsym{(}  \mathsf{cast}_{\downarrow} \, \ottnt{e_{{\mathrm{2}}}}  \ottsym{)}  \ottsym{:}  \mathsf{Int}}
 \]
-
-\bruno{More details please! Show worked out examples with a typing 
-derivation.} \linus{Fixed.}
 
 Importantly, in \ecore term-level and type-level computation are treated 
 differently. Term-level computation is dealt in the usual way, by 
@@ -176,18 +176,15 @@ typing results:
     & \mathsf{cast}_{\downarrow}^n  \ottnt{e} & : \sigma_{\ottmv{n}}
 \end{array}\]
 
-\paragraph{Type in Type}
-\bruno{I have moved this text from the previous section. 
-This is where you should talk about the \emph{typing} consequences 
-of the * : * axiom.} \linus{Noted with thanks.}
+\paragraph{Benefits of Type in Type}
 In the context of \cc, if a term $\ottmv{x}$ has the type $\tau_{{\mathrm{1}}}$, and
 $\tau_{{\mathrm{2}}}$ is a type, i.e. $\ottmv{x}:\tau_{{\mathrm{1}}}:\star$ and
 $\tau_{{\mathrm{2}}}:\Box$, we call the type $\Pi \, \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{.}  \tau_{{\mathrm{2}}}$ a
 \emph{dependent product}. \ecore follows \cc to use the same
 $ \Pi $-notation to represent dependent function types.
 
-However, a higher-kind polymorphic function type such as $\Pi \, \ottmv{x}  \ottsym{:}  \Box  \ottsym{.}  \ottmv{x}  \rightarrow  \ottmv{x}$ is not allowed in \cc, because $\Box$ is
-the highest sort that can not be typed. While $ \Pi $-notation in
+However, a higher-kinded polymorphic function type such as $\Pi \, \ottmv{x}  \ottsym{:}  \Box  \ottsym{.}  \ottmv{x}  \rightarrow  \ottmv{x}$ is not allowed in \cc, because $\Box$ is
+the highest sort, and it cannot be typed. In contrast $ \Pi $-notation in
 \ecore is more expressive and does not have such limitation because of
 the axiom $\star:\star$. In the surface language, we
 interchangeably use the arrow form $\ottsym{(}  \ottmv{x}  \ottsym{:}  \tau_{{\mathrm{1}}}  \ottsym{)}  \rightarrow  \tau_{{\mathrm{2}}}$ of the product for
@@ -211,8 +208,8 @@ syntactically equal, i.e. satisfy the $\alpha$-equality.
 \subsection{Meta-theory}\label{sec:ecore:meta}
 We now discuss the meta-theory of \ecore. We focus on two properties: the
 decidability of type checking and the type-safety of the language. First, we
-want to show type checking \ecore is decidable without normalizing property.
-The type checker will not be stuck by type-level non-termination. Second, the
+show that type checking \ecore is decidable without requiring strong
+normalization. Second, the
 language is type safe, proven by standard subject reduction and progress
 lemmas.
 
@@ -221,18 +218,19 @@ For the decidability, we need to show there exists a type checking algorithm,
 which never loops forever and returns a unique type for a well-formed
 expression $\ottnt{e}$. This is done by induction on the length of $\ottnt{e}$ and
 ranging over typing rules. Most expression typing rules, which have only typing
-judgements in premises, are already decidable by induction hypothesis. Thus, it
+judgements in premises, are already decidable by the induction hypothesis. Thus, it
 is straightforward to follow the syntax-directed judgement to derive a unique
 type checking result.
 
 The critical case is for rules \ruleref{T\_CastUp} and \ruleref{T\_CastDown}.
 Both rules contain a premise that needs to judge if two types $\tau_{{\mathrm{1}}}$ and
-$\tau_{{\mathrm{2}}}$ follows the one-step reduction, i.e. if $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}$ holds. We need
+$\tau_{{\mathrm{2}}}$ follow the one-step reduction, i.e. if $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}$ holds. We need
 to show such $\tau_{{\mathrm{2}}}$ is \emph{unique} with respect to the one-step reduction,
 or equivalently, reducing $\tau_{{\mathrm{1}}}$ by one step will get only a sole result
 $\tau_{{\mathrm{2}}}$. Otherwise, assume $\ottnt{e}:\tau_{{\mathrm{1}}}$ and there exists $\tau'_{{\mathrm{2}}}$ such that
 $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}$ and $\tau_{{\mathrm{1}}}  \longrightarrow  \tau'_{{\mathrm{2}}}$. Then the type of $\mathsf{cast}_{\downarrow} \, \ottnt{e}$ can be
-either $\tau_{{\mathrm{2}}}$ or $\tau'_{{\mathrm{2}}}$ by rule \ruleref{T\_CastDown}, which is not
+either $\tau_{{\mathrm{2}}}$ or $\tau'_{{\mathrm{2}}}$ by rule \ruleref{T\_CastDown}, which
+would not be
 decidable. The property is proven by the following lemma:
 
 \begin{lem}[Decidability of One-step Reduction]\label{lem:ecore:unique}
@@ -261,17 +259,18 @@ $\tau$ such that $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$ or reports there 
 	By induction on the structure of $\ottnt{e}$.
 \end{proof}
 
-Note that when proving the decidability of type checking, we do not rely on the
-normalizing property. Because explicit type conversion rules use one-step
+We emphasize that when proving the decidability of type checking, we do not rely on the
+on strong normalization. Intuitively, because explicit type conversion rules use one-step
 reduction, which already has a decidable checking algorithm according to Lemma
 \ref{lem:ecore:unique}. We do not need to further require the normalization of
-terms. This is different from the proof for \cc which requires the language is
+terms. This is different from the proof for \cc which requires the
+language to be strongly
 normalizing \cite{pts:normalize}. Because \cc's conversion rule needs to
 examine the $\beta$-equivalence of terms, which is decidable only if every term
 has a normal form.
 
 \paragraph{Type-safety}
-Proof of the type-safety (or type soundness) of \ecore is fairly standard by subject
+The proof of the type-safety (or type soundness) of \ecore is fairly standard by subject
 reduction (or preservation) and progress lemmas. The subject reduction proof
 relies on the substitution lemma. We give the proof sketch of related lemmas as
 follows:
@@ -322,14 +321,13 @@ reduction steps.
 Suppose $\ottnt{e} : \tau$ and there exists a reduction sequence
 $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}  \longrightarrow  \dots  \longrightarrow  \tau_{\ottmv{n}}  \longrightarrow  \tau$,
 the following typing of $ \mathsf{cast}_{\uparrow}^n $ holds:
-$
+\[
      \mathsf{cast}_{\uparrow}^n  [ \tau_{{\mathrm{1}}}, \dots, \tau_{\ottmv{n}} ] \ottnt{e} : \tau_{{\mathrm{1}}}.
-$
-
+\]
 Note that $\tau_{{\mathrm{1}}}  \longrightarrow_n  \tau$ are decidable by Lemma
 \ref{lem:ecore:uniquen}. Thus, the intermediate types in $\tau_{{\mathrm{1}}}  \longrightarrow_n  \tau$,
-i.e. $\tau_{{\mathrm{2}}}, \dots, \tau_{\ottmv{n}}$, can be uniquely determined. Thus, we can leave
+i.e. $\tau_{{\mathrm{2}}}, \dots, \tau_{\ottmv{n}}$, can be uniquely determined. So we can leave
 them out in the $ \mathsf{cast}_{\uparrow}^n $ operator with the following form:
-$
+\[
     \mathsf{cast}_{\uparrow}^n \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]} \,  \ottnt{e} : \tau_{{\mathrm{1}}}.
-$
+\]
