@@ -8,9 +8,7 @@ This section informally introduces the main features of \name. In
 particular, this section shows how the explicit casts in \name can be
 used instead of the typical conversion rule present in calculi such as
 the calculus of constructions. The formal details of \name are
-presented in Section~\ref{sec:ecore}. \jeremy{to distinguish code from
-  \sufcc and \name, we may want to use different fonts, e.g., {\tt
-    typewriter font} for \sufcc}
+presented in Section~\ref{sec:ecore}.
 
 \subsection{The Calculus of Constructions and the Conversion Rule}
 \label{sec:coc}

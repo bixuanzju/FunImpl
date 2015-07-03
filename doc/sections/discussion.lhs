@@ -1,11 +1,53 @@
 %include polycode.fmt
 %include format.fmt
 
-\section{Discussion}
+\section{Discussion and Future Work}
 \label{sec:discuss}
 
 \paragraph{More Type-level Computation}
 \jeremy{dependent pattern matching, recursive functions on the type level}
+
+Though \name, by design, provides full support for type-level
+computation, we are still quite restricted. The problem becomes
+pronounced when having recursive functions on the type level. For
+example, it is legal to write the following:
+
+< letrec many : * -> * -> Nat -> * =
+<   \ a : * . \ b : * . \ n : Nat .
+<      case n of
+<        Zero => b
+<     |  Suc (m : Nat) => a -> many a b m
+
+|many| takes two types and a natural number, produces another type
+depending on the number:
+
+< many Nat Bool Z          -- return ``Bool''
+< many Nat Bool (S Z)      -- return ``Nat $\rightarrow$ Bool''
+< many Nat Bool (S (S Z))  -- return ``Nat $\rightarrow$ Nat $\rightarrow$ Bool''
+
+What might this be useful? It could be used to write a very simplified
+version of variable-arity |zipWith| that takes a number $n$ as arity,
+a type $t$, another type $g$, a function of type |many t g n|, $n$
+lists of type $t$, and finally returns a list of type $g$:
+
+< zipWith :  (n : Nat) -> (t : *) -> (g : *) -> (many t g n) ->
+<            (many (List t) (List g) n)
+
+The problem arises when we try to figure out how many \cast operations
+(or beta reductions) are needed for |many| function to compute
+something useful (e.g., by analysis, it needs at least 6 |castdown|'s
+to be reduced to a function type). The solution, as in Haskell we have
+type classes and type families to guide the type-level computation, is
+to introduce some language constructors in the surface language, of
+which the compiler can make use to atomically generate \cast
+operations.
+
+Under the presence of inductive families of datatypes (e.g.,
+length-fixed vectors), our translation of pattern matching is far too
+clumsy. In short, it does not take into consideration the information
+embedded in the dependent types. In the future work, we plan to
+incorporate Conor McBride's ideas on eliminating dependent pattern
+matching~\cite{elim:pi:pattern} into our work.
 
 \paragraph{Eliminating Cast Operators}
 
@@ -87,9 +129,11 @@ the encoding of \emph{Fin}:
 <     ((n : Nat) -> X n -> B (S n)) ->
 <     B a
 
-The key issue in encoding GADTs lies in type of variable $B$. In
-ordinary datatype encoding, $B$ is fixed to have type $\star$, while
-in GADTs, its type is the same as the variable $X$ (possibly
-higher-kinded). Currently, we have to manually interpret the type
-according to the particular use of some GADTs. We are investigating if
-there exits a general way to do that.
+\jeremy{issues of encoding GADTs, because of equality, injectivity of type constructors?}
+
+% The key issue in encoding GADTs lies in type of variable $B$. In
+% ordinary datatype encoding, $B$ is fixed to have type $\star$, while
+% in GADTs, its type is the same as the variable $X$ (possibly
+% higher-kinded). Currently, we have to manually interpret the type
+% according to the particular use of some GADTs. We are investigating if
+% there exits a general way to do that.
