@@ -159,6 +159,26 @@ each step of the computation is induced by a cast. If a type-level
 program requires $n$ steps of computation to reach normal form, 
 then it will require $n$ casts to compute a (type-level) value.
 
+\paragraph{Cast Operators in $n$ steps}
+For the brevity purpose, we use syntactic sugar to denote $n$ consecutive cast operators.
+Suppose we have $[[e]] : [[t]]$ and sequences of
+reduction $[[t1]] [[-->]] [[t2]] [[-->]] \dots [[-->]] [[tn]] [[-->]] [[t]]$
+and $[[t]] [[-->]] [[T1]] [[-->]] [[T2]] [[-->]] \dots [[-->]] [[Tn]]$. 
+The $n$-step \cast operators can be defined:
+\begin{flalign*}
+    &[[foldn]] [ [[t1]], \dots, [[tn]] ] [[e]] & [[:=]] & [[castup]] [ [[t1]] ]
+([[castup]] [ [[t2]] ] (\dots ( [[castup]] [ [[tn]] ] [[e]] ) \dots )) \\
+    &[[unfoldn]] [[e]] & [[:=]] & \underbrace{[[castdown]] ([[castdown]] (\dots
+( [[castdown]]}_n [[e]]) \dots ))
+\end{flalign*}
+
+By rules \ruleref{T\_CastUp} and \ruleref{T\_CastDown}, we have the following
+typing results:
+\[\begin{array}{lll}
+    &[[foldn]] [ [[t1]], \dots, [[tn]] ] [[e]] & : [[t1]] \\
+    &[[unfoldn]] [[e]] & : [[Tn]]
+\end{array}\]
+
 \paragraph{Type in Type}
 \bruno{I have moved this text from the previous section. 
 This is where you should talk about the \emph{typing} consequences 
@@ -255,50 +275,8 @@ normalizing \cite{pts:normalize}. Because \cc's conversion rule needs to
 examine the $\beta$-equivalence of terms, which is decidable only if every term
 has a normal form.
 
-\paragraph{Cast Operators in $n$ steps}
-Because of the decidability of one-step reduction, we can generalize one-step
-\cast operators to $n$-step. Suppose $[[e]] : [[t]]$ and we have sequences of
-reduction $[[t1]] [[-->]] [[t2]] [[-->]] \dots [[-->]] [[tn]] [[-->]] [[t]]$
-and $[[t]] [[-->]] [[T1]] [[-->]] [[T2]] [[-->]] \dots [[-->]] [[Tn]]$. We can
-define $n$-step \cast operators as follows:
-\begin{flalign*}
-    &[[foldn]] [ [[t1]], \dots, [[tn]] ] [[e]] & [[:=]] & [[castup]] [ [[t1]] ]
-([[castup]] [ [[t2]] ] (\dots ( [[castup]] [ [[tn]] ] [[e]] ) \dots )) \\
-    &[[unfoldn]] [[e]] & [[:=]] & \underbrace{[[castdown]] ([[castdown]] (\dots
-( [[castdown]]}_n [[e]]) \dots ))
-\end{flalign*}
-By rules \ruleref{T\_CastUp} and \ruleref{T\_CastDown}, we have the following
-typing results:
-\[\begin{array}{lll}
-    &[[foldn]] [ [[t1]], \dots, [[tn]] ] [[e]] & : [[t1]] \\
-    &[[unfoldn]] [[e]] & : [[Tn]]
-\end{array}\]
-
-From Lemma \ref{lem:ecore:unique}, we immediately have the following corollary
-for $n$-step reduction:
-
-\begin{lem}[Decidability of $n$-step Reduction]\label{lem:ecore:uniquen}
-	The $n$-step reduction $[[-->>]]$ is called decidable if 
-    given $[[e]]$ there is a unique $[[e']]$ such that $[[e]] [[-->>]] [[e']]$ or no such $[[e']]$.
-\end{lem}
-
-\begin{proof}
-	Immediate from Lemma \ref{lem:ecore:unique}, by induction on the number of
-reduction steps.
-\end{proof}
-
-Thus, $[[t1]] [[-->>]] [[t]]$ and $[[t]] [[-->>]] [[Tn]]$ are unique by Lemma
-\ref{lem:ecore:uniquen}. The intermediate types in $[[t1]] [[-->>]] [[t]]$,
-i.e. $[[t2]], \dots, [[tn]]$, can be uniquely determined. Thus, we can leave
-them out in the $[[foldn]]$ operator. Finally, we can have $n$-step \cast
-operators with the following form:
-\[\begin{array}{lll}
-    &[[foldn [t1] e]] & : [[t1]] \\
-    &[[unfoldn e]] & : [[Tn]]
-\end{array}\]
-
 \paragraph{Type-safety}
-Proof of the type-safety (or soundness) of \ecore is fairly standard by subject
+Proof of the type-safety (or type soundness) of \ecore is fairly standard by subject
 reduction (or preservation) and progress lemmas. The subject reduction proof
 relies on the substitution lemma. We give the proof sketch of related lemmas as
 follows:
@@ -332,3 +310,33 @@ such that $[[e --> e']]$.
 \begin{proof}
     By induction on the derivation of $[[empty |- e:T]]$.
 \end{proof}
+
+\paragraph{Simplified form of $[[foldn]]$}
+Because of the decidability of one-step reduction, we can simplify the form of 
+$n$-step $[[castup]]$ operator. From Lemma \ref{lem:ecore:unique}, 
+we immediately have the following corollary for $n$-step reduction:
+
+\begin{lem}[Decidability of $n$-step Reduction]\label{lem:ecore:uniquen}
+    The $n$-step reduction $[[-->>]]$ is called decidable if 
+    given $[[e]]$ there is a unique $[[e']]$ such that $[[e]] [[-->>]] [[e']]$ or no such $[[e']]$.
+\end{lem}
+
+\begin{proof}
+    Immediate from Lemma \ref{lem:ecore:unique}, by induction on the number of
+reduction steps.
+\end{proof}
+
+Suppose $[[e]] : [[t]]$ and there exists a reduction sequence
+$[[t1]] [[-->]] [[t2]] [[-->]] \dots [[-->]] [[tn]] [[-->]] [[t]]$,
+the following typing of $[[foldn]]$ holds:
+$
+    [[foldn]] [ [[t1]], \dots, [[tn]] ] [[e]] : [[t1]].
+$
+
+Note that $[[t1]] [[-->>]] [[t]]$ are decidable by Lemma
+\ref{lem:ecore:uniquen}. Thus, the intermediate types in $[[t1]] [[-->>]] [[t]]$,
+i.e. $[[t2]], \dots, [[tn]]$, can be uniquely determined. Thus, we can leave
+them out in the $[[foldn]]$ operator with the following form:
+$
+    [[foldn [t1] e]] : [[t1]].
+$

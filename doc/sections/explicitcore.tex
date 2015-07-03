@@ -156,6 +156,26 @@ each step of the computation is induced by a cast. If a type-level
 program requires $n$ steps of computation to reach normal form, 
 then it will require $n$ casts to compute a (type-level) value.
 
+\paragraph{Cast Operators in $n$ steps}
+For the brevity purpose, we use syntactic sugar to denote $n$ consecutive cast operators.
+Suppose we have $\ottnt{e} : \tau$ and sequences of
+reduction $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}  \longrightarrow  \dots  \longrightarrow  \tau_{\ottmv{n}}  \longrightarrow  \tau$
+and $\tau  \longrightarrow  \sigma_{{\mathrm{1}}}  \longrightarrow  \sigma_{{\mathrm{2}}}  \longrightarrow  \dots  \longrightarrow  \sigma_{\ottmv{n}}$. 
+The $n$-step \cast operators can be defined:
+\begin{flalign*}
+    & \mathsf{cast}_{\uparrow}^n  [ \tau_{{\mathrm{1}}}, \dots, \tau_{\ottmv{n}} ] \ottnt{e} &  \triangleq ~  &  \mathsf{cast}^{\uparrow}  [ \tau_{{\mathrm{1}}} ]
+( \mathsf{cast}^{\uparrow}  [ \tau_{{\mathrm{2}}} ] (\dots (  \mathsf{cast}^{\uparrow}  [ \tau_{\ottmv{n}} ] \ottnt{e} ) \dots )) \\
+    & \mathsf{cast}_{\downarrow}^n  \ottnt{e} &  \triangleq ~  & \underbrace{ \mathsf{cast}_{\downarrow}  ( \mathsf{cast}_{\downarrow}  (\dots
+(  \mathsf{cast}_{\downarrow} }_n \ottnt{e}) \dots ))
+\end{flalign*}
+
+By rules \ruleref{T\_CastUp} and \ruleref{T\_CastDown}, we have the following
+typing results:
+\[\begin{array}{lll}
+    & \mathsf{cast}_{\uparrow}^n  [ \tau_{{\mathrm{1}}}, \dots, \tau_{\ottmv{n}} ] \ottnt{e} & : \tau_{{\mathrm{1}}} \\
+    & \mathsf{cast}_{\downarrow}^n  \ottnt{e} & : \sigma_{\ottmv{n}}
+\end{array}\]
+
 \paragraph{Type in Type}
 \bruno{I have moved this text from the previous section. 
 This is where you should talk about the \emph{typing} consequences 
@@ -250,50 +270,8 @@ normalizing \cite{pts:normalize}. Because \cc's conversion rule needs to
 examine the $\beta$-equivalence of terms, which is decidable only if every term
 has a normal form.
 
-\paragraph{Cast Operators in $n$ steps}
-Because of the decidability of one-step reduction, we can generalize one-step
-\cast operators to $n$-step. Suppose $\ottnt{e} : \tau$ and we have sequences of
-reduction $\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}  \longrightarrow  \dots  \longrightarrow  \tau_{\ottmv{n}}  \longrightarrow  \tau$
-and $\tau  \longrightarrow  \sigma_{{\mathrm{1}}}  \longrightarrow  \sigma_{{\mathrm{2}}}  \longrightarrow  \dots  \longrightarrow  \sigma_{\ottmv{n}}$. We can
-define $n$-step \cast operators as follows:
-\begin{flalign*}
-    & \mathsf{cast}_{\uparrow}^n  [ \tau_{{\mathrm{1}}}, \dots, \tau_{\ottmv{n}} ] \ottnt{e} &  \triangleq ~  &  \mathsf{cast}^{\uparrow}  [ \tau_{{\mathrm{1}}} ]
-( \mathsf{cast}^{\uparrow}  [ \tau_{{\mathrm{2}}} ] (\dots (  \mathsf{cast}^{\uparrow}  [ \tau_{\ottmv{n}} ] \ottnt{e} ) \dots )) \\
-    & \mathsf{cast}_{\downarrow}^n  \ottnt{e} &  \triangleq ~  & \underbrace{ \mathsf{cast}_{\downarrow}  ( \mathsf{cast}_{\downarrow}  (\dots
-(  \mathsf{cast}_{\downarrow} }_n \ottnt{e}) \dots ))
-\end{flalign*}
-By rules \ruleref{T\_CastUp} and \ruleref{T\_CastDown}, we have the following
-typing results:
-\[\begin{array}{lll}
-    & \mathsf{cast}_{\uparrow}^n  [ \tau_{{\mathrm{1}}}, \dots, \tau_{\ottmv{n}} ] \ottnt{e} & : \tau_{{\mathrm{1}}} \\
-    & \mathsf{cast}_{\downarrow}^n  \ottnt{e} & : \sigma_{\ottmv{n}}
-\end{array}\]
-
-From Lemma \ref{lem:ecore:unique}, we immediately have the following corollary
-for $n$-step reduction:
-
-\begin{lem}[Decidability of $n$-step Reduction]\label{lem:ecore:uniquen}
-	The $n$-step reduction $ \longrightarrow_n $ is called decidable if 
-    given $\ottnt{e}$ there is a unique $\ottnt{e'}$ such that $\ottnt{e}  \longrightarrow_n  \ottnt{e'}$ or no such $\ottnt{e'}$.
-\end{lem}
-
-\begin{proof}
-	Immediate from Lemma \ref{lem:ecore:unique}, by induction on the number of
-reduction steps.
-\end{proof}
-
-Thus, $\tau_{{\mathrm{1}}}  \longrightarrow_n  \tau$ and $\tau  \longrightarrow_n  \sigma_{\ottmv{n}}$ are unique by Lemma
-\ref{lem:ecore:uniquen}. The intermediate types in $\tau_{{\mathrm{1}}}  \longrightarrow_n  \tau$,
-i.e. $\tau_{{\mathrm{2}}}, \dots, \tau_{\ottmv{n}}$, can be uniquely determined. Thus, we can leave
-them out in the $ \mathsf{cast}_{\uparrow}^n $ operator. Finally, we can have $n$-step \cast
-operators with the following form:
-\[\begin{array}{lll}
-    &\mathsf{cast}_{\uparrow}^n \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]} \,  \ottnt{e} & : \tau_{{\mathrm{1}}} \\
-    &\mathsf{cast}_{\downarrow}^n \, \ottnt{e} & : \sigma_{\ottmv{n}}
-\end{array}\]
-
 \paragraph{Type-safety}
-Proof of the type-safety (or soundness) of \ecore is fairly standard by subject
+Proof of the type-safety (or type soundness) of \ecore is fairly standard by subject
 reduction (or preservation) and progress lemmas. The subject reduction proof
 relies on the substitution lemma. We give the proof sketch of related lemmas as
 follows:
@@ -325,3 +303,33 @@ such that $\ottnt{e}  \longrightarrow  \ottnt{e'}$.
 \begin{proof}
     By induction on the derivation of $\varnothing  \vdash  \ottnt{e}  \ottsym{:}  \sigma$.
 \end{proof}
+
+\paragraph{Simplified form of $ \mathsf{cast}_{\uparrow}^n $}
+Because of the decidability of one-step reduction, we can simplify the form of 
+$n$-step $ \mathsf{cast}^{\uparrow} $ operator. From Lemma \ref{lem:ecore:unique}, 
+we immediately have the following corollary for $n$-step reduction:
+
+\begin{lem}[Decidability of $n$-step Reduction]\label{lem:ecore:uniquen}
+    The $n$-step reduction $ \longrightarrow_n $ is called decidable if 
+    given $\ottnt{e}$ there is a unique $\ottnt{e'}$ such that $\ottnt{e}  \longrightarrow_n  \ottnt{e'}$ or no such $\ottnt{e'}$.
+\end{lem}
+
+\begin{proof}
+    Immediate from Lemma \ref{lem:ecore:unique}, by induction on the number of
+reduction steps.
+\end{proof}
+
+Suppose $\ottnt{e} : \tau$ and there exists a reduction sequence
+$\tau_{{\mathrm{1}}}  \longrightarrow  \tau_{{\mathrm{2}}}  \longrightarrow  \dots  \longrightarrow  \tau_{\ottmv{n}}  \longrightarrow  \tau$,
+the following typing of $ \mathsf{cast}_{\uparrow}^n $ holds:
+$
+     \mathsf{cast}_{\uparrow}^n  [ \tau_{{\mathrm{1}}}, \dots, \tau_{\ottmv{n}} ] \ottnt{e} : \tau_{{\mathrm{1}}}.
+$
+
+Note that $\tau_{{\mathrm{1}}}  \longrightarrow_n  \tau$ are decidable by Lemma
+\ref{lem:ecore:uniquen}. Thus, the intermediate types in $\tau_{{\mathrm{1}}}  \longrightarrow_n  \tau$,
+i.e. $\tau_{{\mathrm{2}}}, \dots, \tau_{\ottmv{n}}$, can be uniquely determined. Thus, we can leave
+them out in the $ \mathsf{cast}_{\uparrow}^n $ operator with the following form:
+$
+    \mathsf{cast}_{\uparrow}^n \, \ottsym{[}  \tau_{{\mathrm{1}}}  \ottsym{]} \,  \ottnt{e} : \tau_{{\mathrm{1}}}.
+$
