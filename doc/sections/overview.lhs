@@ -1,4 +1,5 @@
 %include polycode.fmt
+%include forall.fmt
 %include format.fmt
 
 \section{Overview}
@@ -27,7 +28,7 @@ rule: \ottusedrule{\ottdruleTccXXConv{}}
 
 The conversion rule allows one to derive $e:[[t2]]$ from the
 derivation of $e:[[t1]]$ and the $\beta$-equality of $[[t1]]$ and
-$[[t2]]$. This rule is important to \emph{automatically} allows terms
+$[[t2]]$. This rule is important to \emph{automatically} allow terms
 with equivalent types to be considered type-compatible.  The following
 example illustrates the use of the conversion rule:
 \[
@@ -53,7 +54,7 @@ an infinitely loop (by constantly applying the conversion rule without
 termination), thus rendering the type system undecidable.
 
 To illustrate the problem of the conversion rule with general
-recursion, let us consider a somewhat contrived example. Suppose that
+recursion, let us consider a simple example. Suppose that
 $d$ is a ``dependent type'' that has type $[[int -> star]]$. With
 general recursion at hand, we can image a term $z$ that has type
 $d\,\mathsf{loop}$, where $\mathsf{loop}$ stands for any diverging
@@ -61,14 +62,11 @@ computation of type $[[int]]$. What would happen if we try to type
 check the following application: \[ [[(\x: d three.x)z]]\]
 Under the normal typing rules of \coc, the type checker would get
 stuck as it tries to do $\beta$-equality on two terms: $d\,3$ and
-$d\,\mathsf{loop}$, where the latter is non-terminating.  \bruno{show
-  simple example. Explain issue better.} \jeremy{done!}
+$d\,\mathsf{loop}$, where the latter is non-terminating.  
 
 \subsection{An Alternative to the Conversion Rule: Explicit Casts}
 
-\bruno{Mention somewhere that the \cast rules do \emph{one-step}
-  reductions.} \jeremy{done! see last paragraph, also put beta
-  reduction before beta expansion} In contrast to the implicit
+In contrast to the implicit
 reduction rules of \coc, \name makes it explicit as to when and where
 to convert one type to another. Type conversions are explicit by
 introducing two language constructs: $[[castdown]]$ (beta reduction)
@@ -77,18 +75,21 @@ that decidability of type-checking no longer is coupled with strong
 normalization of the calculus.
 
 \paragraph{Beta Reduction} The first of the two type conversions
-$[[castdown]]$, allows a type conversion provided that the resulting
+($[[castdown]]$), allows a type conversion provided that the resulting
 type is a \emph{beta reduction} of the original type of the term. The
 use of $[[castdown]]$ is better explained by the following simple
-example. Suppose that
+example. Assume a definition $g$:
 \[ g \equiv [[\x:int.x]] \]
-and term $z$ has type
+and term $z$ with type
 \[ [[(\y:star.y)int]] \]
-$ g\,z $ is an ill-typed application, whereas $ g\,([[castdown z]]) $
-is well-typed. This is witnessed by
-$[[(\y:star.y)int]] \rightarrow_{\beta} [[int]]$, which is a beta
-reduction of $[[(\y:star.y)int]]$. \bruno{explain why this is a
-  reduction} \jeremy{done!}
+In \name, and in constrast to the calculus of constructions,
+$ g\,z $ is an ill-typed application. To type-check 
+the application of $g$ to $z$ an explicit type conversion 
+must be used:
+\[ g\,([[castdown z]]) \]
+In this case $[[castdown]]$ is used because the program requires 
+a (type-level) beta-reduction: 
+$[[(\y:star.y)int]] \rightarrow_{\beta} [[int]]$. 
 
 \paragraph{Beta Expansion} The dual operation of $[[castdown]]$ is
 $[[castup]]$, which allows a type conversion provided that the
@@ -97,20 +98,21 @@ term.  Let us revisit the example from Section~\ref{sec:coc}. In \name,
 $f\,3$ is an ill-typed application. Instead we must write the
 application as
 \[ f\,([[castup[(\y:star.y)int] three]]) \]
-\bruno{how to put a space before $3$?} \jeremy{fixed!} Intuitively,
+Intuitively,
 $[[castup]]$ is doing a type conversion, as the type of $ 3 $ is
 $ [[int]] $, and $ [[(\y:star.y)int]] $ is the beta expansion of
 $[[int]]$ (witnessed by
-$[[(\y:star.y)int]] \rightarrow_{\beta} [[int]]$). \bruno{explain why
-  this is a beta expansion} \jeremy{done!} Notice that for
+$[[(\y:star.y)int]] \rightarrow_{\beta} [[int]]$). Notice that for
 $[[castup]]$ to work, we need to provide the resulting type as
 argument. This is because for the same term, there are more than one
 choices for beta expansions (e.g., $1 + 2$ and $2 + 1$ are both the
-beta expansions of $3$). \bruno{explain why for beta expansions we
-  need to provide the resulting type as argument} \jeremy{done!}
+beta expansions of $3$). 
 
+\paragraph{One-Step}
 A final point to make is that the \cast rules specify \emph{one-step}
-reduction. This enables us to have more control over type-level
+reductions/expansions. \bruno{show an example with two
+  beta-reductions and show that two casts would be needed then.}
+This enables us to have more control over type-level
 computation. The full technical details about \cast rules are presented
 in Section~\ref{sec:ecore}.
 
@@ -154,26 +156,22 @@ the same time.
 
 \subsection{Recursion and Recursive Types}
 
-\bruno{Show how in \name recursion and recursive types are unified.
-Discuss that due to this unification the sensible choice for the
-evaluation strategy is call-by-name. }
-
-A simple extension to \name is to add a simple recursion construct.
-With such an extension, it becomes possible to write standard
+\name supports general recursion, and allows writing standard
 recursive programs at the term level. At the same time, the recursive
 construct can also be used to model recursive types at the type-level.
 Therefore, \name differs from other programming languages in that it
-unifies both recursion and recursive types by the same $\mu$
+\emph{unifies} both recursion and recursive types by the same $\mu$
 primitive. With a single language construct we get two powerful
 features!
 
 \paragraph{Recursion}
 
 The $\mu$ primitive can be used to define recursive functions.  For
-example, the factorial function:
+example, the factorial function is written in \name as:
 
-< mu f : Int -> Int . if x == 0 then 1 else x time f (x - 1)
+< fact = mu f : Int -> Int . if x == 0 then 1 else x time f (x - 1)
 
+\bruno{x is not bound!}\bruno{show how to use fact}
 The above recursive definition works because of the dynamic semantics of the
 $\mu$ primitive: \ottusedrule{\ottdruleSXXMu{}} which is exactly doing
 recursive unfolding of itself.
@@ -188,19 +186,20 @@ function on records.
 \subsubsection{Recursive types}
 In the literature on type systems, there are two approaches to
 recursive types, namely \emph{equi-recursive} and
-\emph{iso-recursive}. The \emph{iso-recursive} approach treats a
+\emph{iso-recursive}\bruno{reference}. The \emph{iso-recursive} approach treats a
 recursive type and its unfolding as different, but isomorphic. The
 isomorphism between a recursive type and its one step unfolding is
-witnessed by traditionally \fold and \unfold operations. In \name, the
+witnessed by \fold and \unfold operations. In \name, the
 isomorphism is witnessed by first $[[castup]]$, then
-$[[castdown]]$. \bruno{Explain that the casts generalize fold and
-  unfold!}  \jeremy{done!} At first sight, the \cast rules share some
-similarities with \fold and \unfold, but $[[castup]]$ and
+$[[castdown]]$. In fact, $[[castup]]$ and
 $[[castdown]]$ actually generalize \fold and \unfold: they can convert
-any types, not just recursive types. To demonstrate the use of the
-\cast rules, let us consider a classic example of a recursive type,
+any types, not just recursive types. 
+
+To demonstrate the use of the
+\cast rules with recursive types, let us consider a classic example of a recursive type,
 the so-called ``hungry'' type~\cite{tapl}:
-$H = \miu{\sigma}{\star}{\mathsf{Int} \rightarrow \sigma}$. A term $z$
+\[H = \miu{\sigma}{\star}{\mathsf{Int} \rightarrow \sigma}\]
+A term $z$
 of type $H$ can accept any number of integers and return a new
 function that is hungry for more, as illustrated below:
 \begin{align*}
@@ -223,18 +222,25 @@ types, the \emph{call-by-name} evaluation is a sensible choice.
 \bruno{Probably needs to be improved. I'll came back to this later!}
 
 \subsection{Logical Inconsistency}
+Although the decidability of type-checking is preserved, a consequence
+having general recursion in \name is that the logical consistency is
+lost. In \name every type is inhabited, which is problematic if we
+want to view \name as a logic. Indeed, unlike many other dependently 
+calculi which have been proposed in the past, \name cannot be used 
+directly to do theorem proving.
 
-\bruno{Explain that the \name is inconsistent and discuss that this is
-  a deliberate design decision, since we want to model languages like
-  Haskell, which are logically inconsistent as well.} \bruno{Discuss
-  the $* : *$ rule: since we already have inconsistency, having this
-  rule adds expressiveness and simplifies the system.} \jeremy{added!}
+Nevertheless the loss of logical consistency is a deliberate design
+decision. Although there are dependently typed languages that support
+general recursion and still preserve logical consistency, this is done
+at the cost of additional complexity in the
+system~\cite{}\bruno{references}.  In \name we trade the loss of
+logical consistency by a significantly simpler system.
 
-One consequence of adding general recursion to the type system is that
-the logical consistency of the system is broken. This is a deliberate
-design decision, since our goal is to model languages like Haskell,
-which are logically inconsistent as well. In Haskell, we can write a
-``false'' type:
+Since our goal is 
+use \name as a foundational calculus for languages like Haskell,
+logical consistency is not an important property: traditional 
+functional languages like Haskell are logically inconsistent as well. 
+For example, in Haskell, we can write a ``false'' type:
 
 < type False = forall a. a
 
@@ -244,14 +250,14 @@ With general recursion, a value with type |False| is given:
 < false = false
 
 whose denotational semantics is |undefined|, which corresponds to
-inconsistency in logic.
+inconsistency in logic. 
 
-In light of the fact that we decide to give up consistency, we take
-another step further by declaring that the kind $\star$ has type
-$\star$. As a consequence, having this rule adds expressiveness and
+\paragraph{Type in Type}
+Since logical consistency is already lost due to general recursion, 
+\name also uses the $\star : \star$ axiom\bruno{reference?}. 
+As a consequence, having this rule adds expressiveness and
 simplifies our system (e.g., it will be easy to explicitly quantify
 over kinds). We return to this issue in Section~\ref{sec:related}.
-
 
 \subsection{Encoding Datatypes}
 
@@ -284,25 +290,27 @@ bound by $\mu$, and we make the resulting variable ($B$ in this case)
 universally quantified so that elements of the datatype with different
 result types can be used in the same program~\cite{gadts}.
 
-Its two constructors can be encoded correspondingly via the \cast rules:
+The two constructors can be encoded correspondingly via the \cast rules:
 
 < Z = castup[Nat] (\ B : * . \ z : B . \ f : Nat -> B . z)
 < S = \ n : Nat . castup[Nat] (\ B : * . \ z : B . \ f : Nat -> B . f n)
 
+\bruno{be careful with code overflowing margins! Maybe use 2 lines?}
 Intuitively, each constructor selects a different function from the
 function parameters ($z$ and $f$ in the above example). This provides
 branching in the process flow, based on the constructors. Note that we
 use the $[[castup]]$ operation to do type conversion between the
 recursive type and its unfolding.
 
-The last example defines a recursive function that adds two natural
-numbers:
+Finally a recursive function that adds two natural numbers is defined
+as follows:
 
 < mu f : Nat -> Nat -> Nat . \ n : Nat . \ m : Nat .
 <     (castdown n) Nat m (\ n' : Nat . S (f n' m))
 
-The above definition quite resembles case analysis commonly seen in
-modern functional programming languages. We formalize the encoding of
+The above definition resembles case analysis commonly seen in
+modern functional programming languages.\bruno{Explain the use of cast}
+Indeed, we will formalize an encoding of 
 case analysis in Section~\ref{sec:surface}.
 
 
