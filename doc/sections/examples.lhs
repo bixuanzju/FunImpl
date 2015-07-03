@@ -3,17 +3,15 @@
 
 %format mu = "\mathsf{mu}"
 
-\section{Surface Language on Top of \name}
+\section{\sufcc: A Surface Language on Top of \name}
 \label{sec:app}
 
-\bruno{Wrong title! This section is not about \name; it is about source languages that can be built on top of name!} \jeremy{this name for the moment}
-
-\bruno{General comment is that, although the material is good, the text is a bit informally written.
-Text needs to be polsihed. Also the text is lacking references.}
-
-This sections shows a number of programs written in the surface
-language \sufcc, which is built on top of \name. Most of these
-examples either require non-trivial extensions of Haskell, or are
+The main goal of \name is to serve as an expressive core language
+for functional languages like Haskell or ML.
+This section shows a number of programs written in the surface
+language \sufcc, which is built on top of \name. We illustrate the
+expressiveness of \name by encoding functional programs that require
+some of the latest features of Haskell, or are
 non-trivial to encode in dependently typed language like Coq or
 Agda. All examples shown in this section are runnable in our prototype
 interpreter. The formalization of the surface language is presented in
@@ -86,16 +84,13 @@ in show (eval example) -- return 42
 
 \subsubsection{Datatypes}
 Conventional datatypes like natural numbers or polymorphic lists can
-be easily defined in \sufcc, \bruno{This is not name; its the source
-  language built on top of name!} \jeremy{changed} as in Haskell. For
+be easily defined in \sufcc, as in Haskell. For
 example, below is the definition of polymorphic lists:
 
 <  data List (a : *) = Nil | Cons (x : a) (xs : List a);
 
 
-Because \sufcc \bruno{You'll have to stop referring to \name in this
-  section. You may want to consider giving the source language a
-  name.} \jeremy{changed} is explicitly typed, each type parameter
+Because \sufcc is explicitly typed, each type parameter
 needs to be accompanied with a corresponding kind expression. The use
 of the above datatype is best illustrated by the \emph{length}
 function:
@@ -106,52 +101,41 @@ function:
 <   |  Cons (x : a) (xs : List a) => 1 + length a xs
 < in
 < let test : List nat = Cons nat 1 (Cons nat 2 (Nil nat))
-< in length nat test -- return 2
+< in length nat test -- returns 2
 
-\subsubsection{Higher-kinded Types}
-Higher-kinded types are types that take other types and produce a new
-type. To support higher-kinded types, languages like Haskell have to
-extend their existing core languages to account for kind expressions.
-(The existing core language of Haskell, System FC, is an extension of
-System $F_{\omega}$~\cite{systemfw}, which naively supports
-higher-kinded types.) \bruno{Probably want to mention $F_{\omega}$}
-\jeremy{done!}  Given that \sufcc subsumes System $F_{\omega}$, we can
-easily construct higher-kinded types. We show this by an example of
-encoding a \emph{functor} :
-
-< rcrd Functor (f : * -> *) =
-<   Func {fmap : (a : *) -> (b : *) -> (a -> b) -> f a -> f b};
-
-Here we use a record (by using |rcrd| keyword) to represent a functor,
-whose only field is a single method, called \emph{fmap}. The functor
-instance of the \emph{Maybe} datatype is:
-
-< let maybeInst : Functor Maybe =
-<   Func Maybe (\ a : * . \ b : * . \f : a -> b . \ x : Maybe a .
-<     case x of
-<       Nothing => Nothing b
-<    |  Just (z : a) => Just b (f z))
+The |length| function is recursive. \sufcc supports a standard
+|letrec| construct that facilitates defining recursive functions.
+Note that due to explicit typing, the program requires quite a few
+type annotations and type parameters. However, apart from the extra typing,
+the program is similar to the code that would be written in a language
+like Haskell or ML.
 
 \subsubsection{HOAS}
 
-\emph{Higher-order abstract syntax} is a representation of abstract
+\emph{Higher-order abstract syntax}\bruno{reference} is a representation of abstract
 syntax where the function space of the meta-language is used to encode
-the binders of the object language. Because of the recursive
-occurrence of the datatype appears in a negative position (i.e., in
-the left side of a function arrow) \bruno{explain where!}
-\jeremy{done!}, systems like Coq and Agda would reject such programs using
-HOAS due to the restrictiveness of their termination checkers. However
-\sufcc is able to express HOAS in a straightforward way. We show an
+the binders of the object language. We show an
 example of encoding a simple lambda calculus:
 
 < data Exp = Num (n : nat)
 <   |  Lam (f : Exp -> Exp)
 <   |  App (a : Exp) (b : Exp);
 
+Note that, in the lambda constructor (|Lam|), the recursive occurrence of the
+datatype appears in a negative position (i.e., in the left side of a
+function arrow).  Systems like Coq and Agda would reject such programs
+HOAS since it is well-known that such datatypes can lead to logical
+inconsistencies. Moreover, such logical inconsistencies can be
+exploited to write non-terminating computations, and make type-checking
+undecidable.
+However \sufcc is able to express HOAS in a straightforward
+way, while preserving decidable type-checking.
 
-Next we define the evaluator for our lambda calculus. As noted
+Using |Exp| we can write an evaluator for the lambda calculus. As noted
 by~\cite{Fegaras1996}, the evaluation function needs an extra function
-\emph{reify} to invert the result of evaluation.
+\emph{reify} to invert the result of evaluation. The full code
+for the evaluator is shown next.\bruno{consider removing the error
+branches to make the code shorter.}
 
 < data Value = VI (n : nat) | VF (f : Value -> Value);
 < rcrd Eval = Ev { eval' : Exp -> Value, reify' : Value -> Exp };
@@ -170,11 +154,12 @@ by~\cite{Fegaras1996}, the evaluation function needs an extra function
 <           Lam (\e' : Exp . (reify' ev (fun (eval' ev e')))))
 < in let eval : Exp -> Value = eval' ev
 
-
 The definition of the evaluator is quite straightforward, although it
 is worth noting that the evaluator is a partial function that can
 cause run-time errors. Thanks to the flexibility of the $\mu$
-primitive, mutual recursion can be encoded by using records!
+primitive, mutual recursion can be encoded by using records
+\bruno{explain better! what are the two functions being defined mutually
+recursively}!
 
 Evaluation of a lambda expression proceeds as follows:
 
@@ -182,15 +167,43 @@ Evaluation of a lambda expression proceeds as follows:
 <                       (Lam (\g : Exp. g))
 < in show (eval test) -- return 42
 
-\subsubsection{Fix as a Datatype}
-The type-level \emph{Fix} is a good example to demonstrate the
+
+\subsubsection{Higher-kinded Types}
+Higher-kinded types are types that take other types and produce a new
+type. To support higher-kinded types, languages like Haskell use
+core languages to account for kind expressions.
+(The existing core language of Haskell, System FC, is an extension of
+System $F_{\omega}$~\cite{systemfw}, which naively supports
+higher-kinded types.) Given that \name subsumes System $F_{\omega}$, we can
+easily construct higher-kinded types. We show this by an example of
+encoding a \emph{functor}:
+
+< rcrd Functor (f : * -> *) =
+<   Func {fmap : (a : *) -> (b : *) -> (a -> b) -> f a -> f b};
+
+Here we use a record (by using |rcrd| keyword) to represent a functor,
+whose only field is a single method, called \emph{fmap}. The functor
+``instance'' of the \emph{Maybe} datatype is:
+
+< let maybeInst : Functor Maybe =
+<   Func Maybe (\ a : * . \ b : * . \f : a -> b . \ x : Maybe a .
+<     case x of
+<       Nothing => Nothing b
+<    |  Just (z : a) => Just b (f z))
+
+\bruno{Code needs to be explained! In particular explain the |Func Maybe|.}
+
+\subsubsection{Fixpoints of Functors}
+Various functional programming techniques employ type-level
+fixpoints to achieve additional modularity\bruno{references: Datatypes a la carte}.
+Thus, type-level fixpoints are a good example to demonstrate the
 expressiveness of \sufcc. The definition is:
 
 < rcrd Fix (f : * -> *) = In {out : f (Fix f) };
 
-The record notation also introduces the selector function:
+Note that the record notation also introduces the selector function:
 
-< out : (f : * -> *) -> Fix f -> f (Fix f)
+< out : (f : * -> *) -> Fix f -> f (Fix f) 
 
 The \emph{Fix} datatype is interesting in that now we can define
 recursive datatypes in a non-recursive way. For instance, a
@@ -203,49 +216,46 @@ And the recursive version is just a synonym:
 < let Nat : * = Fix NatF
 
 
-Note that now we can use the above \emph{Nat} anywhere, including the
-left-hand side of a function arrow, which is a potential source of
-non-termination. The termination checker of Coq or Agda is so
-conservative that it would brutally reject the definition of
-\emph{Fix} to avoid the above situation. \bruno{show example?}
-\jeremy{done!} However in \sufcc, where type-level computation is
-explicitly controlled, we can safely use \emph{Fix} in the program.
-
-Given \emph{fmap}, many recursive shcemes can be defined, for example
-we can have \emph{catamorphism}~\cite{Meijer1991} \bruno{reference?}
-\jeremy{done!} or generic function fold:
+Given \emph{fmap}, many recursive schemes can be defined, for example
+we can have \emph{catamorphism}~\cite{Meijer1991} or generic function fold:
 
 < letrec cata :  (f : * -> *) -> (a : *) ->
 <                Functor f -> (f a -> a) -> Fix f -> a =
 <   \f : * -> * . \ a : * . \ m : Functor f . \ g : f a -> a. \ t : Fix f .
 <     g (fmap f m (Fix f) a (cata f a m g) (out f t))
 
-\subsubsection{Kind Polymophism}
-In Haskell, System FC~\cite{fc:pro} \bruno{reference} \jeremy{done!}
-was proposed to support kind polymorphism. However it separates
-expressions into terms, types and kinds, which complicates both the
-implementation and future extensions. \sufcc natively allows datatype
-definitions to have polymorphic kinds. Here is an example, taken
-from~\cite{fc:pro}, of a datatype that benefits from kind polymophism:
-a higher-kinded fixpoint combinator:
+\bruno{fix formatting of cata}
+Unfortunatelly, in systems like Coq, definitions like |Fix|
+must be rejected. The problem is related to the possibility
+of recusive definitions in negative positions. Although the
+datatype |Fix| appears not to use negative recursive definitions
+of itself, the type constructor |f| could use the parameter
+on a negative position.\bruno{Show example that defines a bad functor.}
+Similarly to the HOAS example,
+this would violate the strictly positive restrictions of Coq.
+Nevertheless, in \sufcc such definition is also allowed
+without hindering decidability of type-checking.
 
-< data Mu (k : *) (f : (k -> *) -> k -> *) (a : k) =
-<   Roll (g : f (Mu k f) a);
 
-\emph{Mu} can be used to construct polymorphic recursive types of any kind, for instance:
 
-< data Listf (f : * -> *) (a : *) = Nil
-<   | Cons (x : a) (xs : (f a));
-< let List : * -> * = \a : * . Mu * Listf a
+\begin{comment}
+Note that now we can use the above \emph{Nat} anywhere, including the
+left-hand side of a function arrow, which is a potential source of
+non-termination. The termination checker of Coq or Agda is so
+conservative that it would reject the definition of
+\emph{Fix} to avoid the above situation.
+However in \sufcc, where type-level computation is
+explicitly controlled, we can safely use \emph{Fix} in the program.
+\end{comment}
 
 \subsubsection{Nested Datatypes}
 
-A nested datatype~\cite{nesteddt} \bruno{reference} \jeremy{done!},
+A nested datatype~\cite{nesteddt},
 also known as a \emph{non-regular} datatype, is a parametrised
 datatype whose definition contains different instances of the type
 parameters. Functions over nested datatypes usually involve
-polymorphic recursion. We show that \sufcc is capable of defining all
-useful functions over a nested datatype. A simple example would be the
+polymorphic recursion. We show that \sufcc is capable of defining 
+nested datatypes and functions over a nested datatype. A simple example would be the
 type \emph{Pow} of power trees, whose size is exactly a power of two,
 declared as follows:
 
@@ -253,10 +263,12 @@ declared as follows:
 < data Pow (a : *) = Zero (n : a)
 <   | Succ (t : Pow (PairT a));
 
-Notice that the recursive mention of \emph{Pow} does not hold
-\emph{a}, but \emph{PairT a}. This means every time we use a
-\emph{Succ} constructor, the size of the pairs doubles. In case you
-are curious about the encoding of \emph{Pow}, here is the one:
+Notice that the recursive occurrence of \emph{Pow} does not hold
+an |a|, but \emph{PairT a}\bruno{code should be formated writh the proper font!
+don't use \emph{emphasized for code}. Quite a few changes throughtout!}.
+This means every time we use a
+\emph{Succ} constructor, the size of the pairs doubles. It is instructive to
+look at the encoding of \emph{Pow} in \name:
 
 < let Pow : * -> * = mu X : * -> * .
 <     \ a : * . (B : *) -> (a -> B) -> (X (PairT a) -> B) -> B
@@ -275,12 +287,34 @@ transforms a power tree into a list:
 <               Cons a m (Cons a n (Nil a)))
 <          (toList (PairT a) c)
 
-\subsubsection{Data Promotion}
-\bruno{what is the point that we are trying to make with this example? Title is wrong;
-should be about the point, not about the particular example!} \jeremy{This section shows we can do data promotion much more easily than in Haskell}
 
-Haskell needs sophisticated extensions~\cite{fc:pro} in order for
-being able to use ordinary datatypes as kinds, and data constructors
+\subsubsection{Kind Polymorphism}
+In Haskell, System FC~\cite{fc:pro} was proposed to support, among
+other things\bruno{was this System FC or a later extension of System
+FC? Please double-check!}, kind polymorphism. \bruno{story is not precise
+here: Previous versions of Haskell, based on System $F_{\omega}$
+already had terms, types and kinds. What you want to say is that
+this was still insufficient for kind polymorphism and yet some
+more extensions to the core were needed.}
+expressions into terms, types and kinds, which complicates both the
+implementation and future extensions. \sufcc natively allows 
+definitions to have polymorphic kinds. Here is an example, taken
+from~\cite{fc:pro}, of a datatype that benefits from kind polymophism:
+a higher-kinded fixpoint combinator:
+
+< data Mu (k : *) (f : (k -> *) -> k -> *) (a : k) =
+<   Roll (g : f (Mu k f) a);
+
+\emph{Mu} can be used to construct polymorphic recursive types of any kind, for instance:
+
+< data Listf (f : * -> *) (a : *) = Nil
+<   | Cons (x : a) (xs : (f a));
+< let List : * -> * = \a : * . Mu * Listf a
+
+
+\subsubsection{Datatype Promotion}
+Recent versions of Haskell introduced Datatype Promotion~\cite{}, 
+in order to allow ordinary datatypes as kinds, and data constructors
 as types. With the full power of dependent types, data promotion is
 made trivial in \sufcc.
 
@@ -298,7 +332,5 @@ of its depth statically:
 If we accidentally write the wrong depth, for example:
 < Fork Z 1 (Empty (S Z)) (Empty Z)
 The above will fail to pass type checking.
-
-\bruno{Two questions: firstly does it work? secondly do we support GADT syntax now?}  \jeremy{changed to a simple binary tree example}
 
 \bruno{More examples? closed type families; dependent types?} \jeremy{had hard time thinking of a simple, non-recursive example for type families}
