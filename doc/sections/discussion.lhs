@@ -2,6 +2,7 @@
 %include format.fmt
 
 \section{Discussion}
+\label{sec:discuss}
 
 \paragraph{More Type-level Computation}
 

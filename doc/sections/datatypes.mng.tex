@@ -1,7 +1,7 @@
 \newcommand{\FV}{\mathsf{FV}}
 \newcommand{\dom}{\mathsf{dom}}
 
-\section{Surface language}
+\section{Formalization of the Surface language}
 \label{sec:surface}
 
 % \begin{itemize}
@@ -10,12 +10,12 @@
 % \item Encode GADTs and maybe other Haskell extensions? GADTs seems challenging, so perhaps some other examples would be datatypes like $Fix f$, and $Monad$ as a record. Could formalize records in Haskell style.
 % \end{itemize}
 
-In this section, we present a surface language \sufcc, built on top of
-\name with features that are convenient for functional programming:
-user-defined datatypes, and pattern matching. Thanks to the
-expressiveness of \name, all these features can be elaborated into the
-core language without extending the built-in language constructs of
-\name. In what follows, we first give the syntax of the surface
+In this section, we formally present the surface language \sufcc,
+built on top of \name with features that are convenient for functional
+programming: user-defined datatypes, and pattern matching. Thanks to
+the expressiveness of \name, all these features can be elaborated into
+the core language without extending the built-in language constructs
+of \name. In what follows, we first give the syntax of the surface
 language, followed by the extended typing rules, then we show the
 formal translation rules that translates a surface language expression
 to an expression in \name. Finally we prove the type-safety of the
@@ -27,36 +27,31 @@ translation.
 % \newcommand{\data}{\mathbf{data}} \newcommand{\where}{\mathbf{where}}
 % \newcommand{\letbb}{\mathbf{let}} \newcommand{\inb}{\mathbf{in}}
 
-The full syntax of \sufcc is defined in Figure~\ref{fig:surface:syntax}. Compared with \name, \sufcc has a new syntax category: a program, consisting of a list of datatype declarations, followed by a expression. An \emph{algebraic data type} $D$ is introduced as a top-level \textbf{data} declaration with its \emph{data constructors}. For the purpose of presentation, we sometimes adopt the following syntactic convention:
+The full syntax of \sufcc is defined in
+Figure~\ref{fig:surface:syntax}. Compared with \name, \sufcc has a new
+syntax category: a program, consisting of a list of datatype
+declarations, followed by an expression. For the purpose of
+presentation, we sometimes adopt the following syntactic convention:
 \[
 \overline{\tau}^n \rightarrow \tau_r \equiv \tau_1 \rightarrow \dots \rightarrow \tau_n \rightarrow \tau_r
 \]
-The type of a data constructor $K$ has the form:
+
+An \emph{algebraic datatype} $D$ is introduced as a top-level
+\textbf{data} declaration with its \emph{data constructors}. The type
+of a data constructor $K$ takes the form:
 \[
-[[K : (<<u:k>>) -> (<<x : A>>) -> D@<<u>>]]
+[[K : (<<u:k>>n) -> (<<x : A>>) -> D@<<u>>n]]
 \]
-\bruno{this looks a bit odd for a number of reasons: firstly why to
-  insist on having the quantified variables in the same order as the
-  arguments in the constructor? Secondly it seems that all other
-  arguments cannot be dependently typed? 
-It seems to me that 
-\[
-[[K : (<<x:k>>) -> D@<<u>>]]
-\]
-where all variables $u$ are bound ($u \in \overline{x}$) would be
-better.  } \jeremy{changed!  $[[(<<u:k>>)]]$ are for the arguments of
-a type constructor, $[[(<<x:A>>)]]$ are for the arguments of a data
-constrcutor}
-% The quantified type variables $[[<<u>>]]$ appear in the same order in
-% the return type $[[D@<<u>>]]$.
-Note that the use of the dependent product in the type of a data
-constructor (e.g., $[[(<<u:k>>)]]$) makes it possible to let the type
-of some type constructor arguments depend on other type constructor
-arguments, while in Haskell, this is not possible, becuase the arrow
-$\rightarrow$ can be seen as an independent product type. The
+The first $n$ quantified type variables $[[<<u>>]]$ appear in the same
+order in the result type $[[D@<<u>>]]$.  Note that the use of the
+dependent product in the data constructor arguments (i.e.,
+$[[(<<x:A>>)]]$) makes it possible to let the types of some data
+constructor arguments depend on other data constructor arguments,
+whereas in Haskell, this is not possible, because the function type
+($\rightarrow$) can be seen as an independent product type. The
 \textbf{case} expression is conventional, used to break up values
 built with data constructors.  The patterns of a case expression are
-flat (no nested patterns), and bind value variables.
+flat (i.e., no nested patterns), and bind variables.
 
 \begin{figure*}
 \centering
@@ -71,28 +66,15 @@ flat (no nested patterns), and bind value variables.
 \label{fig:surface:syntax}
 \end{figure*}
 
-
-% \begin{figure}[ht]
-% \centering
-% \small
-% \[
-%   \begin{array}{llll}
-%     \textbf{Declarations} \\
-%     pgm &::= & \overline{decl}; e & \text{Declarations} \\
-%     decl &::= & \data\,D\,\overline{u : \kappa} = \overline{\mid K\,\overline{\tau}} & \text{Datatype} \\ \\
-%     \textbf{Terms} \\
-%     u &::= & x \mid K & \text{Variables and constructors} \\
-%     e,\tau,\sigma,\upsilon,\kappa &::= & u & \text{Term atoms} \\
-%     & & \dots \\
-%     & \mid & \case\,e\,\of\,\overline{p \Rightarrow e} & \text{Case analysis} \\
-%     p &::= & K\,\overline{x : \tau} & \text{Pattern} \\ \\
-%     \textbf{Environments} \\
-%     \Gamma &::= &\varnothing & \text{Empty} \\
-%     & \mid & \Gamma,u:\tau & \text{Variable binding}
-%   \end{array}
-% \]
-%   \caption{Syntax of \sufcc ($e$ for terms; $\tau,\sigma,\upsilon$ for types; $\kappa$ for kinds)}\label{fig:datasyn}
-% \end{figure}
+A noticeable difference from \name is that, in \sufcc, we do not allow
+\cast operations to appear in the programs. Indeed, the \cast
+operations are intended to be generated by the compiler for \name, not
+by the programmers. An unfortunate consequence is that, this, for now,
+makes the surface language less expressive (e.g., no explicit
+type-level computation) than \name. However, as we will point in
+Section~\ref{sec:discuss}, we will add new language constructs in
+\sufcc that help programmers perform type-level computation in a way
+like type classes or type families do for Haskell programmers.
 
 For the sake of programming, \sufcc employs some syntactic sugar. A
 non-dependent function type can be written as $[[A1 -> A2]]$. A
@@ -101,19 +83,6 @@ $[[(x : A1) -> A2]]$ for easy reading. We also introduce a
 Haskell-like record syntax, which is desugared to datatypes with
 accompanying selector functions.
 
-% \begin{figure}[ht]
-% \centering
-% \[
-%   \begin{array}{l}
-%     \data\,R\,\overline{u : \kappa} = K\,\{\,\overline{S:\tau}\,\} \triangleq \\
-%     \data\,R\,\overline{u : \kappa} = K\,\overline{\tau} \\
-%     \letbb\,S_{i} : \Pi \overline{u : \kappa}.R\,\overline{u} \rightarrow \tau_{i} = \\
-%     \quad \lambda \overline{(u:\kappa)}.\lam{l}{R\,\overline{u}}{\case\,l\,\of\, K\,\overline{x:\tau} \Rightarrow x_{i}} \\
-%     \inb
-%   \end{array}
-% \]
-% \caption{Syntactic sugar for records}\label{fig:records}
-% \end{figure}
 
 \subsection{Extended Typing Rules}
 \bruno{For typing and translation show only one figure (Figure 8),
@@ -123,10 +92,10 @@ accompanying selector functions.
 
 Figure~\ref{fig:source:translate} defines the type system of the
 surface language (ignore the gray parts for the moment). Several new
-typing judgments appear in the type system. The use of different
-subscripts of the judgments is to be distinct from the one used in
-\name. Most rules of the type system are standard for systems based on
-\coc, including the rules for the well-formedness of contexts
+typing judgments are introduced in the type system. The use of
+different subscripts of the judgments is to be distinct from the one
+used in \name. Most rules are standard for systems based on \coc,
+including the rules for the well-formedness of contexts
 (\ruleref{TRenv\_Empty}, \ruleref{TRenv\_Var}), inferring the types of
 variables (\ruleref{TR\_Var}), and dependent application
 (\ruleref{TR\_App}). Two judgments $[[Gs |- pgm : A]]$ and
