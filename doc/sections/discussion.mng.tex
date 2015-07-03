@@ -260,6 +260,9 @@
 
 \section{Discussion}
 
+\paragraph{More Type-level Computation}
+
+
 \paragraph{Eliminating Cast Operators}
 
 Explicit type \cast operators $[[castup]]$ and $[[castdown]]$ are
@@ -301,7 +304,7 @@ performance issue of code generation.
 
 Our translation rules also open opportunity for encoding GADTs. In our
 experiment, we have several running examples of encoding GADTs. Below
-we show a GATD-encoded representation of well-scoped lambda terms
+we show a GADT-encoded representation of well-scoped lambda terms
 using de Bruijn notation.
 
 In this notation, a variable is represented as a number -- its de
@@ -380,11 +383,9 @@ the encoding of \emph{Fin}:
 \>[7]{}\Conid{B}\;\Varid{a}{}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
-The key issue in encoding GATDs lies in type of variable $B$. In
+The key issue in encoding GADTs lies in type of variable $B$. In
 ordinary datatype encoding, $B$ is fixed to have type $\star$, while
 in GADTs, its type is the same as the variable $X$ (possibly
 higher-kinded). Currently, we have to manually interpret the type
 according to the particular use of some GADTs. We are investigating if
 there exits a general way to do that.
-
-\paragraph{Using Recursive Functions at the Type Level}
