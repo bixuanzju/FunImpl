@@ -174,10 +174,10 @@ We use a type-directed translation. The basic translation rules have the form:
 \[
  \Sigma  \labeledjudge{s}  \ottnt{E}  :  T   \rightsquigarrow   \ottnt{e} 
 \]
-It states that \name expression $\ottnt{e}$ is the translation of the
+The rule states that \name expression $\ottnt{e}$ is the translation of the
 surface expression $\ottnt{E}$ of type $T$.  The gray parts in
 Figure~\ref{fig:source:translate} defines the translation
-rules. \bruno{Any partiular reasons for this?} \jeremy{deleted}
+rules. 
 
 Among others, Rules \ruleref{TRdecl\_Data}, \ruleref{TRpat\_Alt} and
 \ruleref{TR\_Case} are of the essence to the translation. Rule
@@ -197,7 +197,7 @@ patterns matters (the same order as in the datatype declaration).
 Rule \ruleref{TRDecl\_Data} does the most heavy work and deserves
 further explanation. First of all, it results in an incomplete
 expression (as can be seen by the incomplete $\mathsf{let}$
-expressions), The result expression is supposed to be prepended to the
+expressions). The result expression is supposed to be prepended to the
 translation of the last expression to form a complete \name
 expression, as specified by Rule \ruleref{TRpgm\_Pgm}. Furthermore,
 each type constructor is translated to a recursive type, of which the
