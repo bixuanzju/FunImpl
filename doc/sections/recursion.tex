@@ -14,11 +14,6 @@ same construct works both as a term-level fixpoint and recursive type.
 The addition of general recursion does not break decidability of
 type-checking nor type-safety.
 
-%Although a calculus with 
-%general recursion is not strongly normalizing, it is safe for
-%\name to allow non-termination on the type level without breaking the
-%decidability of type checking.
-
 \subsection{Syntax and Semantics}
 
 Figure \ref{fig:rec:ext} shows the changes of extending \ecore to
@@ -28,16 +23,18 @@ recursion. Nevertheless general recursion allows a large number
 of programs that can be expressed in programming languages such 
 as Haskell to be expressed in \name as well.
 
-For syntax, we add the polymorphic recursion operator $\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$ to
-represent general recursion in both terms and types.
+For syntax, we add the polymorphic recursive expression $\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$
+to represent general recursion in both terms and types.  The recursive
+operator is \emph{polymorphic} in the sense that the binder $x$ can
+have a higher kind like $\star  \rightarrow  \star$ to take parameters.
 \bruno{what do you mean by polymorphic?  Perhaps a sentence is needed
-  to clarify that}. 
-For operational semantics, we add the rule
-\ruleref{S\_Mu} to define the unrolling operation of recursion,
-which results in $\ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]} \,$. For typing, we add the
-rule \ruleref{T\_Mu} for checking the validity of a polymorphic
-recursive term. The rule ensures that the polymorphic recursion $\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$ should have the same type $\tau$ as the binder $\ottmv{x}$
-and also the inner expression $\ottnt{e}$.
+  to clarify that}. \linus{Done.}  For operational semantics, we add
+the rule \ruleref{S\_Mu} to define the unrolling operation of
+recursion, which results in $\ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]} \,$. For typing, we
+add the rule \ruleref{T\_Mu} for checking the validity of a
+polymorphic recursive term. The rule ensures that the polymorphic
+recursion $\mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}$ should have the same type $\tau$ as the
+binder $\ottmv{x}$ and also the inner expression $\ottnt{e}$.
 
 \begin{figure}
 	\gram{\newsyntax}\ottinterrule
@@ -58,22 +55,28 @@ resulting in the unrolling $\ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \o
 $ \mu $-term is equivalent to a recursive function that should be
 allowed to unroll without restriction. Therefore, the definition of
 values is not changed in \name and $ \mu $-term is not treated as a
-value. This is different from conventional term-level fixpoint that is
-usually treated as values \cite{zombie:popl14}\bruno{I don't follow
+value. 
+
+%This is different from conventional term-level fixpoint that is
+%usually treated as values \cite{zombie:popl14}
+\bruno{I don't follow
   this? What is TAPL's treatement of recursion for example? I guess 
 you are saying that in zombie recursion produces a value. But is this
-the standard? or is zombie that is special?}.
+the standard? or is zombie that is special?} \linus{Removed.}
 
-Recall the factorial function example (\S
-\ref{sec:overview:recursion})\bruno{use ``Section'' instead}, which can be defined as a $ \mu $-term
-as follows:
+Recall the factorial function example (Section
+\ref{sec:overview:recursion})\bruno{use ``Section'' instead}, which
+can be defined as a $ \mu $-term as follows:
 \begin{align*}
     \mathsf{fact}  \triangleq ~  & \mu  f : \mathsf{Int}  \rightarrow  \mathsf{Int} . \\ &\lambda  \ottmv{x}  \ottsym{:}  \mathsf{Int}  \ottsym{.}  ~\kw{if}~x  \equiv 0~\kw{then}~1~\kw{else}~x \times (f~(x
     - 1))
 \end{align*}
-By rule \ruleref{T\_Mu}, the type of $\mathsf{fact}$ is $\mathsf{Int}  \rightarrow  \mathsf{Int}$. Thus, we can apply $\mathsf{fact}$ to an integer, say $1$, and
-we will get an integer as the result.  By rules \ruleref{S\_Mu} and
-\ruleref{S\_App}, we can evaluate the term $\mathsf{fact}~1$ as follows:
+By rule \ruleref{T\_Mu}, the type of $\mathsf{fact}$ is $\mathsf{Int}  \rightarrow  \mathsf{Int}$. Thus, we can apply $\mathsf{fact}$ to an integer, say $1$,
+and we will get an integer as the result. In this example, we assume
+the evaluation of $\kw{if}$-$\kw{then}$ construct follows the one-step
+reduction. Also with standard reduction rules \ruleref{S\_Mu} and
+\ruleref{S\_App}, we can evaluate the term $\mathsf{fact}~1$ as
+follows:
 \begin{align*}
     &\mathsf{fact}~1 \\  \longrightarrow ~& (\lambda  \ottmv{x}  \ottsym{:}  \mathsf{Int}  \ottsym{.}  ~\kw{if}~x
    \equiv 0~\kw{then}~1~\kw{else}~x \times (\mathsf{fact}~(x - 1)))~1
@@ -87,11 +90,12 @@ Note that we never check if a $\mu$-term can terminate or not, which
 is an undecidable halting problem for general recursive terms. The
 factorial function example above can stop, while there exist some
 terms that will loop forever. However, term-level non-termination is
-only a runtime concern and does not block the type checker. Later we
-will see type checking \name is still decidable in the presence of
-general recursion.
-\bruno{Mention that we assume and if construct, as well as standard
-reduction rules in the example.}
+only a runtime concern and does not block the type checker. In Section
+\ref{sec:rec:meta} we will show type checking \name is still decidable
+in the presence of general recursion.
+\bruno{Mention that we assume
+  and if construct, as well as standard reduction rules in the
+  example.}\linus{Done.}
 
 \paragraph{Type-level Recursion}
 
@@ -101,7 +105,8 @@ to its unrolling. Normally, we need to add two more primitives
 $ \mathsf{fold} $ and $ \mathsf{unfold} $ for the iso-recursive type to map back
 and forth between the original and unrolled form:
 \begin{align*}
-  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \sigma \xrightleftharpoons[{ \mathsf{fold} ~[ \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \sigma ]}]{ \mathsf{unfold} } \sigma  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \sigma  \ottsym{]} \,
+  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \sigma \xrightleftharpoons[{ \mathsf{fold} ~[ \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \sigma ]}]
+  { \mathsf{unfold} } \sigma  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \sigma  \ottsym{]} \,
 \end{align*}
 where the operators satisfy the following typing rules:
 \[ \inferrule{\Gamma  \vdash  \ottnt{e_{{\mathrm{2}}}}  \ottsym{:}  \sigma  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \sigma  \ottsym{]} \, \\ \Gamma  \vdash  \ottsym{(}  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \sigma  \ottsym{)}  \ottsym{:}  \star }
@@ -118,33 +123,33 @@ expressions $\ottnt{e_{{\mathrm{1}}}}$ and $\ottnt{e_{{\mathrm{2}}}}$ such that
 	&\ottnt{e_{{\mathrm{1}}}} &: \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}\\
 	&\ottnt{e_{{\mathrm{2}}}} &: \ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]} \,
 \end{array}\]
-Note that $\ottnt{e_{{\mathrm{1}}}}$ and $\ottnt{e_{{\mathrm{2}}}}$ have distinct types but the type of $\ottnt{e_{{\mathrm{2}}}}$ is
-the unrolling of $\ottnt{e_{{\mathrm{1}}}}$'s type, which follows the one-step reduction relation
-by rule \ruleref{S\_Mu}:
+Note that $\ottnt{e_{{\mathrm{1}}}}$ and $\ottnt{e_{{\mathrm{2}}}}$ have distinct types but the type of
+$\ottnt{e_{{\mathrm{2}}}}$ is the unrolling of $\ottnt{e_{{\mathrm{1}}}}$'s type, which follows the
+one-step reduction relation by rule \ruleref{S\_Mu}:
 \[ \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \longrightarrow  \ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]} \, \]
-By applying rules \ruleref{T\_CastUp} and \ruleref{T\_CastDown}, we can obtain
-the following typing results:
+By applying rules \ruleref{T\_CastUp} and \ruleref{T\_CastDown}, we
+can obtain the following typing results:
 \[\begin{array}{lll}
 	&\mathsf{cast}_{\downarrow} \, \ottnt{e_{{\mathrm{1}}}} &: \ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]} \,\\
 	&\mathsf{cast}^{\uparrow} \, \ottsym{[}  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]} \,  \ottnt{e_{{\mathrm{2}}}} &: \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}
 \end{array}\]
-Thus, $ \mathsf{cast}^{\uparrow} $ and $ \mathsf{cast}_{\downarrow} $ witness the isomorphism between the
-original recursive type and its unrolling, which behave the same as $ \mathsf{fold} $
-and $ \mathsf{unfold} $ operations in iso-recursive types:
+Thus, $ \mathsf{cast}^{\uparrow} $ and $ \mathsf{cast}_{\downarrow} $ witness the isomorphism between
+the original recursive type and its unrolling, which behave the same
+as $ \mathsf{fold} $ and $ \mathsf{unfold} $ operations in iso-recursive types:
 \begin{align*}
   \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e} \xrightleftharpoons[{ \mathsf{cast}^{\uparrow} ~[ \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}
   ]}]{ \mathsf{cast}_{\downarrow} } \ottnt{e}  \ottsym{[}  \ottmv{x}  \mapsto  \mu \, \ottmv{x}  \ottsym{:}  \tau  \ottsym{.}  \ottnt{e}  \ottsym{]} \,
 \end{align*}
 
 
-\subsection{Decidability of Type Checking and Type Safety}
-We gave the proof of the decidability of type checking \ecore in \S
-\ref{sec:ecore:meta} without requiring normalization. The \cast rules
-are critical for decidability, which rely on checking if one type can
-be reduced to another in one step. When we introduce general recursion
-into the language, if we can make sure the newly added and original
-typing rules are still decidable, the decidability of type checking
-will still follow in \name.
+\subsection{Decidability of Type Checking and Type Safety}\label{sec:rec:meta}
+We gave the proof of the decidability of type checking \ecore in
+Section \ref{sec:ecore:meta} without requiring normalization. The
+\cast rules are critical for decidability, which rely on checking if
+one type can be reduced to another in one step. When we introduce
+general recursion into the language, if we can make sure the newly
+added and original typing rules are still decidable, the decidability
+of type checking will still follow in \name.
 
 The rule \ruleref{T\_Mu} for checking the well-formedness of
 polymorphic recursion is decidable because its premises only include
@@ -159,20 +164,21 @@ i.e. Lemma \ref{lem:ecore:unique} holds in \name. So the decidability
 of type checking, namely Lemma \ref{lem:ecore:decide} holds in \name:
 
 \begin{thm}[Decidability of Type Checking \name]\label{lem:rec:decide}
-	There is an algorithm which given $\Gamma, \ottnt{e}$ computes the unique
-$\tau$ such that $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$ or reports there is no such $\tau$.
+	There is an algorithm which given $\Gamma, \ottnt{e}$ computes the
+        unique $\tau$ such that $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \tau$ or reports there is no
+        such $\tau$.
 \end{thm}
 
 Moreover, it is straightforward to show the type-safety of \name by
 considering rules \ruleref{T\_Mu} and \ruleref{T\_Mu} during the
-induction of proof. Thus, Lemma \ref{lem:ecore:reduct} and \ref{lem:ecore:prog}
-also hold in \name:
+induction of proof. Thus, Lemma \ref{lem:ecore:reduct} and
+\ref{lem:ecore:prog} also hold in \name:
 
 \begin{thm}[Subject Reduction]\label{lem:rec:reduct}
 If $\Gamma  \vdash  \ottnt{e}  \ottsym{:}  \sigma$ and $\ottnt{e}  \twoheadrightarrow  e'$ then $\Gamma  \vdash  \ottnt{e'}  \ottsym{:}  \sigma$.
 \end{thm}
 
 \begin{thm}[Progress]\label{lem:rec:prog}
-If $\varnothing  \vdash  \ottnt{e}  \ottsym{:}  \sigma$ then either $\ottnt{e}$ is a value $v$ or there exists $\ottnt{e}'$
-such that $\ottnt{e}  \longrightarrow  \ottnt{e'}$.
+If $\varnothing  \vdash  \ottnt{e}  \ottsym{:}  \sigma$ then either $\ottnt{e}$ is a value $v$ or there
+exists $\ottnt{e}'$ such that $\ottnt{e}  \longrightarrow  \ottnt{e'}$.
 \end{thm}
