@@ -29,3 +29,15 @@ doc/*.fdb_latexmk
 .texpadtmp/
 *.ptb
 doc/main.pdf
+
+
+/doc/sections/appendix.tex
+/doc/sections/datatypes.tex
+/doc/sections/discussion.mng.tex
+/doc/sections/discussion.tex
+/doc/sections/examples.mng.tex
+/doc/sections/examples.tex
+/doc/sections/explicitcore.tex
+/doc/sections/overview.mng.tex
+/doc/sections/overview.tex
+/doc/sections/recursion.tex
