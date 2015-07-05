@@ -8,6 +8,25 @@ to control type-level computation. Moreover we also unify recursion
 and recursive types in a single language construct.
 \bruno{Table is missing!}
 
+\begin{table*}
+\renewcommand{\arraystretch}{0.8}
+\centering
+\begin{tabularx}{\textwidth}{XXXXXXl}
+\midrule
+&&&& \multicolumn{2}{c}{Complexity} & \\ \cmidrule{5-6}
+Core Language & Surface \mbox{Language} & Decidable Type Checking & General \mbox{Recursion} & \# of Language Constructs & \# of Syntactic Sorts & Logical Consistency \\ \midrule
+\name & \sufcc & Yes & Yes & 8 & 1 & No \\
+System $F_C$ & Haskell & Yes & Yes & 35 & 3 & No \\
+\cc & N/A & Yes & No & 7 & 1 & Yes \\
+$\lambda^\theta$ & \textsf{Zombie} & Yes & Yes & 26 & 1 & Yes, in \textsf{L} Fragment \\
+Core Cayenne & Cayenne & No & Yes & 11 & 1 & No \\
+$\mu F^\star$ & $F^\star$ & Yes & Yes & 39 & 3 & Yes, in \textsf{PURE} Effect \\
+$\Pi\Sigma$ & N/A & No\linus{?} & Yes & 18 & 1 & No
+\end{tabularx}
+\caption{Comparison of Core Languages}
+\label{tab:related:comp}
+\end{table*}
+
 \subsubsection{Unification of Terms, Types, and Kinds}
 Pure Type Systems (PTS)~\cite{pts} show how a while family of type systems
 can be implemented using just a single syntactic form. PTS are an
