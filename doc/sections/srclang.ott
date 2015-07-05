@@ -37,6 +37,7 @@ E , A {{ tex T }}, B {{ tex S }}, k {{ tex \kappa }} :: 'es_' ::=       {{ com E
   | mu x : A . E           ::  :: Mu         {{ com Polymorphic Recursion }}
   | case E1 of << p => E2 >> ::  :: Case     {{ com Case Analysis }}
   | let x : A = E2 in E1   :: M:: LetBinding {{ com Let Binding }}
+  | letrec x : A = E2 in E1   :: M:: LetrecBinding {{ com Letrec Binding }}
   | E1 [ x |-> E2 ]        :: M:: Sub        {{ com Substitution }}
   | ( E )                  :: M:: Parens     {{ com Parenthesized expression }}
   | A1 -> A2               :: M:: FuncType   {{ com Function type }}

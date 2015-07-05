@@ -43,6 +43,8 @@
         \quad\text{Function Type} \\ %
     [[(x:A1)->A2]] & \triangleq & [[Pi x:A1.A2]] &  & %
         \quad\text{Dependent Function Type} \\ %
+    [[letrec x : A = E2 in E1]] & \triangleq & [[let x : A = mu x : A . E2 in E1]] &  & %
+        \quad\text{Recursive let binding}\\ %
     [[data R <<u:k>>n = K { <<N:A>> }]] & \triangleq & %
         [[data R <<u:k>>n = K <<x:A>>]]; &\forall i & \quad\text{Record} \\ %
         && [[let]]~[[N]]_i : [[ (<<u:k>>n) -> R@<<u>>n -> A]]_i = & %
