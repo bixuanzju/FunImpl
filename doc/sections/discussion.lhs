@@ -4,15 +4,22 @@
 \section{Discussion and Future Work}
 \label{sec:discuss}
 
+\bruno{Generally speaking you have to spend a few hours carefully thinking 
+about the arguments you want to make here.}
+
 \paragraph{Making Type-level Computation Convenient}
 \bruno{The point here is that programs using intensive type-level 
 computation can be written, but are not convenient to use. You 
 should show what's inconvenient, and discuss what can be done 
-to make it more convenient.}
+to make it more convenient. You probably want to talk about type-equality, and mention 
+that although \name only supports syntactic equality we may be able to support 
+a source language that supports a more expressive form of type-equality. Say if we 
+can compute how many casts need to be introduced?}
 \jeremy{dependent pattern matching, recursive functions on the type level}
 
 Though \name, by design, provides full support for type-level
-computation, we are still quite restricted\bruno{not restricted, }. The problem becomes
+computation, we are still quite restricted\bruno{not restricted, inconvenient 
+to write.}. The problem becomes
 pronounced when having recursive functions on the type level. For
 example, it is legal to write the following:
 
@@ -29,7 +36,11 @@ depending on the number:
 < many Nat Bool (S Z)      -- return ``Nat $\rightarrow$ Bool''
 < many Nat Bool (S (S Z))  -- return ``Nat $\rightarrow$ Nat $\rightarrow$ Bool''
 
-What might this be useful? It could be used to write a very simplified
+\bruno{This is what the a system with the conversion rules would return, right? 
+What you want to show here is what \name returns, and that you have to use explicit 
+casts.}
+What might this be useful?\bruno{That's a distracting discussion, just skip 
+the zipWith example.} It could be used to write a very simplified
 version of variable-arity |zipWith| that takes a number $n$ as arity,
 a type $t$, another type $g$, a function of type |many t g n|, $n$
 lists of type $t$, and finally returns a list of type $g$:
@@ -40,12 +51,15 @@ lists of type $t$, and finally returns a list of type $g$:
 The problem arises when we try to figure out how many \cast operations
 (or beta reductions) are needed for |many| function to compute
 something useful (e.g., by analysis, it needs at least 6 |castdown|'s
-to be reduced to a function type). The solution, as in Haskell we have
+to be reduced to a function type). 
+
+The solution\bruno{Not "the solution": rather a possible solution.}, as in Haskell we have
 type classes and type families to guide the type-level computation, is
 to introduce some language constructors in the surface language, of
 which the compiler can make use to atomically generate \cast
 operations.
 
+\bruno{Is this about GADTs? if so, that's in the wrong-spot.}
 Under the presence of inductive families of datatypes (e.g.,
 length-fixed vectors), our translation of pattern matching is far too
 clumsy. In short, it does not take into consideration the information
@@ -53,42 +67,49 @@ embedded in the dependent types. In the future work, we plan to
 incorporate Conor McBride's ideas on eliminating dependent pattern
 matching~\cite{elim:pi:pattern} into our work.
 
-\paragraph{Eliminating Cast Operators}
+\paragraph{Eliminating Cast Values}
 
 Explicit type \cast operators $[[castup]]$ and $[[castdown]]$ are
 generalized from $[[fold]]$ and $[[unfold]]$ of iso-recursive
 types. By convention, $[[castup]]$ follows $[[fold]]$ as a value, so
-it cannot be further reduced during the evaluation. This may cause
-semantics and performance issues.
+it cannot be further reduced during the evaluation. This choice may 
+lead to unexpected semantics in some cases, and performance issues.
 
-To show the semantics issue, suppose there is a non-terminating term
-$\mathit{loop}$. It should loop forever when evaluated. But if it is
+In terms of semantics, suppose there is a non-terminating term
+$\mathit{loop}$. If $\mathit{loop}$ is
 wrapped by $[[castup]]$ like $[[castup]]~[ [[t]] ]~\mathit{loop}$, the
 evaluation stops immediately. So the dynamic semantics of a term-level
-expression wrapped by $[[castup]]$ might differ from the original. The
+expression wrapped by $[[castup]]$ might differ from the wrapped term. The
 performance issue may occur during code generation. Since $[[castup]]$
 will remain after evaluation, too many $[[castup]]$ constructs can
 increase the size of the program and cause runtime overhead.
 
 In fact, \cast operators can be safely eliminated after type checking,
 because they do not actually transform a term other than changing its
-type. There are two choices of when to remove \cast operators, during
-evaluation or code generation. The following alternative reduction
-rules can eliminate \cast during evaluation:
+type. 
+%There are two choices of when to remove \cast operators, during
+%evaluation or code generation. 
+An alternative operational semantics would be to have reduction
+rules eliminate casts during evaluation:
 \ottusedrule{\ottdruleSXXCastUpE{}}
-\ottusedrule{\ottdruleSXXCastDownE{}} Moreover, $[[castup]]$ is no
-more treated as a value. With such modification, we can obtain
+\ottusedrule{\ottdruleSXXCastDownE{}} This way $[[castup]]$ is no
+longer treated as a value. With such modification, we can obtain
 $[[castup]]~[ [[t]] ]~\mathit{loop} [[-->]] \mathit{loop}$. So
 $[[castup]]$ will not interfere with the original dynamic semantics of
-terms. But noting that $[[castup [t] e]]$ or $[[castdown e]]$ has
-different types from $[[e]]$, types of terms are not preserved during
+terms. 
+
+However, there is also a problem with this approach: 
+$[[castup [t] e]]$ or $[[castdown e]]$ have
+different types from $[[e]]$. Therefore types of terms are not preserved during
 evaluation. This breaks the subject reduction theorem, and
 consequently type-safety.
 
-Thus, we stick to the semantics of iso-recursive types for \cast
-operators which has type preservation. And we prefer to eliminate
-all \cast operators during type erasure to address the potential
-performance issue of code generation.
+Therefore, we stick to the semantics of iso-recursive types for \cast
+operators which has type preservation. This way explicit casts and
+recursion can genuinely be seen as a generalization of recursive
+types. Furthermore, we believe that all \cast operators can be
+eliminated through type erasure, when generating code,
+to address the potential performance issue of code generation.
 
 \paragraph{Encoding of GADTs}
 
