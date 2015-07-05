@@ -92,10 +92,9 @@ example, below is the definition of polymorphic lists:
 <  data List (a : *) = Nil | Cons (x : a) (xs : List a);
 
 
-Because \sufcc is explicitly typed, each type parameter
-needs to be accompanied with a corresponding kind expression. The use
-of the above datatype is best illustrated by the \emph{length}
-function:
+Because \sufcc is explicitly typed, each type parameter needs to be
+accompanied with a corresponding kind expression. The use of the above
+datatype is best illustrated by the |length| function:
 
 < letrec length : (a : *) -> List a -> nat =
 <   \ a : * . \l : List a . case l of
@@ -136,15 +135,14 @@ way, while preserving decidable type-checking.
 
 Using |Exp| we can write an evaluator for the lambda calculus. As
 noted by~\cite{Fegaras1996}, the evaluation function needs an extra
-function \emph{reify} to invert the result of evaluation. The full
-code for the evaluator is shown next.\bruno{consider removing the
-  error branches to make the code shorter.} \jeremy{i am afraid
-  not. our translation requires that pattern matching must be
-  exhaustive.}
+function |(reify)| to invert the result of evaluation. The full code
+for the evaluator is shown next.\bruno{consider removing the error
+  branches to make the code shorter.} \jeremy{i am afraid not. our
+  translation requires that pattern matching must be exhaustive.}
 
 < data Value = VI (n : nat) | VF (f : Value -> Value);
-< rcrd Eval = Ev {  eval' : Exp -> Value
-<                ,  reify' : Value -> Exp };
+< rcrd Eval = Ev  {  eval' : Exp -> Value
+<                 ,  reify' : Value -> Exp };
 < letrec ev : Eval =
 <   Ev  (\ e : Exp . case e of
 <         Num (n : nat) => VI n
@@ -194,8 +192,8 @@ encoding a \emph{functor}:
 <   Func {fmap : (a : *) -> (b : *) -> (a -> b) -> f a -> f b};
 
 Here we use a record to represent a functor, whose only field is a
-single method, called \emph{fmap}. The functor ``instance'' of the
-\emph{Maybe} datatype is:
+single method, called |fmap|. The functor ``instance'' of the |Maybe|
+datatype is:
 
 < let maybeInst : Functor Maybe =
 <   Func Maybe (\ a : * . \ b : * . \f : a -> b . \ x : Maybe a .
@@ -229,7 +227,7 @@ Note that the record notation also introduces the selector function:
 
 < out : (f : * -> *) -> Fix f -> f (Fix f)
 
-The \emph{Fix} datatype is interesting in that now we can define
+The |Fix| datatype is interesting in that now we can define
 recursive datatypes in a non-recursive way. For instance, a
 non-recursive definition for natural numbers is:
 
@@ -240,8 +238,9 @@ And the recursive version is just a synonym:
 < let Nat : * = Fix NatF
 
 
-Given \emph{fmap}, many recursive schemes can be defined, for example
-we can have \emph{catamorphism}~\cite{Meijer1991} or generic function fold:
+Given |fmap|, many recursive schemes can be defined, for example we
+can have \emph{catamorphism}~\cite{Meijer1991} or generic function
+fold:
 
 < letrec cata :  (f : * -> *) -> (a : *) ->
 <                Functor f -> (f a -> a) -> Fix f -> a =
@@ -285,14 +284,13 @@ explicitly controlled, we can safely use \emph{Fix} in the program.
 
 \subsubsection{Nested Datatypes}
 
-A nested datatype~\cite{nesteddt},
-also known as a \emph{non-regular} datatype, is a parametrised
-datatype whose definition contains different instances of the type
-parameters. Functions over nested datatypes usually involve
-polymorphic recursion. We show that \sufcc is capable of defining 
-nested datatypes and functions over a nested datatype. A simple example would be the
-type \emph{Pow} of power trees, whose size is exactly a power of two,
-declared as follows:
+A nested datatype~\cite{nesteddt}, also known as a \emph{non-regular}
+datatype, is a parametrised datatype whose definition contains
+different instances of the type parameters. Functions over nested
+datatypes usually involve polymorphic recursion. We show that \sufcc
+is capable of defining nested datatypes and functions over a nested
+datatype. A simple example would be the type |Pow| of power trees,
+whose size is exactly a power of two, declared as follows:
 
 < data PairT (a : *) = P (x : a) (x : a);
 < data Pow (a : *) = Zero (n : a)
@@ -301,9 +299,10 @@ declared as follows:
 Notice that the recursive occurrence of |Pow| does not hold an |a|,
 but |PairT a| \bruno{code should be formated writh the proper font!
   don't use \emph{emphasized for code}. Quite a few changes
-  throughtout!} \jeremy{noted! changes are under the way}.  This means
-every time we use a |Succ| constructor, the size of the pairs
-doubles. It is instructive to look at the encoding of |Pow| in \name:
+  throughtout!} \jeremy{noted! changes to use lhs2tex inline code
+  font}. This means every time we use a |Succ| constructor, the size
+of the pairs doubles. It is instructive to look at the encoding of
+|Pow| in \name:
 
 < let Pow : * -> * = mu X : * -> * .
 <     \ a : * . (B : *) -> (a -> B) -> (X (PairT a) -> B) -> B
@@ -347,7 +346,8 @@ more extensions to the core were needed.} \jeremy{reworded!}
 < data Mu (k : *) (f : (k -> *) -> k -> *) (a : k) =
 <   Roll (g : f (Mu k f) a);
 
-\emph{Mu} can be used to construct polymorphic recursive types of any kind, for instance:
+|Mu| can be used to construct polymorphic recursive types of any kind,
+for instance:
 
 < data Listf (f : * -> *) (a : *) = Nil
 <   | Cons (x : a) (xs : (f a));
@@ -367,12 +367,16 @@ definition:
 < data PTree (n : Nat) = Empty
 <   | Fork (z : nat) (x : PTree (S n)) (y : PTree (S n));
 
-Notice how the datatype \emph{Nat} is ``promoted'' to be used in the
-kind level. Next we can construct such a binary tree that keeps track
-of its depth statically:
+Notice how the datatype |Nat| is ``promoted'' to be used in the kind
+level. Next we can construct such a binary tree that keeps track of
+its depth statically:
+
 < Fork Z 1 (Empty (S Z)) (Empty (S Z))
+
 If we accidentally write the wrong depth, for example:
+
 < Fork Z 1 (Empty (S Z)) (Empty Z)
+
 The above will fail to pass type checking.
 
 \bruno{More examples? closed type families; dependent types?} \jeremy{had hard time thinking of a simple, non-recursive example for type families}

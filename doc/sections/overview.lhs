@@ -161,9 +161,9 @@ $([[\x:d three.x]])([[castdown]]([[castdown]] \dots z))$). But it is
 impossible to write such program in practice.
 
 In summary, \name achieves the decidability of type checking by
-explicitly controlling type-level computation.  which is independent
-of the normalization property, while supporting general recursion at
-the same time.
+explicitly controlling type-level computation, which is independent of
+the normalization property, while supporting general recursion at the
+same time.
 
 \subsection{Recursion and Recursive Types}
 
@@ -180,8 +180,8 @@ features!
 The $\mu$ primitive can be used to define recursive functions.  For
 example, the factorial function is written in \name as:
 
-< fact = mu f : Int -> Int. \ x : Int .
-<   if x == 0 then 1 else x time f (x - 1)
+< fact =  mu f : Int -> Int. \ x : Int .
+<         if x == 0 then 1 else x time f (x - 1)
 
 \bruno{x is not bound!}\bruno{show how to use fact} \jeremy{my bad,
   fixed! Linus already has an exmaple of using fact step by step in
@@ -261,8 +261,8 @@ For example, in Haskell, we can write a ``false'' type:
 
 With general recursion, a value with type |False| is given:
 
-< false :: False
-< false = false
+< false  ::  False
+< false  =   false
 
 whose denotational semantics is |undefined|, which corresponds to
 inconsistency in logic. 
@@ -298,13 +298,13 @@ is:
 < mu X : * . pi B : * . B -> (X -> B) -> B
 
 The function type |B -> (X -> B) -> B| demystifies the recursive
-nature of \emph{Nat}: $B$ corresponds to the type of the constructor
-\emph{Z}, and |X -> B| corresponds to the type of the constructor
-\emph{S}. The intuition is that any recursive use of the datatype in
-the data constructors is replaced with the variable ($X$ in the case)
-bound by $\mu$, and we make the resulting type variable ($B$ in this
-case) universally quantified so that elements of the datatype with
-different result types can be used in the same program~\cite{gadts}.
+nature of |Nat|: $B$ corresponds to the type of the constructor |Z|,
+and |X -> B| corresponds to the type of the constructor |S|. The
+intuition is that any recursive use of the datatype in the data
+constructors is replaced with the variable ($X$ in the case) bound by
+$\mu$, and we make the resulting type variable ($B$ in this case)
+universally quantified so that elements of the datatype with different
+result types can be used in the same program~\cite{gadts}.
 
 The two constructors can be encoded correspondingly via the \cast rules:
 
