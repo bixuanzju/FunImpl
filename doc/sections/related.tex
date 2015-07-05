@@ -26,6 +26,30 @@ $\Pi\Sigma$ & N/A & No\linus{?} & Yes & 18 & 1 & No
 \label{tab:related:comp}
 \end{table*}
 
+\paragraph{Bring general recursion at all costs} To our knowledge,
+Cayenne~\cite{cayenne} is the first programming language that
+integrates the full power of dependent types with general
+recursion. It bears some similarities with \name: first, it also uses
+one syntactic form for both terms and types; second, it allows
+arbitrary computation to happen at type level; third, because of
+unrestricted recursion allowed in the system, Cayenne is logically
+inconsistent, thus cannot be used as a proof system. However, the most
+crucial difference from \name is that type-checking in Cayenne is
+undecidable, even though they claim in practice it works remarkably
+well. But having undecidable typing checking is unfortunate for the
+programmers using that languages. To workaround, Cayenne adds an upper
+bound on the number of reduction steps it may perform, which, in our
+humble opinion, is rather ad hoc. \jeremy{what more?}
+
+\paragraph{Restricted recursion with termination checking}
+
+Dependently typed languages such as Coq and Adga, on the other hand,
+are quite conservative as to what kind of computation is allowed at
+type level.
+
+\paragraph{Stratified type system with general recursion on term level}
+
+\paragraph{Unified syntax and managed type-level computation}
 
 \paragraph{Unification of Terms, Types, and Kinds}
 Pure Type Systems (PTS)~\cite{pts} show how a while family of type systems
