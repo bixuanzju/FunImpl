@@ -180,7 +180,7 @@ Evaluation of a lambda expression proceeds as follows:
 Higher-kinded types are types that take other types and produce a new
 type. To support higher-kinded types, languages like Haskell use
 core languages to account for kind expressions.
-(The existing core language of Haskell, System FC, is an extension of
+(The existing core language of Haskell, System $F_{C}$, is an extension of
 System $F_{\omega}$~\cite{systemfw}, which naively supports
 higher-kinded types.) Given that \name subsumes System $F_{\omega}$, we can
 easily construct higher-kinded types. We show this by an example of
