@@ -242,17 +242,15 @@ fold:
 <   g (fmap f m (Fix f) a (cata f a m g) (out f t))
 
 Unfortunately, in systems like Coq, definitions like |Fix| must be
-rejected. The problem is related to the possibility of recursive
-definitions in negative positions. Although the datatype |Fix| appears
-not to use negative recursive definitions of itself, the type
-constructor |f| could use the parameter on a negative position. As a
-counter example borrowed from~\cite{Keuchel2013}, we can write a
-``bad'' functor in Haskell:
+rejected. The problem is related to strictly positive
+types~\cite{spt}, that is, Coq cannot determine if |Fix f| (for any
+abstract functor $f$) is strictly positive or not. For example, we can
+write a non-strictly positive functor in Haskell:
 
-< data Bad a = Bad ((a -> Int) -> Int)
+< data Bad a = Bad ((Bad a -> Int) -> Int)
 
-Inlining the definition of |Bad| into |Fix| yields a non-strictly
-positive datatype definition:
+Inspecting the definition of |Fix Bad| reveals that the resulting
+datatype is non-strictly positive:
 
 < data NSP = NSP ((NSP -> Int) -> Int)
 
