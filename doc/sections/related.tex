@@ -2,11 +2,10 @@
 \label{sec:related}
 
 There is a lot work on bring full-spectrum dependent types to the
-practical programming world. Compared to existing work, the main 
-different of our work is that we propose the use of explicit casts 
-to control type-level computation. Moreover we also unify recursion 
-and recursive types in a single language construct.
-\bruno{Table is missing!}
+practical programming world. Compared to existing work, the main
+different of our work is that we propose the use of explicit casts to
+control type-level computation. Moreover we also unify recursion and
+recursive types in a single language construct.
 
 \begin{table*}
 \renewcommand{\arraystretch}{0.8}
@@ -27,7 +26,8 @@ $\Pi\Sigma$ & N/A & No\linus{?} & Yes & 18 & 1 & No
 \label{tab:related:comp}
 \end{table*}
 
-\subsubsection{Unification of Terms, Types, and Kinds}
+
+\paragraph{Unification of Terms, Types, and Kinds}
 Pure Type Systems (PTS)~\cite{pts} show how a while family of type systems
 can be implemented using just a single syntactic form. PTS are an
 obvious source of inspiration for our work. Although this paper
@@ -76,8 +76,7 @@ syntactic difference between terms and types.\bruno{So? What's the
   difference?}
 \bruno{Cayenne? general recursion, but no decidable type-checking.}
 
-\subsubsection{General Recursion and Managed Type-level Computation}
-
+\paragraph{General Recursion and Managed Type-level Computation}
 One way to allow general recursion and dependent types in the same
 language and still have decidable type-checking is to use multiple
 levels of syntax. In this way it is easy to have a term language with 
@@ -136,8 +135,7 @@ lift, box and force. One concern of $\Pi\Sigma$ is that its metatheory
 is not yet formally developed.\bruno{Maybe have a paragraph on
   recursive types?}
 
-\subsubsection{Type in Type}
-
+\paragraph{Type in Type}
 We are not the the first to embrace $\star : \star$ in the system. It
 has been long known that systems with $\star : \star$ (usually called
 system $\lambda *$) is inconsistent as a logic, in the sense that all
@@ -169,8 +167,7 @@ checking in \name is decidable -- all type-level computation is driven
 by finite cast operations, thus no potentially infinite reductions can
 happen in reality.
 
-\subsubsection{Encoding of Datatypes}
-
+\paragraph{Encoding of Datatypes}
 One thing \name differs from other functional programming languages is
 that all the high-level features in the surface language like
 datatypes, pattern matching and so on can be easily encoded into the

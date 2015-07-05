@@ -80,7 +80,7 @@ in show (eval example) -- return 42
 \end{figure}
 \end{comment}
 
-\subsubsection{Datatypes}
+\paragraph{Datatypes}
 Conventional datatypes like natural numbers or polymorphic lists can
 be easily defined in \sufcc, as in Haskell. For
 example, below is the definition of polymorphic lists:
@@ -107,8 +107,7 @@ type annotations and type parameters. However, apart from the extra typing,
 the program is similar to the code that would be written in a language
 like Haskell or ML.
 
-\subsubsection{HOAS}
-
+\paragraph{HOAS}
 \emph{Higher-order abstract syntax}~\cite{hoas} is a representation of
 abstract syntax where the function space of the meta-language is used
 to encode the binders of the object language. We show an example of
@@ -173,7 +172,7 @@ Evaluation of a lambda expression proceeds as follows:
 < in show (eval test) -- return 42
 
 
-\subsubsection{Higher-kinded Types}
+\paragraph{Higher-kinded Types}
 Higher-kinded types are types that take other types and produce a new
 type. To support higher-kinded types, languages like Haskell use
 core languages to account for kind expressions.
@@ -209,7 +208,7 @@ with the variable $f$ instantiated to |Maybe|.
 
 \bruno{Code needs to be explained! In particular explain the |Func Maybe|.} \jeremy{added!}
 
-\subsubsection{Fixpoints of Functors}
+\paragraph{Fixpoints of Functors}
 Various functional programming techniques employ type-level fixpoints
 to achieve additional modularity~\cite{datatype}. Thus, type-level
 fixpoints are a good example to demonstrate the expressiveness of
@@ -274,8 +273,7 @@ However in \sufcc, where type-level computation is
 explicitly controlled, we can safely use \emph{Fix} in the program.
 \end{comment}
 
-\subsubsection{Nested Datatypes}
-
+\paragraph{Nested Datatypes}
 A nested datatype~\cite{nesteddt}, also known as a \emph{non-regular}
 datatype, is a parametrised datatype whose definition contains
 different instances of the type parameters. Functions over nested
@@ -311,7 +309,7 @@ a power tree into a list:
 <          (toList (PairT a) c)
 
 
-\subsubsection{Kind Polymorphism}
+\paragraph{Kind Polymorphism}
 Previous versions of Haskell, based on System $F_{\omega}$, had some
 support for type-level programming, albeit naively. It had a simple
 kind system with a few kinds ($\star$, $\star \rightarrow \star$ and
@@ -342,7 +340,7 @@ for instance:
 < let List : * -> * = \a : * . Mu * Listf a
 
 
-\subsubsection{Datatype Promotion}
+\paragraph{Datatype Promotion}
 Recent versions of Haskell introduced Datatype
 Promotion~\cite{fc:pro}, in order to allow ordinary datatypes as
 kinds, and data constructors as types. With the full power of

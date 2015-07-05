@@ -196,7 +196,7 @@ function on records.
 
 % The dynamic semantics of $\mu$ requires the recursive binder to satisfy (omit type annotations for clarity):  \[ \mu f.\,E = (\lambda f.\,E) (\mu f.\,E) \] which, however, does not terminate in strict languages. Therefore, to loosen the function-type restriction to allow any types, the sensible choice for the evaluation strategy is \emph{call-by-name}.
 
-\subsubsection{Recursive types}
+\paragraph{Recursive types}
 In the literature on type systems, there are two approaches to
 recursive types, namely \emph{equi-recursive} and
 \emph{iso-recursive}~\cite{eqi:iso}. The \emph{iso-recursive} approach
