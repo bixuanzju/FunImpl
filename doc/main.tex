@@ -1,5 +1,5 @@
 % SIGPLAN template
-\documentclass[preprint]{sigplanconf}
+\documentclass[preprint,nocopyrightspace]{sigplanconf}
 
 %% -- Packages Imports --
 
@@ -124,10 +124,10 @@ preserves decidability of type-checking under the presence of general
 recursion. The key idea, which is inspired by the traditional
 treatment of \emph{iso-recursive types}, is to make each type-level
 computation step explicit. Each beta reduction or expansion at the
-type-level is introduced by a language construct. This allows control
+type-level is introduced by type-safe cast construct. Such construct allows control
 over the type-level computation and ensures decidability of
 type-checking even in the presence of non-terminating programs at the
-type-level.  We realize this idea by presenting a variant of the
+type-level.  We realize this idea by presenting \name: a variant of the
 calculus of constructions with general recursion and recursive types.
 Furthermore we show how many advanced programming language features of
 state-of-the-art functional languages (such as Haskell) can be encoded
