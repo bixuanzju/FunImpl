@@ -1,8 +1,6 @@
 %include polycode.fmt
 %include format.fmt
 
-%format mu = "\mathsf{mu}"
-
 \section{\sufcc: A Surface Language on Top of \name}
 \label{sec:app}
 
@@ -305,7 +303,7 @@ of the pairs doubles. It is instructive to look at the encoding of
 |Pow| in \name:
 
 < let Pow : * -> * = mu X : * -> * .
-<     \ a : * . (B : *) -> (a -> B) -> (X (PairT a) -> B) -> B
+<     \ a : * . (b : *) -> (a -> b) -> (X (PairT a) -> b) -> b
 
 Notice how the higher-kinded type variable |X : * -> *| helps encoding
 nested datatypes. Below is a simple function |toList| that transforms

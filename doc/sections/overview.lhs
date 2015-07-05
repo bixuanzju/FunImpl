@@ -283,9 +283,8 @@ datatypes. While inductive datatypes can be encoded using either the
 Church~\cite{tapl} or the Scott encoding~\cite{encoding:scott}, we
 adopt the Scott encoding as it encodes case analysis, making it more
 convenient to encode pattern matching. We demonstrate the encoding
-method using a simple datatype as a running example: Peano numbers.
-
-The datatype declaration for Peano numbers in Haskell is:
+method using a simple datatype as a running example: Peano
+numbers. The datatype declaration for Peano numbers in Haskell is:
 
 <  data Nat = Z | S Nat
 
@@ -295,11 +294,11 @@ datatype, we have to use recursive types at some point to reflect its
 recursive nature. As it turns out, the typed Scott encoding of |Nat|
 is:
 
-< mu X : * . pi B : * . B -> (X -> B) -> B
+< mu X : * . (b : *) -> b -> (X -> b) -> b
 
-The function type |B -> (X -> B) -> B| demystifies the recursive
-nature of |Nat|: $B$ corresponds to the type of the constructor |Z|,
-and |X -> B| corresponds to the type of the constructor |S|. The
+The function type |(b -> (X -> b) -> b)| demystifies the recursive
+nature of |Nat|: $b$ corresponds to the type of the constructor |Z|,
+and |(X -> b)| corresponds to the type of the constructor |S|. The
 intuition is that any recursive use of the datatype in the data
 constructors is replaced with the variable ($X$ in the case) bound by
 $\mu$, and we make the resulting type variable ($B$ in this case)
@@ -308,9 +307,9 @@ result types can be used in the same program~\cite{gadts}.
 
 The two constructors can be encoded correspondingly via the \cast rules:
 
-< Z = castup[Nat] (\ B : * . \ z : B . \ f : Nat -> B . z)
+< Z = castup[Nat] (\ b : * . \ z : b . \ f : Nat -> b . z)
 < S = \ n : Nat .  castup[Nat]
-<                  (\ B : * . \ z : B . \ f : Nat -> B . f n)
+<                  (\ b : * . \ z : b . \ f : Nat -> b . f n)
 
 \bruno{be careful with code overflowing margins! Maybe use 2 lines?}
 \jeremy{fixed!} Intuitively, each constructor selects a different
@@ -329,13 +328,13 @@ The above definition resembles case analysis commonly seen in modern
 functional programming languages.\bruno{Explain the use of cast}
 \jeremy{added!} Indeed, if we take apart the definition, we will see
 why the use of $[[castdown]]$ plays such an important role to make it
-all work. First of all, remember the datatype |Nat| is encoded as:
+all work. First of all, remember |Nat| datatype is encoded as:
 
-< mu X : * . pi B : * . B -> (X -> B) -> B
+< mu X : * . (b : *) -> b -> (X -> b) -> b
 
 then |(castdown n)| reduces the above to
 
-< pi B : * . B -> (Nat -> B) -> B
+< (b : *) -> b -> (Nat -> b) -> b
 
 which perfectly matches the types of the terms applied to |(castdown
 n)|: |Nat| is fed as the result type; $m$ is used for the base case;

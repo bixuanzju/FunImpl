@@ -1,6 +1,5 @@
-%format . = ".\,"
+%format . = "."
 %format mu = "\mu"
-%format pi = "\Pi"
 %format * = "\star"
 %format time = "\times"
 %format letrec = "\mathbf{letrec}"
