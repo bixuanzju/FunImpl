@@ -4,8 +4,6 @@
 \section{\sufcc: A Surface Language on Top of \name}
 \label{sec:app}
 
-\jeremy{use proper font for code block, maybe {\tt typewriter font}}
-
 The main goal of \name is to serve as an expressive core language
 for functional languages like Haskell or ML.
 This section shows a number of programs written in the surface
@@ -111,11 +109,10 @@ like Haskell or ML.
 
 \subsubsection{HOAS}
 
-\emph{Higher-order abstract syntax}~\cite{hoas} \bruno{reference}
-\jeremy{added!} is a representation of abstract syntax where the
-function space of the meta-language is used to encode the binders of
-the object language. We show an example of encoding a simple lambda
-calculus:
+\emph{Higher-order abstract syntax}~\cite{hoas} is a representation of
+abstract syntax where the function space of the meta-language is used
+to encode the binders of the object language. We show an example of
+encoding a simple lambda calculus:
 
 < data Exp = Num (n : nat)
 <   |  Lam (f : Exp -> Exp)
@@ -214,10 +211,9 @@ with the variable $f$ instantiated to |Maybe|.
 
 \subsubsection{Fixpoints of Functors}
 Various functional programming techniques employ type-level fixpoints
-to achieve additional modularity~\cite{datatype}. \bruno{references:
-  Datatypes a la carte} \jeremy{added!} Thus, type-level fixpoints are
-a good example to demonstrate the expressiveness of \sufcc. The
-definition is:
+to achieve additional modularity~\cite{datatype}. Thus, type-level
+fixpoints are a good example to demonstrate the expressiveness of
+\sufcc. The definition is:
 
 < rcrd Fix (f : * -> *) = In {out : f (Fix f) };
 
@@ -245,8 +241,6 @@ fold:
 <   \f : * -> * . \ a : * .
 <   \ m : Functor f .  \ g : f a -> a. \ t : Fix f .
 <   g (fmap f m (Fix f) a (cata f a m g) (out f t))
-
-\bruno{fix formatting of cata} \jeremy{fixed!}
 
 Unfortunately, in systems like Coq, definitions like |Fix| must be
 rejected. The problem is related to the possibility of recursive
@@ -295,12 +289,9 @@ whose size is exactly a power of two, declared as follows:
 <   | Succ (t : Pow (PairT a));
 
 Notice that the recursive occurrence of |Pow| does not hold an |a|,
-but |PairT a| \bruno{code should be formated writh the proper font!
-  don't use \emph{emphasized for code}. Quite a few changes
-  throughtout!} \jeremy{noted! changes to use lhs2tex inline code
-  font}. This means every time we use a |Succ| constructor, the size
-of the pairs doubles. It is instructive to look at the encoding of
-|Pow| in \name:
+but |PairT a|. This means every time we use a |Succ| constructor, the
+size of the pairs doubles. It is instructive to look at the encoding
+of |Pow| in \name:
 
 < let Pow : * -> * = mu X : * -> * .
 <     \ a : * . (b : *) -> (a -> b) -> (X (PairT a) -> b) -> b
@@ -326,20 +317,19 @@ support for type-level programming, albeit naively. It had a simple
 kind system with a few kinds ($\star$, $\star \rightarrow \star$ and
 so on). Still, it is insufficient for kind polymorphism, and yet some
 more extensions to the core were needed. Indeed, System
-$F_C^{\uparrow}$~\cite{fc:pro} \bruno{was this System FC or a later
-  extension of System FC? Please double-check!} \jeremy{checked!} was
-proposed to support, among other things, kind polymorphism. However,
-it separates expressions into terms, types and kinds, which
-complicates both the implementation and future extensions. \sufcc
-natively allows definitions to have polymorphic kinds. Here is an
-example, taken from~\cite{fc:pro}, of a datatype that benefits from
-kind polymophism: a higher-kinded fixpoint combinator:
+$F_C^{\uparrow}$~\cite{fc:pro} was proposed to support, among other
+things, kind polymorphism. However, it separates expressions into
+terms, types and kinds, which complicates both the implementation and
+future extensions. \sufcc natively allows definitions to have
+polymorphic kinds. Here is an example, taken from~\cite{fc:pro}, of a
+datatype that benefits from kind polymophism: a higher-kinded fixpoint
+combinator:
 
-\bruno{story is not precise
-here: Previous versions of Haskell, based on System $F_{\omega}$
-already had terms, types and kinds. What you want to say is that
-this was still insufficient for kind polymorphism and yet some
-more extensions to the core were needed.} \jeremy{reworded!}
+\bruno{story is not precise here: Previous versions of Haskell, based
+  on System $F_{\omega}$ already had terms, types and kinds. What you
+  want to say is that this was still insufficient for kind
+  polymorphism and yet some more extensions to the core were needed.}
+\jeremy{reworded!}
 
 < data Mu (k : *) (f : (k -> *) -> k -> *) (a : k) =
 <   Roll (g : f (Mu k f) a);

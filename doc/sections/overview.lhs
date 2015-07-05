@@ -183,12 +183,11 @@ example, the factorial function is written in \name as:
 < fact =  mu f : Int -> Int. \ x : Int .
 <         if x == 0 then 1 else x time f (x - 1)
 
-\bruno{x is not bound!}\bruno{show how to use fact} \jeremy{my bad,
-  fixed! Linus already has an exmaple of using fact step by step in
-  Section~\ref{subsec:recur}, still need here?} The above function
-application works because of the dynamic semantics of the $\mu$
-primitive: \ottusedrule{\ottdruleSXXMu{}} which is exactly doing
-recursive unfolding of itself.
+\bruno{show how to use fact} \jeremy{Linus already has an exmaple of
+  using fact step by step in Section~\ref{subsec:recur}, still need
+  here?} The above function application works because of the dynamic
+semantics of the $\mu$ primitive: \ottusedrule{\ottdruleSXXMu{}} which
+is exactly doing recursive unfolding of itself.
 
 It is worth noting that the type $[[t]]$ in \ruleref{S\_Mu} is not
 restricted to function types. This extra freedom allows us to define a
@@ -200,14 +199,14 @@ function on records.
 \subsubsection{Recursive types}
 In the literature on type systems, there are two approaches to
 recursive types, namely \emph{equi-recursive} and
-\emph{iso-recursive}~\cite{eqi:iso} \bruno{reference}
-\jeremy{added!}. The \emph{iso-recursive} approach treats a recursive
-type and its unfolding as different, but isomorphic. The isomorphism
-between a recursive type and its one step unfolding is witnessed by
-\fold and \unfold operations. In \name, the isomorphism is witnessed
-by first $[[castup]]$, then $[[castdown]]$. In fact, $[[castup]]$ and
-$[[castdown]]$ generalize \fold and \unfold: they can convert any
-types, not just recursive types.
+\emph{iso-recursive}~\cite{eqi:iso}. The \emph{iso-recursive} approach
+treats a recursive type and its unfolding as different, but
+isomorphic. The isomorphism between a recursive type and its one step
+unfolding is witnessed by \fold and \unfold operations. In \name, the
+isomorphism is witnessed by first $[[castup]]$, then
+$[[castdown]]$. In fact, $[[castup]]$ and $[[castdown]]$ generalize
+\fold and \unfold: they can convert any types, not just recursive
+types.
 
 To demonstrate the use of the
 \cast rules with recursive types, let us consider a classic example of a recursive type,
@@ -247,9 +246,8 @@ Nevertheless the loss of logical consistency is a deliberate design
 decision. Although there are dependently typed languages that support
 general recursion and still preserve logical consistency, this is done
 at the cost of additional complexity in the
-system~\cite{zombie:popl14, Swamy2011, fstar}\bruno{references}
-\jeremy{added!}. In \name we trade the loss of logical consistency by
-a significantly simpler system.
+system~\cite{zombie:popl14, Swamy2011, fstar}. In \name we trade the
+loss of logical consistency by a significantly simpler system.
 
 Since our goal is 
 use \name as a foundational calculus for languages like Haskell,
@@ -269,8 +267,7 @@ inconsistency in logic.
 
 \paragraph{Type in Type}
 Since logical consistency is already lost due to general recursion,
-\name also uses the $\star : \star$
-axiom~\cite{handbook}\bruno{reference?} \jeremy{added!}.  As a
+\name also uses the $\star : \star$ axiom~\cite{handbook}. As a
 consequence, having this rule adds expressiveness and simplifies our
 system (e.g., it will be easy to explicitly quantify over kinds). We
 return to this issue in Section~\ref{sec:related}.
@@ -311,12 +308,11 @@ The two constructors can be encoded correspondingly via the \cast rules:
 < S = \ n : Nat .  castup[Nat]
 <                  (\ b : * . \ z : b . \ f : Nat -> b . f n)
 
-\bruno{be careful with code overflowing margins! Maybe use 2 lines?}
-\jeremy{fixed!} Intuitively, each constructor selects a different
-function from the function parameters ($z$ and $f$ in the above
-example). This provides branching in the process flow, based on the
-constructors. Note that we use the $[[castup]]$ operation to do type
-conversion between the recursive type and its unfolding.
+Intuitively, each constructor selects a different function from the
+function parameters ($z$ and $f$ in the above example). This provides
+branching in the process flow, based on the constructors. Note that we
+use the $[[castup]]$ operation to do type conversion between the
+recursive type and its unfolding.
 
 Finally a recursive function that adds two natural numbers is defined
 as follows:
