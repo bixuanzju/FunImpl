@@ -312,7 +312,7 @@ a power tree into a list:
 
 
 \subsubsection{Kind Polymorphism}
-Previous versions of Haskell, based on System $F_{\omega}$ , had some
+Previous versions of Haskell, based on System $F_{\omega}$, had some
 support for type-level programming, albeit naively. It had a simple
 kind system with a few kinds ($\star$, $\star \rightarrow \star$ and
 so on). Still, it is insufficient for kind polymorphism, and yet some
@@ -343,10 +343,10 @@ for instance:
 
 
 \subsubsection{Datatype Promotion}
-Recent versions of Haskell introduced Datatype Promotion~\cite{}, 
-in order to allow ordinary datatypes as kinds, and data constructors
-as types. With the full power of dependent types, data promotion is
-made trivial in \sufcc.
+Recent versions of Haskell introduced Datatype
+Promotion~\cite{fc:pro}, in order to allow ordinary datatypes as
+kinds, and data constructors as types. With the full power of
+dependent types, data promotion is made trivial in \sufcc.
 
 As a last example, we show a representation of a labeled binary tree,
 where each node is labeled with its depth in the tree. Below is the
