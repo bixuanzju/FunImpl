@@ -112,7 +112,11 @@ eliminated through type erasure, when generating code,
 to address the potential performance issue of code generation.
 
 \paragraph{Encoding of GADTs}
-
+\bruno{The point is again to show how Fin could be encoded using \name, 
+and show a program using case analysis that should be valid but does 
+not type-check. In principle this should happen due to the lack of 
+equality proofs and type-constructor injectivity. Mention that this is part 
+of our future work plan.}
 Our translation rules also open opportunity for encoding GADTs. In our
 experiment, we have several running examples of encoding GADTs. Below
 we show a GADT-encoded representation of well-scoped lambda terms
@@ -131,7 +135,7 @@ definition of lambda terms:
 <      Var : (n : Nat) -> Fin n -> Term n
 <   |  Lam : (n : Nat) -> Term (S n) -> Term n
 <   |  App : (n : Nat) -> Term n -> Term n -> Term n;
-
+\bruno{Show Fin only: no need for |Term|.}
 The datatype \emph{Fin n} is used to restrict the the de Brujin index,
 so that it lies between $0$ to $n - 1$. The type of a closed term is
 simply |Term Z|, for instance, a lambda term
