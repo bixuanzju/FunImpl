@@ -4,11 +4,15 @@
 \section{Discussion and Future Work}
 \label{sec:discuss}
 
-\paragraph{More Type-level Computation}
+\paragraph{Making Type-level Computation Convenient}
+\bruno{The point here is that programs using intensive type-level 
+computation can be written, but are not convenient to use. You 
+should show what's inconvenient, and discuss what can be done 
+to make it more convenient.}
 \jeremy{dependent pattern matching, recursive functions on the type level}
 
 Though \name, by design, provides full support for type-level
-computation, we are still quite restricted. The problem becomes
+computation, we are still quite restricted\bruno{not restricted, }. The problem becomes
 pronounced when having recursive functions on the type level. For
 example, it is legal to write the following:
 
