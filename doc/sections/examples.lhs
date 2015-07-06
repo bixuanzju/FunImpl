@@ -6,6 +6,8 @@
 \section{\sufcc: A Surface Language on Top of \name}
 \label{sec:app}
 
+\jeremy{use proper font for code block, maybe {\tt typewriter font}}
+
 The main goal of \name is to serve as an expressive core language
 for functional languages like Haskell or ML.
 This section shows a number of programs written in the surface
