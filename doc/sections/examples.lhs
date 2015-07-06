@@ -224,7 +224,7 @@ The |Fix| datatype is interesting in that now we can define
 recursive datatypes in a non-recursive way. For instance, a
 non-recursive definition for natural numbers is:
 
-< data NatF (self : *) = Zero | Succ self;
+< data NatF (self : *) = Zero | Succ (n : self);
 
 And the recursive version is just a synonym:
 
