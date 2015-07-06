@@ -109,6 +109,7 @@ terminals :: 'terminals_' ::=
   | =b       ::  :: betaeq    {{ tex =_{\beta} }}
   | castdown ::  :: castdown  {{ tex \mathsf{cast}_{\downarrow} }}
   | let      ::  :: let       {{ tex \kw{let} }}
+  | letrec   ::  :: letrec    {{ tex \kw{letrec} }}
   | in       ::  :: key_in    {{ tex \kw{in} }}
   | eqb      ::  :: eqb       {{ tex =_{\beta} }}
   | int      ::  :: int       {{ tex \mathsf{Int} }}

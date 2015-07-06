@@ -161,9 +161,9 @@ $([[\x:d three.x]])([[castdown]]([[castdown]] \dots z))$). But it is
 impossible to write such program in practice.
 
 In summary, \name achieves the decidability of type checking by
-explicitly controlling type-level computation.  which is independent
-of the normalization property, while supporting general recursion at
-the same time.
+explicitly controlling type-level computation, which is independent of
+the normalization property, while supporting general recursion at the
+same time.
 
 \subsection{Recursion and Recursive Types}
 
@@ -180,15 +180,14 @@ features!
 The $\mu$ primitive can be used to define recursive functions.  For
 example, the factorial function is written in \name as:
 
-< fact = mu f : Int -> Int. \ x : Int .
-<   if x == 0 then 1 else x time f (x - 1)
+< fact =  mu f : Int -> Int. \ x : Int .
+<         if x == 0 then 1 else x time f (x - 1)
 
-\bruno{x is not bound!}\bruno{show how to use fact} \jeremy{my bad,
-  fixed! Linus already has an exmaple of using fact step by step in
-  Section~\ref{subsec:recur}, still need here?} The above function
-application works because of the dynamic semantics of the $\mu$
-primitive: \ottusedrule{\ottdruleSXXMu{}} which is exactly doing
-recursive unfolding of itself.
+\bruno{show how to use fact} \jeremy{Linus already has an exmaple of
+  using fact step by step in Section~\ref{subsec:recur}, still need
+  here?} The above function application works because of the dynamic
+semantics of the $\mu$ primitive: \ottusedrule{\ottdruleSXXMu{}} which
+is exactly doing recursive unfolding of itself.
 
 It is worth noting that the type $[[t]]$ in \ruleref{S\_Mu} is not
 restricted to function types. This extra freedom allows us to define a
@@ -197,17 +196,17 @@ function on records.
 
 % The dynamic semantics of $\mu$ requires the recursive binder to satisfy (omit type annotations for clarity):  \[ \mu f.\,E = (\lambda f.\,E) (\mu f.\,E) \] which, however, does not terminate in strict languages. Therefore, to loosen the function-type restriction to allow any types, the sensible choice for the evaluation strategy is \emph{call-by-name}.
 
-\subsubsection{Recursive types}
+\paragraph{Recursive types}
 In the literature on type systems, there are two approaches to
 recursive types, namely \emph{equi-recursive} and
-\emph{iso-recursive}~\cite{eqi:iso} \bruno{reference}
-\jeremy{added!}. The \emph{iso-recursive} approach treats a recursive
-type and its unfolding as different, but isomorphic. The isomorphism
-between a recursive type and its one step unfolding is witnessed by
-\fold and \unfold operations. In \name, the isomorphism is witnessed
-by first $[[castup]]$, then $[[castdown]]$. In fact, $[[castup]]$ and
-$[[castdown]]$ generalize \fold and \unfold: they can convert any
-types, not just recursive types.
+\emph{iso-recursive}~\cite{eqi:iso}. The \emph{iso-recursive} approach
+treats a recursive type and its unfolding as different, but
+isomorphic. The isomorphism between a recursive type and its one step
+unfolding is witnessed by \fold and \unfold operations. In \name, the
+isomorphism is witnessed by first $[[castup]]$, then
+$[[castdown]]$. In fact, $[[castup]]$ and $[[castdown]]$ generalize
+\fold and \unfold: they can convert any types, not just recursive
+types.
 
 To demonstrate the use of the
 \cast rules with recursive types, let us consider a classic example of a recursive type,
@@ -247,9 +246,8 @@ Nevertheless the loss of logical consistency is a deliberate design
 decision. Although there are dependently typed languages that support
 general recursion and still preserve logical consistency, this is done
 at the cost of additional complexity in the
-system~\cite{zombie:popl14, Swamy2011, fstar}\bruno{references}
-\jeremy{added!}. In \name we trade the loss of logical consistency by
-a significantly simpler system.
+system~\cite{zombie:popl14, Swamy2011, fstar}. In \name we trade the
+loss of logical consistency by a significantly simpler system.
 
 Since our goal is 
 use \name as a foundational calculus for languages like Haskell,
@@ -261,16 +259,15 @@ For example, in Haskell, we can write a ``false'' type:
 
 With general recursion, a value with type |False| is given:
 
-< false :: False
-< false = false
+< false  ::  False
+< false  =   false
 
 whose denotational semantics is |undefined|, which corresponds to
 inconsistency in logic. 
 
 \paragraph{Type in Type}
 Since logical consistency is already lost due to general recursion,
-\name also uses the $\star : \star$
-axiom~\cite{handbook}\bruno{reference?} \jeremy{added!}.  As a
+\name also uses the $\star : \star$ axiom~\cite{handbook}. As a
 consequence, having this rule adds expressiveness and simplifies our
 system (e.g., it will be easy to explicitly quantify over kinds). We
 return to this issue in Section~\ref{sec:related}.
@@ -283,9 +280,8 @@ datatypes. While inductive datatypes can be encoded using either the
 Church~\cite{tapl} or the Scott encoding~\cite{encoding:scott}, we
 adopt the Scott encoding as it encodes case analysis, making it more
 convenient to encode pattern matching. We demonstrate the encoding
-method using a simple datatype as a running example: Peano numbers.
-
-The datatype declaration for Peano numbers in Haskell is:
+method using a simple datatype as a running example: Peano
+numbers. The datatype declaration for Peano numbers in Haskell is:
 
 <  data Nat = Z | S Nat
 
@@ -295,29 +291,28 @@ datatype, we have to use recursive types at some point to reflect its
 recursive nature. As it turns out, the typed Scott encoding of |Nat|
 is:
 
-< mu X : * . pi B : * . B -> (X -> B) -> B
+< mu X : * . (b : *) -> b -> (X -> b) -> b
 
-The function type |B -> (X -> B) -> B| demystifies the recursive
-nature of \emph{Nat}: $B$ corresponds to the type of the constructor
-\emph{Z}, and |X -> B| corresponds to the type of the constructor
-\emph{S}. The intuition is that any recursive use of the datatype in
-the data constructors is replaced with the variable ($X$ in the case)
-bound by $\mu$, and we make the resulting type variable ($B$ in this
-case) universally quantified so that elements of the datatype with
-different result types can be used in the same program~\cite{gadts}.
+The function type |(b -> (X -> b) -> b)| demystifies the recursive
+nature of |Nat|: $b$ corresponds to the type of the constructor |Z|,
+and |(X -> b)| corresponds to the type of the constructor |S|. The
+intuition is that any recursive use of the datatype in the data
+constructors is replaced with the variable ($X$ in the case) bound by
+$\mu$, and we make the resulting type variable ($B$ in this case)
+universally quantified so that elements of the datatype with different
+result types can be used in the same program~\cite{gadts}.
 
 The two constructors can be encoded correspondingly via the \cast rules:
 
-< Z = castup[Nat] (\ B : * . \ z : B . \ f : Nat -> B . z)
+< Z = castup[Nat] (\ b : * . \ z : b . \ f : Nat -> b . z)
 < S = \ n : Nat .  castup[Nat]
-<                  (\ B : * . \ z : B . \ f : Nat -> B . f n)
+<                  (\ b : * . \ z : b . \ f : Nat -> b . f n)
 
-\bruno{be careful with code overflowing margins! Maybe use 2 lines?}
-\jeremy{fixed!} Intuitively, each constructor selects a different
-function from the function parameters ($z$ and $f$ in the above
-example). This provides branching in the process flow, based on the
-constructors. Note that we use the $[[castup]]$ operation to do type
-conversion between the recursive type and its unfolding.
+Intuitively, each constructor selects a different function from the
+function parameters ($z$ and $f$ in the above example). This provides
+branching in the process flow, based on the constructors. Note that we
+use the $[[castup]]$ operation to do type conversion between the
+recursive type and its unfolding.
 
 Finally a recursive function that adds two natural numbers is defined
 as follows:
@@ -329,13 +324,13 @@ The above definition resembles case analysis commonly seen in modern
 functional programming languages.\bruno{Explain the use of cast}
 \jeremy{added!} Indeed, if we take apart the definition, we will see
 why the use of $[[castdown]]$ plays such an important role to make it
-all work. First of all, remember the datatype |Nat| is encoded as:
+all work. First of all, remember |Nat| datatype is encoded as:
 
-< mu X : * . pi B : * . B -> (X -> B) -> B
+< mu X : * . (b : *) -> b -> (X -> b) -> b
 
 then |(castdown n)| reduces the above to
 
-< pi B : * . B -> (Nat -> B) -> B
+< (b : *) -> b -> (Nat -> b) -> b
 
 which perfectly matches the types of the terms applied to |(castdown
 n)|: |Nat| is fed as the result type; $m$ is used for the base case;

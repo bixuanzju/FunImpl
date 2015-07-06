@@ -159,12 +159,12 @@ each step of the computation is induced by a cast. If a type-level
 program requires $n$ steps of computation to reach normal form, 
 then it will require $n$ casts to compute a (type-level) value.
 
-\paragraph{Cast Operators in $n$ steps}
+\paragraph{Cast Operators for $n$ Steps}
 For the brevity purpose, we use syntactic sugar to denote $n$ consecutive cast operators.
 Suppose we have $[[e]] : [[t]]$ and sequences of
 reduction $[[t1]] [[-->]] [[t2]] [[-->]] \dots [[-->]] [[tn]] [[-->]] [[t]]$
 and $[[t]] [[-->]] [[T1]] [[-->]] [[T2]] [[-->]] \dots [[-->]] [[Tn]]$. 
-The $n$-step \cast operators can be defined:
+The $n$-step \cast operators can be defined as:
 \begin{flalign*}
     &[[foldn]] [ [[t1]], \dots, [[tn]] ] [[e]] & [[:=]] & [[castup]] [ [[t1]] ]
 ([[castup]] [ [[t2]] ] (\dots ( [[castup]] [ [[tn]] ] [[e]] ) \dots )) \\

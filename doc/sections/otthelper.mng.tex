@@ -8,7 +8,7 @@
 
 \newcommand{\castup}{$[[castup]]$\xspace}
 \newcommand{\castdown}{$[[castdown]]$\xspace}
-\newcommand{\cast}{$[[cast]]$\xspace}
+\newcommand{\cast}{cast\xspace}
 
 \newcommand{\lam}[3]{[[\]] #1:#2.\,#3}
 \newcommand{\pai}[3]{[[Pi]] #1:#2.\,#3}
@@ -40,13 +40,15 @@
 \begin{array}{lllll} %
     &&&& \text{Syntactic Sugar} \\ %
     [[A1->A2]] & \triangleq & [[Pi x:A1.A2]] & x \not \in \FV([[A2]]) & %
-        \quad\text{Function type} \\ %
+        \quad\text{Function Type} \\ %
     [[(x:A1)->A2]] & \triangleq & [[Pi x:A1.A2]] &  & %
-        \quad\text{Dependent function type} \\ %
+        \quad\text{Dependent Function Type} \\ %
+    [[letrec x : A = E2 in E1]] & \triangleq & [[let x : A = mu x : A . E2 in E1]] &  & %
+        \quad\text{Recursive let binding}\\ %
     [[data R <<u:k>>n = K { <<N:A>> }]] & \triangleq & %
-        [[data R <<u:k>>n = K <<x:A>>]]; && \quad\text{Record} \\ %
+        [[data R <<u:k>>n = K <<x:A>>]]; &\forall i & \quad\text{Record} \\ %
         && [[let]]~[[N]]_i : [[ (<<u:k>>n) -> R@<<u>>n -> A]]_i = & %
-        i =1,2,\dots,n &  \\ %
+         &  \\ %
         && [[\ <<u:k>>n . \ y : R@<<u>>n . case y of K <<x:A>> => x]]_i~[[in]] && \\ %
 \end{array} %
 }

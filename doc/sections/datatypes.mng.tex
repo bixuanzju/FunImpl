@@ -22,8 +22,6 @@ type-safety of the translation.
 
 \subsection{Syntax}
 
-\jeremy{show letrec as syntactic sugar}
-
 The full syntax of \sufcc is defined in
 Figure~\ref{fig:surface:syntax}. Compared with \name, \sufcc has a new
 syntax category: a program, consisting of a list of datatype
@@ -213,42 +211,20 @@ The rest of the translation rules hold few surprises.
 
 \subsection{Type-safefy of Translation}
 
-\jeremy{put Linus's theorem here}
+Now that we have elaborated the translation, we can state the
+type-safety theorem of the translation.
 
-% \begin{figure*}
-%   \renewcommand{\arraystretch}{2.5}
-%   \centering \small
-%   \begin{tabular}{lcl}
-%     \framebox{$\Gamma \vdash e : \tau \rightsquigarrow E$} \\
-%     (Ax) & $\inferrule { } {\ctxz{\star:\square \rightsquigarrow \star}}$ \\
+\begin{thm}[Type-safety of Expression Translation]
+If $[[Gs |- E:A ~> e]]$, $[[Gs |- A:star ~> t]]$ and $[[|- Gs ~> G]]$, then
+$[[G |- e:t]]$.
+\end{thm}
 
-%     (Var) & $\inferrule {x:\tau \in \Gamma} {\ctx{x:\tau \rightsquigarrow x}}$ \\
-
-%     (App) & $\inferrule {\ctx{e_{1}:(\pai{x}{\tau_{2}}{\tau_{1}}) \rightsquigarrow E_{1}} \\ \ctx{e_{2}:\tau_{2} \rightsquigarrow E_{2}}} {\ctx{e_{1}e_{2}:\tau_{1}[x:=e_{2}] \rightsquigarrow E_{1}E_{2}}}$ \\
-
-%     (Lam) & $\inferrule {\ctxw{x:\tau_{1}}{e:\tau_{2} \rightsquigarrow E} \\ \ctx{(\pai{x}{\tau_{1}}{\tau_{2}}):t}} {\ctx{(\lam{x}{\tau_{1}}{e})}:(\pai{x}{\tau_{1}}{\tau_{2}}) \rightsquigarrow \lam{x}{\tau_{1}}{E}}$ & $t \in \{\star, \square\}$ \\
-
-%     (Pi) & $\inferrule {\ctx{\tau_{1}:s} \\ \ctxw{x:\tau_{1}}{\tau_{2}:t}} {\ctx{(\pai{x}{\tau_{1}}{\tau_{2}}):t \rightsquigarrow \pai{x}{\tau_{1}}{\tau_{2}}}}$ & $(s,t) \in \mathcal{R}$ \\
-
-%     (Mu) & $\inferrule {\ctxw{x:\tau}{e:\tau} \rightsquigarrow E \\ \ctx{\tau:s}} {\ctx{(\miu{x}{\tau}{e}):\tau} \rightsquigarrow \miu{x}{\tau}{E}}$ & $s \in \{\star, \square\}$ \\
-
-%     (Fold) & $\inferrule {\ctx{e:\tau_{2} \rightsquigarrow E} \\ \ctx{\tau_{1}:s} \\ \tau_{1} \longrightarrow \tau_{2}} {\ctx{(\fold{{\tau_{1}}}{e}):{\tau_{1}} \rightsquigarrow \fold{\tau_{1}}{E}}}$ \\
-
-%     (Unfold) & $\inferrule {\ctx{e:\tau_{1} \rightsquigarrow E} \\ \ctx{\tau_{2}:s} \\ \tau_{1} \longrightarrow \tau_{2}} {\ctx{(\unfold{e}):\tau_{2} \rightsquigarrow \unfold{E}}}$ \\
-
-%     (Case) & $\inferrule {\ctx{e_{1}:\sigma \rightsquigarrow E_{1}} \\ \overline{\Gamma\vdash_{p} p \Rightarrow e_{2}:\sigma \rightarrow \tau \rightsquigarrow E_{2}}} {\Gamma\vdash\case\,e_{1}\,\of\,\overline{p \Rightarrow e_{2}}:\tau \rightsquigarrow (\unfold{E_{1}})\,\tau\,\overline{E_{2}}}$ \\
-%     \framebox{$\Gamma \vdash_{p} p \Rightarrow e : \sigma \rightarrow \tau \rightsquigarrow E$} \\
-%     (Alt) & $\inferrule {\theta=[\overline{u := \upsilon}] \\\\ K:\Pi\overline{u:\kappa}.\,\overline{\sigma} \rightarrow D\,\overline{u} \in \Gamma \\ \Gamma,\overline{x:\theta(\sigma)} \vdash e:\tau \rightsquigarrow E} {\Gamma \vdash_{p} K\,\overline{x:\theta(\sigma)} \Rightarrow e : D\,\overline{\upsilon} \rightarrow \tau \rightsquigarrow \lambda(\overline{x:\theta(\sigma)}).E}$ \\
-%     \framebox{$\Gamma \vdash decl : \Gamma_d \rightsquigarrow E$} \\
-%     (Data) & $\inferrule {\Gamma \vdash \overline{\kappa} \rightarrow \star : \square \\ \overline{\Gamma, D:\overline{\kappa} \rightarrow \star, \overline{u : \kappa} \vdash \overline{\tau} \rightarrow D\,\overline{u}:\star}} {\ctx{(\data\,D\,\overline{u : \kappa} = \overline{\mid K\,\overline{\tau}}): (D : \overline{\kappa} \rightarrow \star, \overline{K : \Pi\overline{u : \kappa}.\overline{\tau} \rightarrow D\,\overline{u}}) \rightsquigarrow E}}$ \\
-%          & \begingroup \renewcommand*{\arraystretch}{1.0} $\begin{array} {lll}
-%                                                              E & ::= & \letbb\,D : \overline{\kappa} \rightarrow \star =\lambda\overline{u : \kappa}.\,\mu X : \star.\,\Pi b:\star.\,\overline{(\overline{\tau}[D\,\overline{u}:=X] \rightarrow b)} \rightarrow b\,\inb \\ & & \letbb\,K_{i} : \Pi\overline{u : \kappa}.\overline{\tau} \rightarrow D\,\overline{u} = \lambda \overline{(u : \kappa)}.\lambda\overline{(x : \tau)}.\\
-%                                                                     & & \quad \fold{D\,\overline{u}}{(\lambda (b : \star)\overline{(c : \overline{\tau} \rightarrow b)} . c_{i}\,\overline{x})}\,\inb \end{array}$ \endgroup \\
-%     \framebox{$\Gamma \vdash pgm : \tau \rightsquigarrow E$} \\
-%     (Pgm) & $\inferrule {\overline{\Gamma_{0} \vdash decl : \Gamma_{d} \rightsquigarrow E_{1}} \\ \Gamma = \Gamma_{0}, \overline{\Gamma_{d}} \\ \ctx{e:\tau \rightsquigarrow E}} {\Gamma_{0} \vdash \overline{decl}; e : \tau \rightsquigarrow \overline{E_{1}} \oplus E}$
-%   \end{tabular}
-%   \caption{Type-directed translation from \sufcc to \name}\label{fig:datatrans}
-% \end{figure*}
+The proof is by induction on the derivation of $[[Gs |- E : A ~> e]]$.
+Most of the rules are straightforward, following directly by
+induction. The most heavy one is the rule \ruleref{TR\_Case}, where we
+combine the information from rule \ruleref{TRpgm\_Data} and rule
+\ruleref{TRpat\_Alt} with the operational semantics. The full proof of
+type-safety appears in the appendix.
 
 %%% Local Variables:
 %%% mode: latex

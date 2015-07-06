@@ -6,7 +6,22 @@
 
 %% Saved with string encoding Unicode (UTF-8) 
 
+@inproceedings{Reynolds:1974,
+ author = {Reynolds, John C.},
+ title = {Towards a Theory of Type Structure},
+ booktitle = {Programming Symposium, Proceedings Colloque Sur La Programmation},
+ year = {1974},
+ pages = {408--423}
+}
 
+@inproceedings{Eisenberg:2014,
+ author = {Eisenberg, Richard A. and Vytiniotis, Dimitrios and Peyton Jones, Simon and Weirich, Stephanie},
+ title = {Closed Type Families with Overlapping Equations},
+ booktitle = {Proceedings of the 41st ACM SIGPLAN-SIGACT Symposium on Principles of Programming Languages},
+ series = {POPL '14},
+ year = {2014},
+} 
+ 
 
 @article{pts:normalize,
 	Author = {Jutting, LSV},
@@ -181,7 +196,6 @@
 	Year = {1985}}
 
 @inproceedings{Fegaras1996,
-abstract = {Leonidas Fegaras No contact information provided yet. Bibliometrics: publication history Publication years1989-2010 Publication count36 Citation Count258 Available for download13 Downloads (6 Weeks)38 Downloads (12 Months)385 View colleagues of Leonidas Fegaras Tim Sheard No contact information provided yet. Bibliometrics: publication history Publication years1984-2010 Publication count70 Citation Count741 Available for download27 Downloads (6 Weeks)86 Downloads (12 Months)630 View colleagues of Tim Sheard},
 author = {Fegaras, Leonidas and Sheard, Tim},
 booktitle = {Proceedings of the 23rd ACM SIGPLAN-SIGACT symposium on Principles of programming languages - POPL '96},
 doi = {10.1145/237721.237792},
@@ -192,7 +206,6 @@ title = {{Revisiting catamorphisms over datatypes with embedded functions (or, p
 year = {1996}
 }
 @misc{Bohm1985,
-abstract = {The notion of iteratively defined functions from and to heterogeneous term algebras is introduced as the solution of a finite set of equations of a special shape. Such a notion has remarkable consequences: (1) Choosing the second-order typed lamdda-calculus ($\Lambda$ for short) as a programming language enables one to represent algebra elements and iterative functions by automatic uniform synthesis paradigms, using neither conditional nor recursive constructs. (2) A completeness theorem for $\Lambda$-terms with type of degree at most two and a companion corollary for $\Lambda$-programs have been proved. (3) A new congruence relation for the last-mentioned $\Lambda$-terms which is stronger than $\Lambda$-convertibility is introduced and proved to have the meaning of a $\Lambda$-program equivalence. Moreover, an extension of the paradigms to the synthesis of functions of higher complexity is considered and exemplified. All the concepts are explained and motivated by examples over integers, list- and tree-structures.},
 author = {B\"{o}hm, Corrado and Berarducci, Alessandro},
 booktitle = {Theoretical Computer Science},
 doi = {10.1016/0304-3975(85)90135-5},
@@ -210,7 +223,6 @@ title = {{Semantic Purity and Effects Reunited in F}},
 year = {2015}
 }
 @misc{Swamy2011,
-abstract = {Distributed applications are difficult to program reliably and securely. Dependently typed functional languages promise to prevent broad classes of errors and vulnerabilities, and to enable program verification to proceed side-by-side with development. However, as recursion, effects, and rich libraries are added, using types to reason about programs, specifications, and proofs becomes challenging. We present F-star, a full-fledged design and implementation of a new dependently typed language for secure distributed programming. Unlike prior languages, F-star provides arbitrary recursion while maintaining a logically consistent core; it enables modular reasoning about state and other effects using affine types; and it supports proofs of refinement properties using a mixture of cryptographic evidence and logical proof terms. The key mechanism is a new kind system that tracks several sub-languages within F-star and controls their interaction. F-star subsumes two previous languages, F7 and Fine. We prove type soundness (with proofs mechanized in Coq) and logical consistency for F-star. We have implemented a compiler that translates F-star to NET bytecode, based on a prototype for Fine. F-star provides access to libraries for concurrency, networking, cryptography, and interoperability with C\#, F\#, and the other .NET languages. The compiler produces verifiable binaries with 60\% code size overhead for proofs and types, as much as a 45x improvement over the Fine compiler, while still enabling efficient bytecode verification. To date, we have programmed and verified more than 20,000 lines of F-star including (1) new schemes for multi-party sessions; (2) a zero-knowledge privacy-preserving payment protocol; (3) a provenance-aware curated database; (4) a suite of 17 web-browser extensions verified for authorization properties; and (5) a cloud-hosted multi-tier web application with a verified reference monitor.},
 author = {Swamy, Nikhil and Chen, Juan and Fournet, C\'{e}dric and Strub, Pierre-Yves and Bhargavan, Karthikeyan and Yang, Jean},
 booktitle = {ACM SIGPLAN Notices},
 doi = {10.1145/2034574.2034811},
@@ -228,7 +240,6 @@ year = {2011}
   year={1986}
 }
 @article{Meijer1991,
-abstract = {We develop a calculus for lazy functional programming based on recursion operators associated wit data type definitions. For these operators we derive various algebraic laws that are useful in deriving and manipulating programs. We shall show that all example functions in Bird and Walder's "Introduction to Functional Programming" can be expressed using these operators.},
 author = {Meijer, Erik and Fokkinga, Maarten and Paterson, Ross},
 doi = {10.1007/3540543961\_7},
 isbn = {0387543961},
@@ -244,7 +255,6 @@ year = {1991}
   publisher={PhD thesis, Universit{\'e} Paris VII}
 }
 @article{nesteddt,
-abstract = {A nested datatype, also known as a non-regular datatype, is a parametrised datatype whose declaration involves different instances of the accompanying type parameters. Nested datatypes have been mostly ignored in functional programming until recently, but they are turning out to be both theoretically important and useful in practice. The aim of this paper is to suggest a functorial semantics for such datatypes, with an associated calculational theory that mirrors and extends the standard theory for regular datatypes. Though elegant and generic, the proposed approach appears more limited than one would like, and some of the limitations are discussed.},
 author = {Bird, Richard and Meertens, Lambert},
 doi = {10.1007/BFb0054285},
 file = {:Users/jeremybi/Dropbox/papers/BirdMeertens98Nested.pdf:pdf},
@@ -278,7 +288,6 @@ volume = {1},
 year = {1991}
 }
 @article{cic,
-abstract = {We define the notion of an inductively defined type in the Calculus of Constructions and show how inductively defined types can be represented by closed types. We show that all primitive recursive functionals over these inductively defined types are also representable. This generalizes work by B\"{o}hm \& Berarducci on synthesis of functions on term algebras in the second-order polymorphic $\lambda$-calculus (F2). We give several applications of this generalization, including a representation of F2-programs in F3, along with a definition of functions reify, reflect, and eval for F2 in F3. We also show how to define induction over inductively defined types and sketch some results that show that the extension of the Calculus of Construction by induction principles does not alter the set of functions in its computational fragment, F$\omega$. This is because a proof by induction can be realized by primitive recursion, which is already definable in F$\omega$. 1},
 author = {Pfenning, F and Paulin-Mohring, C},
 doi = {10.1007/BFb0040259},
 file = {:Users/jeremybi/Dropbox/papers/coc.pdf:pdf},
@@ -289,14 +298,12 @@ title = {{Inductively defined types in the Calculus of Constructions}},
 year = {1990}
 }
 @article{ott,
-abstract = {Observational Type Theory (OTT) combines beneficial aspects of Intensional and Extensional Type Theory (ITT/ETT). It separates definitional equality, decidable as in ITT, and a substitutive propositional equality, capturing extensional equality of functions, as in ETT. Moreover, canonicity holds: any closed term is definitionally reducible to a canonical value. Building on previous work by each author, this article reports substantial progress in the form of a simplified theory with a straightforward syntactic presentation, which we have implemented. As well as simplifying reasoning about functions, OTT offers potential foundational benefits, e.g. it gives rise to a closed type theory encoding inductive datatypes.},
 author = {Altenkirch, Thorsten and McBride, Conor},
 journal = {Manuscript available online},
 title = {{Towards Observational Type Theory}},
 year = {2006}
 }
 @misc{encoding:scott,
-abstract = {We start by giving a compact representation schema for $\lambda$-terms, and show how this leads to an exceedingly small and elegant self-interpreter. We then define the notion of a self-reducer, and show how this too can be written as a small $\lambda$-term. Both the self-interpreter and the self-reducer are proved correct. We finally give a constructive proof for the second fixed point theorem for the representation schema. All the constructions have been implemented on a computer, and experiments verify their correctness. Timings show that the self-interpreter and self-reducer are quite efficient, being about 35 and 50 times slower than direct execution using a call-by-need reductions strategy},
 author = {Mogensen, Torben \AE.},
 booktitle = {Journal of Functional Programming},
 doi = {10.1017/S0956796800000423},
@@ -308,7 +315,6 @@ volume = {2},
 year = {1992}
 }
 @article{elim:pi:pattern,
-abstract = {This paper gives a reduction-preserving translation from Coquand‚Äôs dependent pattern matching into a traditional type theory with universes, inductive types and relations and the axiom K. This translation serves as a proof of termination for structurally recur- sive pattern matching programs, provides an implementable compilation technique in the style of functional programming languages, and demon- strates the equivalence with a more easily understood type theory.},
 author = {Goguen, Healfdene and McBride, Conor and McKinna, James},
 doi = {10.1.1.101.7522},
 file = {:Users/jeremybi/Dropbox/papers/goguen.pdf:pdf},
@@ -339,4 +345,100 @@ year = {2006}
   number={5},
   year={1999},
   publisher={ACM}
+}
+@inproceedings{hoas,
+  title={Higher-order abstract syntax},
+  author={Pfenning, Frank and Elliot, Conal},
+  booktitle={ACM SIGPLAN Notices},
+  volume={23},
+  number={7},
+  pages={199--208},
+  year={1988},
+  organization={ACM}
+}
+@article{datatype,
+  title={Data types {\`a} la carte},
+  author={Swierstra, Wouter},
+  journal={Journal of functional programming},
+  volume={18},
+  number={04},
+  pages={423--436},
+  year={2008},
+  publisher={Cambridge Univ Press}
+}
+@article{Keuchel2013,
+author = {Keuchel, Steven and Schrijvers, Tom},
+journal = {Proceedings of the 9th ACM SIGPLAN workshop on Generic programming - WGP '13},
+keywords = {Datatype-generic programming,Fixed points,Mechanized meta-theory,Modularity},
+pages = {13},
+title = {{Generic datatypes \`{a} la carte}},
+year = {2013}
+}
+@article{cayenne,
+author = {Augustsson, Lennart},
+doi = {10.1145/289423.289451},
+isbn = {1-58113-024-4},
+issn = {0362-1340},
+journal = {SIGPLAN Not.},
+pages = {239--250},
+pmid = {21139473},
+title = {{Cayenne Å\ a language with dependent types}},
+volume = {34},
+year = {1998}
+}
+@article{spt,
+  title={Representing inductively defined sets by wellorderings in Martin-L{\"o}f's type theory},
+  author={Dybjer, Peter},
+  journal={Theoretical Computer Science},
+  volume={176},
+  number={1},
+  pages={329--335},
+  year={1997},
+  publisher={Elsevier}
+}
+@book{agda,
+  title={Towards a practical programming language based on dependent type theory},
+  author={Norell, Ulf},
+  volume={32},
+  year={2007},
+  publisher={Citeseer}
+}
+@Misc{coqsite,
+  author= {{C}oq {D}evelopment Team},
+  title = {The \emph{Coq} proof assistant},
+  note = {Documentation, system download. {C}ontact: \texttt{http://coq.inria.fr/}}
+}
+@inproceedings{idris,
+  title={IDRIS---: systems programming meets full dependent types},
+  author={Brady, Edwin C},
+  booktitle={Proceedings of the 5th ACM workshop on Programming languages meets program verification},
+  pages={43--54},
+  year={2011},
+  organization={ACM}
+}
+@article{harper:lf,
+  title={A framework for defining logics},
+  author={Harper, Robert and Honsell, Furio and Plotkin, Gordon},
+  journal={Journal of the ACM (JACM)},
+  volume={40},
+  number={1},
+  pages={143--184},
+  year={1993},
+  publisher={ACM}
+}
+@incollection{lf:delphin,
+  title={Practical programming with higher-order encodings and dependent types},
+  author={Poswolsky, Adam and Sch{\"u}rmann, Carsten},
+  booktitle={Programming Languages and Systems},
+  pages={93--107},
+  year={2008},
+  publisher={Springer}
+}
+@incollection{lf:twelf,
+  title={System description: Twelf --- meta-logical framework for deductive systems},
+  author={Pfenning, Frank and Sch{\"u}rmann, Carsten},
+  booktitle={Automated DeductionóCADE-16},
+  pages={202--206},
+  year={1999},
+  publisher={Springer}
 }
