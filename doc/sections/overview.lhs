@@ -13,10 +13,13 @@ presented in Section~\ref{sec:ecore}.
 \subsection{The Calculus of Constructions and the Conversion Rule}
 \label{sec:coc}
 
+\linus{Can we merge the this and next sections together to introduce the cast rules? 
+Just feel too lengthy to use 2 subsections.}
+
 The calculus of constructions (\coc)~\cite{coc} is a powerful
 higher-order typed lambda calculus supporting dependent types (among
-various other features).  A crutial
-feature of \coc is the so-called \emph{conversion}
+various other features).  A crucial
+feature of \coc is the \emph{conversion}
 rule: \ottusedrule{\ottdruleTccXXConv{}}
 
 %For the most part \name is similar to the \emph{Calculus of Constructions}
@@ -27,10 +30,10 @@ rule: \ottusedrule{\ottdruleTccXXConv{}}
 The conversion rule allows one to derive $e:[[t2]]$ from the
 derivation of $e:[[t1]]$ and the $\beta$-equality of $[[t1]]$ and
 $[[t2]]$. This rule is important to \emph{automatically} allow terms
-with equivalent types to be considered type-compatible.  The following
+with $\beta$-equivalent types to be considered type-compatible.  The following
 example illustrates the use of the conversion rule:
 \[
-f \equiv [[\x:(\y:star.y)int.x]]
+f [[==]] [[\x:(\y:star.y)int.x]]
 \]
 Here $f$ is a simple identity function. Notice that the type of $x$
 (i.e., $[[(\y:star.y)int]]$), which is the argument of $f$, is
@@ -107,6 +110,9 @@ argument. This is because for the same term, there are more than one
 choices for beta expansions (e.g., $1 + 2$ and $2 + 1$ are both the
 beta expansions of $3$). 
 
+\linus{Section 4 also gives a typing derivation of an example. 
+Is that one repeated?}
+
 \paragraph{One-Step}
 A final point to make is that the \cast rules specify \emph{one-step}
 reductions/expansions. \bruno{show an example with two beta-reductions
@@ -131,8 +137,8 @@ presented in Section~\ref{sec:ecore}.
 
 With explicit type conversion rules the decidability of type-checking 
 no longer depends on the normalization property. 
-A nice consequence of this is that the type system remains decidable
-even in the presence of non-terminating programs at type level.
+A nice consequence is that the type system remains decidable
+even in the presence of non-termination at type level.
 %As we will see in later sections. The
 %ability to write non-terminating terms motivates us to have more
 %control over type-level computation. 
@@ -146,13 +152,13 @@ even in the presence of non-terminating programs at type level.
 % stuck as it tries to do $\beta$-equality on two terms: $d\,3$ and
 % $d\,\mathsf{loop}$, where the latter is non-terminating.
 
-To illustrate, let us consider the same example discussed in
-Section~\ref{sec:coc}. Now the type checker will not get stuck when
+Consider the same example discussed in
+Section~\ref{sec:coc}. The type checker will not get stuck when
 type-checking the following application:
 \[ [[(\x: d three.x)z]] \]
 where the type of $z$ is $d\,\mathsf{loop}$.  This is because in
 \name, the type checker only does syntactic comparison between $d\,3$
-and $d\,\mathsf{loop}$, instead of $\beta$-equality. Therefore it
+and $d\,\mathsf{loop}$, instead of $\beta$-equality. It
 rejects the above application as ill-typed. Indeed it is impossible to
 type-check the application even with the use of $[[castup]]$ and/or
 $[[castdown]]$: one would need to write infinite number of
@@ -166,14 +172,14 @@ the normalization property, while supporting general recursion at the
 same time.
 
 \subsection{Recursion and Recursive Types}
+\linus{Title may need to change: Recursive Terms and Types.}
 
 \name supports general recursion, and allows writing standard
 recursive programs at the term level. At the same time, the recursive
 construct can also be used to model recursive types at the type-level.
 Therefore, \name differs from other programming languages in that it
 \emph{unifies} both recursion and recursive types by the same $\mu$
-primitive. With a single language construct we get two powerful
-features!
+primitive.
 
 \paragraph{Recursion}
 
@@ -189,8 +195,8 @@ example, the factorial function is written in \name as:
 semantics of the $\mu$ primitive: \ottusedrule{\ottdruleSXXMu{}} which
 is exactly doing recursive unfolding of itself.
 
-It is worth noting that the type $[[t]]$ in \ruleref{S\_Mu} is not
-restricted to function types. This extra freedom allows us to define a
+The type $[[t]]$ in \ruleref{S\_Mu} is not
+restricted to function types. Thus we can define a
 record of mutually recursive functions as the fixed point of a
 function on records.
 
@@ -210,10 +216,10 @@ types.
 
 To demonstrate the use of the
 \cast rules with recursive types, let us consider a classic example of a recursive type,
-the so-called ``hungry'' type~\cite{tapl}:
+the so-called ``hungry'' type~\cite{tapl}: \linus{Wordy.}
 \[H = \miu{\sigma}{\star}{\mathsf{Int} \rightarrow \sigma}\]
 A term $z$
-of type $H$ can accept any number of integers and return a new
+of type $H$ accepts any number of integers and returns a new
 function that is hungry for more, as illustrated below:
 \begin{align*}
 [[castdown z]] &: [[int]][[->]]H  \\
@@ -266,6 +272,7 @@ whose denotational semantics is |undefined|, which corresponds to
 inconsistency in logic. 
 
 \paragraph{Type in Type}
+\linus{Duplicated.}
 Since logical consistency is already lost due to general recursion,
 \name also uses the $\star : \star$ axiom~\cite{handbook}. As a
 consequence, having this rule adds expressiveness and simplifies our
@@ -273,7 +280,7 @@ system (e.g., it will be easy to explicitly quantify over kinds). We
 return to this issue in Section~\ref{sec:related}.
 
 \subsection{Encoding Datatypes}
-
+\linus{How about moving to the next section?}
 The explicit type conversion rules and the $\mu$ primitive facilitate
 the encoding of recursive datatypes and recursive functions over
 datatypes. While inductive datatypes can be encoded using either the
