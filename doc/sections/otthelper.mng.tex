@@ -1,8 +1,10 @@
 % Hack to use mathpartir for ott
 \newcommand{\ottlinebreak}{}
 \renewcommand{\ottdrule}[4][]{{\inferrule{#2 }{#3}\quad\ottdrulename{#4}}}
-\renewcommand{\ottgrammartabular}[1]{\begin{tabular}{llcllllll}#1\end{tabular}}
-\renewcommand{\ottinterrule}{\\[3.0mm]}
+\renewcommand{\ottrulehead}[3]{ $#1$  & $#2$ &  & \multicolumn{2}{l}{#3}}
+\renewcommand{\ottprodline}[6]{& $#1$ & $#2$ & $#5$ & $#6$}
+\renewcommand{\ottgrammartabular}[1]{\begin{tabular}{lclllll}#1\end{tabular}}
+\renewcommand{\ottinterrule}{\\[2.0mm]}
 \newcommand{\gram}[1]{\ottgrammartabular{#1\ottafterlastrule}}
 \newcommand{\ruleref}[1]{\ottdrulename{#1}}
 
@@ -44,7 +46,7 @@
     [[(x:A1)->A2]] & \triangleq & [[Pi x:A1.A2]] &  & %
         \quad\text{Dependent Function Type} \\ %
     [[letrec x : A = E2 in E1]] & \triangleq & [[let x : A = mu x : A . E2 in E1]] &  & %
-        \quad\text{Recursive let binding}\\ %
+        \quad\text{Recursive Let Binding}\\ %
     [[data R <<u:k>>n = K { <<N:A>> }]] & \triangleq & %
         [[data R <<u:k>>n = K <<x:A>>]]; &\forall i & \quad\text{Record} \\ %
         && [[let]]~[[N]]_i : [[ (<<u:k>>n) -> R@<<u>>n -> A]]_i = & %

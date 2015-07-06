@@ -7,7 +7,7 @@
 \section{Dependent Types with General Recursion}\label{sec:rec}
 
 In this section we present \name: an extension of \ecore with a
-general recursion contruct.  The general recursion is polymorphic and
+general recursion construct.  The general recursion is polymorphic and
 has a uniform representation on both term level and type level. The
 same construct works both as a term-level fixpoint and recursive type.
 The addition of general recursion does not break decidability of
@@ -26,10 +26,9 @@ For syntax, we add the polymorphic recursive expression $[[mu x:t.e]]$
 to represent general recursion in both terms and types.  The recursive
 operator is \emph{polymorphic} in the sense that the binder $x$ can
 have a higher kind like $[[star -> star]]$ to take parameters.
-\bruno{what do you mean by polymorphic?  Perhaps a sentence is needed
-  to clarify that}. \linus{Done.}  For operational semantics, we add
-the rule \ruleref{S\_Mu} to define the unrolling operation of
-recursion, which results in $[[e [x |-> mu x:t.e] ]]$. For typing, we
+For operational semantics, we add
+the rule \ruleref{S\_Mu} to define the unrolling of recursion
+as a one-step reduction. For typing, we
 add the rule \ruleref{T\_Mu} for checking the validity of a
 polymorphic recursive term. The rule ensures that the polymorphic
 recursion $[[mu x:t.e]]$ should have the same type $[[t]]$ as the
@@ -39,7 +38,7 @@ binder $[[x]]$ and also the inner expression $[[e]]$.
 	\gram{\newsyntax}\ottinterrule
 	\ottdefnstepXXrec{}\ottinterrule
 	\ottdefnexprXXrec{}
-	\caption{Syntax and semantics changes for general recursion}
+	\caption{Syntax and semantics changes from \ecore to \name}
     \label{fig:rec:ext}
 \end{figure}
 
@@ -56,32 +55,24 @@ allowed to unroll without restriction. Therefore, the definition of
 values is not changed in \name and $[[mu]]$-term is not treated as a
 value. 
 
-%This is different from conventional term-level fixpoint that is
-%usually treated as values \cite{zombie:popl14}
-\bruno{I don't follow
-  this? What is TAPL's treatement of recursion for example? I guess 
-you are saying that in zombie recursion produces a value. But is this
-the standard? or is zombie that is special?} \linus{Removed.}
-
 Recall the factorial function example (Section
-\ref{sec:overview:recursion})\bruno{use ``Section'' instead}, which
-can be defined as a $[[mu]]$-term as follows:
+\ref{sec:overview:recursion}) defined as follows:
 \begin{align*}
     \mathsf{fact} [[:=]] &[[mu]] f : [[int -> int]] . \\ &[[\x : int
-        . @@]]~\kw{if}~x [[==]]0~\kw{then}~1~\kw{else}~x \times (f~(x
+        . @@]]~\kw{if}~\textsf{isZero}~x~\kw{then}~1~\kw{else}~x \times (f~(x
     - 1))
 \end{align*}
 By rule \ruleref{T\_Mu}, the type of $\mathsf{fact}$ is $[[int ->
     int]]$. Thus, we can apply $\mathsf{fact}$ to an integer, say $1$,
-and we will get an integer as the result. In this example, we assume
-the evaluation of $\kw{if}$-$\kw{then}$ construct follows the one-step
-reduction. Also with standard reduction rules \ruleref{S\_Mu} and
+and will get an integer as the result. In this example, we assume
+evaluating the $\kw{if}$-$\kw{then}$ construct follows the one-step
+reduction. With standard reduction rules \ruleref{S\_Mu} and
 \ruleref{S\_App}, we can evaluate the term $\mathsf{fact}~1$ as
 follows:
 \begin{align*}
-    &\mathsf{fact}~1 \\ [[-->]]~& ([[\x : int . @@]]~\kw{if}~x
-  [[==]]0~\kw{then}~1~\kw{else}~x \times (\mathsf{fact}~(x - 1)))~1
-  \\ [[-->]]~ & \kw{if}~1 [[==]]0~\kw{then}~1~\kw{else}~1 \times
+    &\mathsf{fact}~1 \\ [[-->]]~& ([[\x : int . @@]]~\kw{if}~
+  \textsf{isZero}~x~\kw{then}~1~\kw{else}~x \times (\mathsf{fact}~(x - 1)))~1
+  \\ [[-->]]~ & \kw{if}~\textsf{isZero}~1~\kw{then}~1~\kw{else}~1 \times
   (\mathsf{fact}~(1 - 1)) \\ [[-->]]~& 1 \times (\mathsf{fact}~(1-1))
   \\ [[-->]]~& 1 \times (\mathsf{fact}~0) [[-->]]~ \dots [[-->]]~ 1 \times
   1 [[-->]]~ 1. 
@@ -92,11 +83,8 @@ is an undecidable halting problem for general recursive terms. The
 factorial function example above can stop, while there exist some
 terms that will loop forever. However, term-level non-termination is
 only a runtime concern and does not block the type checker. In Section
-\ref{sec:rec:meta} we will show type checking \name is still decidable
+\ref{sec:rec:meta} we show type checking \name is still decidable
 in the presence of general recursion.
-\bruno{Mention that we assume
-  and if construct, as well as standard reduction rules in the
-  example.}\linus{Done.}
 
 \paragraph{Type-level Recursion}
 
@@ -150,19 +138,19 @@ Section \ref{sec:ecore:meta} without requiring normalization. The
 one type can be reduced to another in one step. When we introduce
 general recursion into the language, if we can make sure the newly
 added and original typing rules are still decidable, the decidability
-of type checking will still follow in \name.
+of type checking still follows in \name.
 
 The rule \ruleref{T\_Mu} for checking the well-formedness of
 polymorphic recursion is decidable because its premises only include
 decidable typing judgements. However, the rule \ruleref{S\_Mu} changes
-one-step reduction, which may affect the decidability of \cast
-rules. If the uniqueness of changed reduction rules still holds, by
-following the same proof tactic of \ecore, we can show that \cast
+the one-step reduction, which may affect the decidability of \cast
+rules. If the decidability of changed reduction rules still holds, by
+following the proof for \ecore, we can show that \cast
 rules are still decidable in \name. Note that given a recursive term
 $[[mu x:t.e]]$, by rule \ruleref{S\_Mu}, there always exists a unique
 term $[[e']]=[[e[x|->mu x:t.e] ]]$ such that $[[mu x:t.e -->
-    e']]$. Thus, the uniqueness of one-step reduction still holds,
-i.e. Lemma \ref{lem:ecore:unique} holds in \name. So the decidability
+    e']]$. Thus, the decidability of one-step reduction still holds,
+i.e. Lemma \ref{lem:ecore:unique} holds in \name. And the decidability
 of type checking, namely Theorem \ref{lem:ecore:decide} holds in \name:
 
 \begin{thm}[Decidability of Type Checking \name]\label{lem:rec:decide}

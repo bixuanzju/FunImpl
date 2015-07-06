@@ -10,13 +10,9 @@ of constructions, \ecore has decidable type-checking. However, unlike
 the strong normalization of the calculus. 
 In rest of this
 section, we demonstrate the syntax, operational semantics, typing
-rules and meta-theory of \ecore.\bruno{Mention where to find the proofs!}
-
-%\ecore is a subset of the core
-%language \name without general recursion. By explicitly controlling the
-%type-level
-%computation with \cast operators, \ecore has decidable type-checking
-%without requiring strong normalization. 
+rules and meta-theory of \ecore. The full specification and proofs 
+can be found in the extended version of this paper. 
+\bruno{Mention where to find the proofs!}
 
 \subsection{Syntax}\label{sec:ecore:syn}
 
@@ -46,18 +42,10 @@ We introduce two new primitives $[[castup]]$ and $[[castdown]]$
 conversion rule of \cc with a \emph{one-step} explicit type
 conversion. They represent two directions of type conversion:
 $[[castdown]]$ stands for the $\beta$-reduction of types, while
-$[[castup]]$ is the inverse. % (Examples will be given in later typing sections).
-Though \cast primitives make the syntax verbose when type conversion
-is heavily used, the implementation of type checking is simplified:
-the typing rules of \ecore become syntax-directed without \cc's
-implicit conversion rule. \bruno{I think the following point should be
-made in the source language section, not here.}
-% Considering the core language is
-% compiler-oriented, end-users will not directly use them. 
-% Some type
-% conversions can be generated through the translation of the source
-% language (\S \ref{sec:surface}).
-\linus{Revised. Section 6 has mentioned this.}
+$[[castup]]$ is the inverse.
+The implementation of type checking is simplified as well. Because
+the typing rules of \ecore are syntax-directed without using the
+implicit conversion rule, like the rule \ruleref{Tcc\_Conv} of \cc.
 
 \begin{figure}
     \gram{\ottec\ottinterrule
@@ -65,7 +53,7 @@ made in the source language section, not here.}
         \ottv}
     \caption{Syntax of \ecore}
     \label{fig:ecore:syntax}
-\end{figure}\bruno{Product should be dependent product. }\linus{Corrected in all figures.}
+\end{figure}
 
 \subsection{Operational Semantics}\label{sec:ecore:opsem}
 
@@ -81,18 +69,13 @@ which is viewed as a value (see Figure \ref{fig:ecore:syntax}).
 
 To evaluate the value of a term-level expression, we apply the
 one-step reduction multiple times. The number of evaluation steps is
-not restricted, which is possible to be infinite. The multi-step
-reduction can be defined as follows:
+not restricted. So we can define the \emph{multi-step reduction} as follows:
 
 \begin{dfn}[Multi-step reduction]
     The relation $[[->>]]$ is the transitive and reflexive closure of
     the one-step reduction $[[-->]]$.
 \end{dfn}
 
-%\bruno{The following point should be made when talking about typing, 
-%not here!}
-%But for a type-level expression, the evaluation is driven by \cast
-%operators, which is finite. 
 For a consecutive sequence of reductions
 with $n$ steps, we use the notation $[[-->>]]$ to denote the relation
 between the initial and final expressions:
@@ -295,7 +278,7 @@ If $[[G |- e:T]]$ and $[[e]] [[->>]] e'$ then $[[G |- e':T]]$.
 
 \begin{proof}
     (\emph{Sketch}) We prove the case for one-step reduction, i.e. $[[e -->
-e']]$. The lemma can follow by induction on the number of one-step reductions
+e']]$. The lemma follows by induction on the number of one-step reductions
 of $[[e]] [[->>]] [[e']]$.
     The proof is by induction with respect to the definition of one-step
 reduction $[[-->]]$.
@@ -312,7 +295,8 @@ such that $[[e --> e']]$.
 
 \paragraph{Simplified form of $[[foldn]]$}
 Because of the decidability of one-step reduction, we can simplify the form of 
-$n$-step $[[castup]]$ operator. From Lemma \ref{lem:ecore:unique}, 
+$n$-step $[[castup]]$ operator by leaving out intermediate types. 
+From Lemma \ref{lem:ecore:unique}, 
 we immediately have the following corollary for $n$-step reduction:
 
 \begin{lem}[Decidability of $n$-step Reduction]\label{lem:ecore:uniquen}
@@ -334,7 +318,7 @@ the following typing of $[[foldn]]$ holds:
 Note that $[[t1]] [[-->>]] [[t]]$ are decidable by Lemma
 \ref{lem:ecore:uniquen}. Thus, the intermediate types in $[[t1]] [[-->>]] [[t]]$,
 i.e. $[[t2]], \dots, [[tn]]$, can be uniquely determined. So we can leave
-them out in the $[[foldn]]$ operator with the following form:
+them out in the $[[foldn]]$ operator and obtain the following form:
 \[
     [[foldn [t1] e]] : [[t1]].
 \]
