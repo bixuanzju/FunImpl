@@ -69,23 +69,11 @@ which is viewed as a value (see Figure \ref{fig:ecore:syntax}).
 
 To evaluate the value of a term-level expression, we apply the
 one-step reduction multiple times. The number of evaluation steps is
-not restricted. So we can define the \emph{multi-step reduction} as follows:
+not restricted. So we can define the \emph{multi-step reduction}:
 
 \begin{dfn}[Multi-step reduction]
     The relation $[[->>]]$ is the transitive and reflexive closure of
     the one-step reduction $[[-->]]$.
-\end{dfn}
-
-For a consecutive sequence of reductions
-with $n$ steps, we use the notation $[[-->>]]$ to denote the relation
-between the initial and final expressions:
-
-\begin{dfn}[$n$-step reduction]
-    The $n$-step reduction is denoted by $[[e0]] [[-->>]] [[en]]$, if
-    there exists a sequence of one-step reductions $[[e0]] [[-->]]
-    [[e1]] [[-->]] [[e2]] [[-->]] \dots [[-->]] [[en]]$, where $n$ is
-    a positive integer and $[[ei]]\,(i=0,1,\dots,n)$ are valid
-    expressions.
 \end{dfn}
 
 \begin{figure}
@@ -143,24 +131,30 @@ program requires $n$ steps of computation to reach normal form,
 then it will require $n$ casts to compute a (type-level) value.
 
 \paragraph{Cast Operators for $n$ Steps}
-For the brevity purpose, we use syntactic sugar to denote $n$ consecutive cast operators.
+For the brevity purpose, we use syntactic sugar $[[foldn]]$ and $[[unfoldn]]$
+for translation rules in Section \ref{sec:surface} to denote $n$ consecutive cast operators.
 Suppose we have $[[e]] : [[t]]$ and sequences of
 reduction $[[t1]] [[-->]] [[t2]] [[-->]] \dots [[-->]] [[tn]] [[-->]] [[t]]$
 and $[[t]] [[-->]] [[T1]] [[-->]] [[T2]] [[-->]] \dots [[-->]] [[Tn]]$. 
-The $n$-step \cast operators can be defined as:
+The $n$-step \cast operators can be defined by:
 \begin{flalign*}
     &[[foldn]] [ [[t1]], \dots, [[tn]] ] [[e]] & [[:=]] & [[castup]] [ [[t1]] ]
 ([[castup]] [ [[t2]] ] (\dots ( [[castup]] [ [[tn]] ] [[e]] ) \dots )) \\
     &[[unfoldn]] [[e]] & [[:=]] & \underbrace{[[castdown]] ([[castdown]] (\dots
 ( [[castdown]]}_n [[e]]) \dots ))
 \end{flalign*}
-
 By rules \ruleref{T\_CastUp} and \ruleref{T\_CastDown}, we have the following
 typing results:
 \[\begin{array}{lll}
     &[[foldn]] [ [[t1]], \dots, [[tn]] ] [[e]] & : [[t1]] \\
     &[[unfoldn]] [[e]] & : [[Tn]]
 \end{array}\]
+Moreover, due to the decidability of one-step reduction (see Section \ref{sec:ecore:meta}), 
+the intermediate types  $[[t2]], \dots, [[tn]]$ can be uniquely determined, 
+therefore can be left out  from the $n$-step $[[castup]]$ operator:
+\[
+    [[foldn [t1] e]] : [[t1]].
+\]
 
 \paragraph{Benefits of Type in Type}
 In the context of \cc, if a term $[[x]]$ has the type $[[t1]]$, and
@@ -278,7 +272,7 @@ If $[[G |- e:T]]$ and $[[e]] [[->>]] e'$ then $[[G |- e':T]]$.
 
 \begin{proof}
     (\emph{Sketch}) We prove the case for one-step reduction, i.e. $[[e -->
-e']]$. The lemma follows by induction on the number of one-step reductions
+e']]$. The theorem follows by induction on the number of one-step reductions
 of $[[e]] [[->>]] [[e']]$.
     The proof is by induction with respect to the definition of one-step
 reduction $[[-->]]$.
@@ -292,33 +286,3 @@ such that $[[e --> e']]$.
 \begin{proof}
     By induction on the derivation of $[[empty |- e:T]]$.
 \end{proof}
-
-\paragraph{Simplified form of $[[foldn]]$}
-Because of the decidability of one-step reduction, we can simplify the form of 
-$n$-step $[[castup]]$ operator by leaving out intermediate types. 
-From Lemma \ref{lem:ecore:unique}, 
-we immediately have the following corollary for $n$-step reduction:
-
-\begin{lem}[Decidability of $n$-step Reduction]\label{lem:ecore:uniquen}
-    The $n$-step reduction $[[-->>]]$ is called decidable if 
-    given $[[e]]$ there is a unique $[[e']]$ such that $[[e]] [[-->>]] [[e']]$ or no such $[[e']]$.
-\end{lem}
-
-\begin{proof}
-    Immediate from Lemma \ref{lem:ecore:unique}, by induction on the number of
-reduction steps.
-\end{proof}
-
-Suppose $[[e]] : [[t]]$ and there exists a reduction sequence
-$[[t1]] [[-->]] [[t2]] [[-->]] \dots [[-->]] [[tn]] [[-->]] [[t]]$,
-the following typing of $[[foldn]]$ holds:
-\[
-    [[foldn]] [ [[t1]], \dots, [[tn]] ] [[e]] : [[t1]].
-\]
-Note that $[[t1]] [[-->>]] [[t]]$ are decidable by Lemma
-\ref{lem:ecore:uniquen}. Thus, the intermediate types in $[[t1]] [[-->>]] [[t]]$,
-i.e. $[[t2]], \dots, [[tn]]$, can be uniquely determined. So we can leave
-them out in the $[[foldn]]$ operator and obtain the following form:
-\[
-    [[foldn [t1] e]] : [[t1]].
-\]
