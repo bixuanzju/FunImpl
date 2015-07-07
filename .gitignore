@@ -13,6 +13,7 @@ cabal.config
 /src/Parser.hs
 /src/Parser.info
 /demo.org
+.stack-work/
 
 *.DS_Store
 doc/*.aux
@@ -42,3 +43,4 @@ doc/main.pdf
 /doc/sections/overview.tex
 /doc/sections/recursion.tex
 /doc/sections/otthelper.tex
+/stack.yaml

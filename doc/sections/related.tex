@@ -5,8 +5,11 @@ There is a lot work on bring full-spectrum dependent types to the
 practical programming world. Compared to existing work, the main
 different of our work is that we propose the use of explicit casts to
 control type-level computation. Moreover we also unify recursion and
-recursive types in a single language construct. There are many
-approaches to the topic, as we will cover below.
+recursive types in a single language construct. Throughout this
+section, we refer to Table~\ref{tab:related:comp} for comparison. Our
+emphasis is that with considerably less language constructs than
+System $F_C$, \name is a well-suited alternative as a core for
+Haskell-like language.
 
 \begin{table*}
 \renewcommand{\arraystretch}{0.8}
@@ -40,9 +43,9 @@ undecidable. From a pragmatic view, this design choice simplifies the
 implementation (the implemented type checker fixes an upper bound on
 the number of reductions that it may perform), among
 others. Nevertheless, Cayenne is able to type check many useful
-programs. In our opinion, \name improves in this respect by
-persevering decidable type checking under the presence of general
-recursion at type level.
+programs. In our opinion, \name improves in this respect by preserving
+decidable type checking under the presence of general recursion at
+type level.
 
 
 \paragraph{Restricted recursion with termination checking}
@@ -57,15 +60,12 @@ is also preserved. The conservative, syntactic criteria, to which Coq
 adheres, are insufficient to support a variety of important
 programming paradigms. Agda and Idris~\cite{idris}, in addition, offer
 an option to disable the termination checker to allow for writing
-arbitrary functions. This, however, costs us the nice property of
-decidable type checking. While the idea that all programs should
-terminate is all very nice, \name aims at a different goal: a
-practical programming language. Most of the time, programmers just
-want to write the function definitions, not much about delicate
-reasoning and proof. We believe, by combining general recursion with
-decidable type checking, we are closer to the goal of a practical
-dependently typed programming language that work for both average
-programmers and experts alike.
+arbitrary functions. This, however, costs us the property of decidable
+type checking. While the idea that all programs should terminate is
+appealing, \name aims at a different goal: a new programming model
+where dependent types and general recursion coexist. Most of the time,
+programmers just want to write the function definitions, not much of
+delicate reasoning and proof.
 
 \paragraph{Stratified type system with general recursion on term level}
 
@@ -80,35 +80,24 @@ constructs) have to be managed.
 Several early attempts of adding general recursion by using stratified
 type systems include Twelf~\cite{lf:twelf} and
 Delphin~\cite{lf:delphin}, both of which are implementations of the
-Edinburgh Logical Framework (LF)~\cite{harper:lf}. LF is a
-meta-langauge for encoding syntax, rules, and proofs by means of a
-typed $\lambda$-calculus with dependent types. In a nutshell, the LF
-calculus is a three-level calculus for object, families, and kinds,
-and as such, Twelf and Delphin both have multiple syntactic
-levels. Furthermore, Delphin defines a computation level, where
-recursive functions can be defined by case analysis, and that the
-recursion operator can only be used on computation types. This
-however, from a language implementation view, is not desirable. In
-other words, decidable type checking comes at a price of complexity
-and duplication of language constructs. In contrast, \name unifies
-terms and types into a single category, and still achieves decidable
-type checking.
-
-$F^{\star}$~\cite{Swamy2011} is a recently proposed dependently typed
-language that supports writing general-purpose programs with effects
-(e.g., state, exceptions, non-terminating, etc.) while maintaining a
-consistent core language. Like Twelf and Delphin, it also has several
-sub-languages -- for terms, proofs and so on. In $F^{\star}$, the use
-of recursion is restricted in specifications and proofs while allowing
-arbitrary recursion in the program. Another difference from \name is
-that types in $F^{\star}$ can only contain values but no non-value
-expressions, leading to its less expressiveness than \name.
-
-To provide grounds for comparison, Table~\ref{tab:related:comp} lists
-many aspects for different core languages. Here it is not to judge
-which language is good or bad, but reflect different design
-choices. As can be seen, \name uses fewer language constructs while
-preserving decidable type checking, at a cost of logical consistency.
+Edinburgh Logical Framework (LF)~\cite{harper:lf}. In a nutshell, the
+LF calculus is a three-level calculus for object, families, and kinds,
+and as such, Twelf and Delphin both have multiple syntactic levels. By
+having multiple levels, they are able to preserve decidable type
+checking with logical consistency at the presence of general
+recursion. In other words, decidable type checking comes at a price of
+complexity and duplication of language constructs. In contrast, \name
+unifies terms and types into a single category, and still achieves
+decidable type checking, at a cost of logical
+consistency. $F^{\star}$~\cite{Swamy2011} is a recently proposed
+dependently typed language that supports writing general-purpose
+programs with effects while maintaining a consistent core
+language. Like Twelf and Delphin, it also has several sub-languages --
+for terms, proofs and so on. In $F^{\star}$, the use of recursion is
+restricted in specifications and proofs while allowing arbitrary
+recursion in the program. Another difference from \name is that types
+in $F^{\star}$ can only contain values but no non-value expressions,
+leading to its less expressiveness than \name.
 
 \paragraph{Unified syntax and managed type-level computation}
 
@@ -122,52 +111,47 @@ other systems.
 An early attempt of using a single syntax for an intermediate language
 for functional programming was Henk~\cite{pts:henk}. The Henk proposal
 was to use the \emph{lambda cube} as a typed intermediate language,
-unifying all three levels. The system used in Henk is not even a
-dependently typed language, as the authors intended to disallow types
-to depend on terms. As for recursion, even though it has a full lambda
-calculus at the type level, recursion is disallowed. Moreover no
-meta-theoretic results were proved for Henk.
+unifying all three levels. In Cayenne, there is also no syntactic
+distinction between expressions and types. Another recent work on
+dependently typed language based on the same syntactic category is
+\textsf{Zombie}~\cite{zombie:popl14, zombie:thesis}. An interesting
+aspect of Zombie is that it is composed of two fragments: a logical
+fragment where every expression is known to terminate, and a
+programmatic fragment that allows general recursion, so that it
+supports both partial and total programming. Even though Zombie has
+one syntactic category, it is still fairly complicated (with around 25
+language constructs), as it tries to be both consistent as a logic and
+pragmatic as a programming language. In constrast \name takes another
+point of the design space, giving up logical consistency for
+simplicity. $\Pi\Sigma$~\cite{dep:pisigma} is another small
+dependently typed core language that resembles \name. It has no
+syntactic difference between terms and types, while also supporting
+general recursion. Like \name, $\Pi\Sigma$ uses one recursion
+mechanism for both types and functions. The key idea relies on lifted
+types and boxes: definitions are not unfolded inside boxes. One
+concern of $\Pi\Sigma$ is that its metatheory is not yet formally
+developed.
 
-In Cayenne, there is also no syntactic distinction between expressions
-and types. Another recent work on dependently typed language based on
-the same syntactic category is \textsf{Zombie}~\cite{zombie:popl14,
-  zombie:thesis}, where terms, types and the single kind $\star$ all
-reside in the same level. An interesting aspect of Zombie is that it
-is composed of two fragments: a logical fragment where every
-expression is known to terminate, and a programmatic fragment that
-allows general recursion, so that it supports both partial and total
-programming. Even though Zombie has one syntactic category, it is
-still fairly complicated (note that in Table~\ref{tab:related:comp},
-language constructs in some languages may also include primitives), as
-it tries to be both consistent as a logic and pragmatic as a
-programming language. In constrast \name takes another point of the
-design space, giving up logical consistency for simplicity.
-
-$\Pi\Sigma$~\cite{dep:pisigma} is another small dependently typed core
-language that resembles \name. It has no syntactic difference between
-terms and types, while also supporting general recursion. Like \name,
-$\Pi\Sigma$ uses one recursion mechanism for both types and
-functions. The key idea relies on lifted types and boxes: definitions
-are not unfolded inside boxes. One concern of $\Pi\Sigma$ is that its
-metatheory is not yet formally developed. \jeremy{more?}
-
-\bruno{Maybe have a paragraph on recursive types?}
+% \bruno{Maybe have a paragraph on recursive types?}
 
 \paragraph{Adding dependent types to existing languages}
 
 There has also been a lot work on adding dependent types to existing
-programming languages. Indeed, one of our primal motivations is to
-develop a simpler alternative to existing core language for
-Haskell. The current core language for Haskell, System
-$F_{C}$~\cite{Eisenberg:2014}, already supports general algebraic
-datatypes, datatype promotion, type families, and soon even kind
+programming languages. The current core language for Haskell, System
+$F_{C}$~\cite{Eisenberg:2014}, already supports GADTs, datatype
+promotion, type families, and soon even kind
 equality~\cite{fc:kind}. Nowadays System $F_{C}$ has grown to be a
-relatively large and complex core language. As can been seen in
-Table~\ref{tab:related:comp}, it has over 30 language constructs. In
-\name, we believe we have found a sweet spot, where there are fewer
-language constructs and quite a number of modern features found in
-Haskell.
+relatively large and complex core language with over 30 language
+constructs. Indeed, one of our primal motivations is to develop a
+simpler alternative to System $F_C$. Throughout the paper, we have
+shown many features that are easy to implement in \name. That being
+said, one feature that is missing in \name while widely used in System
+$F_C$ is GADTs. While we believe it is possible to support GADTs in
+\name, we leave that as future work.
 
+% In \name, we believe we have found a sweet spot, where
+% there are fewer language constructs and quite a number of modern
+% features found in Haskell.
 
 % \paragraph{Unification of Terms, Types, and Kinds}
 % Pure Type Systems (PTS)~\cite{pts} show how a while family of type systems
@@ -279,75 +263,39 @@ Haskell.
 
 \paragraph{Type in Type}
 We are not the the first to embrace $\star : \star$ in the system. It
-has been long known that systems with $\star : \star$ (usually called
-system $\lambda *$) is inconsistent as a logic, in the sense that all
-types are inhabited. In this system, we can encode a variant of
-Russel's paradox, known as Girard's
-paradox~\cite{coquand1986analysis}.
-
-The core language of the Glasgow Haskell Compiler, System
-$F_{C}$~\cite{fc} has been extended with type promotion \cite{fc:pro}
-and kind equality \cite{fc:kind}. The latter one introduces a limited
-form of dependent types into the system\footnote{Richard A. Eisenberg
-  is going to implement kind equality \cite{fc:kind} into GHC. The
-  implementation is proposed at
-  \url{https://phabricator.haskell.org/D808} and related paper is at
-  \url{http://www.cis.upenn.edu/~eir/papers/2015/equalities/equalities-extended.pdf}.},
-which mixes up types and kinds. This causes no trouble for FC, since
-all kinds are already inhabited without the above
-extensions. $\Pi\Sigma$ has a impredicative universe of types with
-$\mathsf{Type} : \mathsf{Type}$ due to the support of general
-recursion. The surface language of Zombie also has the rule
+has been long known that systems with $\star : \star$ is inconsistent
+as a logic~\cite{handbook}. The core language of the Glasgow Haskell
+Compiler, System $F_{C}$~\cite{fc} has already been inconsistent,
+since all kinds are inhabited. $\Pi\Sigma$ has a impredicative
+universe of types with $\mathsf{Type} : \mathsf{Type}$ due to the
+support of general recursion. The surface language of Zombie also has
+the rule
 $\Gamma \vdash \mathsf{Type} : \mathsf{Type}$~\cite{zombie:popl15}.
 
 The $\star : \star$ axiom makes it convenient to support kind
 polymorphism, among other language features. One concern is that it
-often causes type checking to be undecidable, if not dealt with
-carefully, as it allows to express divergent terms. However, as we
-explained in \S\ref{sec:ecore}, this is not the case for \name. Type
-checking in \name is decidable -- all type-level computation is driven
-by finite cast operations, thus no potentially infinite reductions can
-happen in reality.
+often causes type checking to be undecidable in dependently typed
+language.  However, as we explained in \S\ref{sec:ecore}, this is not
+the case for \name. Type checking in \name is decidable -- all
+type-level computation is driven by finite cast operations, thus no
+potentially infinite reductions can happen in reality.
 
 \paragraph{Encoding of Datatypes}
-One thing \name differs from other functional programming languages is
-that all the high-level features in the surface language like
-datatypes, pattern matching and so on can be easily encoded into the
-core language. There is much work on encoding datatypes into various
-high-level languages. The classic Church encoding of datatypes into
-System F is detailed in the work of Bohm and
-Beraducci~\cite{Bohm1985}. The Church encoding excels in implementing
-iterative or fold-like functions over algebraic datatypes, but is
-awkward in expressing general recursion, usually in a complex and
-insufficient way. An alternative encoding of datatypes is the so
-called \emph{Scott} encoding. However Scott encoding is not typable in
-System F, as it needs recursive types to represent recursive
-datatypes. \name has all it needs to represent polymorphic and
-recursive datatypes. The explicit cast rules also makes it possible to
-encode GADTs, as can be seen in the last examples in
-Section~\ref{sec:app}. Currently we are investigating how the encoding
-of GADTs interact with the other language constructs. We leave this as
-future work.
+There is much work on encoding datatypes into various high-level
+languages. The classic Church encoding of datatypes into System F is
+detailed in the work of Bohm and Beraducci~\cite{Bohm1985}.  An
+alternative encoding of datatypes is Scott
+encoding~\cite{encoding:scott}. However Scott encoding is not typable
+in System F, as it needs recursive types. \name has all it requires to
+represent polymorphic and recursive datatypes.
 
 Another line of related work is the \emph{inductive defined types} in
 the Calculus of Inductive Constructions (CIC)~\cite{cic}, which is the
 underlying formal language of Coq. In CIC, inductive defined types can
 be represented by closed types in \coc, so are the primitive recursive
-functionals over elements of the type. The limitation of their work is
-that functions over inductive defined types are definable only by
-primitive recursion. McBride et al.~\cite{elim:pi:pattern} show that
-inductive families of datatypes with dependent pattern matching can be
-translated into terms in Luo's UTT~\cite{Luo:UTT}, extended with axiom
-K~\cite{axiomK}. The novelty in his work is the introduction of
-\emph{splitting tree}, with which explicit evidence for impossible
-case branches is recorded.
-
-% \begin{itemize}
-% \item Henk \cite{pts:henk} and one of its implementation \cite{pts:fp} show the simplicity of the Pure Type System (PTS). \cite{pts:rec} also tries to combine recursion with PTS.
-
-% \item \textsf{Zombie} \cite{zombie:popl14, zombie:thesis} is a language with two fragments supporting logics with non-termination. It limits the $\beta$-reduction for congruence closure \cite{zombie:popl15}.
-
-% \item $\Pi\Sigma$ \cite{dep:pisigma} is a simple, dependently-typed core language for expressing high-level constructions\footnote{But the paper didn't give any meta-theories about the langauge.}. UHC compiler \cite{fc:uhc} tries to use a simplified core language with coercion to encode GADTs.
-
-% \item System $F_C$ \cite{fc} has been extended with type promotion \cite{fc:pro} and kind equality \cite{fc:kind}. The latter one introduces a limited form of dependent types into the system\footnote{Richard A. Eisenberg is going to implement kind equality \cite{fc:kind} into GHC. The implementation is proposed at \url{https://phabricator.haskell.org/D808} and related paper is at \url{http://www.cis.upenn.edu/~eir/papers/2015/equalities/equalities-extended.pdf}.}, which mixes up types and kinds.
-% \end{itemize}
+functionals over elements of the type. McBride et
+al.~\cite{elim:pi:pattern} show that inductive families of datatypes
+with dependent pattern matching can be translated into terms in Luo's
+UTT~\cite{Luo:UTT}, extended with axiom K~\cite{axiomK}. The novelty
+in his work is the introduction of \emph{splitting tree}, with which
+explicit evidence for impossible case branches is recorded.
