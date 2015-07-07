@@ -44,8 +44,7 @@ implementation (the implemented type checker fixes an upper bound on
 the number of reductions that it may perform), among
 others. Nevertheless, Cayenne is able to type check many useful
 programs. In our opinion, \name improves in this respect by preserving
-decidable type checking under the presence of general recursion at
-type level.
+decidable type checking under the presence of general recursion.
 
 
 \paragraph{Restricted recursion with termination checking}
@@ -63,9 +62,9 @@ an option to disable the termination checker to allow for writing
 arbitrary functions. This, however, costs us the property of decidable
 type checking. While the idea that all programs should terminate is
 appealing, \name aims at a different goal: a new programming model
-where dependent types and general recursion coexist. Most of the time,
-programmers just want to write the function definitions, not much of
-delicate reasoning and proof.
+where dependent types, decidable type checking, and general recursion
+coexist. Most of the time, programmers just want to write the function
+definitions, not much of delicate reasoning and proof.
 
 \paragraph{Stratified type system with general recursion on term level}
 
@@ -82,22 +81,21 @@ type systems include Twelf~\cite{lf:twelf} and
 Delphin~\cite{lf:delphin}, both of which are implementations of the
 Edinburgh Logical Framework (LF)~\cite{harper:lf}. In a nutshell, the
 LF calculus is a three-level calculus for object, families, and kinds,
-and as such, Twelf and Delphin both have multiple syntactic levels. By
-having multiple levels, they are able to preserve decidable type
-checking with logical consistency at the presence of general
-recursion. In other words, decidable type checking comes at a price of
-complexity and duplication of language constructs. In contrast, \name
-unifies terms and types into a single category, and still achieves
-decidable type checking, at a cost of logical
-consistency. $F^{\star}$~\cite{Swamy2011} is a recently proposed
-dependently typed language that supports writing general-purpose
-programs with effects while maintaining a consistent core
-language. Like Twelf and Delphin, it also has several sub-languages --
-for terms, proofs and so on. In $F^{\star}$, the use of recursion is
-restricted in specifications and proofs while allowing arbitrary
-recursion in the program. Another difference from \name is that types
-in $F^{\star}$ can only contain values but no non-value expressions,
-leading to its less expressiveness than \name.
+and as such, Twelf and Delphin both have multiple syntactic levels,
+and this way they are able to preserve decidable type checking at the
+presence of general recursion. In other words, decidable type checking
+comes at a price of complexity and duplication of language
+constructs. In contrast, \name unifies terms and types into a single
+category, and still achieves decidable type checking, at a cost of
+logical consistency. $F^{\star}$~\cite{Swamy2011} is a recently
+proposed dependently typed language that supports writing
+general-purpose programs with effects while maintaining a consistent
+core language. Like Twelf and Delphin, it also has several
+sub-languages -- for terms, proofs and so on. In $F^{\star}$, the use
+of recursion is restricted in specifications and proofs while allowing
+arbitrary recursion in the program. Another difference from \name is
+that types in $F^{\star}$ can only contain values but no non-value
+expressions, leading to its less expressiveness than \name.
 
 \paragraph{Unified syntax and managed type-level computation}
 
@@ -275,12 +273,12 @@ $\Gamma \vdash \mathsf{Type} : \mathsf{Type}$~\cite{zombie:popl15}.
 The $\star : \star$ axiom makes it convenient to support kind
 polymorphism, among other language features. One concern is that it
 often causes type checking to be undecidable in dependently typed
-language.  However, as we explained in \S\ref{sec:ecore}, this is not
-the case for \name. Type checking in \name is decidable -- all
+language.  However, as we explained in Section~\ref{sec:ecore}, this
+is not the case for \name. Type checking in \name is decidable -- all
 type-level computation is driven by finite cast operations, thus no
 potentially infinite reductions can happen in reality.
 
-\paragraph{Encoding of Datatypes}
+\paragraph{Encoding Datatypes}
 There is much work on encoding datatypes into various high-level
 languages. The classic Church encoding of datatypes into System F is
 detailed in the work of Bohm and Beraducci~\cite{Bohm1985}.  An
