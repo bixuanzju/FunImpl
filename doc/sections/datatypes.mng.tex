@@ -49,7 +49,10 @@ The \textbf{case} expression is conventional, used to break up values
 built with data constructors.  The patterns of a case expression are
 flat (i.e., no nested patterns), and bind variables.
 
+{
+\renewcommand{\arraystretch}{0.9}
 \begin{figure*}
+\small
 \centering
 \gram{\ottpgm\ottinterrule
 \ottdecl\ottinterrule
@@ -61,6 +64,7 @@ flat (i.e., no nested patterns), and bind variables.
 \caption{Syntax of the surface language}
 \label{fig:surface:syntax}
 \end{figure*}
+}
 
 \paragraph{No Casts on The Surface}
 A noticeable difference from \name is that, in \sufcc, we do not allow
@@ -125,6 +129,12 @@ arguments.
 %Section~\ref{Discussion}.
 
 \begin{figure*}
+\small
+\centering
+\renewcommand{\ottinterrule}{\\[1.0mm]}
+\renewcommand{\ottdrule}[4][]{{\inferrule{#2 }{#3}\,\ottdrulename{#4}}}
+\renewenvironment{ottdefnblock}[3][]{\raggedright \framebox{\mbox{#2}} \quad #3 \\[0pt]}{}
+\renewcommand{\ottusedrule}[1]{$#1\quad$}
 \ottdefnctxtrans{}\ottinterrule
 \ottdefnpgmtrans{}\ottinterrule
 \ottdefndecltrans{}
