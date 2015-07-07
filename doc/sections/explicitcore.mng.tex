@@ -34,7 +34,6 @@ $[[star]]:[[square]]$ specifying the relation between the two sorts. In \ecore, 
 merge types and kinds together by including only a single sort
 $[[star]]$ and an impredicative axiom $[[star]]:[[star]]$. 
 
-
 \paragraph{Explicit Type Conversion}
 
 We introduce two new primitives $[[castup]]$ and $[[castdown]]$
@@ -46,6 +45,27 @@ $[[castup]]$ is the inverse.
 The implementation of type checking is simplified as well. Because
 the typing rules of \ecore are syntax-directed without using the
 implicit conversion rule, like the rule \ruleref{Tcc\_Conv} of \cc.
+
+\paragraph{Syntactic Sugar}
+For the brevity purpose, we use syntactic sugar $[[foldn]]$ and $[[unfoldn]]$
+for translation rules in Section \ref{sec:surface} to denote $n$ consecutive cast operators.
+Suppose we have $[[e]] : [[t]]$ and sequences of
+reduction $[[t1]] [[-->]] [[t2]] [[-->]] \dots [[-->]] [[tn]] [[-->]] [[t]]$
+and $[[t]] [[-->]] [[T1]] [[-->]] [[T2]] [[-->]] \dots [[-->]] [[Tn]]$. 
+The $n$-step \cast operators can be defined by:
+\begin{flalign*}
+    &[[foldn]] [ [[t1]], \dots, [[tn]] ] [[e]] & [[:=]] & [[castup]] [ [[t1]] ]
+([[castup]] [ [[t2]] ] (\dots ( [[castup]] [ [[tn]] ] [[e]] ) \dots )) \\
+    &[[unfoldn]] [[e]] & [[:=]] & \underbrace{[[castdown]] ([[castdown]] (\dots
+( [[castdown]]}_n [[e]]) \dots ))
+\end{flalign*}
+Moreover, due to the decidability of one-step reduction (see Section \ref{sec:ecore:meta}), 
+the intermediate types  $[[t2]], \dots, [[tn]]$ can be uniquely determined, 
+therefore can be left out  from the $n$-step $[[castup]]$ operator:
+\[
+    [[foldn [t1] e]] [[:=]] [[castup]] [ [[t1]] ]
+([[castup]] [ [[t2]] ] (\dots ( [[castup]] [ [[tn]] ] [[e]] ) \dots ).
+\]
 
 \begin{figure}
     \gram{\ottec\ottinterrule
@@ -129,32 +149,6 @@ Type-level computation, on the other hand, is controlled by the program:
 each step of the computation is induced by a cast. If a type-level 
 program requires $n$ steps of computation to reach normal form, 
 then it will require $n$ casts to compute a (type-level) value.
-
-\paragraph{Cast Operators for $n$ Steps}
-For the brevity purpose, we use syntactic sugar $[[foldn]]$ and $[[unfoldn]]$
-for translation rules in Section \ref{sec:surface} to denote $n$ consecutive cast operators.
-Suppose we have $[[e]] : [[t]]$ and sequences of
-reduction $[[t1]] [[-->]] [[t2]] [[-->]] \dots [[-->]] [[tn]] [[-->]] [[t]]$
-and $[[t]] [[-->]] [[T1]] [[-->]] [[T2]] [[-->]] \dots [[-->]] [[Tn]]$. 
-The $n$-step \cast operators can be defined by:
-\begin{flalign*}
-    &[[foldn]] [ [[t1]], \dots, [[tn]] ] [[e]] & [[:=]] & [[castup]] [ [[t1]] ]
-([[castup]] [ [[t2]] ] (\dots ( [[castup]] [ [[tn]] ] [[e]] ) \dots )) \\
-    &[[unfoldn]] [[e]] & [[:=]] & \underbrace{[[castdown]] ([[castdown]] (\dots
-( [[castdown]]}_n [[e]]) \dots ))
-\end{flalign*}
-By rules \ruleref{T\_CastUp} and \ruleref{T\_CastDown}, we have the following
-typing results:
-\[\begin{array}{lll}
-    &[[foldn]] [ [[t1]], \dots, [[tn]] ] [[e]] & : [[t1]] \\
-    &[[unfoldn]] [[e]] & : [[Tn]]
-\end{array}\]
-Moreover, due to the decidability of one-step reduction (see Section \ref{sec:ecore:meta}), 
-the intermediate types  $[[t2]], \dots, [[tn]]$ can be uniquely determined, 
-therefore can be left out  from the $n$-step $[[castup]]$ operator:
-\[
-    [[foldn [t1] e]] : [[t1]].
-\]
 
 \paragraph{Benefits of Type in Type}
 In the context of \cc, if a term $[[x]]$ has the type $[[t1]]$, and

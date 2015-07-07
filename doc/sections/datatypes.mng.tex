@@ -225,7 +225,8 @@ Now that we have elaborated the translation, we can state the
 type-safety theorem of the translation.
 
 \begin{thm}[Type-safety of Expression Translation]
-If $[[Gs |- E:A ~> e]]$, $[[Gs |- A:star ~> t]]$ and $[[|- Gs ~> G]]$, then
+Given a surface language expression $[[E]]$ and context $[[Gs]]$, 
+if $[[Gs |- E:A ~> e]]$, $[[Gs |- A:star ~> t]]$ and $[[|- Gs ~> G]]$, then
 $[[G |- e:t]]$.
 \end{thm}
 
