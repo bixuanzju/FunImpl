@@ -1,3 +1,28 @@
-\section{Conclusion}
+\section{Conclusions and Future Work}
 
-Conclusion and related work.
+This work proposes a small dependently typed language that allows the
+same syntax for terms and types, supports type-level computation, and
+preserves decidable type checking under the presence of general
+recursion. We consider this as a well-suited core for Haskell-like
+languages.
+
+Of course much remains to be done. For one thing, intensive type-level
+computation can be written in \name, but is inconvenient to use. This
+is because in \name, type-level computation is driven by cast
+operations, and the number of cast operation needs to be specified
+beforehand. Currently, for simple non-recursive functions, it is easy
+to deduce how many casts needs to be introduced, but for recursive
+ones, it becomes inconvenient. However, we are optimistic in this
+regard. As future work, we plan to add language constructs to the
+surface language, in the same spirit as type families in Haskell, to
+guide type-level computation by passing around cast operations to the
+core language.
+
+For another, as we mentioned in the related work, \name lacks support
+for GADTs. In our experiments, we have succeeded in encoding some
+examples of GADTs, including \emph{Fin}. As it turns out, the
+translation rules for datatypes can be extended to account for
+GADTs. The issues are manifested in two strands: 1) The notion of
+equality-proofs. Currently \name only supports syntactic equality. We
+plan to explore more expressive form of type-equality; 2) Injectivity
+of type constructors. \jeremy{more?}
