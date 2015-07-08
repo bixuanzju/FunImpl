@@ -529,13 +529,13 @@ A:star~>t]]$.
             \[\begin{array}{ll}
                 [[<<Gs |- E2 : B ~> e>>]] &
                 [[<<G |- e : T>>]] \\
-                [[<<Gs |- A[<< u |-> U >>]:star ~> t[uu |-> uu']>>]] &
-                [[<<Gs |- U : star ~> uu'>>]] \\
-                [[t']] [[==]] [[ t[uu |-> uu'] ]]
+                [[<<Gs |- U : star ~> uu'>>]] &
+                [[<<Gs |- A[<< u |-> U >>]:star ~> t[<<uu |-> uu'>>]>>]] \\
+                [[t']] [[==]] [[ t[<<uu |-> uu'>>] ]]
             \end{array}\]
             By rule \ruleref{TRdecl\_Data}, we have $[[D]]  [[ == ]] \ottdeclD$. Thus,
             \[ [[t1]] [[==]] [[D]] [[<<uu'>>]]^n,\text{ where }[[<<G |- uu' : ro>>]].\] 
-            Note that by operational semantics, the following reduction sequence follows for $[[t1]]$:
+            Note that by operational semantics of \name, the following reduction sequence follows for $[[t1]]$:
             \begin{align*}
                 [[D]] [[<<uu'>>]]^n~
                 &[[-->]]~ \mathscale[0.7]{[[(\ <<u:ro>>n . (bb:star) -> << ((<<x : t[D |-> X][X |-> D]>>) -> bb) >> -> bb) ]][[<<uu'>>]]^n}\\

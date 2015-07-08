@@ -1,18 +1,17 @@
 
 \section{A Dependently Typed Calculus with Casts}\label{sec:ecore}
 
-In this section, we present the \ecore calculus. This calculus is very 
-close to the calculus of contructions, except for two key differences: 
-1) the absence of the $\Box$ constant (due to use of the "type-in-type"
-axiom); 2) the existence of two \cast operators. Like the calculus 
-of constructions, \ecore has decidable type-checking. However, unlike
-\cc the proof of decidability of type-checking does not require 
-the strong normalization of the calculus. 
-In rest of this
-section, we demonstrate the syntax, operational semantics, typing
-rules and meta-theory of \ecore. The full specification and proofs 
-can be found in the extended version of this paper. 
-\bruno{Mention where to find the proofs!}
+In this section, we present the \ecore calculus. This calculus is very
+close to the calculus of contructions, except for two key differences:
+1) the absence of the $\Box$ constant (due to use of the
+``type-in-type'' axiom); 2) the existence of two \cast operators. Like
+the calculus of constructions, \ecore has decidable
+type-checking. However, unlike \cc the proof of decidability of
+type-checking does not require the strong normalization of the
+calculus.  In rest of this section, we demonstrate the syntax,
+operational semantics, typing rules and metatheory of \ecore. The
+full specification and proofs can be found in the extended version of
+this paper.  \bruno{Mention where to find the proofs!}
 
 \subsection{Syntax}\label{sec:ecore:syn}
 
@@ -27,45 +26,24 @@ $[[T]]$ for an expression on the type-level position and $e$ for one
 on the term level.
 
 \paragraph{Type of Types}
-Traditionally in \cc, there are two distinct
-sorts $[[star]]$ and $[[square]]$ representing the type of
-\emph{types} and \emph{sorts} respectively, and an axiom
-$[[star]]:[[square]]$ specifying the relation between the two sorts. In \ecore, we further
-merge types and kinds together by including only a single sort
-$[[star]]$ and an impredicative axiom $[[star]]:[[star]]$. 
+Traditionally in \cc, there are two distinct sorts $[[star]]$ and
+$[[square]]$ representing the type of \emph{types} and \emph{sorts}
+respectively, and an axiom $[[star]]:[[square]]$ specifying the
+relation between the two sorts. In \ecore, we further merge types and
+kinds together by including only a single sort $[[star]]$ and an
+impredicative axiom $[[star]]:[[star]]$.
 
 \paragraph{Explicit Type Conversion}
 
 We introduce two new primitives $[[castup]]$ and $[[castdown]]$
-(pronounced as "cast up" and "cast down") to replace the implicit
+(pronounced as ``cast up'' and ``cast down'') to replace the implicit
 conversion rule of \cc with a \emph{one-step} explicit type
 conversion. They represent two directions of type conversion:
 $[[castdown]]$ stands for the $\beta$-reduction of types, while
-$[[castup]]$ is the inverse.
-The implementation of type checking is simplified as well. Because
-the typing rules of \ecore are syntax-directed without using the
-implicit conversion rule, like the rule \ruleref{Tcc\_Conv} of \cc.
-
-\paragraph{Syntactic Sugar}
-For the brevity purpose, we use syntactic sugar $[[foldn]]$ and $[[unfoldn]]$
-for translation rules in Section \ref{sec:surface} to denote $n$ consecutive cast operators.
-Suppose we have $[[e]] : [[t]]$ and sequences of
-reduction $[[t1]] [[-->]] [[t2]] [[-->]] \dots [[-->]] [[tn]] [[-->]] [[t]]$
-and $[[t]] [[-->]] [[T1]] [[-->]] [[T2]] [[-->]] \dots [[-->]] [[Tn]]$. 
-The $n$-step \cast operators can be defined by:
-\begin{flalign*}
-    &[[foldn]] [ [[t1]], \dots, [[tn]] ] [[e]] & [[:=]] & [[castup]] [ [[t1]] ]
-([[castup]] [ [[t2]] ] (\dots ( [[castup]] [ [[tn]] ] [[e]] ) \dots )) \\
-    &[[unfoldn]] [[e]] & [[:=]] & \underbrace{[[castdown]] ([[castdown]] (\dots
-( [[castdown]]}_n [[e]]) \dots ))
-\end{flalign*}
-Moreover, due to the decidability of one-step reduction (see Section \ref{sec:ecore:meta}), 
-the intermediate types  $[[t2]], \dots, [[tn]]$ can be uniquely determined, 
-therefore can be left out  from the $n$-step $[[castup]]$ operator:
-\[
-    [[foldn [t1] e]] [[:=]] [[castup]] [ [[t1]] ]
-([[castup]] [ [[t2]] ] (\dots ( [[castup]] [ [[tn]] ] [[e]] ) \dots ).
-\]
+$[[castup]]$ is the inverse.  The implementation of type checking is
+simplified as well. Because the typing rules of \ecore are
+syntax-directed without using the implicit conversion rule, like the
+rule \ruleref{Tcc\_Conv} of \cc.
 
 \begin{figure}
     \gram{\ottec\ottinterrule
@@ -73,6 +51,44 @@ therefore can be left out  from the $n$-step $[[castup]]$ operator:
         \ottv}
     \caption{Syntax of \ecore}
     \label{fig:ecore:syntax}
+\end{figure}
+
+\paragraph{Syntactic Sugar}
+Figure \ref{fig:ecore:sugar} shows the syntactic sugar used in \ecore.
+By convention, we use $[[t1 --> t2]]$ to represent 
+$[[Pi x:t1.t2]]$ if $[[x]]$ does not occur free in $[[t2]]$. 
+We use $[[let x:t=e2 in e1]]$ to locally bind a variable $[[x]]$ to 
+an expression $[[e2]]$ in $[[e1]]$, 
+which is equivalent to substituting $[[x]]$ with $[[e2]]$ in $[[e1]]$.
+% Because $[[e2]]$ can be a type,
+% we cannot simply desugar the let-binding into an application:
+% \[
+% [[let x:t=e2 in e1]] [[:=]] [[(\x:t.e1)e2]]
+% \]
+% We can find a counter-example like
+% \[
+% [[let x : star= int in (\ y : x . y) three]]
+% \]
+
+For the brevity of translation rules in Section \ref{sec:surface},
+we use $[[foldn]]$ and $[[unfoldn]]$ to denote
+$n$ consecutive cast operators. $[[foldn]]$ is simplified which only takes
+one type parameter, the last type $[[t1]]$ of $n$ cast operations.
+The original $[[foldn]]$ includes intermediate results $[[t2]], \dots, [[tn]]$
+of type conversion:
+\[
+    [[foldn]] [ [[t1]], \dots, [[tn]] ] [[e]]  [[:=]] [[castup]] [
+    [[t1]] ] ([[castup]] [ [[t2]] ] (\dots ( [[castup]] [ [[tn]] ]
+  [[e]] ) \dots ))
+\]
+Due to the decidability of one-step reduction (see Section
+\ref{sec:ecore:meta}), the intermediate types can be uniquely determined, 
+thus can be left out from the $[[castup]]$ operator.
+
+\begin{figure}
+    \resizebox{\columnwidth}{!}{$\ottcoresugar$}
+    \caption{Syntactic Sugar of \ecore}
+    \label{fig:ecore:sugar}
 \end{figure}
 
 \subsection{Operational Semantics}\label{sec:ecore:opsem}
@@ -83,10 +99,11 @@ semantics, defined by one-step reduction. Two base cases include
 for cast canceling. Two inductive cases, \ruleref{S\_App} and
 \ruleref{S\_CastDown}, define reduction in the head position of an
 application, and in the $[[castdown]]$ inner expression
-respectively. The reduction rules are \emph{weak} in the sense that they
-are not allowed to reduce inside a $\lambda$-term or $[[castup]]$-term
-which is viewed as a value (see Figure \ref{fig:ecore:syntax}).
+respectively.
 
+The reduction rules are \emph{weak} because it is
+not allowed to do the reduction inside a $\lambda$-term or $[[castup]]$-term --- 
+both of them are defined as values (see Figure \ref{fig:ecore:syntax}).
 To evaluate the value of a term-level expression, we apply the
 one-step reduction multiple times. The number of evaluation steps is
 not restricted. So we can define the \emph{multi-step reduction}:
@@ -113,7 +130,7 @@ distinction of different syntactic levels.
 Most typing rules are quite standard. We write $[[|- G]]$ if a context
 $[[G]]$ is well-formed. Note that there is only a single sort
 $[[star]]$, we use $[[G |- t : star]]$ to check if $[[t]]$ is a
-well-formed type. Rule \ruleref{T\_Ax} is the "type-in-type"
+well-formed type. Rule \ruleref{T\_Ax} is the ``type-in-type''
 axiom. Rule \ruleref{T\_Var} checks the type of variable $[[x]]$ from
 the valid context. Rules \ruleref{T\_App} and \ruleref{T\_Lam} check
 the validity of application and abstraction. Rules \ruleref{T\_Pi}
@@ -124,22 +141,22 @@ We focus on rules \ruleref{T\_CastUp} and \ruleref{T\_CastDown} that
 define the semantics of \cast operators and replace the conversion
 rule of \cc~(see Section~\ref{sec:coc}). The relation between the original
 and converted type is defined by one-step reduction (see Figure
-\ref{fig:ecore:opsem}). Given a judgement
+\ref{fig:ecore:opsem}). 
+
+For example, given a judgement
 $[[G |- e : t2]]$ and relation $[[t1 --> t2]] [[-->]] [[t3]]$, then
 $[[castup [t1] e]]$ expands the type of $[[e]]$ from $[[t2]]$ to
 $[[t1]]$, while $[[castdown e]]$ reduces the type of $[[e]]$ from
-$[[t2]]$ to $[[t3]]$. For example, assume $[[G |- e1 : int]]$ and $[[G |- e2 :
-(\x : star.x) int]]$. Note that the following reduction holds:
-\[ [[(\x : star.x) int --> int]]\]
-Thus, we can obtain the following derivations:
+$[[t2]]$ to $[[t3]]$. Now we can formally give the typing derivations of 
+examples in Section \ref{subsec:cast}:
 \[
-\inferrule{[[G |- e1 : int]] \\ [[G |- (\x : star.x) int : star]] \\ [[(\x :
-star.x) int --> int]]}{[[G |- (castup[(\x : star.x) int] e1):(\x : star.x)
-int]]}
+\inferrule{[[G |- e1 : (\x : star.x) int]] \\ [[G |- int : star]] \\ [[(\x :
+star.x) int --> int]]}{[[G |- (castdown e1):int]]}
 \]
 \[
-\inferrule{[[G |- e2 : (\x : star.x) int]] \\ [[G |- int : star]] \\ [[(\x :
-star.x) int --> int]]}{[[G |- (castdown e2):int]]}
+\inferrule{[[G |- e2 : int]] \\ [[G |- (\x : star.x) int : star]] \\ [[(\x :
+star.x) int --> int]]}{[[G |- (castup[(\x : star.x) int] e2):(\x : star.x)
+int]]}
 \]
 
 Importantly, in \ecore term-level and type-level computation are treated 
@@ -148,24 +165,22 @@ using multi-step reduction until a value is finally obtained.
 Type-level computation, on the other hand, is controlled by the program:
 each step of the computation is induced by a cast. If a type-level 
 program requires $n$ steps of computation to reach normal form, 
-then it will require $n$ casts to compute a (type-level) value.
+then it will require $n$ casts to compute a type-level value.
 
 \paragraph{Benefits of Type in Type}
-In the context of \cc, if a term $[[x]]$ has the type $[[t1]]$, and
-$[[t2]]$ is a type, i.e. $[[x]]:[[t1]]:[[star]]$ and
-$[[t2]]:[[square]]$, we call the type $[[Pi x:t1.t2]]$ a
-\emph{dependent product}. \ecore follows \cc to use the same
-$[[Pi]]$-notation to represent dependent function types.
-
-However, a higher-kinded polymorphic function type such as $[[Pi
-    x:square.x->x]]$ is not allowed in \cc, because $[[square]]$ is
-the highest sort, and it cannot be typed. In contrast $[[Pi]]$-notation in
-\ecore is more expressive and does not have such limitation because of
-the axiom $[[star]]:[[star]]$. In the surface language, we
-interchangeably use the arrow form $[[(x:t1)->t2]]$ of the product for
-clarity. By convention, we also use the syntactic sugar $[[t1 -->
-    t2]]$ to represent the product if $[[x]]$ does not occur free in
-$[[t2]]$.
+The ``Type-in-type'' axiom by rule \ruleref{T\_Ax} brings the benefit 
+of supporting \emph{higher-kind polymorphism} in \ecore.
+In \cc, $[[Pi x:t1.t2]]$ can be used as a
+\emph{dependent product}, if $[[x]]:[[t1]]:[[star]]$ and
+$[[t2]]:[[square]]$. However, if the product 
+takes a kind parameter like $[[Pi
+    x:square.x->x]]$, it is no longer a legal type in \cc. Since $[[square]]$ is
+the highest sort that does not have a type, the product cannot type check.
+In contrast, \ecore does not have such limitation. Because of
+the $[[star]]:[[star]]$ axiom, $[[Pi x:star.x->x]]$ is 
+a legal type of the term $[[\x:star.x->x]]$. The term can take 
+a higher-kind parameter such as $[[star -> star]]$
+to become $[[(star->star) -> (star -> star)]]$.
 
 \paragraph{Syntactic Equality}
 Finally, the definition of type equality in \ecore differs from
@@ -181,8 +196,8 @@ syntactically equal, i.e. satisfy the $\alpha$-equality.
     \label{fig:ecore:typing}
 \end{figure}
 
-\subsection{Meta-theory}\label{sec:ecore:meta}
-We now discuss the meta-theory of \ecore. We focus on two properties: the
+\subsection{Metatheory}\label{sec:ecore:meta}
+We now discuss the metatheory of \ecore. We focus on two properties: the
 decidability of type checking and the type-safety of the language. First, we
 show that type checking \ecore is decidable without requiring strong
 normalization. Second, the
@@ -246,8 +261,8 @@ examine the $\beta$-equivalence of terms, which is decidable only if every term
 has a normal form.
 
 \paragraph{Type-safety}
-The proof of the type-safety (or type soundness) of \ecore is fairly standard by subject
-reduction (or preservation) and progress lemmas. The subject reduction proof
+The proof of the type-safety of \ecore is fairly standard by subject
+reduction (or preservation) and progress theorems. The subject reduction proof
 relies on the substitution lemma. We give the proof sketch of related lemmas as
 follows:
 

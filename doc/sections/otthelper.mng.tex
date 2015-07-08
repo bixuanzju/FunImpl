@@ -16,6 +16,9 @@
 \newcommand{\pai}[3]{[[Pi]] #1:#2.\,#3}
 \newcommand{\miu}[3]{[[mu]] #1:#2.\,#3}
 
+\newcommand{\FV}{\mathsf{FV}}
+\newcommand{\dom}{\mathsf{dom}}
+
 \newcommand*{\mathscale}[2][4]{\scalebox{#1}{$#2$}}%
 
 \def\replace#1#2#3{%
@@ -25,15 +28,12 @@
 
 \newcommand{\ottcoresugar}{%%
 \begin{array}{llll} %
-    \text{Syntactic Sugar}\\ %
-    \quad [[A1->A2]] & \triangleq & [[Pi x:A1.A2]] \qquad x \not \in %
-        \FV([[A2]]) \\ %
-    \quad [[(x:A1)->A2]] & \triangleq & [[Pi x:A1.A2]] %
-        \\ %
-    \quad [[let x : t = e2 in e1]] & [[:=]] & [[ e1 [x |-> e2] ]] \\ %
-    \quad [[foldn [t1] e]] & [[:=]] & \mathscale[0.9]{[[castup]] [ [[t1]] ] ([[castup]] [ %
-        [[t2]] ] (\dots ( [[castup [tn] e]] ) \dots ))} \\ %
-    \quad [[unfoldn e]] & [[:=]] & \underbrace{[[castdown]] ([[castdown]] %
+    [[t1->t2]] & \triangleq & [[Pi x:t1.t2]],~\text{where}~x \not \in %
+        \FV([[t2]]) \\ %
+    [[let x : t = e2 in e1]] & [[:=]] & [[ e1 [x |-> e2] ]] \\ %
+    [[foldn [t1] e]] & [[:=]] & [[castup]] [ [[t1]] ] ([[castup]] [ %
+        [[t2]] ] (\dots ( [[castup [tn] e]] ) \dots )) \\ %
+    [[unfoldn e]] & [[:=]] & \underbrace{[[castdown]] ([[castdown]] %
         (\dots ( [[castdown]]}_n [[e]]) \dots ))
 \end{array} %
 }

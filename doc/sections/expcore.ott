@@ -117,6 +117,7 @@ terminals :: 'terminals_' ::=
   | three    ::  :: three     {{ tex 3 }}
   | elt      ::  :: elt       {{ tex \in }}
   | *        ::  :: upstar    {{ tex ^{*} }}
+  | .        ::  :: dot       {{ tex .~ }}
   | =>       ::  :: match     {{ tex \Rightarrow }}
   | /=       ::  :: ineq      {{ tex \not \eq }}
   | data     ::  :: data      {{ tex \kw{data} }}

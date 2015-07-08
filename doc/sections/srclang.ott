@@ -113,9 +113,9 @@ by
 
 K : (<<u:k>>n)->(<<x:A>>)->D@<<u>>n elt Gs
 Gs,<<x:A[<< u |-> U >>]>> |- E:B ~~> e
-Gs |- A[<< u |-> U >>]:s ~~> t
+<<Gs |- A[<< u |-> U >>]:s ~~> t'>>
 --------------------------- :: Alt
-Gs |- K <<x:A[<< u |-> U >>]>> => E:D@<<U>>n ->B ~~> \<<x:t>>.e
+Gs |- K <<x:A[<< u |-> U >>]>> => E:D@<<U>>n ->B ~~> \<<x:t'>>.e
 
 
 defn Gs  |- E : A ~~> e ::  :: exprtrans :: 'TR_' {{ com Expression translation }}
