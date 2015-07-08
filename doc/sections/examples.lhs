@@ -12,7 +12,7 @@ expressiveness of \name by encoding functional programs that require
 some of the latest features of Haskell, or are
 non-trivial to encode in dependently typed language like Coq or
 Agda. All examples shown in this section are runnable in our prototype
-interpreter. The formalization of the surface language is presented in
+interpreter~\jeremy{maybe add a footnote how to find interpreter?}. The formalization of the surface language is presented in
 Section~\ref{sec:surface}.
 
 \begin{comment}
@@ -82,15 +82,15 @@ in show (eval example) -- return 42
 
 \paragraph{Datatypes}
 Conventional datatypes like natural numbers or polymorphic lists can
-be easily defined in \sufcc, as in Haskell. For
-example, below is the definition of polymorphic lists:
+be easily defined in \sufcc, as in Haskell. For instance, below is the
+definition of polymorphic lists:
 
 <  data List (a : *) = Nil | Cons (x : a) (xs : List a);
 
-
-Because \sufcc is explicitly typed, each type parameter needs to be
-accompanied with a corresponding kind expression. The use of the above
-datatype is best illustrated by the |length| function:
+% Because \sufcc is explicitly typed, each parameter needs to be
+% accompanied with a corresponding kind or type annotation.
+The use of the above datatype is best illustrated by the |length|
+function:
 
 < letrec length : (a : *) -> List a -> nat =
 <   \ a : * . \l : List a . case l of
@@ -117,37 +117,30 @@ encoding a simple lambda calculus:
 <   |  Lam (f : Exp -> Exp)
 <   |  App (a : Exp) (b : Exp);
 
-Note that, in the lambda constructor (|Lam|), the recursive occurrence of the
-datatype appears in a negative position (i.e., in the left side of a
+Note that in the lambda constructor (|Lam|), the recursive occurrence
+of |Exp| appears in a negative position (i.e., in the left side of a
 function arrow).  Systems like Coq and Agda would reject such programs
-HOAS since it is well-known that such datatypes can lead to logical
+since it is well-known that such datatypes can lead to logical
 inconsistencies. Moreover, such logical inconsistencies can be
-exploited to write non-terminating computations, and make type-checking
-undecidable.
-However \sufcc is able to express HOAS in a straightforward
-way, while preserving decidable type-checking.
+exploited to write non-terminating computations, and make
+type-checking undecidable. However \sufcc is able to express HOAS in a
+straightforward way, while preserving decidable type-checking.
 
 Using |Exp| we can write an evaluator for the lambda calculus. As
 noted by~\cite{Fegaras1996}, the evaluation function needs an extra
-function |(reify)| to invert the result of evaluation. The full code
-for the evaluator is shown next.\bruno{consider removing the error
-  branches to make the code shorter.} \jeremy{i am afraid not. our
-  translation requires that pattern matching must be exhaustive.}
+function |(reify)| to invert the result of evaluation. The code for
+the evaluator is shown next (we omit most of the unsurprising cases):
 
 < data Value = VI (n : nat) | VF (f : Value -> Value);
 < rcrd Eval = Ev  {  eval' : Exp -> Value
 <                 ,  reify' : Value -> Exp };
 < letrec ev : Eval =
 <   Ev  (\ e : Exp . case e of
-<         Num (n : nat) => VI n
+<       | ...
 <       | Lam (fun : Exp -> Exp) =>
 <           VF (\e' : Value . eval' ev (fun (reify' ev e')))
-<       | App (a : Exp) (b : Exp) =>
-<           case eval' ev a of
-<             VI (n : nat) => error
-<           | VF (fun : Value -> Value) => fun (eval' ev b))
 <       (\v : Value . case v of
-<         VI (n : nat) => Num n
+<       | ...
 <       | VF (fun : Value -> Value) =>
 <           Lam (\e' : Exp . reify' ev (fun (eval' ev e')))
 < in let eval : Exp -> Value = eval' ev
@@ -159,11 +152,9 @@ conventional, dealing with each possible shape of an expression. The
 tricky part lies in the evaluation of a lambda abstraction, where we
 need a second function, called |reify'|, of type |Value -> Exp| that
 translates a values into terms. It is worth noting that the evaluator
-is a partial function (note the |error| branch) that can cause
-run-time errors. Thanks to the flexibility of the $\mu$ primitive,
-mutual recursion can be encoded by using records! \bruno{explain
-  better! what are the two functions being defined mutually
-  recursively} \jeremy{added!}
+is a partial function that can cause run-time errors. Thanks to the
+flexibility of the $\mu$ primitive, mutual recursion can be encoded by
+using records!
 
 Evaluation of a lambda expression proceeds as follows:
 
@@ -206,8 +197,6 @@ Since |Maybe| has kind $[[star -> star]]$, it is legal to apply |Func|
 to |Maybe|, and then what left is to give the definition of |fmap|,
 with the variable $f$ instantiated to |Maybe|.
 
-\bruno{Code needs to be explained! In particular explain the |Func Maybe|.} \jeremy{added!}
-
 \paragraph{Fixpoints of Functors}
 Various functional programming techniques employ type-level fixpoints
 to achieve additional modularity~\cite{datatype}. Thus, type-level
@@ -220,16 +209,15 @@ Note that the record notation also introduces the selector function:
 
 < out : (f : * -> *) -> Fix f -> f (Fix f)
 
-The |Fix| datatype is interesting in that now we can define
-recursive datatypes in a non-recursive way. For instance, a
-non-recursive definition for natural numbers is:
+The |Fix| datatype is interesting in that we can define recursive
+datatypes in a non-recursive way. For instance, a non-recursive
+definition for natural numbers is:
 
 < data NatF (self : *) = Zero | Succ (n : self);
 
 And the recursive version is just a synonym:
 
 < let Nat : * = Fix NatF
-
 
 Given |fmap|, many recursive schemes can be defined, for example we
 can have \emph{catamorphism}~\cite{Meijer1991} or generic function
@@ -241,11 +229,12 @@ fold:
 <   \ m : Functor f .  \ g : f a -> a. \ t : Fix f .
 <   g (fmap f m (Fix f) a (cata f a m g) (out f t))
 
+
 Unfortunately, in systems like Coq, definitions like |Fix| must be
 rejected. The problem is related to strictly positive
-types~\cite{spt}, that is, Coq cannot determine if |Fix f| (for any
-abstract functor $f$) is strictly positive or not. For example, we can
-write a non-strictly positive functor in Haskell:
+types~\cite{spt}, that is, Coq cannot determine whether |Fix f| (for
+any abstract functor $f$) is strictly positive or not. For example, we
+can write a non-strictly positive functor in Haskell:
 
 < data Bad a = Bad ((Bad a -> Int) -> Int)
 
@@ -254,7 +243,6 @@ datatype is non-strictly positive:
 
 < data NSP = NSP ((NSP -> Int) -> Int)
 
-\bruno{Show example that defines a bad functor.} \jeremy{added!}
 Similarly to the HOAS example, this would violate the strictly
 positive restrictions of Coq. Nevertheless, in \sufcc such definition
 is also allowed without hindering decidability of type-checking.
@@ -284,17 +272,17 @@ whose size is exactly a power of two, declared as follows:
 < data Pow (a : *) = Zero (n : a)
 <   | Succ (t : Pow (PairT a));
 
-Notice that the recursive occurrence of |Pow| does not hold an |a|,
-but |PairT a|. This means every time we use a |Succ| constructor, the
-size of the pairs doubles. It is instructive to look at the encoding
-of |Pow| in \name:
+Notice that the recursive occurrence of |Pow| does not hold |a|, but
+|PairT a|. This means every time we use a |Succ| constructor, the size
+of the pairs doubles. It is instructive to look at the encoding of
+|Pow| in \name:
 
 < let Pow : * -> * = mu X : * -> * .
 <     \ a : * . (b : *) -> (a -> b) -> (X (PairT a) -> b) -> b
 
-Notice how the higher-kinded type variable |X : * -> *| helps encoding
-nested datatypes. Below is a simple function |toList| that transforms
-a power tree into a list:
+Notice how the higher-kinded type variable |(X : * -> *)| helps
+encoding nested datatypes. Below is a simple function |toList| that
+transforms a power tree into a list:
 
 < letrec toList : (a : *) -> Pow a -> List a =
 <   \a : * . \t : Pow a . case t of
@@ -309,29 +297,23 @@ a power tree into a list:
 
 \paragraph{Kind Polymorphism}
 Previous versions of Haskell, based on System $F_{\omega}$, had some
-support for type-level programming, albeit naively. It had a simple
-kind system with a few kinds ($\star$, $\star \rightarrow \star$ and
-so on). Still, it is insufficient for kind polymorphism, and yet some
-more extensions to the core were needed. Indeed, System
-$F_C^{\uparrow}$~\cite{fc:pro} was proposed to support, among other
-things, kind polymorphism. However, it separates expressions into
-terms, types and kinds, which complicates both the implementation and
-future extensions. \sufcc natively allows definitions to have
-polymorphic kinds. Here is an example, taken from~\cite{fc:pro}, of a
-datatype that benefits from kind polymophism: a higher-kinded fixpoint
+support for type-level programming. It had a simple kind system with a
+few kinds ($\star$, $\star \rightarrow \star$ and so on). Still, it is
+insufficient for kind polymorphism, and yet some more extensions to
+the core were needed. Indeed, System $F_C^{\uparrow}$~\cite{fc:pro}
+was proposed to support, among other things, kind
+polymorphism. However, it separates expressions into terms, types and
+kinds, which complicates both the implementation and future
+extensions. \sufcc natively allows definitions to have polymorphic
+kinds. Here is an example, taken from~\cite{fc:pro}, of a datatype
+that benefits from kind polymophism: a higher-kinded fixpoint
 combinator:
-
-\bruno{story is not precise here: Previous versions of Haskell, based
-  on System $F_{\omega}$ already had terms, types and kinds. What you
-  want to say is that this was still insufficient for kind
-  polymorphism and yet some more extensions to the core were needed.}
-\jeremy{reworded!}
 
 < data Mu (k : *) (f : (k -> *) -> k -> *) (a : k) =
 <   Roll (g : f (Mu k f) a);
 
 |Mu| can be used to construct polymorphic recursive types of any kind,
-for instance:
+for instance, polymorphic lists:
 
 < data Listf (f : * -> *) (a : *) = Nil
 <   | Cons (x : a) (xs : (f a));
@@ -339,8 +321,8 @@ for instance:
 
 
 \paragraph{Datatype Promotion}
-Recent versions of Haskell introduced Datatype
-Promotion~\cite{fc:pro}, in order to allow ordinary datatypes as
+Recent versions of Haskell introduced datatype
+promotion~\cite{fc:pro}, in order to allow ordinary datatypes as
 kinds, and data constructors as types. With the full power of
 dependent types, data promotion is made trivial in \sufcc.
 
