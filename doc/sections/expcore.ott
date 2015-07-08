@@ -112,8 +112,8 @@ terminals :: 'terminals_' ::=
   | letrec   ::  :: letrec    {{ tex \kw{letrec} }}
   | in       ::  :: key_in    {{ tex \kw{in} }}
   | eqb      ::  :: eqb       {{ tex =_{\beta} }}
-  | int      ::  :: int       {{ tex \mathsf{Int} }}
-  | bool     ::  :: bool      {{ tex \mathsf{Bool} }}
+  | int      ::  :: int       {{ tex \mathit{Int} }}
+  | bool     ::  :: bool      {{ tex \mathit{Bool} }}
   | three    ::  :: three     {{ tex 3 }}
   | elt      ::  :: elt       {{ tex \in }}
   | *        ::  :: upstar    {{ tex ^{*} }}

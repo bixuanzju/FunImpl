@@ -169,15 +169,12 @@ then it will require $n$ casts to compute a type-level value.
 
 \paragraph{Benefits of Type in Type}
 The ``Type-in-type'' axiom by rule \ruleref{T\_Ax} brings the benefit 
-of supporting \emph{higher-kind polymorphism} in \ecore.
-In \cc, $[[Pi x:t1.t2]]$ can be used as a
-\emph{dependent product}, if $[[x]]:[[t1]]:[[star]]$ and
-$[[t2]]:[[square]]$. However, if the product 
-takes a kind parameter like $[[Pi
-    x:square.x->x]]$, it is no longer a legal type in \cc. Since $[[square]]$ is
-the highest sort that does not have a type, the product cannot type check.
+of supporting \emph{kind polymorphism} in \ecore.
+A term that takes a kind parameter like $[[\
+    x:square.x->x]]$ is not a legal type in \cc. Since $[[square]]$ is
+the highest sort that does not have a type, the term cannot type check.
 In contrast, \ecore does not have such limitation. Because of
-the $[[star]]:[[star]]$ axiom, $[[Pi x:star.x->x]]$ is 
+the $[[star]]:[[star]]$ axiom, $[[Pi x:star.star]]$ is 
 a legal type of the term $[[\x:star.x->x]]$. The term can take 
 a higher-kind parameter such as $[[star -> star]]$
 to become $[[(star->star) -> (star -> star)]]$.

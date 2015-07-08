@@ -208,7 +208,7 @@ types.
 
 To demonstrate the use of the
 \cast rules with recursive types, we show the formation of the ``hungry'' type~\cite{tapl}:
-\[H = \miu{\sigma}{\star}{\mathsf{Int} \rightarrow \sigma}\]
+\[H = [[mu x:star.int -> x]]\]
 A term $z$
 of type $H$ accepts any number of integers and returns a new
 function that is hungry for more, as illustrated below:

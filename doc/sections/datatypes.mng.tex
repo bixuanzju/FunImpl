@@ -48,19 +48,22 @@ flat (i.e., no nested patterns), and bind variables.
 
 {
 \renewcommand{\arraystretch}{0.9}
-\begin{figure*}
-\small
-\centering
-\gram{\ottpgm\ottinterrule
+\begin{figure}
+\resizebox{\columnwidth}{!}{\gram{\ottpgm\ottinterrule
 \ottdecl\ottinterrule
 \ottu\ottinterrule
 \ottp\ottinterrule
 \ottE\ottinterrule
-\ottGs}
-\[\ottsurfsugar\] % defined in otthelper.mng.tex
-\caption{Syntax of the surface language}
+\ottGs}}
+\caption{Syntax of \sufcc}
 \label{fig:surface:syntax}
-\end{figure*}
+\end{figure}
+
+\begin{figure}
+\resizebox{\columnwidth}{!}{$\ottsurfsugar$} % defined in otthelper.mng.tex
+\caption{Syntactic sugar of \sufcc}
+\label{fig:surface:sugar}
+\end{figure}
 }
 
 \paragraph{No Casts on The Surface}
@@ -76,7 +79,8 @@ Section~\ref{sec:discuss}, we plan to address this issue in the future.
 %like type classes or type families do for Haskell programmers.
 
 \paragraph{Syntactic Sugar}
-For the sake of programming, \sufcc employs some syntactic sugar. A
+For the sake of programming, \sufcc employs some syntactic sugar
+shown in Figure \ref{fig:surface:sugar}. A
 non-dependent function type can be written as $[[A1 -> A2]]$. A
 dependent function type $[[Pi x : A1 . A2]]$ is abbreviated as
 $[[(x : A1) -> A2]]$ for easy reading. We also introduce a
@@ -138,7 +142,7 @@ arguments.
 \[\hlmath{\ottdecltrans}\]\ottinterrule % defined in otthelper.mng.tex
 \ottdefnpattrans{}\ottinterrule
 \ottdefnexprtrans{}
-\caption{Type directed translation rules of the surface language}
+\caption{Type directed translation rules of \sufcc}
 \label{fig:source:translate}
 \end{figure*}
 

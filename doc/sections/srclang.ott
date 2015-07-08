@@ -10,7 +10,7 @@ pgm                                         :: 'pgm_' ::=      {{ com Program }}
   | ( pgm )                                 :: M :: ParenPgm
 
 decl                                        :: 'decl_' ::=     {{ com Declarations }}
-  | data D << u : k >> = << K << x : A >> >>  ::   :: DataDecl   {{ com Datatype Declaration }}
+  | data D << u : k >> = << K << x : A >> >>  ::   :: DataDecl   {{ com Datatype }}
   | data D << u : k >> = K << x : A >>        :: M :: SDataDecl  {{ com Datatype single }}
   | data D << u : k >>n = << K << x : A >> >> :: M :: DataDeclN   {{ com Datatype declaration }}
   | data D << u : k >>n = K << x : A >>       :: M :: SDataDeclN  {{ com Datatype single }}
@@ -34,7 +34,7 @@ E , A {{ tex T }}, B {{ tex S }}, k {{ tex \kappa }} :: 'es_' ::=       {{ com E
   | E1 E2                  ::  :: App        {{ com Application }}
   | \ x : A . E            ::  :: Lam        {{ com Abstraction }}
   | Pi x : A . B           ::  :: Pi         {{ com Dependent Product }}
-  | mu x : A . E           ::  :: Mu         {{ com Polymorphic Recursion }}
+  | mu x : A . E           ::  :: Mu         {{ com Recursion }}
   | case E1 of << p => E2 >> ::  :: Case     {{ com Case Analysis }}
   | let x : A = E2 in E1   :: M:: LetBinding {{ com Let Binding }}
   | letrec x : A = E2 in E1   :: M:: LetrecBinding {{ com Letrec Binding }}
@@ -53,6 +53,7 @@ E , A {{ tex T }}, B {{ tex S }}, k {{ tex \kappa }} :: 'es_' ::=       {{ com E
   | E1 [ << u |-> E2 >> ]  :: M:: SubstVec
   | s                      :: M:: Sort       {{ com Sort }}
   | E *                    :: M:: Starred    {{ com Starred expression }}
+  | @@                     :: M:: DummyExpr
 
 
 %% Contexts

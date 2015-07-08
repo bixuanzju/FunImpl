@@ -60,8 +60,9 @@ Recall the factorial function example in Section
 By rule \ruleref{T\_Mu}, the type of $\mathit{fact}$ is $[[int ->
     int]]$. Thus, we can apply $\mathit{fact}$ to an integer, say $1$,
 and will get an integer as the result. In this example, we assume
-evaluating the $\kw{if}$-$\kw{then}$-$\kw{else}$ construct follows the one-step
-reduction. With standard reduction rules \ruleref{S\_Mu} and
+evaluating the $\kw{if}$-$\kw{then}$-$\kw{else}$ construct and 
+arithmetic expressions follow the one-step
+reduction. Plus standard reduction rules \ruleref{S\_Mu} and
 \ruleref{S\_App}, we can evaluate the term $\mathit{fact}~1$ as
 follows:
 \begin{align*}
@@ -87,27 +88,34 @@ On the type level, $[[mu x:t.e]]$ works as a \emph{iso-recursive}
 type, a kind of recursive type that is not equal but only isomorphic
 to its unrolling. Normally, we need to add two more primitives
 $[[fold]]$ and $[[unfold]]$ for the iso-recursive type to map back
-and forth between the original and unrolled form. Given 
-\begin{align*}
-  [[mu x:t.T]] \xrightleftharpoons[{[[fold]]~[ [[mu x:t.T]] ]}]
-  {[[unfold]]} [[T[x |-> mu x:t.T] ]]
-\end{align*}
-where the operators satisfy the following typing rules:
+and forth between the original and unrolled form. Assume there exist
+expressions $[[e1]]$ and $[[e2]]$ such that
+\[\begin{array}{lll}
+  &[[e1]] &: [[mu x:t.T]]\\
+  &[[e2]] &: [[T [x |-> mu x:t.T] ]]
+\end{array}\]
+We have the following typing results
+\[\begin{array}{lll}
+  &[[unfold e1]] &: [[T [x |-> mu x:t.T] ]]\\
+  &[[fold [mu x:t.T] e2]] &: [[mu x:t.T]]
+\end{array}\]
+which are derived from rules
 \[ \inferrule{[[G |- e2 : T[x |-> mu x:t.T] ]] \\ [[G |- (mu x:t.T) : star]] }
    {[[G |- fold [mu x:t.T] e2 : (mu x:t.T) ]]} \]
 \[ \inferrule{[[G |- e1 :(mu x:t.T)]] \\ [[G |- T[x |-> mu x:t.T] : star]]}
    {[[G |- unfold e1 : (T[x |-> mu x:t.T]) ]]} \]
+Thus, we have the following relation between types of $[[e1]]$ and $[[e2]]$
+witnessed by $[[fold]]$ and $[[unfold]]$:
+\begin{align*}
+  [[mu x:t.T]] \xrightleftharpoons[{[[fold]]~[ [[mu x:t.T]] ]}]
+  {[[unfold]]} [[T[x |-> mu x:t.T] ]]
+\end{align*}
 
 However, in \name we do not need to introduce $[[fold]]$ and
 $[[unfold]]$ operators, because with the rule \ruleref{S\_Mu},
 $[[castup]]$ and $[[castdown]]$ \emph{generalize} $[[fold]]$ and
-$[[unfold]]$ and have the same functionality. Assume there exist
-expressions $[[e1]]$ and $[[e2]]$ such that
-\[\begin{array}{lll}
-	&[[e1]] &: [[mu x:t.T]]\\
-	&[[e2]] &: [[T [x |-> mu x:t.T] ]]
-\end{array}\]
-Note that $[[e1]]$ and $[[e2]]$ have distinct types but the type of
+$[[unfold]]$ and have the same functionality.
+Consider the same $[[e1]]$ and $[[e2]]$ above, the type of
 $[[e2]]$ is the unrolling of $[[e1]]$'s type, which follows the
 one-step reduction relation by rule \ruleref{S\_Mu}:
 \[ [[mu x:t.T --> T [x |-> mu x:t.T] ]] \]
