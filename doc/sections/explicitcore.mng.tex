@@ -154,8 +154,8 @@ examples in Section \ref{subsec:cast}:
 star.x) int --> int]]}{[[G |- (castdown e1):int]]}
 \]
 \[
-\inferrule{[[G |- e2 : int]] \\ [[G |- (\x : star.x) int : star]] \\ [[(\x :
-star.x) int --> int]]}{[[G |- (castup[(\x : star.x) int] e2):(\x : star.x)
+\inferrule{[[G |- three : int]] \\ [[G |- (\x : star.x) int : star]] \\ [[(\x :
+star.x) int --> int]]}{[[G |- (castup[(\x : star.x) int] three):(\x : star.x)
 int]]}
 \]
 

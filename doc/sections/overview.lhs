@@ -32,33 +32,34 @@ example illustrates the use of the conversion rule:
 \[
 f [[==]] [[\y:(\x:star.x)int.y]]
 \]
-Here $f$ is an identity function. Notice that the type of $y$
-is $[[(\x:star.x)int]]$, which is
-an identity function on types $[[\x:star.x]]$ applied to $[[int]]$, 
-but not $[[int]]$. Hence $f$ cannot directly take an integer parameter.
-Note that the following $\beta$-equivalence holds:
+Here $f$ is a simple identity function. Notice that the type of $y$
+(i.e., $[[(\x:star.x)int]]$) is interesting: it is a type-level
+identity function, applied to $[[int]]$. Without the conversion rule,
+$f$ cannot be applied to, say $3$. Note that the following
+$\beta$-equivalence holds:
 \[ [[(\x:star.x)int =b int]] \]
-The conversion rule implicitly allows to convert the type of $y$
-in $f$ through $\beta$-equality. Thus, $f$ can be converted to \[ [[\y:int.y]]\]
-so that can be applied to an integer.
+Thus, the conversion rule allows the application of $f$ to $3$ by
+implicitly converting $f$ to
+\[
+[[\y:int.y]]
+\]
 
 \paragraph{Decidability of Type-Checking and Strong Normalization}
 While the conversion rule in \coc brings a lot of convenience, an
 unfortunate consequence is that it couples decidability of
 type-checking with strong normalization of the
-calculus~\cite{pts:normalize}.  But strong normalization does
-not hold with general recursion. And due to the conversion
-rule, any non-terminating term would force the type checker to go into
-an infinitely loop (by constantly applying the conversion rule without
+calculus~\cite{pts:normalize}.  But strong normalization does not hold
+with general recursion. And due to the conversion rule, any
+non-terminating term would force the type checker to go into an
+infinite loop (by constantly applying the conversion rule without
 termination), thus rendering the type system undecidable.
 
-To illuminate the problem of the conversion rule with general
-recursion, suppose $d$ is a
-``dependent type'' that has type $[[int -> star]]$. With general
-recursion, we can assume a term $z$ that has type
+To illustrate the problem of the conversion rule with general
+recursion, suppose $d$ is a ``dependent type'' with type
+$[[int -> star]]$. Furthermore, we assume a term $z$ that has type
 $d\,\mathsf{loop}$, where $\mathsf{loop}$ stands for any diverging
-computation of type $[[int]]$. If we type
-check the following application: \[ [[(\x: d three.x)z]]\]
+computation of type $[[int]]$. If we type check the following
+application: \[ [[(\x: d three.x)z]]\]
 under the normal typing rules of \coc, the type checker would get
 stuck as it tries to do $\beta$-equality on two terms: $d\,3$ and
 $d\,\mathsf{loop}$, where the latter is non-terminating.
@@ -74,45 +75,44 @@ and $[[castup]]$ (beta expansion). The benefit of this approach is
 that decidability of type-checking no longer is coupled with strong
 normalization of the calculus.
 
-\paragraph{Beta Reduction} The operator $[[castdown]]$ 
-allows a type conversion provided that the resulting
-type is a \emph{beta reduction} of the original type of the term. To explain the
-use of $[[castdown]]$, assume an identity function $g$ defined by
-\[ g \equiv [[\y:int.y]] \]
-and a term $[[e1]]$ with the type
+\paragraph{Beta Reduction} The $[[castdown]]$ operator allows a type
+conversion provided that the resulting type is a \emph{beta reduction}
+of the original type of the term. To explain the use of
+$[[castdown]]$, assume an identity function $g$ defined by
+\[ g [[==]] [[\y:int.y]] \]
+and a term $[[e1]]$ with type
 \[ [[e1]] : [[(\x:star.x)int]] \]
 In contrast to \coc,
 we cannot directly apply $g$ to $[[e1]]$ in \name 
 since their types are not \emph{syntactically equal}.
 Note that the following beta reduction holds:
 \[ [[(\x:star.x)int --> int]] \]
-Thus, $[[castdown]]$ can be used for the explicit type-level beta reduction:
+Thus, $[[castdown]]$ can be used for the explicit (type-level) beta reduction:
 \[ [[castdown e1]] : [[int]]\]
 Then the application $g\,([[castdown e1]])$ can type check.
 
 \paragraph{Beta Expansion} The dual operation of $[[castdown]]$ is
 $[[castup]]$, which allows a type conversion provided that the
 resulting type is a \emph{beta expansion} of the original type of the
-term. To explain the use of $[[castup]]$, let us revisit the example from Section~\ref{sec:coc}.
-In \name, we cannot apply $f$ to an integer, say $[[e2]] : [[int]]$. 
-Instead we need to use $[[castup]]$  to expand the type of $[[e2]]$:
-\[ ([[castup[(\x:star.x)int] e2]]): [[(\x:star.x)int]] \]
-Thus, the application $f~([[castup[(\x:star.x)int] e2]])$ can type check.
-Intuitively,
-$[[castup]]$ is doing a type conversion, as the type of $[[e2]]$ is
-$ [[int]] $, and $ [[(\x:star.x)int]] $ is the beta expansion of
-$[[int]]$ witnessed by
+term. To explain the use of $[[castup]]$, let us revisit the example
+from Section~\ref{sec:coc}. In \name, we cannot apply $f$ to $3$.
+Instead we need to use $[[castup]]$ to expand the type of $3$:
+\[ ([[castup[(\x:star.x)int] three]]): [[(\x:star.x)int]] \]
+Thus, the application $f~([[castup[(\x:star.x)int] three]])$ is
+well-typed. Intuitively, $[[castup]]$ is doing a type conversion, as
+the type of $3$ is $ [[int]] $, and $ [[(\x:star.x)int]] $ is the beta
+expansion of $[[intwel]]$ witnessed by
 \[ [[(\x:star.x)int --> int]]\] Notice that for
 $[[castup]]$ to work, we need to provide the resulting type as
-argument. This is because for the same term, there might be more than one
+argument. This is because for the same term, there may be more than one
 choices for beta expansions, e.g., $1 + 2$ and $2 + 1$ are both the
 beta expansions of $3$. 
 
 \paragraph{One-Step}
 A final point to make is that the \cast rules specify \emph{one-step}
-reduction or expansion. To
-clarify the subtlety, let us consider a variation of the example from
-Section~\ref{subsec:cast}. Imagine term $[[e1]]$ has the type
+reduction or expansion. To clarify the subtlety, let us consider a
+variation of the example from Section~\ref{subsec:cast}. This time,
+imagine term $[[e1]]$ with type
 \[ [[(\x : star . \y:star. x) int bool]] \]
 which is a type-level |const| function. Now the following
 application
@@ -151,8 +151,8 @@ Section~\ref{sec:coc}. The type checker will not get stuck when
 type-checking the following application:
 \[ [[(\x: d three.x)z]] \]
 where the type of $z$ is $d\,\mathsf{loop}$.  This is because in
-\name, the type checker only does syntactic comparison between $d\,3$
-and $d\,\mathsf{loop}$, instead of $\beta$-equality. It
+\name, the type checker only performs syntactic comparison between
+$d\,3$ and $d\,\mathsf{loop}$, instead of $\beta$-equality. Thus it
 rejects the above application as ill-typed. Indeed it is impossible to
 type-check the application even with the use of $[[castup]]$ and/or
 $[[castdown]]$: one would need to write infinite number of
@@ -160,10 +160,10 @@ $[[castdown]]$'s to make the type checker loop forever (e.g.,
 $([[\x:d three.x]])([[castdown]]([[castdown]] \dots z))$). But it is
 impossible to write such program in practice.
 
-% In summary, \name achieves the decidability of type checking by
-% explicitly controlling type-level computation, which is independent of
-% the normalization property, while supporting general recursion at the
-% same time.
+In summary, \name achieves the decidability of type checking by
+explicitly controlling type-level computation, which is independent of
+the normalization property, while supporting general recursion at the
+same time.
 
 \subsection{Recursive Terms and Types}
 
@@ -179,32 +179,32 @@ The $\mu$ primitive $[[mu x:t.e]]$ can be used to define recursive functions.  F
 example, the factorial function is written in \name as:
 
 < fact =  mu f : Int -> Int. \ x : Int .
-<         if x == 0 then 1 else x time (f (x - 1))
+<         if x == 0 then 1 else x time f (x - 1)
 
 % \bruno{show how to use fact} \jeremy{Linus already has an exmaple of
 %   using fact step by step in Section~\ref{subsec:recur}, still need
 %   here?} 
-Here we treat the $\mu$ operator as a \emph{fixpoint} which can be 
-evaluated to its recursive unfolding:
+Here we treat the $\mu$ operator as a \emph{fixpoint}, which evaluates
+to its recursive unfolding:
 \[ [[mu x:t.e]] [[-->]] e [x \mapsto [[mu x:t.e]] ] \]
-Then applying the term above to some integer $n$ like $\mathit{fact}~n$ will work
-as a factorial function through the evaluation (see Section \ref{sec:rec:recur}).
-Also note that the type $[[t]]$ is not restricted to function types. We can define a
+Applying |fact| to some integer will work as a factorial function
+through the evaluation (see Section \ref{sec:rec:recur} for its
+evaluation sequence). Also note that the type $[[t]]$ is not
+restricted to function types. This extra freedom allows us to define a
 record of mutually recursive functions as the fixed point of a
 function on records.
 
 % The dynamic semantics of $\mu$ requires the recursive binder to satisfy (omit type annotations for clarity):  \[ \mu f.\,E = (\lambda f.\,E) (\mu f.\,E) \] which, however, does not terminate in strict languages. Therefore, to loosen the function-type restriction to allow any types, the sensible choice for the evaluation strategy is \emph{call-by-name}.
 
 \paragraph{Recursive Types}
-The same $\mu$ primitive is used on type-level to represent recursive types. 
-We use the \emph{iso-recursive} approach \cite{eqi:iso} that treats
-an iso-recursive type and its one-step as different, but isomorphic types. 
-The isomorphism is witnessed by \fold and \unfold operations.
-In \name, such isomorphism is witnessed by $[[castup]]$ and
-$[[castdown]]$ (see Section \ref{sec:rec:recur}). 
-In fact, $[[castup]]$ and $[[castdown]]$ \emph{generalize}
-\fold and \unfold, which can convert any types, not just recursive
-types.
+The same $\mu$ primitive is used on type-level to represent recursive
+types. We use the \emph{iso-recursive} approach \cite{eqi:iso} that
+treats a recursive type and its unfolding as different, but
+isomorphic. The isomorphism is witnessed by traditional \fold and
+\unfold operations. In \name, such isomorphism is witnessed by
+$[[castup]]$ and $[[castdown]]$ (see Section \ref{sec:rec:recur}). In
+fact, $[[castup]]$ and $[[castdown]]$ \emph{generalize} \fold and
+\unfold: they can convert any types, not just recursive types.
 
 To demonstrate the use of the
 \cast rules with recursive types, we show the formation of the ``hungry'' type~\cite{tapl}:
@@ -274,19 +274,19 @@ function that is hungry for more, as illustrated below:
 The explicit type conversion rules and the $\mu$ primitive facilitate
 the encoding of recursive datatypes and recursive functions over
 datatypes. While inductive datatypes can be encoded using either the
-Church~\cite{tapl} or the Scott encoding~\cite{encoding:scott}, we
-adopt the Scott encoding as it encodes case analysis, making it more
-convenient to encode pattern matching. We demonstrate the encoding
-method using a simple datatype as a running example: Peano
-numbers. The datatype declaration for Peano numbers in Haskell is:
+Church~\cite{tapl} or the Scott~\cite{encoding:scott} encoding, we
+choose to work with the Scott encoding as it encodes case analysis,
+making it more convenient to encode pattern matching. We demonstrate
+the encoding method using a simple datatype as a running example:
+Peano numbers. The datatype declaration for Peano numbers in Haskell
+is:
 
 <  data Nat = Z | S Nat
 
-In the Scott encoding, the encoding of the |Nat| datatype reflects how
-its two constructors are going to be used. Since |Nat| is a recursive
-datatype, we have to use recursive types at some point to reflect its
-recursive nature. As it turns out, the typed Scott encoding of |Nat|
-is:
+The Scott encoded datatype |Nat| reflects how its two constructors are
+going to be used. Since |Nat| is a recursive datatype, we have to use
+recursive types at some point to reflect its recursive nature. As it
+turns out, the typed Scott encoding of |Nat| is:
 
 < mu X : * . (b : *) -> b -> (X -> b) -> b
 
@@ -294,10 +294,10 @@ The function type |(b -> (X -> b) -> b)| demystifies the recursive
 nature of |Nat|: $b$ corresponds to the type of the constructor |Z|,
 and |(X -> b)| corresponds to the type of the constructor |S|. The
 intuition is that any recursive use of the datatype in the data
-constructors is replaced with the variable ($X$ in the case) bound by
-$\mu$, and we make the resulting type variable ($B$ in this case)
+constructors is replaced with a variable ($X$ in this case) bound by
+$\mu$, and we make the resulting type variable ($b$ in this case)
 universally quantified so that elements of the datatype with different
-result types can be used in the same program~\cite{gadts}.
+result types can be used in the same program.
 
 The two constructors can be encoded correspondingly via the \cast rules:
 
@@ -308,23 +308,24 @@ The two constructors can be encoded correspondingly via the \cast rules:
 Intuitively, each constructor selects a different function from the
 function parameters ($z$ and $f$ in the above example). This provides
 branching in the process flow, based on the constructors. Note that we
-use the $[[castup]]$ operation to do type conversion between the
-recursive type and its unfolding.
+use $[[castup]]$ to do type conversion between the recursive type and
+its unfolding.
 
-Finally a recursive function that adds two natural numbers is defined
-as follows:
+Finally a recursive function that adds two natural numbers can be
+defined thus:
 
 < mu f : Nat -> Nat -> Nat . \ n : Nat . \ m : Nat .
 <     (castdown n) Nat m (\ n' : Nat . S (f n' m))
 
 The above definition resembles case analysis commonly seen in modern
-functional programming languages. Indeed, if we take apart the definition, we will see
-why the use of $[[castdown]]$ plays such an important role to make it
-all work. First of all, remember |Nat| datatype is encoded as:
+functional programming languages. Indeed, if we take apart the
+definition, we will see why the use of $[[castdown]]$ plays such an
+important role to make it all work. First of all, remember |Nat| is
+encoded as:
 
 < mu X : * . (b : *) -> b -> (X -> b) -> b
 
-then |(castdown n)| reduces the above to
+Then |(castdown n)| reduces the above to
 
 < (b : *) -> b -> (Nat -> b) -> b
 
