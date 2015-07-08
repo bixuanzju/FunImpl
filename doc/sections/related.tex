@@ -6,29 +6,41 @@ practical programming world. Compared to existing work, the main
 different of our work is that we propose the use of explicit casts to
 control type-level computation. Moreover we also unify recursion and
 recursive types in a single language construct. Throughout this
-section, we refer to Table~\ref{tab:related:comp} for comparison. Our
+section, we refer to Figure~\ref{fig:related:comp} for comparison. Our
 emphasis is that with considerably less language constructs than
 System $F_C$, \name is a well-suited alternative as a core for
 Haskell-like language.
 
 \begin{figure*}
-\renewcommand{\arraystretch}{0.6}
-\centering
+\begin{threeparttable}
+\renewcommand{\arraystretch}{0.4}
 \small
+\centering
 \begin{tabularx}{\textwidth}{XXXXXXl}
-\midrule
+\toprule
 &&&& \multicolumn{2}{c}{Complexity} & \\ \cmidrule{5-6}
-Core Language & Surface \mbox{Language} & Decidable Type Checking & General \mbox{Recursion} & \# of Language Constructs & \# of Syntactic Sorts & Logical Consistency \\ \midrule
+Core Language & Surface \mbox{Language} & Decidable Type Checking & General \mbox{Recursion} & \# of Language Constructs\tnote{1} & \# of Syntactic Sorts & Logical Consistency \\ \midrule
 \name & \sufcc & Yes & Yes & 8 & 1 & No \\
 System $F_C$ & Haskell & Yes & Yes & 35 & 3 & No \\
 \cc & N/A & Yes & No & 7 & 1 & Yes \\
-$\lambda^\theta$ & \textsf{Zombie} & Yes & Yes & 26 & 1 & Yes, in \textsf{L} Fragment \\
+$\lambda^\theta$ & \textsf{Zombie} & Yes & Yes & 24 & 1 & Yes, in \textsf{L} Fragment \\
 Core Cayenne & Cayenne & No & Yes & 11 & 1 & No \\
-$\mu F^\star$ & $F^\star$ & Yes & Yes & 39 & 3 & Yes, in \textsf{PURE} Fragment \\
-$\Pi\Sigma$ & N/A & No\linus{?} & Yes & 18 & 1 & No
+$\mu F^\star$ & $F^\star$ & Yes & Yes & 37 & 3 & Yes, in \textsf{PURE} Fragment \\
+$\Pi\Sigma$ & N/A & Unknown\tnote{2} & Yes & 18 & 1 & No \\ \bottomrule
+% ~\cite{fc}
+% ~\cite{handbook}
+% ~\cite{zombie:popl14}
+% ~\cite{cayenne}
+% ~\cite{fstar}
+% ~\cite{dep:pisigma}
 \end{tabularx}
+\begin{tablenotes}
+\item[1] Literals such as integers are ignored.
+\item[2] No metatheory given.
+\end{tablenotes}
+\end{threeparttable}
 \caption{Comparison of Core Languages}
-\label{tab:related:comp}
+\label{fig:related:comp}
 \end{figure*}
 
 \paragraph{General recursion without decidable type checking} To our
