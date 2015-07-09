@@ -101,7 +101,7 @@ Instead we need to use $[[castup]]$ to expand the type of $3$:
 Thus, the application $f~([[castup[(\x:star.x)int] three]])$ is
 well-typed. Intuitively, $[[castup]]$ is doing a type conversion, as
 the type of $3$ is $ [[int]] $, and $ [[(\x:star.x)int]] $ is the beta
-expansion of $[[intwel]]$ witnessed by
+expansion of $[[int]]$ witnessed by
 \[ [[(\x:star.x)int --> int]]\] Notice that for
 $[[castup]]$ to work, we need to provide the resulting type as
 argument. This is because for the same term, there may be more than one
