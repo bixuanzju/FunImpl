@@ -33,7 +33,7 @@ example illustrates the use of the conversion rule:
 f [[==]] [[\y:(\x:star.x)int.y]]
 \]
 Here $f$ is a simple identity function. Notice that the type of $y$
-(i.e., $[[(\x:star.x)int]]$) is interesting: it is a type-level
+($[[(\x:star.x)int]]$) is interesting: it is a type-level
 identity function, applied to $[[int]]$. Without the conversion rule,
 $f$ cannot be applied to $3$ for example, since the type of $3$
 ($Int$) differs from the type of $y$. However, note that the following
@@ -45,10 +45,10 @@ implicitly converting $f$ to
 [[\y:int.y]]
 \]
 
-\paragraph{Decidability of Type-Checking and Strong Normalization}
+\paragraph{Decidability of Type Checking and Strong Normalization}
 While the conversion rule in \coc brings a lot of convenience, an
 unfortunate consequence is that it couples decidability of
-type-checking with strong normalization of the
+type checking with strong normalization of the
 calculus~\cite{pts:normalize}.  Therefore adding general recursion to
 \coc becomes difficult, since strong normalization is lost.  Due to
 the conversion rule, any non-terminating term would force the type
@@ -70,7 +70,7 @@ In contrast to the conversion rule of \coc, \name makes it explicit as to when a
 to convert one type to another. Type conversions are explicit by
 introducing two language constructs: $[[castdown]]$ (beta reduction)
 and $[[castup]]$ (beta expansion). The benefit of this approach is
-that decidability of type-checking is no longer coupled with strong
+that decidability of type checking is no longer coupled with strong
 normalization of the calculus.
 
 \paragraph{Beta Reduction} The $[[castdown]]$ operator allows a type
@@ -86,7 +86,7 @@ since their types are not \emph{syntactically equal}.
 However, note that the following beta reduction holds:
 \[ [[(\x:star.x)int --> int]] \]
 Thus, $[[castdown]]$ can be used for the explicit (type-level) beta reduction:
-\[ [[castdown e]] : [[int]]\]
+\[ [[(castdown e)]] : [[int]]\]
 Then the application $g\,([[castdown e]])$ type-checks.
 
 \paragraph{Beta Expansion} The dual operation of $[[castdown]]$ is
@@ -129,7 +129,7 @@ the program to type-check.
 
 \paragraph{Decidability without Strong Normalization}
 
-With explicit type conversion rules the decidability of type-checking 
+With explicit type conversion rules the decidability of type checking
 no longer depends on the strong normalization property. 
 Thus the type system remains decidable
 even in the presence of non-termination at type level.
@@ -148,13 +148,13 @@ even in the presence of non-termination at type level.
 
 Consider the same example discussed in
 Section~\ref{sec:coc}. The type checker will not get stuck when
-type-checking the following application:
+type checking the following application:
 \[ [[(\x: d three.x)z]] \]
 where the type of $z$ is $d\,\mathsf{loop}$.  This is because in
 \name, the type checker only performs syntactic comparison between
 $d\,3$ and $d\,\mathsf{loop}$, instead of beta equality. Thus it
 rejects the above application as ill-typed. Indeed it is impossible to
-type-check the application even with the use of $[[castup]]$ and/or
+type check the application even with the use of $[[castup]]$ and/or
 $[[castdown]]$: one would need to write infinite number of
 $[[castdown]]$'s to make the type checker loop forever (e.g.,
 $([[\x:d three.x]])([[castdown]]([[castdown]] \dots z))$). But it is
@@ -162,7 +162,7 @@ impossible to write such program in practice.
 
 In summary, \name achieves decidability of type checking by
 explicitly controlling type-level computation using casts. Since each 
-cast performs only one step of computation at the time, type-level
+cast performs only one step of computation at a time, type-level
 computation performed by each cast is guaranteed to terminate. 
 
 \subsection{Recursive Terms and Types}
@@ -170,7 +170,7 @@ computation performed by each cast is guaranteed to terminate.
 
 \name supports general recursion, and allows writing standard
 recursive programs at the term level. At the same time, the recursive
-construct can also be used to model recursive types at the type-level.
+construct can also be used to model recursive types at the type level.
 Therefore, \name \emph{unifies} both recursion and recursive types 
 by the same $\mu$ primitive.
 
@@ -194,7 +194,7 @@ language. The application |fact 3|, for example, produces |6| as expected.
 % The dynamic semantics of $\mu$ requires the recursive binder to satisfy (omit type annotations for clarity):  \[ \mu f.\,E = (\lambda f.\,E) (\mu f.\,E) \] which, however, does not terminate in strict languages. Therefore, to loosen the function-type restriction to allow any types, the sensible choice for the evaluation strategy is \emph{call-by-name}.
 
 \paragraph{Recursive Types}
-The same $\mu$ primitive is used at the type-level to represent
+The same $\mu$ primitive is used at the type level to represent
 iso-recursive recursive types~\cite{eqi:iso}. In the
 \emph{iso-recursive} approach a recursive type and its unfolding are
 different, but isomorphic. The isomorphism is witnessed by two
@@ -290,7 +290,7 @@ turns out, the typed Scott encoding of |Nat| is:
 
 The function type |(b -> (X -> b) -> b)| demystifies the recursive
 nature of |Nat|: the first argument of type $b$ corresponds to the type of the constructor |Z|,
-and |(X -> b)| corresponds to the type of the constructor |S|. The
+and |X -> b| corresponds to the type of the constructor |S|. The
 intuition is that any recursive use of the datatype in the data
 constructors is replaced with a variable ($X$ in this case) bound by
 $\mu$, Moreover, the resulting type variable ($b$ in this case) is
@@ -323,13 +323,13 @@ encoded as:
 
 < mu X : * . (b : *) -> b -> (X -> b) -> b
 
-Then |(castdown n)| reduces the above to
+Then |castdown n| reduces the above to
 
 < (b : *) -> b -> (Nat -> b) -> b
 
-which matches the types of the terms applied to |(castdown
-n)|: |Nat| is fed as the result type; $m$ is used for the base case;
-and |(\ n' : Nat . S (f n' m))| the recursive step.
+which matches the types of the terms applied to |castdown n|: the
+result type is |Nat|; $m$ is used for the base case; and |\ n' : Nat
+. S (f n' m)| the recursive step.
 
 % The formal treatment of encoding case analysis is presented in
 % Section~\ref{sec:surface}.
