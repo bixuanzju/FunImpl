@@ -78,6 +78,7 @@
 % Table
 \usepackage{booktabs}
 \usepackage{tabularx}
+\usepackage[para,online,flushleft]{threeparttable}
 
 %% -- Packages Imports --
 
@@ -150,7 +151,6 @@ in our minimalistic core calculus.
 \input{sections/overview.tex}
 
 \input{sections/examples.tex}
-%include sections/example.lhs
 
 \input{sections/explicitcore.tex}
 
@@ -160,8 +160,6 @@ in our minimalistic core calculus.
 
 \input{sections/related.tex}
 
-\input{sections/discussion.tex}
-
 \input{sections/conclusion.tex}
 
 %% -- References --
@@ -169,12 +167,14 @@ in our minimalistic core calculus.
 \acks
 Thanks to Blah. This work is supported by Blah.
 
+\newpage
+
 \bibliographystyle{abbrvnat}
-\nocite{*}
+% \nocite{*}
 \bibliography{main}
 
 %% -- Appendix --
-
+\clearpage
 \appendix
 \input{sections/appendix.tex}
 

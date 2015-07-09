@@ -1,8 +1,10 @@
 % Hack to use mathpartir for ott
 \newcommand{\ottlinebreak}{}
 \renewcommand{\ottdrule}[4][]{{\inferrule{#2 }{#3}\quad\ottdrulename{#4}}}
-\renewcommand{\ottgrammartabular}[1]{\begin{tabular}{llcllllll}#1\end{tabular}}
-\renewcommand{\ottinterrule}{\\[3.0mm]}
+\renewcommand{\ottrulehead}[3]{ $#1$  & $#2$ &  & \multicolumn{2}{l}{#3}}
+\renewcommand{\ottprodline}[6]{& $#1$ & $#2$ & $#5$ & $#6$}
+\renewcommand{\ottgrammartabular}[1]{\begin{tabular}{lclllll}#1\end{tabular}}
+\renewcommand{\ottinterrule}{\\[2.0mm]}
 \newcommand{\gram}[1]{\ottgrammartabular{#1\ottafterlastrule}}
 \newcommand{\ruleref}[1]{\ottdrulename{#1}}
 
@@ -14,6 +16,9 @@
 \newcommand{\pai}[3]{[[Pi]] #1:#2.\,#3}
 \newcommand{\miu}[3]{[[mu]] #1:#2.\,#3}
 
+\newcommand{\FV}{\mathsf{FV}}
+\newcommand{\dom}{\mathsf{dom}}
+
 \newcommand*{\mathscale}[2][4]{\scalebox{#1}{$#2$}}%
 
 \def\replace#1#2#3{%
@@ -23,33 +28,27 @@
 
 \newcommand{\ottcoresugar}{%%
 \begin{array}{llll} %
-    \text{Syntactic Sugar}\\ %
-    \quad [[A1->A2]] & \triangleq & [[Pi x:A1.A2]] \qquad x \not \in %
-        \FV([[A2]]) \\ %
-    \quad [[(x:A1)->A2]] & \triangleq & [[Pi x:A1.A2]] %
-        \\ %
-    \quad [[let x : t = e2 in e1]] & [[:=]] & [[ e1 [x |-> e2] ]] \qquad [[G |- e2 : t]] \\ %
-    \quad [[foldn [t1] e]] & [[:=]] & \mathscale[0.9]{[[castup]] [ [[t1]] ] ([[castup]] [ %
-        [[t2]] ] (\dots ( [[castup [tn] e]] ) \dots ))} \\ %
-    \quad [[unfoldn e]] & [[:=]] & \underbrace{[[castdown]] ([[castdown]] %
+    [[t1->t2]] & \triangleq & [[Pi x:t1.t2]],~\text{where}~x \not \in %
+        \FV([[t2]]) \\ %
+    [[(x:t1)->t2]] & \triangleq & [[Pi x:t1.t2]] \\ %
+    [[let x : t = e2 in e1]] & [[:=]] & [[ e1 [x |-> e2] ]] \\ %
+    [[foldn [t1] e]] & [[:=]] & [[castup]] [ [[t1]] ] ([[castup]] [ %
+        [[t2]] ] (\dots ( [[castup [tn] e]] ) \dots )) \\ %
+    [[unfoldn e]] & [[:=]] & \underbrace{[[castdown]] ([[castdown]] %
         (\dots ( [[castdown]]}_n [[e]]) \dots ))
 \end{array} %
 }
 
 \newcommand{\ottsurfsugar}{%%
-\begin{array}{lllll} %
-    &&&& \text{Syntactic Sugar} \\ %
-    [[A1->A2]] & \triangleq & [[Pi x:A1.A2]] & x \not \in \FV([[A2]]) & %
-        \quad\text{Function Type} \\ %
-    [[(x:A1)->A2]] & \triangleq & [[Pi x:A1.A2]] &  & %
-        \quad\text{Dependent Function Type} \\ %
-    [[letrec x : A = E2 in E1]] & \triangleq & [[let x : A = mu x : A . E2 in E1]] &  & %
-        \quad\text{Recursive let binding}\\ %
+\begin{array}{lll} %
+    [[A1->A2]] & \triangleq & [[Pi x:A1.A2]],~\text{where}~x \not \in \FV([[A2]]) \\ %
+    [[(x:A1)->A2]] & \triangleq & [[Pi x:A1.A2]] \\ %
+    [[letrec x : A = E2 in E1]] & \triangleq & [[let x : A = mu x : A . E2 in E1]] \\ %
     [[data R <<u:k>>n = K { <<N:A>> }]] & \triangleq & %
-        [[data R <<u:k>>n = K <<x:A>>]]; &\forall i & \quad\text{Record} \\ %
-        && [[let]]~[[N]]_i : [[ (<<u:k>>n) -> R@<<u>>n -> A]]_i = & %
-         &  \\ %
-        && [[\ <<u:k>>n . \ y : R@<<u>>n . case y of K <<x:A>> => x]]_i~[[in]] && \\ %
+        [[data R <<u:k>>n = K <<x:A>>]]; \\ %
+        && [[let]]~[[N]]_i : [[ (<<u:k>>n) -> R@<<u>>n -> A]]_i = \\ %
+        && \quad [[\ <<u:k>>n . \ y : R@<<u>>n . @@]] \\
+        && \quad[[case y of K <<x:A>> => x]]_i~[[in]] \\ %
 \end{array} %
 }
 
@@ -67,3 +66,12 @@
     & [[ let ]]~[[Ki]] : [[ (<<u:ro>>n) -> (<<x:t>>) -> D@<<u>>n ]] = \ottdeclK~[[ in ]] %
 \end{array} %
 }
+
+\newcommand{\ottdruleTRXXCaseT}[1]{\ottdrule[#1]{%
+{\,\overline{   \Sigma  \labeledjudge{p}  \ottnt{p}   \Rightarrow   \ottnt{E_{{\mathrm{2}}}}  :  T_1   \rightarrow   S  \hlmath{ \rightsquigarrow   \ottnt{e_{{\mathrm{2}}}} }   }\,}%
+\\ { \Sigma  \labeledjudge{s}  \ottnt{E_{{\mathrm{1}}}}  :  T_1  \hlmath{ \rightsquigarrow   \ottnt{e_{{\mathrm{1}}}} } }%
+\\ { \Sigma  \labeledjudge{s}  S  :  \star  \hlmath{ \rightsquigarrow   \sigma } }%
+}{
+ \Sigma  \labeledjudge{s}  \kw{case} \, \ottnt{E_{{\mathrm{1}}}} \, \kw{of} \, \,\overline{  \ottnt{p}  \Rightarrow  \ottnt{E_{{\mathrm{2}}}}  }\,  :  S  \hlmath{ \rightsquigarrow   \ottsym{(}  \mathsf{cast}_{\downarrow}^{n+1} \, \ottnt{e_{{\mathrm{1}}}}  \ottsym{)} \, \sigma \, \,\overline{  \ottnt{e_{{\mathrm{2}}}}  }\, } }{%
+{\ottdrulename{TR\_Case}}{}%
+}}
