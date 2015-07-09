@@ -151,8 +151,7 @@ mutually recursive functions |eval'| and |reify'|. The former one is
 conventional, dealing with each possible shape of an expression. The
 tricky part lies in the evaluation of a lambda abstraction, where we
 need a second function, called |reify'|, of type |Value -> Exp| that
-translates a values into terms. It is worth noting that the evaluator
-is a partial function that can cause run-time errors. Thanks to the
+translates a values into terms. Thanks to the
 flexibility of the $\mu$ primitive, mutual recursion can be encoded by
 using records!
 
@@ -217,7 +216,7 @@ And the recursive version is just a synonym:
 
 < let Nat : * = Fix NatF
 
-Given |fmap|, many recursive schemes can be defined, for example we
+Given |fmap|, many recursion schemes can be defined. For example we
 can have a \emph{catamorphism} (or generic 
 fold function)~\cite{Meijer1991}:
 
@@ -230,9 +229,10 @@ fold function)~\cite{Meijer1991}:
 
 Unfortunately, in systems like Coq, definitions like |Fix| must be
 rejected. The problem is related to strictly positive
-types~\cite{spt}, that is, Coq cannot determine whether |Fix f| (for
+types~\cite{spt}. That is, Coq cannot determine whether |Fix f| (for
 any abstract functor $f$) is strictly positive or not. For example, we
-can write a non-strictly positive functor in Haskell:
+can write a non-strictly positive functor in Haskell:\bruno{write the example 
+in our language instead!}
 
 < data Bad a = Bad ((Bad a -> Int) -> Int)
 
