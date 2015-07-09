@@ -11,17 +11,17 @@ fiddle with `Fun`. This is an overview of how to interact.
 
 1. Make sure you have installed the dependencies:
 
-   + Install GHC (version 7.10 or above)
-   + Alex and Happy (install by `cabal install alex happy`)
+    + Install GHC (version 7.10 or above)
+    + Alex and Happy (install by `cabal install alex happy`)
 
 2. Build and install
 
-   We recommend installing in a sandbox by `cabal sandbox init`
-   
-   ```bash
-   cabal update
-   make
-   ```
+    We recommend installing in a sandbox by `cabal sandbox init`
+    
+    ```bash
+    cabal update
+    make
+    ```
 
 ## Fun Cheatsheet
 
