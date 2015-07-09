@@ -82,14 +82,14 @@ in show (eval example) -- return 42
 
 \paragraph{Datatypes}
 Conventional datatypes like natural numbers or polymorphic lists can
-be easily defined in \sufcc, as in Haskell. For instance, below is the
+be easily defined in \sufcc. For instance, below is the
 definition of polymorphic lists:
 
 <  data List (a : *) = Nil | Cons (x : a) (xs : List a);
 
 % Because \sufcc is explicitly typed, each parameter needs to be
 % accompanied with a corresponding kind or type annotation.
-The use of the above datatype is best illustrated by the |length|
+The use of the above datatype is illustrated by the |length|
 function:
 
 < letrec length : (a : *) -> List a -> nat =
@@ -127,7 +127,7 @@ type-checking undecidable. However \sufcc is able to express HOAS in a
 straightforward way, while preserving decidable type-checking.
 
 Using |Exp| we can write an evaluator for the lambda calculus. As
-noted by~\cite{Fegaras1996}, the evaluation function needs an extra
+noted by Fegaras and Sheard~\cite{Fegaras1996}, the evaluation function needs an extra
 function |(reify)| to invert the result of evaluation. The code for
 the evaluator is shown next (we omit most of the unsurprising cases):
 
@@ -167,11 +167,11 @@ Evaluation of a lambda expression proceeds as follows:
 Higher-kinded types are types that take other types and produce a new
 type. To support higher-kinded types, languages like Haskell use
 core languages to account for kind expressions.
-(The existing core language of Haskell, System $F_{C}$, is an extension of
+The existing core language of Haskell, System $F_{C}$, is an extension of
 System $F_{\omega}$~\cite{systemfw}, which naively supports
-higher-kinded types.) Given that \name subsumes System $F_{\omega}$, we can
-easily construct higher-kinded types. We show this by an example of
-encoding a \emph{functor}:
+higher-kinded types. Given that \name subsumes System $F_{\omega}$, we can
+easily construct higher-kinded types. We show with an example of
+encoding the \emph{functor} ``type-class'' as a record:
 
 < rcrd Functor (f : * -> *) =
 <   Func {fmap : (a : *) -> (b : *) -> (a -> b) -> f a -> f b};
@@ -186,10 +186,8 @@ datatype is:
 <       Nothing => Nothing b
 <    |  Just (z : a) => Just b (f z))
 
-After the translation process that we will describe in
-Section~\ref{sec:surface}, the |Functor| record is desugared into a
-datatype with only one data constructor, namely |Func|. It might be
-clearer if we write down the type of |Func|:
+After the translation process, the |Functor| record is desugared into a
+datatype with only one data constructor (|Func|) with type:
 
 < (f : * -> *) -> (a : *) -> (b : *) -> (a -> b) -> f a -> f b
 
@@ -220,14 +218,14 @@ And the recursive version is just a synonym:
 < let Nat : * = Fix NatF
 
 Given |fmap|, many recursive schemes can be defined, for example we
-can have \emph{catamorphism}~\cite{Meijer1991} or generic function
-fold:
+can have a \emph{catamorphism} (or generic 
+fold function)~\cite{Meijer1991}:
 
 < letrec cata :  (f : * -> *) -> (a : *) ->
 <                Functor f -> (f a -> a) -> Fix f -> a =
 <   \f : * -> * . \ a : * .
-<   \ m : Functor f .  \ g : f a -> a. \ t : Fix f .
-<   g (fmap f m (Fix f) a (cata f a m g) (out f t))
+<     \ m : Functor f .  \ g : f a -> a. \ t : Fix f .
+<        g (fmap f m (Fix f) a (cata f a m g) (out f t))
 
 
 Unfortunately, in systems like Coq, definitions like |Fix| must be
@@ -296,18 +294,18 @@ transforms a power tree into a list:
 
 
 \paragraph{Kind Polymorphism}
-Previous versions of Haskell, based on System $F_{\omega}$, had some
-support for type-level programming. It had a simple kind system with a
-few kinds ($\star$, $\star \rightarrow \star$ and so on). Still, it is
-insufficient for kind polymorphism, and yet some more extensions to
-the core were needed. Indeed, System $F_C^{\uparrow}$~\cite{fc:pro}
-was proposed to support, among other things, kind
-polymorphism. However, it separates expressions into terms, types and
-kinds, which complicates both the implementation and future
-extensions. \sufcc natively allows definitions to have polymorphic
-kinds. Here is an example, taken from~\cite{fc:pro}, of a datatype
-that benefits from kind polymophism: a higher-kinded fixpoint
-combinator:
+Previous versions of Haskell, based on System $F_{\omega}$, had a
+simple kind system with a few kinds ($\star$, $\star \rightarrow
+\star$ and so on).  Unfortunatelly, this was insufficient for kind
+polymorphism. Thus, recent versions of Haskell were extended to support 
+kind polymorphism, which required extending the core language as well.
+Indeed, System $F_C^{\uparrow}$~\cite{fc:pro} was proposed to
+support, among other things, kind polymorphism. However, System $F_C^{\uparrow}$ separates
+expressions into terms, types and kinds, which complicates both the
+implementation and future extensions. In contrast, without additional extensions, 
+\sufcc natively allows definitions to have polymorphic kinds. Here is an example, taken
+from~\cite{fc:pro}, of a datatype that benefits from kind polymophism:
+a higher-kinded fixpoint combinator:
 
 < data Mu (k : *) (f : (k -> *) -> k -> *) (a : k) =
 <   Roll (g : f (Mu k f) a);
@@ -334,7 +332,7 @@ definition:
 <   | Fork (z : nat) (x : PTree (S n)) (y : PTree (S n));
 
 Notice how the datatype |Nat| is ``promoted'' to be used in the kind
-level. Next we can construct such a binary tree that keeps track of
+level. Next we can construct a binary tree that keeps track of
 its depth statically:
 
 < Fork Z 1 (Empty (S Z)) (Empty (S Z))
@@ -344,5 +342,3 @@ If we accidentally write the wrong depth, for example:
 < Fork Z 1 (Empty (S Z)) (Empty Z)
 
 The above will fail to pass type checking.
-
-\bruno{More examples? closed type families; dependent types?} \jeremy{had hard time thinking of a simple, non-recursive example for type families}
