@@ -16,7 +16,7 @@ operational semantics, typing rules and metatheory of \ecore.
 Figure \ref{fig:ecore:syntax} shows the syntax of \ecore, including
 expressions, contexts and values. \ecore uses a unified 
 representation for different syntactic levels by following the
-\emph{pure type system} (PTS) representation of \cc. Therefore, there
+\emph{pure type system} (PTS) representation of \cc~\cite{handbook}. Therefore, there
 is no syntactic distinction between terms, types or kinds. This design
 brings economy for type checking, since one set of rules can cover
 all syntactic levels. By convention, we use metavariables $[[t]]$ and
@@ -27,7 +27,7 @@ on the term level.
 In \cc, there are two distinct sorts $[[star]]$ and
 $[[square]]$ representing the type of \emph{types} and \emph{sorts}
 respectively, and an axiom $[[star]]:[[square]]$ specifying the
-relation between the two sorts. In \ecore, we further merge types and
+relation between the two sorts~\cite{handbook}. In \ecore, we further merge types and
 kinds together by including only a single sort $[[star]]$ and an
 impredicative axiom $[[star]]:[[star]]$.
 
@@ -168,7 +168,7 @@ program requires $n$ steps of computation to reach normal form,
 then it will require $n$ casts to compute a type-level value.
 
 \paragraph{Benefits of Type in Type}
-The ``Type-in-type'' axiom by rule \ruleref{T\_Ax} brings the benefit 
+The ``type-in-type'' axiom by rule \ruleref{T\_Ax} brings the benefit 
 of supporting \emph{kind polymorphism} in \ecore.
 A term that takes a kind parameter like $[[\
     x:square.x->x]]$ is not a legal type in \cc. Since $[[square]]$ is
@@ -184,7 +184,7 @@ Finally, the definition of type equality in \ecore differs from
 \cc. Without \cc's conversion rule, the type of a term cannot be
 converted freely against beta equality, unless using \cast
 operators. Thus, types of expressions are equal only if they are
-syntactically equal, i.e., satisfy the $\alpha$-equality.
+syntactically equal, i.e., satisfy the alpha equality.
 
 \begin{figure}
     \ottdefnctx{}\ottinterrule

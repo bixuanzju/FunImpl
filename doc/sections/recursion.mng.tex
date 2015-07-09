@@ -87,7 +87,7 @@ in the presence of general recursion.
 \paragraph{Type-level Recursion}
 
 On the type level, $[[mu x:t.e]]$ works as a \emph{iso-recursive}
-type, a kind of recursive type that is not equal but only isomorphic
+type~\cite{eqi:iso}, a kind of recursive type that is not equal but only isomorphic
 to its unrolling. Normally, we need to add two more primitives
 $[[fold]]$ and $[[unfold]]$ for the iso-recursive type to map back
 and forth between the original and unrolled form. Assume there exist
@@ -101,7 +101,7 @@ We have the following typing results
   &[[unfold e1]] &: [[T [x |-> mu x:t.T] ]]\\
   &[[fold [mu x:t.T] e2]] &: [[mu x:t.T]]
 \end{array}\]
-which are derived from rules
+which are derived from rules~\cite{tapl}
 \[ \inferrule{[[G |- e2 : T[x |-> mu x:t.T] ]] \\ [[G |- (mu x:t.T) : star]] }
    {[[G |- fold [mu x:t.T] e2 : (mu x:t.T) ]]} \]
 \[ \inferrule{[[G |- e1 :(mu x:t.T)]] \\ [[G |- T[x |-> mu x:t.T] : star]]}
