@@ -48,7 +48,7 @@ program := datatype1 ; ... ; datatypen ; expr
 
 ## REPL
 
-```
+```bash
 make repl
 ```
 
