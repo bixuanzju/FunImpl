@@ -1,18 +1,50 @@
-# PTS
+# FunImpl
 
 ## Summary
 
-A Haskell implementation of the Pure Type System
-
+`FunImpl` is a type checker and interpreter for the dependently typed
+language `Fun` presented in the paper "Type-level Computation One Step
+at a Time". It comes with a read-eval-print loop allowing one to
+fiddle with `Fun`. This is an overview of how to interact.
 
 ## Installation ##
 
-Run the following commands at the top:
+1. Make sure you have installed the dependencies:
+
+   + Install GHC (version 7.10 or above)
+   + Alex and Happy (install by `cabal install alex happy`)
+
+2. Build and install
+
+   We recommend installing in a sandbox by `cabal sandbox init`
+   
+   ```bash
+   cabal update
+   make
+   ```
+
+## Fun Cheatsheet
+
+A program begins with a (possibly empty) list of datatypes or records,
+each speared by ";", and an expression:
 
 ```
-cabal sandbox init
-make
+program := datatype1 ; ... ; datatypen ; expr
 ```
+
++ Predefined types and terms and operation: `nat` for integers, `1,2,...` and plus operation `+`
++ Kind expression: `*`, `* -> *`
++ Lambda expression: `\x : nat . x + 1`
++ Function type: `nat -> nat`
++ Dependent product type: `(x : nat) -> (y : nat) -> f x -> f y`
++ Recursive type: `mu x : * . x -> *`
++ Castup: `fold 1 [(\x : * . x) nat] 3`
++ Castdown: `unfold 1 e`
++ Datatype: `data List (a : *) = Nil | Cons (x : a) (xs : List a);`
++ Record: `rcrd Person = P {age : nat, address : nat};`
++ Case expression: `case e of Nil => 0 | Cons (x : nat) (xs : List a) => x`
++ Let binding: `let x : nat = 1 in x + 1`
++ Letrec binding: `letrec f : nat -> nat = f 3 in f 4`
 
 ## REPL
 
@@ -20,40 +52,14 @@ make
 make repl
 ```
 
-Following commands are available:
+Commands begin with colon (`:`). Following commands are available:
 
-+ `:t expr`: show the type of `expr`
-+ `:e expr`: evaluate expression `expr`
-+ `:eq exp1 exp2`: definitional equality on `exp1` and `exp2`
-+ `:env`: show the current environments
-+ `:clr`: clear the current environments
-+ `:add name type`: Add (`name`, `type`) to the current typing environment
-+ `:let name expr`: Bind `expr` to `name` so that it can used later on
-+ `:q`: quit gracefully
++ `<expr>`                   pretty print expression
++ `:t <expr>`                print type of expression
++ `:trans <expr>`            print translation of expression
++ `:e <expr>`                evaluate expression
++ `:q`                       quit gracefully
 
-## Built-in Types and Terms ##
+## Examples
 
-+ `nat`: the type of natural numbers (Scott encoding)
-+ `zero`
-+ `suc n`: successor of `n`
-+ `plus n m`: sum of `n` and `m`
-+ `bool`: the type of Boolean (Scott encoding)
-+ `true`
-+ `false`
-+ `fix`: fixed point combinator
-+ `vec : * -> nat -> *`
-+ `nil : Π(a : ⋆) . vec a zero`
-+ `cons : Π(a : ⋆) . Π(b : a) . Π(n : nat) -> vec a n -> vec a (suc n)`
-
-
-## Run Tests
-
-```
-make test
-```
-
-## Build documentation
-
-```
-make doc
-```
+See `examples` directory for large examples.
