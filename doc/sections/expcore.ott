@@ -19,8 +19,8 @@ e, t {{ tex \tau }}, T {{ tex \sigma }}, ro {{ tex \rho }} :: 'e_' ::=       {{ 
   | e1 e2                     ::  :: App        {{ com Application }}
   | \ x : t . e               ::  :: Lam        {{ com Abstraction }}
   | Pi x : t  . T             ::  :: Pi         {{ com Dependent Product }}
-  | castup [ t ] e            ::  :: CastUp     {{ com Cast Up by Expansion}}
-  | castdown e                ::  :: CastDown   {{ com Cast Down by Reduction }}
+  | castup [ t ] e            ::  :: CastUp     {{ com Cast Up }}
+  | castdown e                ::  :: CastDown   {{ com Cast Down }}
   | mu x : t . e              ::  :: Mu         {{ com Polymorphic Recursion }}
   | e1 [ x |-> e2 ]           :: M:: Sub        {{ com Substitution }}
   | ( e )                     :: M:: Parens     {{ com Parenthesized expression }}
@@ -76,7 +76,7 @@ v :: 'v_' ::=                               {{ com Values   }}
   | star                 ::  :: Star       {{ com Type of Types }}
   | \ x : t . e          ::  :: Lam        {{ com Abstraction  }}
   | Pi x : t1 . t2       ::  :: Pi         {{ com Dependent Product }}
-  | castup [ t ] e       ::  :: CastUp     {{ com Cast Up by Expansion }}
+  | castup [ t ] e       ::  :: CastUp     {{ com Cast Up }}
 
 %% Explicit core
 ec {{ tex e }}, tc {{ tex \tau }}, Tc {{ tex \sigma }} :: 'ec_' ::=       {{ com Expressions    }}
@@ -85,8 +85,8 @@ ec {{ tex e }}, tc {{ tex \tau }}, Tc {{ tex \sigma }} :: 'ec_' ::=       {{ com
   | ec1 ec2                     ::  :: App        {{ com Application }}
   | \ x : tc . ec               ::  :: Lam        {{ com Abstraction }}
   | Pi x : tc . Tc              ::  :: Pi         {{ com Dependent Product }}
-  | castup [ tc ] ec            ::  :: CastUp     {{ com Cast Up by Expansion}}
-  | castdown ec                 ::  :: CastDown   {{ com Cast Down by Reduction }}
+  | castup [ tc ] ec            ::  :: CastUp     {{ com Cast Up}}
+  | castdown ec                 ::  :: CastDown   {{ com Cast Down }}
 
 %%% Terminals
 terminals :: 'terminals_' ::=

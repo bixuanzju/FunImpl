@@ -407,31 +407,9 @@ See Figure \ref{fig:appendix:syntax}.
 
 \subsection{Expression Typing}
 See Figure \ref{fig:appendix:typing}.
-\begin{figure*}
-\renewcommand{\hlmath}[1]{}
-\renewcommand{\ottdrulename}[1]{\textsc{\replace{#1}{TR}{TS}}}
-\renewcommand{\ottcom}[1]{\text{\replace{#1}{translation}{typing}}}
-\ottdefnctxtrans{}\ottinterrule
-\ottdefnpgmtrans{}\ottinterrule
-\ottdefndecltrans{}\ottinterrule % defined in otthelper.mng.tex
-\ottdefnpattrans{}\ottinterrule
-\ottdefnexprtrans{}
-\caption{Typing rules of the surface language}
-\label{fig:appendix:typing}
-\end{figure*}
 
 \subsection{Translation to the Core}
 See Figure \ref{fig:appendix:translate}.
-\begin{figure*}
-\ottdefnctxtrans{}\ottinterrule
-\ottdefnpgmtrans{}\ottinterrule
-\ottdefndecltrans{}
-\[\hlmath{\ottdecltrans}\]\ottinterrule % defined in otthelper.mng.tex
-\ottdefnpattrans{}\ottinterrule
-\ottdefnexprtrans{}
-\caption{Translation rules of the surface language}
-\label{fig:appendix:translate}
-\end{figure*}
 
 \section{Proofs about Surface Language}
 \subsection{Type-safety of Translation}
@@ -549,4 +527,28 @@ A:star~>t]]$.
             \ruleref{T\_App}, we can conclude $[[G |- (unfoldnp e1) T <<e2>> : T]]$.
     \end{description}
 \end{proof}
+
+\begin{figure*}
+\renewcommand{\hlmath}[1]{}
+\renewcommand{\ottdrulename}[1]{\textsc{\replace{#1}{TR}{TS}}}
+\renewcommand{\ottcom}[1]{\text{\replace{#1}{translation}{typing}}}
+\ottdefnctxtrans{}\ottinterrule
+\ottdefnpgmtrans{}\ottinterrule
+\ottdefndecltrans{}\ottinterrule % defined in otthelper.mng.tex
+\ottdefnpattrans{}\ottinterrule
+\ottdefnexprtrans{}
+\caption{Typing rules of the surface language}
+\label{fig:appendix:typing}
+\end{figure*}
+
+\begin{figure*}
+\ottdefnctxtrans{}\ottinterrule
+\ottdefnpgmtrans{}\ottinterrule
+\ottdefndecltrans{}
+\[\hlmath{\ottdecltrans}\]\ottinterrule % defined in otthelper.mng.tex
+\ottdefnpattrans{}\ottinterrule
+\ottdefnexprtrans{}
+\caption{Translation rules of the surface language}
+\label{fig:appendix:translate}
+\end{figure*}
 
