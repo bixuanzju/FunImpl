@@ -59,15 +59,18 @@ to support type-level computation.  In such type systems ensuring the
 \emph{decidability} of type checking requires type-level computation
 to terminate. When the syntax of types and terms is the same, the
 decidability of type-checking is usually dependent on the strong
-normalization of the calculus. An example is the proof
-of decidability of type-checking for the \emph{calculus of
-  constructions}~\cite{coc} (and other normalizing PTS),
-which depends on strong normalization ~\cite{pts:normalize}. 
-An unfortunate consequence of this coupling between
-decidability and strong normalization is that adding (unrestricted)
-general recursion to such calculi is difficult. There is a clear
-tension between decidability of type-checking and allowing general
-recursion in calculi with unified syntax.
+normalization of the calculus. An example is the proof of decidability
+of type-checking for the \emph{calculus of constructions}~\cite{coc}
+(and other normalizing PTS), which depends on strong normalization
+~\cite{pts:normalize}.  Modern dependently
+typed languages such as Idris~\cite{idris} and Agda~\cite{agda}, which also
+built on a unified syntax for types and terms, require strong
+normalization as well: all recursive programs must pass a termination
+checker.  An unfortunate consequence of coupling
+decidability of type-checking and strong normalization is that adding
+(unrestricted) general recursion to such calculi is difficult. There
+is a clear tension between decidability of type-checking and allowing
+general recursion in calculi with unified syntax.
 
 This paper proposes \name: a variant of the calculus of constructions
 that allows the same syntax for types and terms, supports type-level
@@ -100,36 +103,34 @@ supports \emph{algebraic datatypes}, \emph{higher-kinded types},
 \name is a minimal calculus with only 8 language constructs and a
 single syntactic sort. In contrast the latest versions of System
 $F_{C}$ (Haskell's core language) have multiple syntactic sorts and
-dozens of language constructs.  Even if support for equality and
-coercions, which constitutes a significant part of System $F_{C}$,
-would be removed the resulting language would still be significantly
-larger and more complex than \name.
+dozens of language constructs.  
+%Even if support for equality and
+%coercions, which constitutes a significant part of System $F_{C}$,
+%would be removed the resulting language would still be significantly
+%larger and more complex than \name.
 
-In essence \name sacrifices the convinience of use of type-level
-computation to gain the ability of doing arbitrary general recursion
-at the term level.  For this reason, we believe \name is particularly well-suited as a
-core for Haskell-like languages, which do not restrict term-level
-recursion and also limit the use of type-level computation.  Like in
-System $F_{C}$, type-equality in \name is purely syntactic (modulo
-alpha-conversion). 
+It is worth noting that \name does sacrifice the convinience of use of type-level computation
+to gain the ability of doing arbitrary general recursion at the term
+level.  For this reason, we believe \name is particularly well-suited
+as a core for Haskell-like languages, where the core language (System
+$F_{C}$) also comes with a similarly weak notion of type-equality.  In
+both System $F_{C}$ and \name, type-equality in \name is purely
+syntactic (modulo alpha-conversion).
 
 A non-goal of the current work (although a worthy avenue for future
 work) is to use \name as a core language for modern dependently typed
-languages like Agda or Idris. In those languages, an additional
-concern, which does not exist in traditional functional languages like
-Haskell, is how to ensure
-\emph{logical consistency}: that is ensuring the soundness of proofs
-written as programs. \name is not logically consistent.  To ensure
-logical consistency, Agda and Idris take a different point in the
-design space: they do not allow arbitrary general recursion (although they allow
-type conversions to happen automatically and have a more poweful
-notion of type-equality).  Various
-researchers~\cite{zombie:popl14,zombie:thesis}\bruno{more references?}
-have been investigating how to combine logical consistency, general
-recursion and dependent types. However, this is usually done by having
-the type system carefully control the total and partial parts of
-computation, which adds complexity to the system. In \name,
-logical consistency is traded by simplicity of the system.
+languages like Agda or Idris. In contrast to \name, those languages
+use a much more powerful notion equality based on $\beta$-equality.  Moreover, an
+additional concern, which does not exist in traditional functional
+languages like Haskell, is how to ensure \emph{logical consistency}:
+that is ensuring the soundness of proofs written as programs. Both
+\name and System $F_{C}$ not logically consistent.  
+Various researchers~\cite{zombie:popl14,zombie:thesis}\bruno{more
+  references?}  have been investigating how to combine logical
+consistency, general recursion and dependent types. However, this is
+usually done by having the type system carefully control the total and
+partial parts of computation, which adds complexity to the system. In
+\name, logical consistency is traded by the simplicity of the system.
 
 \begin{comment}
 In particular
@@ -180,9 +181,10 @@ In summary, the contributions of this work are:
   that supports datatypes, pattern matching and various advanced
   language extensions of Haskell. The type-safety of the type-directed
   translation to \name is proved.
+
+\item {\bf A prototype implementation:} \name has an
+  implementation, which is publicly available.
 \end{itemize}
-
-
 
 \begin{comment}
 \begin{enumerate}[a)]
