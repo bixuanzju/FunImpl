@@ -25,9 +25,9 @@ feature of \coc is the \emph{conversion rule}
 %absence of a conversion rule 
 
 The conversion rule allows one to derive $e:[[t2]]$ from the
-derivation of $e:[[t1]]$ and the $\beta$-equality of $[[t1]]$ and
+derivation of $e:[[t1]]$ and the beta equality of $[[t1]]$ and
 $[[t2]]$. This rule is important to \emph{automatically} allow terms
-with $\beta$-equivalent types to be considered type-compatible.  The following
+with beta equivalent types to be considered type-compatible.  The following
 example illustrates the use of the conversion rule:
 \[
 f [[==]] [[\y:(\x:star.x)int.y]]
@@ -36,7 +36,7 @@ Here $f$ is a simple identity function. Notice that the type of $y$
 (i.e., $[[(\x:star.x)int]]$) is interesting: it is a type-level
 identity function, applied to $[[int]]$. Without the conversion rule,
 $f$ cannot be applied to, say $3$. Note that the following
-$\beta$-equivalence holds:
+beta equivalence holds:
 \[ [[(\x:star.x)int =b int]] \]
 Thus, the conversion rule allows the application of $f$ to $3$ by
 implicitly converting $f$ to
@@ -61,7 +61,7 @@ $d\,\mathsf{loop}$, where $\mathsf{loop}$ stands for any diverging
 computation of type $[[int]]$. If we type check the following
 application: \[ [[(\x: d three.x)z]]\]
 under the normal typing rules of \coc, the type checker would get
-stuck as it tries to do $\beta$-equality on two terms: $d\,3$ and
+stuck as it tries to do beta equality on two terms: $d\,3$ and
 $d\,\mathsf{loop}$, where the latter is non-terminating.
 
 \subsection{An Alternative to the Conversion Rule: Explicit Casts}
@@ -72,7 +72,7 @@ reduction rules of \coc, \name makes it explicit as to when and where
 to convert one type to another. Type conversions are explicit by
 introducing two language constructs: $[[castdown]]$ (beta reduction)
 and $[[castup]]$ (beta expansion). The benefit of this approach is
-that decidability of type-checking no longer is coupled with strong
+that decidability of type-checking is no longer coupled with strong
 normalization of the calculus.
 
 \paragraph{Beta Reduction} The $[[castdown]]$ operator allows a type
@@ -80,16 +80,16 @@ conversion provided that the resulting type is a \emph{beta reduction}
 of the original type of the term. To explain the use of
 $[[castdown]]$, assume an identity function $g$ defined by
 \[ g [[==]] [[\y:int.y]] \]
-and a term $[[e1]]$ with type
-\[ [[e1]] : [[(\x:star.x)int]] \]
+and a term $[[e]]$ such that
+\[ [[e]] : [[(\x:star.x)int]] \]
 In contrast to \coc,
-we cannot directly apply $g$ to $[[e1]]$ in \name 
+we cannot directly apply $g$ to $[[e]]$ in \name 
 since their types are not \emph{syntactically equal}.
 Note that the following beta reduction holds:
 \[ [[(\x:star.x)int --> int]] \]
 Thus, $[[castdown]]$ can be used for the explicit (type-level) beta reduction:
-\[ [[castdown e1]] : [[int]]\]
-Then the application $g\,([[castdown e1]])$ can type check.
+\[ [[castdown e]] : [[int]]\]
+Then the application $g\,([[castdown e]])$ can type check.
 
 \paragraph{Beta Expansion} The dual operation of $[[castdown]]$ is
 $[[castup]]$, which allows a type conversion provided that the
@@ -109,18 +109,18 @@ choices for beta expansions, e.g., $1 + 2$ and $2 + 1$ are both the
 beta expansions of $3$. 
 
 \paragraph{One-Step}
-A final point to make is that the \cast rules specify \emph{one-step}
+The \cast rules specify \emph{one-step}
 reduction or expansion. To clarify the subtlety, let us consider a
 variation of the example from Section~\ref{subsec:cast}. This time,
-imagine term $[[e1]]$ with type
+imagine term $[[e]]$ with type
 \[ [[(\x : star . \y:star. x) int bool]] \]
 which is a type-level |const| function. Now the following
 application
-\[g\,([[castdown e1]])\]
-still results in an ill-typed expression, because $[[castdown e1]]$ has
+\[g\,([[castdown e]])\]
+still results in an ill-typed expression, because $[[castdown e]]$ has
 type $[[(\y : star. int) bool]]$, which is not syntactically equal to
 $[[int]]$. Apparently, another $[[castdown]]$ is needed:
-\[g\,[[(castdown (castdown e1))]]\]
+\[g\,[[(castdown (castdown e))]]\]
 to further reduce $[[(\y : star. int) bool]]$ to $[[int]]$.
 
 % These fine-tuned \cast rules gain us more control over type-level
@@ -143,7 +143,7 @@ even in the presence of non-termination at type level.
 % diverging computation and of type $[[int]]$. What would happen if we
 % try to type check the following application: \[ [[(\x: d three.x)z]]\]
 % Under the normal typing rules of \coc, the type checker would get
-% stuck as it tries to do $\beta$-equality on two terms: $d\,3$ and
+% stuck as it tries to do beta equality on two terms: $d\,3$ and
 % $d\,\mathsf{loop}$, where the latter is non-terminating.
 
 Consider the same example discussed in
@@ -152,7 +152,7 @@ type-checking the following application:
 \[ [[(\x: d three.x)z]] \]
 where the type of $z$ is $d\,\mathsf{loop}$.  This is because in
 \name, the type checker only performs syntactic comparison between
-$d\,3$ and $d\,\mathsf{loop}$, instead of $\beta$-equality. Thus it
+$d\,3$ and $d\,\mathsf{loop}$, instead of beta equality. Thus it
 rejects the above application as ill-typed. Indeed it is impossible to
 type-check the application even with the use of $[[castup]]$ and/or
 $[[castdown]]$: one would need to write infinite number of
@@ -166,6 +166,7 @@ the normalization property, while supporting general recursion at the
 same time.
 
 \subsection{Recursive Terms and Types}
+\label{sec:overview:recursion}
 
 \name supports general recursion, and allows writing standard
 recursive programs at the term level. At the same time, the recursive
@@ -200,9 +201,9 @@ function on records.
 The same $\mu$ primitive is used on type-level to represent recursive
 types. We use the \emph{iso-recursive} approach \cite{eqi:iso} that
 treats a recursive type and its unfolding as different, but
-isomorphic. The isomorphism is witnessed by traditional \fold and
+isomorphic. The isomorphism is witnessed by \fold and
 \unfold operations. In \name, such isomorphism is witnessed by
-$[[castup]]$ and $[[castdown]]$ (see Section \ref{sec:rec:recur}). In
+$[[castup]]$ and $[[castdown]]$ (Section \ref{sec:rec:recur}). In
 fact, $[[castup]]$ and $[[castdown]]$ \emph{generalize} \fold and
 \unfold: they can convert any types, not just recursive types.
 
@@ -329,7 +330,7 @@ Then |(castdown n)| reduces the above to
 
 < (b : *) -> b -> (Nat -> b) -> b
 
-which perfectly matches the types of the terms applied to |(castdown
+which matches the types of the terms applied to |(castdown
 n)|: |Nat| is fed as the result type; $m$ is used for the base case;
 and |(\ n' : Nat . S (f n' m))| the recursive step.
 

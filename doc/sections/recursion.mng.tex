@@ -11,7 +11,9 @@ general recursion construct.  The general recursion is polymorphic and
 has a uniform representation on both term level and type level. The
 same construct works both as a term-level fixpoint and recursive type.
 The addition of general recursion does not break decidability of
-type-checking nor type-safety.
+type-checking nor type-safety. The full specification and proofs of \name
+can be found in the extended version of this paper.
+\bruno{Mention where to find the proofs!}
 
 \subsection{Syntax and Semantics}
 
@@ -25,7 +27,7 @@ as Haskell to be expressed in \name as well.
 For syntax, we add the polymorphic recursive expression $[[mu x:t.e]]$
 to represent general recursion in both terms and types.  The recursive
 operator is \emph{polymorphic} in the sense that the binder $x$ can
-have a higher kind like $[[star -> star]]$ to take parameters.
+have a kind like $[[star -> star]]$ to take parameters.
 For operational semantics, we add
 the rule \ruleref{S\_Mu} to define the unrolling of recursion
 as a one-step reduction. For typing, we
@@ -140,20 +142,21 @@ Section \ref{sec:ecore:meta} without requiring normalization. The
 \cast rules are critical for decidability, which rely on checking if
 one type can be reduced to another in one step. When we introduce
 general recursion into the language, if we can make sure the newly
-added and original typing rules are still decidable, the decidability
+added and original typing rules are decidable, the decidability
 of type checking still follows in \name.
-
 The rule \ruleref{T\_Mu} for checking the well-formedness of
 polymorphic recursion is decidable because its premises only include
-decidable typing judgements. However, the rule \ruleref{S\_Mu} changes
+decidable typing judgements. 
+
+However, the rule \ruleref{S\_Mu} changes
 the one-step reduction, which may affect the decidability of \cast
 rules. If the decidability of changed reduction rules still holds, by
 following the proof for \ecore, we can show that \cast
-rules are still decidable in \name. Note that given a recursive term
+rules are decidable in \name. Note that given a recursive term
 $[[mu x:t.e]]$, by rule \ruleref{S\_Mu}, there always exists a unique
 term $[[e']]=[[e[x|->mu x:t.e] ]]$ such that $[[mu x:t.e -->
     e']]$. Thus, the decidability of one-step reduction still holds,
-i.e. Lemma \ref{lem:ecore:unique} holds in \name. And the decidability
+i.e., Lemma \ref{lem:ecore:unique} holds in \name. And the decidability
 of type checking, namely Theorem \ref{lem:ecore:decide} holds in \name:
 
 \begin{thm}[Decidability of Type Checking \name]\label{lem:rec:decide}
@@ -167,11 +170,11 @@ considering rules \ruleref{T\_Mu} and \ruleref{T\_Mu} during the
 induction of proof. Thus, Theorem \ref{lem:ecore:reduct} and
 \ref{lem:ecore:prog} also hold in \name:
 
-\begin{thm}[Subject Reduction]\label{lem:rec:reduct}
+\begin{thm}[Subject Reduction of \name]\label{lem:rec:reduct}
 If $[[G |- e:T]]$ and $[[e]] [[->>]] e'$ then $[[G |- e':T]]$.
 \end{thm}
 
-\begin{thm}[Progress]\label{lem:rec:prog}
+\begin{thm}[Progress of \name]\label{lem:rec:prog}
 If $[[empty |- e:T]]$ then either $[[e]]$ is a value $v$ or there
 exists $[[e]]'$ such that $[[e --> e']]$.
 \end{thm}

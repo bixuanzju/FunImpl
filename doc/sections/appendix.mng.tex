@@ -163,31 +163,27 @@ given $[[e]]$ there is a unique $[[e']]$ such that $[[e --> e']]$ or there is no
 		    \item $[[star]]$,
 			\item $[[\x:t.e]]$,
 			\item $[[Pi x:t1.t2]]$,
-			\item $[[castup [t] e]]$,
+			\item $[[castup [t] e]]$.
 		\end{inparaenum}
-		which does not match any rules of $[[-->]]$. Thus there is no $[[e]]'$ such
-that $[[e-->e']]$.
-		\item[Case $[[e]]=[[(\x:t.e1) e2]]$:] There is a unique $[[e]]'=[[ e1[x|->e2]
-]]$ by rule \ruleref{S\_Beta}.
-		\item[Case $[[e]]=[[castdown (castup [t] e)]]$:] There is a unique $[[e]]'=e$
-by rule \ruleref{S\_CastDownUp}.
-		\item[Case $[[e]]=[[mu x:t.e]]$:] There is a unique $[[e]]'=[[e[x|->mu x:t.e]
-]]$ by rule \ruleref{S\_Mu}.
+		Thus, it does not match any rules of $[[-->]]$. Then there is no $[[e]]'$ such that $[[e-->e']]$.
+		\item[Case $[[e]]=[[(\x:t.e1) e2]]$:] Since the first term $[[\x:t.e1]]$ is a value, rule \ruleref{S\_App} does not apply to this case. Thus, only rule \ruleref{S\_Beta} can be applied and there is a unique $[[e']]=[[ e1[x|->e2] ]]$.
+		\item[Case $[[e]]=[[castdown (castup [t] e1)]]$:] Since the inner term $[[castup [t] e1]]$ is a value, rule \ruleref{S\_CastDown} does not apply to this case. Thus, only rule \ruleref{S\_CastDownUp} can be applied and there is a unique $[[e']]=[[e1]]$.
+		\item[Case $[[e]]=[[mu x:t.e1]]$:] Only rule \ruleref{S\_Mu} can be applied. Thus, there is a unique $[[e]]'=[[e1[x|->mu x:t.e1] ]]$.
 		\item[Case $[[e]]=[[e1 e2]]$ and $[[e1]]$ is not a $\lambda$-term:] If
 $[[e1]]=v$ and is not a $\lambda$-term, there is no rule to reduce $[[e]]$. 
 Then there is no $[[e1']]$ such that $[[e1 --> e1']]$, which does not satisfy the premise of 
-rule \ruleref{S\_App}. Thus there is no $[[e]]'$ such that $[[e-->e']]$.
+rule \ruleref{S\_App}. Thus, there is no $[[e]]'$ such that $[[e-->e']]$.
 
 		Otherwise, if $[[e1]]$ is not a value, there exists some $[[e1']]$ such that $[[e1 --> e1']]$. By the
-induction hypothesis, $[[e1']]$ is the unique reduction of $[[e1]]$. Thus by rule
+induction hypothesis, $[[e1']]$ is the unique reduction of $[[e1]]$. Thus, by rule
 \ruleref{S\_App}, $[[e]]'=[[e1' e2]]$ is the unique reduction of $[[e]]$.
 		\item[Case $[[e]]=[[castdown e1]]$ and $[[e1]]$ is not a $[[castup]]$-term:] If
 $[[e1]]=v$ and is not a $[[castup]]$-term, there is no rule to reduce $[[e]]$. 
 Then there is no $[[e1']]$ such that $[[e1 --> e1']]$, which does not satisfy the premise of 
-rule \ruleref{S\_CastDown}. Thus there is no $[[e]]'$ such that $[[e-->e']]$.
+rule \ruleref{S\_CastDown}. Thus, there is no $[[e]]'$ such that $[[e-->e']]$.
 
         Otherwise, if $[[e1]]$ is not a value, there exists some $[[e1']]$ such that $[[e1 --> e1']]$. By the
-induction hypothesis, $[[e1']]$ is the unique reduction of $[[e1]]$. Thus by rule
+induction hypothesis, $[[e1']]$ is the unique reduction of $[[e1]]$. Thus, by rule
 \ruleref{S\_CastDown}, $[[e]]'=[[castdown e1']]$ is the unique reduction of $[[e]]$.
 	\end{description}
 \end{proof}
@@ -222,8 +218,8 @@ a unique $[[t1']]$ such that $[[t1 --> t1']]$ or there is no such $[[t1']]$.
 If such $[[t1']]$ does not exist, then we report type checking fails. 
 
 Otherwise, we examine if $[[t1']]$ is syntactically equal to $[[t2]]$, 
-i.e. $[[t1' =a t2]]$. If the equality
-holds, we conclude the unique type of $[[e]]$ is $[[t1]]$, i.e. $[[G |- e:t1]]$. Otherwise, we
+i.e., $[[t1' =a t2]]$. If the equality
+holds, we conclude the unique type of $[[e]]$ is $[[t1]]$, i.e., $[[G |- e:t1]]$. Otherwise, we
 report $[[e]]$ fails to type check.
 		\item[Case $[[e]]=[[castdown e1]]$:] From the premises of rule
 \ruleref{T\_CastDown}, by the induction hypothesis, we can derive the type of
@@ -255,7 +251,7 @@ If $[[G |- e:T]]$ and $[[e]] [[->>]] e'$ then $[[G |- e':T]]$.
 \end{thm}
 
 \begin{proof}
-    We prove the case for one-step reduction, i.e. $[[e --> e']]$. The theorem
+    We prove the case for one-step reduction, i.e., $[[e --> e']]$. The theorem
 follows by induction on the number of one-step reductions of $[[e]] [[->>]]
 [[e']]$.
     The proof is by induction with respect to the definition of one-step
@@ -334,7 +330,7 @@ e:t]]$. Then we obtain $[[G |- (mu x:t.e) : t]]$. Thus by Lemma
 \ref{lem:appendix:subst}, we have $[[G |- e[x |-> mu x:t.e] : t[x |-> mu x:t.e]
 ]]$.
         
-        Note that $[[x]]:[[t]]$, i.e. the type of $[[x]]$ is $[[t]]$, then
+        Note that $[[x]]:[[t]]$, i.e., the type of $[[x]]$ is $[[t]]$, then
 $[[x]] \notin \FV([[t]])$ holds implicitly. Hence, by the definition of
 substitution, we obtain $[[t[x |-> mu x:t.e] == t]]$. Therefore, $[[T' =a t[x
 |-> mu x:t.e] ]] [[==]] [[t =a T]]$.

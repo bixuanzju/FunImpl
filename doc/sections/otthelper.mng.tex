@@ -30,6 +30,7 @@
 \begin{array}{llll} %
     [[t1->t2]] & \triangleq & [[Pi x:t1.t2]],~\text{where}~x \not \in %
         \FV([[t2]]) \\ %
+    [[(x:t1)->t2]] & \triangleq & [[Pi x:t1.t2]] \\ %
     [[let x : t = e2 in e1]] & [[:=]] & [[ e1 [x |-> e2] ]] \\ %
     [[foldn [t1] e]] & [[:=]] & [[castup]] [ [[t1]] ] ([[castup]] [ %
         [[t2]] ] (\dots ( [[castup [tn] e]] ) \dots )) \\ %
