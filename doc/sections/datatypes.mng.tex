@@ -1,6 +1,24 @@
 \section{Formalization of the Surface language}
 \label{sec:surface}
 
+\begin{figure*}
+\small
+\centering
+\renewcommand{\ottinterrule}{\\[1.0mm]}
+\renewcommand{\ottdrule}[4][]{{\inferrule{#2 }{#3}\,\ottdrulename{#4}}}
+\renewenvironment{ottdefnblock}[3][]{\raggedright \framebox{\mbox{#2}} \quad #3 \\[0pt]}{}
+\renewcommand{\ottusedrule}[1]{$#1\quad$}
+\ottdefnctxtrans{}\ottinterrule
+\ottdefnpgmtrans{}\ottinterrule
+\ottdefndecltrans{}
+\[\hlmath{\ottdecltrans}\]\ottinterrule % defined in otthelper.mng.tex
+\ottdefnpattrans{}\\
+\setlength{\lineskip}{8pt}
+\ottdefnexprtrans{}
+\caption{Type directed translation rules of \sufcc}
+\label{fig:source:translate}
+\end{figure*}
+
 % \begin{itemize}
 % \item Expand the core language with datatypes and pattern matching by encoding.
 % \item Give translation rules.
@@ -128,23 +146,6 @@ arguments.
 %final result of each data constructor, as in GADTs. However, our
 %encoding method does support some form of GADTs, as is discussed in
 %Section~\ref{Discussion}.
-
-\begin{figure*}
-\small
-\centering
-\renewcommand{\ottinterrule}{\\[1.0mm]}
-\renewcommand{\ottdrule}[4][]{{\inferrule{#2 }{#3}\,\ottdrulename{#4}}}
-\renewenvironment{ottdefnblock}[3][]{\raggedright \framebox{\mbox{#2}} \quad #3 \\[0pt]}{}
-\renewcommand{\ottusedrule}[1]{$#1\quad$}
-\ottdefnctxtrans{}\ottinterrule
-\ottdefnpgmtrans{}\ottinterrule
-\ottdefndecltrans{}
-\[\hlmath{\ottdecltrans}\]\ottinterrule % defined in otthelper.mng.tex
-\ottdefnpattrans{}\ottinterrule
-\ottdefnexprtrans{}
-\caption{Type directed translation rules of \sufcc}
-\label{fig:source:translate}
-\end{figure*}
 
 
 % \begin{figure*}
