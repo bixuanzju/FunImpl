@@ -10,6 +10,7 @@ type-checking. However, unlike \cc the proof of decidability of
 type-checking does not require the strong normalization of the
 calculus.  In rest of this section, we demonstrate the syntax,
 operational semantics, typing rules and metatheory of \ecore.
+Full proofs of metatheory can be found in the appendix.
 \bruno{mention that all proofs can be found in the appendix}
 
 \subsection{Syntax}\label{sec:ecore:syn}
@@ -84,9 +85,9 @@ of type conversion:
     [[t1]] ] ([[castup]] [ [[t2]] ] (\dots ( [[castup]] [ [[tn]] ]
   [[e]] ) \dots ))
 \]
-Due to the decidability of one-step reduction (Section
-\ref{sec:ecore:meta}), the intermediate types can be uniquely determined, 
-thus can be left out from the $[[castup]]$ operator.
+Due to the decidability of one-step reduction as we shall see in Section 
+\ref{sec:ecore:meta}, the intermediate types can be uniquely determined, 
+thus can be left out from the $[[foldn]]$ operator.
 
 \begin{figure}
     \resizebox{\columnwidth}{!}{$\ottcoresugar$}
@@ -170,7 +171,7 @@ then it will require $n$ casts to compute a type-level value.
 
 \paragraph{Pros and Cons of Type in Type}
 The ``type-in-type'' axiom is well-known to give rise 
-to logical inconsistency~\cite{}\bruno{reference here!}. However, since our goal is to 
+to logical inconsistency~\cite{systemfw}. However, since our goal is to 
 investigate core languages for languages that are logically
 inconsistent any way (due to general recursion), we do not view 
 ``type-in-type''  as a problematic rule.
