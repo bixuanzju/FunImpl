@@ -83,11 +83,11 @@ and a term $[[e]]$ such that
 In contrast to \coc,
 we cannot directly apply $g$ to $[[e]]$ in \name 
 since their types are not \emph{syntactically equal}.
-Note that the following beta reduction holds:
+However, note that the following beta reduction holds:
 \[ [[(\x:star.x)int --> int]] \]
 Thus, $[[castdown]]$ can be used for the explicit (type-level) beta reduction:
 \[ [[castdown e]] : [[int]]\]
-Then the application $g\,([[castdown e]])$ can type check.
+Then the application $g\,([[castdown e]])$ type-checks.
 
 \paragraph{Beta Expansion} The dual operation of $[[castdown]]$ is
 $[[castup]]$, which allows a type conversion provided that the
@@ -107,7 +107,7 @@ choice for beta expansion. For example, $1 + 2$ and $2 + 1$ are both the
 beta expansions of $3$. 
 
 \paragraph{One-Step}
-The \cast rules specify \emph{one-step} reduction or expansion.
+The \cast rules allow only \emph{one-step} reduction or expansion.
 If two type-level terms require more than one step of reductions or
 expansions for normalization, then multiple casts must be used.
 Consider a variation of the example from Section~\ref{subsec:cast}. This time,
@@ -194,7 +194,7 @@ language. The application |fact 3|, for example, produces |6| as expected.
 % The dynamic semantics of $\mu$ requires the recursive binder to satisfy (omit type annotations for clarity):  \[ \mu f.\,E = (\lambda f.\,E) (\mu f.\,E) \] which, however, does not terminate in strict languages. Therefore, to loosen the function-type restriction to allow any types, the sensible choice for the evaluation strategy is \emph{call-by-name}.
 
 \paragraph{Recursive Types}
-The same $\mu$ primitive is used on type-level to represent
+The same $\mu$ primitive is used at the type-level to represent
 iso-recursive recursive types~\cite{eqi:iso}. In the
 \emph{iso-recursive} approach a recursive type and its unfolding are
 different, but isomorphic. The isomorphism is witnessed by two
@@ -316,9 +316,9 @@ defined as:
 <     (castdown n) Nat m (\ n' : Nat . S (f n' m))
 
 The above definition resembles case analysis commonly seen in modern
-functional programming languages. Indeed, if we take apart the
-definition, we will see why the use of $[[castdown]]$ plays such an
-important role to make it all work. First of all, remember |Nat| is
+functional programming languages. If we take apart the
+definition, we see that the use of $[[castdown]]$ plays an
+important role. First of all, remember |Nat| is
 encoded as:
 
 < mu X : * . (b : *) -> b -> (X -> b) -> b
