@@ -7,9 +7,9 @@ different of our work is that we propose the use of explicit casts to
 control type-level computation. Moreover we also unify recursion and
 recursive types in a single language construct. Throughout this
 section, we refer to Figure~\ref{fig:related:comp} for comparison. Our
-emphasis is that with considerably less language constructs than
-System $F_C$, \name is a well-suited alternative as a core for
-Haskell-like language.
+emphasis is that with significantly less language constructs than
+System $F_C$ and many modern features found in Haskell, \name is a
+well-suited alternative as a core for Haskell-like language.
 
 \begin{figure*}
 \begin{threeparttable}
@@ -46,9 +46,9 @@ $\Pi\Sigma$ & N/A & Unknown\tnote{2} & Yes & 18 & 1 & No \\ \bottomrule
 \paragraph{General recursion without decidable type checking} To our
 knowledge, Cayenne~\cite{cayenne} is the first programming language
 that integrates the full power of dependent types with general
-recursion. It bears some similarities with \name: first, it also uses
-one syntactic form for both terms and types; second, it allows
-arbitrary computation to happen at type level; third, because of
+recursion. It bears some similarities with \name: First, it also uses
+one syntactic form for both terms and types. Second, it allows
+arbitrary computation to happen at type level. Third, because of
 unrestricted recursion allowed in the system, Cayenne is logically
 inconsistent, thus cannot be used as a proof system. However, the most
 crucial difference from \name is that type-checking in Cayenne is
@@ -56,8 +56,8 @@ undecidable. From a pragmatic view, this design choice simplifies the
 implementation (the implemented type checker fixes an upper bound on
 the number of reductions that it may perform), among
 others. Nevertheless, Cayenne is able to type check many useful
-programs. In our opinion, \name improves in this respect by preserving
-decidable type checking under the presence of general recursion.
+programs. \name improves in this regard by preserving decidable type
+checking under the presence of general recursion.
 
 
 \paragraph{Restricted recursion with termination checking}
@@ -89,59 +89,62 @@ restricted type and/or kind language. On the other hand this brings
 complexity to the language as multiple levels (possibly with similar
 constructs) have to be managed.
 
-Several early attempts of adding general recursion by using stratified
-type systems include Twelf~\cite{lf:twelf} and
-Delphin~\cite{lf:delphin}, both of which are implementations of the
-Edinburgh Logical Framework (LF)~\cite{harper:lf}. In a nutshell, the
-LF calculus is a three-level calculus for object, families, and kinds,
-and as such, Twelf and Delphin both have multiple syntactic levels,
-and this way they are able to preserve decidable type checking at the
-presence of general recursion. In other words, decidable type checking
-comes at a price of complexity and duplication of language
-constructs. In contrast, \name unifies terms and types into a single
-category, and still achieves decidable type checking, at a cost of
-logical consistency. $F^{\star}$~\cite{Swamy2011} is a recently
-proposed dependently typed language that supports writing
-general-purpose programs with effects while maintaining a consistent
-core language. Like Twelf and Delphin, it also has several
-sub-languages -- for terms, proofs and so on. In $F^{\star}$, the use
-of recursion is restricted in specifications and proofs while allowing
-arbitrary recursion in the program. Another difference from \name is
-that types in $F^{\star}$ can only contain values but no non-value
-expressions, leading to its less expressiveness than \name.
+Several early attempts of combining general recursion with dependent
+types by using stratified type systems include Twelf~\cite{lf:twelf}
+and Delphin~\cite{lf:delphin}, both of which are implementations of
+the Edinburgh Logical Framework (LF)~\cite{harper:lf}. In a nutshell,
+the LF calculus is a three-level calculus for object, families, and
+kinds, and as such, Twelf and Delphin both have multiple syntactic
+levels. In this way they are able to preserve decidable type checking
+under the presence of general recursion. In other words, decidable
+type checking comes at a price of complexity and duplication of
+language constructs. In contrast, \name unifies terms and types into a
+single category, and still achieves decidable type checking, at a cost
+of logical consistency.
+
+$F^{\star}$~\cite{Swamy2011} is a recently proposed dependently typed
+language that supports writing general-purpose programs with effects
+while maintaining a consistent core language. Like Twelf and Delphin,
+it also has several sub-languages -- for terms, proofs and so on
+(around 37 language constructs). In $F^{\star}$, the use of recursion
+is restricted in specifications and proofs while allowing arbitrary
+recursion in the program. Another difference from \name is that types
+in $F^{\star}$ can only contain values but no non-value expressions,
+leading to its less expressiveness than \name.
 
 \paragraph{Unified syntax and managed type-level computation}
 
 Pure Type Systems (PTS)~\cite{pts} show how a while family of type
 systems can be implemented using just a single syntactic form. PTS are
 an obvious source of inspiration for our work. Although this paper
-presents a specific system, it should be easy to generalize \name in
-the same way as PTS and further show the applicability of our ideas to
-other systems.
+presents a specific system based on \coc, it should be easy to
+generalize \name in the same way as PTS and further show the
+applicability of our ideas to other systems.
 
 An early attempt of using a single syntax for an intermediate language
 for functional programming was Henk~\cite{pts:henk}. The Henk proposal
 was to use the \emph{lambda cube} as a typed intermediate language,
-unifying all three levels. In Cayenne, there is also no syntactic
-distinction between expressions and types. Another recent work on
-dependently typed language based on the same syntactic category is
-\textsf{Zombie}~\cite{zombie:popl14, zombie:thesis}. An interesting
+unifying all three levels. There is also no syntactic distinction
+between expressions and types in the Cayenne language.
+
+\textsf{Zombie}~\cite{zombie:popl14, zombie:thesis} is a dependently
+typed language based on the same syntactic category. An interesting
 aspect of Zombie is that it is composed of two fragments: a logical
 fragment where every expression is known to terminate, and a
 programmatic fragment that allows general recursion, so that it
 supports both partial and total programming. Even though Zombie has
 one syntactic category, it is still fairly complicated (with around 25
-language constructs), as it tries to be both consistent as a logic and
+language constructs) as it tries to be both consistent as a logic and
 pragmatic as a programming language. In constrast \name takes another
 point of the design space, giving up logical consistency for
 simplicity. $\Pi\Sigma$~\cite{dep:pisigma} is another small
 dependently typed core language that resembles \name. It has no
-syntactic difference between terms and types, while also supporting
-general recursion. Like \name, $\Pi\Sigma$ uses one recursion
-mechanism for both types and functions. The key idea relies on lifted
-types and boxes: definitions are not unfolded inside boxes. One
-concern of $\Pi\Sigma$ is that its metatheory is not yet formally
-developed.
+syntactic difference between terms and types (with 18 language
+constructs), while also supporting general recursion. Like \name,
+$\Pi\Sigma$ uses one recursion mechanism for both types and
+functions. The key idea relies on lifted types and boxes: definitions
+are not unfolded inside boxes. One of its major concerns is that its
+metatheory is not yet formally developed.
 
 % \bruno{Maybe have a paragraph on recursive types?}
 
@@ -297,7 +300,7 @@ languages. The classic Church encoding of datatypes into System F is
 detailed in the work of Bohm and Beraducci~\cite{Bohm1985}.  An
 alternative encoding of datatypes is Scott
 encoding~\cite{encoding:scott}. However Scott encoding is not typable
-in System F, as it needs recursive types. \name has all it requires to
+in System F as it needs recursive types. \name has all it requires to
 represent polymorphic and recursive datatypes.
 
 Another line of related work is the \emph{inductive defined types} in

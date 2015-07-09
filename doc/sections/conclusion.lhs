@@ -27,9 +27,9 @@ using closed type families:
 < type family Id (a :: *):: * where
 <    Id a = a
 
-By using explicit coercions, function like |(\ x : Id Int . x tri co)|
-can be typed as |(Id Int -> Int)|. In a similar way, \name uses
-explicit casts to type function |(\x : Id Int . castdown x)|. This is
+By using explicit coercions, function like |\ x : Id Int . x tri co|
+can be typed as |Id Int -> Int|. In a similar way, \name uses
+explicit casts to type function |\x : Id Int . castdown x|. This is
 in contrast to Coq and Agda, which require no coecions or casts but
 the conversion rule.
 
