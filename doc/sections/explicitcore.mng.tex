@@ -10,6 +10,8 @@ type-checking. However, unlike \cc the proof of decidability of
 type-checking does not require the strong normalization of the
 calculus.  In rest of this section, we demonstrate the syntax,
 operational semantics, typing rules and metatheory of \ecore.
+Full proofs of metatheory can be found in the appendix.
+\bruno{mention that all proofs can be found in the appendix}
 
 \subsection{Syntax}\label{sec:ecore:syn}
 
@@ -35,15 +37,15 @@ impredicative axiom $[[star]]:[[star]]$.
 
 We introduce two new primitives $[[castup]]$ and $[[castdown]]$
 (pronounced as ``cast up'' and ``cast down'') to replace the implicit
-conversion rule of \cc with a \emph{one-step} explicit type
-conversion. They perform two directions of type conversion:
+conversion rule of \cc with \emph{one-step} explicit type
+conversions. The type-conversions perform two directions of conversion:
 $[[castdown]]$ is for the \emph{beta reduction} of types, and
-$[[castup]]$ is for the \emph{beta expansion}. $[[castup]]$ takes a
+$[[castup]]$ is for the \emph{beta expansion}. The $[[castup]]$
+construct takes a
 type parameter $[[t]]$ as the result type of one-step beta expansion
-for disambiguation (Section \ref{subsec:cast}), while $[[castdown]]$
-does not need one.  Because the result type of one-step beta reduction
-can be uniquely determined (Section \ref{sec:ecore:meta}), which can
-be omitted from the $[[castdown]]$ operator.
+for disambiguation (see also Section \ref{subsec:cast}). The $[[castdown]]$ construct
+does not need a type parameter,  because the result type of one-step beta reduction
+is uniquely determined, as we shall see in Section \ref{sec:ecore:meta}.
 
 \begin{figure}
     \gram{\ottec\ottinterrule
@@ -74,8 +76,8 @@ which is equivalent to substituting $[[x]]$ with $[[e2]]$ in $[[e1]]$.
 
 For the brevity of translation rules in Section \ref{sec:surface},
 we use $[[foldn]]$ and $[[unfoldn]]$ to denote
-$n$ consecutive cast operators. $[[foldn]]$ is simplified which only takes
-one type parameter, the last type $[[t1]]$ of $n$ cast operations.
+$n$ consecutive cast operators. $[[foldn]]$ is simplified to only take
+one type parameter, the last type $[[t1]]$ of the $n$ cast operations.
 The original $[[foldn]]$ includes intermediate results $[[t2]], \dots, [[tn]]$
 of type conversion:
 \[
@@ -83,9 +85,9 @@ of type conversion:
     [[t1]] ] ([[castup]] [ [[t2]] ] (\dots ( [[castup]] [ [[tn]] ]
   [[e]] ) \dots ))
 \]
-Due to the decidability of one-step reduction (Section
-\ref{sec:ecore:meta}), the intermediate types can be uniquely determined, 
-thus can be left out from the $[[castup]]$ operator.
+Due to the decidability of one-step reduction as we shall see in Section 
+\ref{sec:ecore:meta}, the intermediate types can be uniquely determined, 
+thus can be left out from the $[[foldn]]$ operator.
 
 \begin{figure}
     \resizebox{\columnwidth}{!}{$\ottcoresugar$}
@@ -101,7 +103,7 @@ semantics, defined by one-step reduction. Two base cases include
 cast canceling. Two inductive cases, \ruleref{S\_App} and
 \ruleref{S\_CastDown}, define reduction in the head position of an
 application, and in the $[[castdown]]$ inner expression respectively.
-The reduction rules are \emph{weak} because it is not allowed to do
+The reduction rules are \emph{weak} because they are not allowed to do
 the reduction inside a $\lambda$-term or $[[castup]]$-term --- both of
 them are defined as values (see Figure \ref{fig:ecore:syntax}).
 
@@ -139,7 +141,7 @@ checks the type well-formedness of the dependent function.
 \paragraph{The Cast Rules}
 We focus on rules \ruleref{T\_CastUp} and \ruleref{T\_CastDown} that
 define the semantics of \cast operators and replace the conversion
-rule of \cc~(Section~\ref{sec:coc}). The relation between the original
+rule of \cc. The relation between the original
 and converted type is defined by one-step reduction (see Figure
 \ref{fig:ecore:opsem}). 
 
@@ -148,7 +150,7 @@ $[[G |- e : t2]]$ and relation $[[t1 --> t2]] [[-->]] [[t3]]$, then
 $[[castup [t1] e]]$ expands the type of $[[e]]$ from $[[t2]]$ to
 $[[t1]]$, while $[[castdown e]]$ reduces the type of $[[e]]$ from
 $[[t2]]$ to $[[t3]]$. We can formally give the typing derivations of 
-examples in Section \ref{subsec:cast}:
+the examples in Section \ref{subsec:cast}:
 \[
 \inferrule{[[G |- e : (\x : star.x) int]] \\ [[G |- int : star]] \\ [[(\x :
 star.x) int --> int]]}{[[G |- (castdown e):int]]}
@@ -167,9 +169,15 @@ each step of the computation is induced by a cast. If a type-level
 program requires $n$ steps of computation to reach normal form, 
 then it will require $n$ casts to compute a type-level value.
 
-\paragraph{Benefits of Type in Type}
-The ``type-in-type'' axiom by rule \ruleref{T\_Ax} brings the benefit 
-of supporting \emph{kind polymorphism} in \ecore.
+\paragraph{Pros and Cons of Type in Type}
+The ``type-in-type'' axiom is well-known to give rise 
+to logical inconsistency~\cite{systemfw}. However, since our goal is to 
+investigate core languages for languages that are logically
+inconsistent any way (due to general recursion), we do not view 
+``type-in-type''  as a problematic rule.
+On the other hand the rule \ruleref{T\_Ax} brings additional
+expressiveness and benefits:
+for example \emph{kind polymorphism} is supported in \ecore.
 A term that takes a kind parameter like $[[\
     x:square.x->x]]$ is not a legal type in \cc. Since $[[square]]$ is
 the highest sort that does not have a type, the term cannot type check.
@@ -184,7 +192,7 @@ Finally, the definition of type equality in \ecore differs from
 \cc. Without \cc's conversion rule, the type of a term cannot be
 converted freely against beta equality, unless using \cast
 operators. Thus, types of expressions are equal only if they are
-syntactically equal, i.e., satisfy the alpha equality.
+syntactically equal (up-to alpha equality).
 
 \begin{figure}
     \ottdefnctx{}\ottinterrule
@@ -219,12 +227,14 @@ equivalently, reducing $[[t1]]$ by one step will get only a sole
 result $[[t2]]$. Otherwise, assume $[[e]]:[[t1]]$ and there exists
 $[[t2']]$ such that $[[t1 --> t2]]$ and $[[t1 --> t2']]$. Then the
 type of $[[castdown e]]$ can be either $[[t2]]$ or $[[t2']]$ by rule
-\ruleref{T\_CastDown}, which would not be decidable. The property is
+\ruleref{T\_CastDown}, which would not be decidable. The decidability
+of one-step reduction is
 proven by the following lemma:
 
 \begin{lem}[Decidability of One-step Reduction]\label{lem:ecore:unique}
 	The one-step reduction $[[-->]]$ is called decidable if 
-given $[[e]]$ there is a unique $[[e']]$ such that $[[e --> e']]$ or no such $[[e']]$.
+given $[[e]]$ there is a unique $[[e']]$ such that $[[e --> e']]$ or
+there is no such $[[e']]$.
 \end{lem}
 
 \begin{proof}
@@ -232,7 +242,7 @@ given $[[e]]$ there is a unique $[[e']]$ such that $[[e --> e']]$ or no such $[[
 \end{proof}
 
 With this result, we show a decidable algorithm to check whether
-one-step relation $[[t1 --> t2]]$ holds. An intuitive algorithm is to
+the one-step relation $[[t1 --> t2]]$ holds. An intuitive algorithm is to
 reduce the type $[[t1]]$ by one step to obtain $[[t1']]$ (which is
 unique by Lemma \ref{lem:ecore:unique}), and compare if $[[t1']]$ and
 $[[t2]]$ are syntactically equal. Thus, checking if $[[t1 --> t2]]$ is
@@ -250,13 +260,13 @@ $[[t]]$ such that $[[G |- e:t]]$ or reports there is no such $[[t]]$.
 \end{proof}
 
 We emphasize that when proving the decidability of type checking, we
-do not rely on the on strong normalization. Intuitively, because
+do not rely on strong normalization. Intuitively, because
 explicit type conversion rules use one-step reduction, which already
 has a decidable checking algorithm according to Lemma
 \ref{lem:ecore:unique}. We do not need to further require the
 normalization of terms. This is different from the proof for \cc which
 requires the language to be strongly normalizing
-\cite{pts:normalize}. Because \cc's conversion rule needs to examine
+\cite{pts:normalize}. In \cc the conversion rule needs to examine
 the beta equivalence of terms, which is decidable only if every term
 has a normal form.
 
