@@ -318,7 +318,7 @@ defined as:
 The above definition resembles case analysis commonly seen in modern
 functional programming languages. If we take apart the
 definition, we see that the use of $[[castdown]]$ plays an
-important role. First of all, remember |Nat| is
+important role. First of all, recall that |Nat| is
 encoded as:
 
 < mu X : * . (b : *) -> b -> (X -> b) -> b
