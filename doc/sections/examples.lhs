@@ -259,7 +259,7 @@ explicitly controlled, we can safely use \emph{Fix} in the program.
 
 \paragraph{Nested Datatypes}
 A nested datatype~\cite{nesteddt}, also known as a \emph{non-regular}
-datatype, is a parametrised datatype whose definition contains
+datatype, is a parameterized datatype whose definition contains
 different instances of the type parameters. Functions over nested
 datatypes usually involve polymorphic recursion. We show that \sufcc
 is capable of defining nested datatypes and functions over a nested
@@ -296,7 +296,7 @@ transforms a power tree into a list:
 \paragraph{Kind Polymorphism}
 Previous versions of Haskell, based on System $F_{\omega}$, had a
 simple kind system with a few kinds ($\star$, $\star \rightarrow
-\star$ and so on).  Unfortunatelly, this was insufficient for kind
+\star$ and so on).  Unfortunately, this was insufficient for kind
 polymorphism. Thus, recent versions of Haskell were extended to support 
 kind polymorphism, which required extending the core language as well.
 Indeed, System $F_C^{\uparrow}$~\cite{fc:pro} was proposed to

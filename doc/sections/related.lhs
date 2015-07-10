@@ -151,7 +151,7 @@ programmatic fragment that allows general recursion, so that it
 supports both partial and total programming. Even though Zombie has
 one syntactic category, it is still fairly complicated (with around 25
 language constructs) as it tries to be both consistent as a logic and
-pragmatic as a programming language. In constrast \name takes another
+pragmatic as a programming language. In contrast \name takes another
 point of the design space, giving up logical consistency for
 simplicity. $\Pi\Sigma$~\cite{dep:pisigma} is another small
 dependently typed core language that resembles \name. It has no
@@ -177,13 +177,13 @@ constructs. Indeed, one of our primary motivations is to develop a
 simpler alternative to System $F_C$. Throughout the paper, we have
 shown many features that are easy to implement in \name. That being
 said, there are still many important aspects of Haskell that we have
-not modelled in \name. One feature that requires further study is
+not modeled in \name. One feature that requires further study is
 GADTs. Many GADT definitions require injectivity of type
 constructors, as well as equality constraints~\cite{Cheney-Hinze:2003}.  Because
 datatypes are not built-in to \name, injectivity of type constructors
 will require a different approach from System $F_C$.
 
-In \name type-level computation is controled by explicit casts. 
+In \name type-level computation is controlled by explicit casts.
 This is in the same spirit as
 Haskell, where System $F_C$ uses syntactic type-level equality and
 explicit equality coercions to control type-level computation. For
