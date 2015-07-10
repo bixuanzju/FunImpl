@@ -1,3 +1,9 @@
+%include polycode.fmt
+%include format.fmt
+
+%format tri="\triangleright"
+%format family="\mathbf{family}"
+
 \section{Related Work}
 \label{sec:related}
 
@@ -162,6 +168,22 @@ shown many features that are easy to implement in \name. That being
 said, one feature that is missing in \name while widely used in System
 $F_C$ is GADTs. While we believe it is possible to support GADTs in
 \name, we leave the implementation for future work.
+
+In \name type-level computation amounts to usual term-level
+computation, but in a controlled way. This is in the same spirit as
+Haskell, where System $F_C$ uses syntactic type-level equality and
+explicit equality coercions to control type-level computation. For
+example, a type-level identity function in System $F_C$ is defined
+using closed type families:
+
+< type family Id (a :: *):: * where
+<    Id a = a
+
+By using explicit coercions, function like |\ x : Id Int . x tri co|
+can be typed as |Id Int -> Int|. In a similar way, \name uses
+explicit casts to type function |\x : Id Int . castdown x|. This is
+in contrast to Coq and Agda, which require no coecions or casts but
+the conversion rule.
 
 % In \name, we believe we have found a sweet spot, where
 % there are fewer language constructs and quite a number of modern
