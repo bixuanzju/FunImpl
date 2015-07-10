@@ -195,7 +195,7 @@ language. The application |fact 3|, for example, produces |6| as expected.
 
 \paragraph{Recursive Types}
 The same $\mu$ primitive is used at the type level to represent
-iso-recursive recursive types~\cite{eqi:iso}. In the
+iso-recursive types~\cite{eqi:iso}. In the
 \emph{iso-recursive} approach a recursive type and its unfolding are
 different, but isomorphic. The isomorphism is witnessed by two
 operations, typically called \fold and \unfold. In \name, such
