@@ -486,22 +486,21 @@ A:star~>t]]$.
             By the induction hypothesis, we have 
                 \[ [[G, x : t |- e : t]],\text{ where }[[Gs, x:A |- E:A ~> e]]. \] 
             Thus by rule \ruleref{T\_Mu}, we can conclude $[[G |- (mu x:t.e) : t]]$.
-        \item[Case \resizebox{.9\columnwidth}{!}{$\ottdruleTRXXCaseT{}$}:] $\quad$ \\ Suppose 
+        \item[Case \resizebox{.9\columnwidth}{!}{$\ottdruleTRXXCase{}$}:] $\quad$ \\ Suppose 
             \[\begin{array}{l}
                 [[Gs |- case E1 of << p => E2>> : B ~> (unfoldnp e1) T <<e2>>]] \\
                 [[Gs |- B : star ~> T]].
             \end{array}\]
             By the induction hypothesis, we have 
             \[\begin{array}{ll}
-                [[Gs |- E1 : A1 ~> e1]] &
-                [[Gs |- A1 : star ~> t1]] \\
+                [[Gs |- E1 : D@<<U>>n ~> e1]] &
+                [[Gs |- D@<<U>>n : star ~> t1]] \\
                 [[G |- e1 : t1]] &
-                [[<< Gs |- p => E2 : A1 -> B ~> e2 >>]]            
+                [[<< Gs |- p => E2 : D@<<U>>n -> B ~> e2 >>]]            
             \end{array}\]
             By rule \ruleref{TRpat\_Alt}, we have
             \begin{align*}
                 [[p]] &[[==]] [[K <<x:A[<< u |-> U >>]>>]] \\
-                [[A1]] &[[==]] [[D@<<U>>n]] \\
                 [[<<e2>>]] &[[==]] [[<<\ <<x:t'>> .e>>]]
             \end{align*}
             where
