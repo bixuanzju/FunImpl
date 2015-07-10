@@ -1,10 +1,6 @@
 %include polycode.fmt
 %include format.fmt
 
-%format tri="\triangleright"
-%format family="\mathbf{family}"
-
-
 \section{Conclusions and Future Work}
 
 This work proposes \name: a minimal dependently typed core language
@@ -12,7 +8,7 @@ that allows the same syntax for terms and types, supports type-level
 computation, and preserves decidable type checking under the presence
 of general recursion. The key idea is to control type-level
 computation using explicit casts.  Because each cast can only account
-for one-step of type-level computation, type-checking becomes
+for one-step of type-level computation, type checking becomes
 decidable without requiring strong normalization of the calculus. At
 the same time explicit casts together with recursion provide a
 generalization of iso-recursive types.  By demonstrating a surface
@@ -22,7 +18,7 @@ languages.
 
 In future work, we hope to make  writing type-level computation easier by
 adding language constructs to the surface language. Currently intensive type-level
-computation can be written in \name. However is inconvenient to use,
+computation can be written in \name. However it is inconvenient to use,
 because in \name  type-level computation is driven by casts, and the number of
 casts needs to be specified beforehand. Nevertheless, we do not
 consider this a critical weakness of our system. The design of \name is
