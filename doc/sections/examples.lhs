@@ -304,7 +304,7 @@ support, among other things, kind polymorphism. However, System $F_C^{\uparrow}$
 expressions into terms, types and kinds, which complicates both the
 implementation and future extensions. In contrast, without additional extensions, 
 \sufcc natively allows definitions to have polymorphic kinds. Here is an example, taken
-from~\cite{fc:pro}, of a datatype that benefits from kind polymophism:
+from~\cite{fc:pro}, of a datatype that benefits from kind polymorphism:
 a higher-kinded fixpoint combinator:
 
 < data Mu (k : *) (f : (k -> *) -> k -> *) (a : k) =

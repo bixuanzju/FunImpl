@@ -83,7 +83,7 @@ codeInPaper =
       (trans [] (desugar hoas) >>= (\(_, e) -> eval (desugar e))) @?= Right (Lit 42)
     , testCase "Fix as a Datatype: typecheck" $
       isRight (trans [] (desugar fixAsDatatype) >>= (\(_, e) -> tcheck [] (desugar e))) @?= True
-    , testCase "Kind Polymophism: typecheck" $
+    , testCase "Kind Polymorphism: typecheck" $
       isRight (trans [] (desugar kindPoly) >>= (\(_, e) -> tcheck [] (desugar e))) @?= True
     , testCase "Nested Datatypes: typecheck" $
       (trans [] (desugar nestedDT) >>= (\(_, e) -> tcheck [] (desugar e))) @?= Right Nat
