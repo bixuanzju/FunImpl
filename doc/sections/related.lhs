@@ -3,6 +3,7 @@
 
 %format tri="\triangleright"
 %format family="\mathbf{family}"
+%format where="\:\mathbf{where}"
 
 \section{Related Work}
 \label{sec:related}
@@ -13,11 +14,11 @@ practical programming world.
 %different of our work is that we propose the use of one-step explicit casts to
 %control type-level computation. Moreover we also unify recursion and
 %recursive types in a single language construct. 
-To aid in comparing our work with other work on core dependently typed,
+To aid in comparing our work with other work on dependently typed core language,
 Figure~\ref{fig:related:comp} summarizes the key differences and similarities  
 between various core languages discussed in this section.  The table compares a number of core
 languages with respect to whether they support decidable
-type-checking, general recursion and logical consistency. Moreover it
+type checking, general recursion and logical consistency. Moreover it
 details what type of equality is supported and how complex the core
 language is in terms of number of syntactic sorts and language
 constructs. The main conclusion is that \name has similar properties
@@ -65,9 +66,9 @@ one syntactic form for both terms and types. Secondly, it allows
 arbitrary computation to happen at type level. Thirdly, because of
 unrestricted recursion allowed in the system, Cayenne is logically
 inconsistent, thus cannot be used as a proof system. However, the most
-crucial difference from \name is that type-checking in Cayenne is
+crucial difference from \name is that type checking in Cayenne is
 undecidable. From a pragmatic point of view, this design choice simplifies the
-implementation, but the desirable property of decidable type-checking is lost.
+implementation, but the desirable property of decidable type checking is lost.
 
 \paragraph{Restricted recursion with termination checking}
 
@@ -96,7 +97,7 @@ to simplify the implementation of the core language.
 \paragraph{Stratified type system with general recursion on term level}
 
 One way to allow general recursion and dependent types in the same
-language and still have decidable type-checking is to use multiple
+language and still have decidable type checking is to use multiple
 levels of syntax. In this way it is easy to have a term language with
 powerful constructs, such as general recursion, but have a more
 restricted type and/or kind language. On the other hand this brings
@@ -129,7 +130,7 @@ recursion is allowed in programs.
 
 \paragraph{Unified syntax and managed type-level computation}
 
-Pure Type Systems (PTS)~\cite{pts} show how a while family of type
+Pure Type Systems (PTS)~\cite{pts} show how a whole family of type
 systems can be implemented using just a single syntactic form. PTS are
 an obvious source of inspiration for our work. Although this paper
 presents a specific system based on \coc, it should be easy to
@@ -160,7 +161,7 @@ $\Pi\Sigma$ uses one recursion mechanism for both types and
 functions. The key idea relies on lifted types and boxes: definitions
 are not unfolded inside boxes. One of the major concerns is that its
 metatheory is not yet formally developed. It is not known, for example,
-whether $\Pi\Sigma$ supports decidable type-checking.
+whether $\Pi\Sigma$ supports decidable type checking.
 
 % \bruno{Maybe have a paragraph on recursive types?}
 
@@ -168,9 +169,8 @@ whether $\Pi\Sigma$ supports decidable type-checking.
 
 There has also been a lot work on adding dependent types to existing
 programming languages. The current core language for Haskell, System
-$F_{C}$~\cite{Eisenberg:2014}, already supports GADTs, datatype
-promotion, type families\bruno{lots of references missing here: GADTs,
-datatype promotion...}, and soon even kind
+$F_{C}$~\cite{Eisenberg:2014}, already supports GADTs~\cite{haskellgadt}, datatype
+promotion~\cite{fc:pro}, type families~\cite{Eisenberg:2014}, and soon even kind
 equality~\cite{fc:kind}. Nowadays System $F_{C}$ has grown to be a
 relatively large and complex core language with over 30 language
 constructs. Indeed, one of our primary motivations is to develop a
@@ -188,7 +188,7 @@ This is in the same spirit as
 Haskell, where System $F_C$ uses syntactic type-level equality and
 explicit equality coercions to control type-level computation. For
 example, a type-level identity function in Haskell is defined
-using closed type families as:
+using closed type families:
 
 < type family Id (a :: *):: * where
 <    Id a = a
