@@ -7,15 +7,23 @@
 \section{Related Work}
 \label{sec:related}
 
-There is a lot work on bring full-spectrum dependent types to the
+There is a lot work on bringing full-spectrum dependent types to the
 practical programming world. Compared to existing work, the main
 different of our work is that we propose the use of explicit casts to
 control type-level computation. Moreover we also unify recursion and
-recursive types in a single language construct. Throughout this
-section, we refer to Figure~\ref{fig:related:comp} for comparison. Our
-emphasis is that with significantly less language constructs than
-System $F_C$ and many modern features found in Haskell, \name is a
-well-suited alternative as a core for Haskell-like language.
+recursive types in a single language construct. 
+
+To aid in comparing our work with other work on core dependently typed
+languages we refer to Figure~\ref{fig:related:comp} for comparison
+throughtout this section.  The table compares a number of core
+languages with respect to whether they support decidable
+type-checking, general recursion and logical consistency. Moreover it
+details what type of equality is supported and how complex the core
+language is in terms of number of syntactic sorts and language
+constructs. The main conclusion is that \name has similar properties
+as System $F_C$, but is significantly simpler.  Thus we believe that
+\name is a well-suited alternative as a core for a Haskell-like
+language.
 
 \begin{figure*}
 \begin{threeparttable}
@@ -52,38 +60,38 @@ $\Pi\Sigma$ & N/A & Unknown\tnote{2} & Yes & 18 & 1 & No & $\beta$-equality \\ \
 \paragraph{General recursion without decidable type checking} To our
 knowledge, Cayenne~\cite{cayenne} is the first programming language
 that integrates the full power of dependent types with general
-recursion. It bears some similarities with \name: First, it also uses
-one syntactic form for both terms and types. Second, it allows
-arbitrary computation to happen at type level. Third, because of
+recursion. It bears some similarities with \name: Firstly, it also uses
+one syntactic form for both terms and types. Secondly, it allows
+arbitrary computation to happen at type level. Thirdly, because of
 unrestricted recursion allowed in the system, Cayenne is logically
 inconsistent, thus cannot be used as a proof system. However, the most
 crucial difference from \name is that type-checking in Cayenne is
-undecidable. From a pragmatic view, this design choice simplifies the
-implementation (the implemented type checker fixes an upper bound on
-the number of reductions that it may perform), among
-others. Nevertheless, Cayenne is able to type check many useful
-programs. \name improves in this regard by preserving decidable type
-checking under the presence of general recursion.
-
+undecidable. From a pragmatic point of view, this design choice simplifies the
+implementation, but the desirable property of decidable type-checking is lost.
 
 \paragraph{Restricted recursion with termination checking}
 
 Dependently typed languages such as Coq~\cite{coqsite} and
 Adga~\cite{agda}, on the other hand, are conservative as to what kind
-of computation is allowed at type level. Coq, as a proof system,
+of computation is allowed at the type level. Coq, as a proof system,
 requires all programs to terminate by means of a termination checker,
 ensuring that recursive calls are only allowed on \emph{syntactic
   subterms} of the primary argument. This way, decidable type checking
 is also preserved. The conservative, syntactic criteria, to which Coq
-adheres, are insufficient to support a variety of important
+adheres, is insufficient to support a variety of important
 programming paradigms. Agda and Idris~\cite{idris}, in addition, offer
 an option to disable the termination checker to allow for writing
 arbitrary functions. This, however, costs us the property of decidable
 type checking. While the idea that all programs should terminate is
-appealing, \name aims at a different goal: a new programming model
-where dependent types, decidable type checking, and general recursion
-coexist. Most of the time, programmers just want to write the function
-definitions, not much of delicate reasoning and proof.
+appealing, that is not a goal of \name. Instead \name 
+aims at retaining (term-level) general recursion as found 
+in languages like Haskell or ML, while benefiting from a unified syntax 
+to simplify the implementation of the core language.
+
+%a new programming model
+%where dependent types, decidable type checking, and general recursion
+%coexist. Most of the time, programmers just want to write the function
+%definitions, not much of delicate reasoning and proof.
 
 \paragraph{Stratified type system with general recursion on term level}
 
@@ -105,8 +113,8 @@ levels. In this way they are able to preserve decidable type checking
 under the presence of general recursion. In other words, decidable
 type checking comes at a price of complexity and duplication of
 language constructs. In contrast, \name unifies terms and types into a
-single category, and still achieves decidable type checking, at a cost
-of logical consistency.
+single category, and still achieves decidable type checking (although 
+logical consistency is lost).
 
 $F^{\star}$~\cite{Swamy2011} is a recently proposed dependently typed
 language that supports writing general-purpose programs with effects
@@ -114,9 +122,10 @@ while maintaining a consistent core language. Like Twelf and Delphin,
 it also has several sub-languages -- for terms, proofs and so on
 (around 37 language constructs). In $F^{\star}$, the use of recursion
 is restricted in specifications and proofs while allowing arbitrary
-recursion in the program. Another difference from \name is that types
-in $F^{\star}$ can only contain values but no non-value expressions,
-leading to its less expressiveness than \name.
+recursion in the program. 
+%Another difference from \name is that types
+%in $F^{\star}$ can only contain values but no non-value expressions,
+%leading to its less expressiveness than \name.
 
 \paragraph{Unified syntax and managed type-level computation}
 
@@ -131,10 +140,11 @@ An early attempt of using a single syntax for an intermediate language
 for functional programming was Henk~\cite{pts:henk}. The Henk proposal
 was to use the \emph{lambda cube} as a typed intermediate language,
 unifying all three levels. There is also no syntactic distinction
-between expressions and types in the Cayenne language.
+between expressions and types in the Cayenne language. However the authors 
+have not studied the addition of general recursion nor full dependent types.
 
 \textsf{Zombie}~\cite{zombie:popl14, zombie:thesis} is a dependently
-typed language based on the same syntactic category. An interesting
+typed language based on using a single syntactic category. An interesting
 aspect of Zombie is that it is composed of two fragments: a logical
 fragment where every expression is known to terminate, and a
 programmatic fragment that allows general recursion, so that it
@@ -150,7 +160,8 @@ constructs), while also supporting general recursion. Like \name,
 $\Pi\Sigma$ uses one recursion mechanism for both types and
 functions. The key idea relies on lifted types and boxes: definitions
 are not unfolded inside boxes. One of its major concerns is that its
-metatheory is not yet formally developed.
+metatheory is not yet formally developed. It is not known, for example,
+whether $\Pi\Sigma$ supports decidable type-checking.
 
 % \bruno{Maybe have a paragraph on recursive types?}
 
@@ -159,18 +170,22 @@ metatheory is not yet formally developed.
 There has also been a lot work on adding dependent types to existing
 programming languages. The current core language for Haskell, System
 $F_{C}$~\cite{Eisenberg:2014}, already supports GADTs, datatype
-promotion, type families, and soon even kind
+promotion, type families\bruno{lots of references missing here: GADTs, datatype promotion...}, 
+and soon even kind
 equality~\cite{fc:kind}. Nowadays System $F_{C}$ has grown to be a
 relatively large and complex core language with over 30 language
-constructs. Indeed, one of our primal motivations is to develop a
+constructs. Indeed, one of our primary motivations is to develop a
 simpler alternative to System $F_C$. Throughout the paper, we have
 shown many features that are easy to implement in \name. That being
-said, one feature that is missing in \name while widely used in System
-$F_C$ is GADTs. While we believe it is possible to support GADTs in
-\name, we leave the implementation for future work.
+said, there are still many important aspects of Haskell that 
+we have not modelled in \name. One feature that requires further study is GADTs. 
+While we believe it \name has most of what is needed to support GADTs 
+it is well-known that it is hard to support GADTs in full-generality, without 
+some fundamental extensions. In particular, many GADT definitions require 
+the injectivity of type constructors, as well as equality constraints~\cite{}. 
 
-In \name type-level computation amounts to usual term-level
-computation, but in a controlled way. This is in the same spirit as
+In \name type-level computation is controled by explicit casts. 
+This is in the same spirit as
 Haskell, where System $F_C$ uses syntactic type-level equality and
 explicit equality coercions to control type-level computation. For
 example, a type-level identity function in System $F_C$ is defined
