@@ -59,20 +59,19 @@ value.
 Recall the factorial function example in Section
 \ref{sec:overview:recursion}.
 By rule \ruleref{T\_Mu}, the type of $\mathit{fact}$ is $[[int ->
-    int]]$. Thus, we can apply $\mathit{fact}$ to an integer, say $1$,
+    int]]$. Thus, we can apply $\mathit{fact}$ to an integer, say $3$,
 and will get an integer as the result. In this example, we assume
 evaluating the $\kw{if}$-$\kw{then}$-$\kw{else}$ construct and 
 arithmetic expressions follows the one-step
 reduction. Together with standard reduction rules \ruleref{S\_Mu} and
-\ruleref{S\_App}, we can evaluate the term $\mathit{fact}~1$ as
+\ruleref{S\_App}, we can evaluate the term $\mathit{fact}~3$ as
 follows:
 \begin{align*}
-    &\mathit{fact}~1 \\ [[-->]]~& ([[\x : int . @@]]~\kw{if}~
-  ~x==0~\kw{then}~1~\kw{else}~x \times (\mathit{fact}~(x - 1)))~1
-  \\ [[-->]]~ & \kw{if}~1==0~\kw{then}~1~\kw{else}~1 \times
-  (\mathit{fact}~(1 - 1)) \\ [[-->]]~& 1 \times (\mathit{fact}~(1-1))
-  \\ [[-->]]~& 1 \times (\mathit{fact}~0) [[-->]]~ \dots [[-->]]~ 1 \times
-  1 [[-->]]~ 1. 
+    &\mathit{fact}~3 \\ [[-->]]~& ([[\x : int . @@]]~\kw{if}~
+  ~x==0~\kw{then}~1~\kw{else}~x \times (\mathit{fact}~(x - 1)))~3
+  \\ [[-->]]~ & \kw{if}~3==0~\kw{then}~1~\kw{else}~3 \times
+  (\mathit{fact}~(3 - 1)) \\ [[-->]]~& 3 \times (\mathit{fact}~(3-1))
+  \\ [[-->]]~& \dots [[-->]]~ 6. 
 \end{align*}
 
 Note that we never check if a $\mu$-term can terminate or not, which
