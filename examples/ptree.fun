@@ -1,6 +1,6 @@
 ---- Begin Comment ----
 
-A labelled binary tree that keeps track its depth statically
+A labeled binary tree that keeps track its depth statically
 
 <expr>            pretty print
 :t <expr>         show the type
