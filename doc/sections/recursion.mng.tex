@@ -7,13 +7,12 @@
 \section{Dependent Types with General Recursion}\label{sec:rec}
 
 In this section we present \name: an extension of \ecore with a
-general recursion construct.  The general recursion is polymorphic and
-has a uniform representation on both term level and type level. The
-same construct works both as a term-level fixpoint and recursive type.
+recursion construct.  Recursion 
+has a uniform representation on both term level and type level: the
+same construct works both as a term-level fixpoint and a recursive type.
 The addition of general recursion does not break decidability of
 type-checking nor type-safety. The full specification and proofs of \name
-can be found in the extended version of this paper.
-\bruno{Mention where to find the proofs!}
+can be found in the supplementary material of this paper.
 
 \subsection{Syntax and Semantics}
 
@@ -28,11 +27,11 @@ For syntax, we add the polymorphic recursive expression $[[mu x:t.e]]$
 to represent general recursion in both terms and types.  The recursive
 operator is \emph{polymorphic} in the sense that the binder $x$ can
 have a kind like $[[star -> star]]$ to take parameters.
-For operational semantics, we add
+For the operational semantics, we add
 the rule \ruleref{S\_Mu} to define the unrolling of recursion
 as a one-step reduction. For typing, we
 add the rule \ruleref{T\_Mu} for checking the validity of a
-polymorphic recursive term. The rule ensures that the polymorphic
+recursive term. The rule ensures that the 
 recursion $[[mu x:t.e]]$ should have the same type $[[t]]$ as the
 binder $[[x]]$ and also the inner expression $[[e]]$.
 
@@ -44,7 +43,7 @@ binder $[[x]]$ and also the inner expression $[[e]]$.
     \label{fig:rec:ext}
 \end{figure}
 
-\subsection{Recursion as Term and Type}
+\subsection{The Two Faces of Recursion}
 \label{sec:rec:recur}
 \paragraph{Term-level Recursion}
 
@@ -54,7 +53,7 @@ substitute all $[[x]]$'s in $e$ with the whole $[[mu]]$-term itself,
 resulting in the unrolling $[[e [x |-> mu x:t.e] ]]$. The
 $[[mu]]$-term is equivalent to a recursive function that should be
 allowed to unroll without restriction. Therefore, the definition of
-values is not changed in \name and $[[mu]]$-term is not treated as a
+values is not changed in \name and a $[[mu]]$-term is not treated as a
 value. 
 
 Recall the factorial function example in Section
@@ -63,8 +62,8 @@ By rule \ruleref{T\_Mu}, the type of $\mathit{fact}$ is $[[int ->
     int]]$. Thus, we can apply $\mathit{fact}$ to an integer, say $1$,
 and will get an integer as the result. In this example, we assume
 evaluating the $\kw{if}$-$\kw{then}$-$\kw{else}$ construct and 
-arithmetic expressions follow the one-step
-reduction. Plus standard reduction rules \ruleref{S\_Mu} and
+arithmetic expressions follows the one-step
+reduction. Together with standard reduction rules \ruleref{S\_Mu} and
 \ruleref{S\_App}, we can evaluate the term $\mathit{fact}~1$ as
 follows:
 \begin{align*}
@@ -77,7 +76,7 @@ follows:
 \end{align*}
 
 Note that we never check if a $\mu$-term can terminate or not, which
-is an undecidable halting problem for general recursive terms. The
+is an undecidable problem for general recursive terms. The
 factorial function example above can stop, while there exist some
 terms that will loop forever. However, term-level non-termination is
 only a runtime concern and does not block the type checker. In Section
@@ -101,7 +100,7 @@ We have the following typing results
   &[[unfold e1]] &: [[T [x |-> mu x:t.T] ]]\\
   &[[fold [mu x:t.T] e2]] &: [[mu x:t.T]]
 \end{array}\]
-which are derived from rules~\cite{tapl}
+which are derived from the standard rules for recursive types~\cite{tapl}
 \[ \inferrule{[[G |- e2 : T[x |-> mu x:t.T] ]] \\ [[G |- (mu x:t.T) : star]] }
    {[[G |- fold [mu x:t.T] e2 : (mu x:t.T) ]]} \]
 \[ \inferrule{[[G |- e1 :(mu x:t.T)]] \\ [[G |- T[x |-> mu x:t.T] : star]]}
@@ -117,7 +116,7 @@ However, in \name we do not need to introduce $[[fold]]$ and
 $[[unfold]]$ operators, because with the rule \ruleref{S\_Mu},
 $[[castup]]$ and $[[castdown]]$ \emph{generalize} $[[fold]]$ and
 $[[unfold]]$ and have the same functionality.
-Consider the same $[[e1]]$ and $[[e2]]$ above, the type of
+Consider the same expressions $[[e1]]$ and $[[e2]]$ above. The type of
 $[[e2]]$ is the unrolling of $[[e1]]$'s type, which follows the
 one-step reduction relation by rule \ruleref{S\_Mu}:
 \[ [[mu x:t.T --> T [x |-> mu x:t.T] ]] \]
@@ -128,7 +127,8 @@ can obtain the following typing results:
 	&[[castup [mu x:t.T] e2]] &: [[mu x:t.T]]
 \end{array}\]
 Thus, $[[castup]]$ and $[[castdown]]$ witness the isomorphism between
-the original recursive type and its unrolling, which behave the same
+the original recursive type and its unrolling, behaving in the
+same way
 as $[[fold]]$ and $[[unfold]]$ operations in iso-recursive types:
 \begin{align*}
   [[mu x:t.T]] \xrightleftharpoons[{[[castup]]~[ [[mu x:t.T]]
@@ -138,14 +138,14 @@ as $[[fold]]$ and $[[unfold]]$ operations in iso-recursive types:
 
 \subsection{Decidability of Type Checking and Type Safety}\label{sec:rec:meta}
 We gave the proof of the decidability of type checking \ecore in
-Section \ref{sec:ecore:meta} without requiring normalization. The
-\cast rules are critical for decidability, which rely on checking if
-one type can be reduced to another in one step. When we introduce
-general recursion into the language, if we can make sure the newly
-added and original typing rules are decidable, the decidability
+Section \ref{sec:ecore:meta} without requiring strong normalization. The
+\cast rules, which rely on checking if
+one type can be reduced to another in one step, are critical for decidability. When we introduce
+general recursion into the language, if we can make sure that the newly
+added and original typing rules are decidable, then the decidability
 of type checking still follows in \name.
-The rule \ruleref{T\_Mu} for checking the well-formedness of
-polymorphic recursion is decidable because its premises only include
+The type-checking rule \ruleref{T\_Mu} for 
+recursion is decidable because its premises only include
 decidable typing judgements. 
 
 However, the rule \ruleref{S\_Mu} changes
