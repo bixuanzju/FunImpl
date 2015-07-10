@@ -66,12 +66,3 @@
     & [[ let ]]~[[Ki]] : [[ (<<u:ro>>n) -> (<<x:t>>) -> D@<<u>>n ]] = \ottdeclK~[[ in ]] %
 \end{array} %
 }
-
-\newcommand{\ottdruleTRXXCaseT}[1]{\ottdrule[#1]{%
-{\,\overline{   \Sigma  \labeledjudge{p}  \ottnt{p}   \Rightarrow   \ottnt{E_{{\mathrm{2}}}}  :  T_1   \rightarrow   S  \hlmath{ \rightsquigarrow   \ottnt{e_{{\mathrm{2}}}} }   }\,}%
-\\ { \Sigma  \labeledjudge{s}  \ottnt{E_{{\mathrm{1}}}}  :  T_1  \hlmath{ \rightsquigarrow   \ottnt{e_{{\mathrm{1}}}} } }%
-\\ { \Sigma  \labeledjudge{s}  S  :  \star  \hlmath{ \rightsquigarrow   \sigma } }%
-}{
- \Sigma  \labeledjudge{s}  \kw{case} \, \ottnt{E_{{\mathrm{1}}}} \, \kw{of} \, \,\overline{  \ottnt{p}  \Rightarrow  \ottnt{E_{{\mathrm{2}}}}  }\,  :  S  \hlmath{ \rightsquigarrow   \ottsym{(}  \mathsf{cast}_{\downarrow}^{n+1} \, \ottnt{e_{{\mathrm{1}}}}  \ottsym{)} \, \sigma \, \,\overline{  \ottnt{e_{{\mathrm{2}}}}  }\, } }{%
-{\ottdrulename{TR\_Case}}{}%
-}}
