@@ -232,7 +232,7 @@ report $[[e]]$ fails to type check.
 	\end{description}
 \end{proof}
 
-\subsection{Type-safety}
+\subsection{Type Safety}
 \begin{dfn}[Multi-step reduction]
     The relation $[[->>]]$ is the transitive and reflexive closure of
 $[[-->]]$.
@@ -412,9 +412,9 @@ See Figure \ref{fig:appendix:typing}.
 See Figure \ref{fig:appendix:translate}.
 
 \section{Proofs about Surface Language}
-\subsection{Type-safety of Translation}
+\subsection{Type Safety of the Translation}
 
-\begin{thm}[Type-safety of Expression Translation]
+\begin{thm}[Type Safety of Expression Translation]
 Given a surface language expression $[[E]]$ and context $[[Gs]]$, 
 if $[[Gs |- E:A ~> e]]$, $[[Gs |- A:star ~> t]]$ and $[[|- Gs ~> G]]$, then
 $[[G |- e:t]]$.
