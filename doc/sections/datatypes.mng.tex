@@ -15,7 +15,7 @@
 \ottdefnpattrans{}\\
 \setlength{\lineskip}{5pt}
 \ottdefnexprtrans{}
-\caption{Type directed translation rules of \sufcc}
+\caption{Type-directed translation rules of \sufcc}
 \label{fig:source:translate}
 \end{figure*}
 
@@ -33,7 +33,7 @@ built-in language constructs of \name. In what follows, we first give
 the syntax of the surface language, followed by the typing rules, then
 we show the formal translation rules that translates a surface
 language expression to an expression in \name. Finally we prove the
-type-safety of the translation.
+type safety of the translation.
 
 \subsection{Syntax}
 
@@ -48,7 +48,7 @@ presentation, we sometimes adopt the following syntactic convention:
 
 \paragraph{Algebraic Datatypes}
 An \emph{algebraic datatype} $D$ is introduced as a top-level
-\textbf{data} declaration with its \emph{data constructors}. The type
+$\mathbf{data}$ declaration with its \emph{data constructors}. The type
 of a data constructor $K$ takes the form:
 \[
 [[K : (<<u:k>>n) -> (<<x : A>>) -> D@<<u>>n]]
@@ -60,7 +60,7 @@ $[[(<<x:A>>)]]$) makes it possible to let the types of some data
 constructor arguments depend on other data constructor arguments,
 %whereas in Haskell, this is not possible, because the function type
 %($\rightarrow$) can be seen as an independent product type. 
-The \textbf{case} expression is conventional, used to break up values
+The $\mathbf{case}$ expression is conventional, used to break up values
 built with data constructors.  The patterns of a case expression are
 flat (i.e., no nested patterns), and bind variables.
 
@@ -102,13 +102,13 @@ type-level computation built on top of casts.
 %like type classes or type families do for Haskell programmers.
 
 \paragraph{Syntactic Sugar}
-For the sake of programming, \sufcc employs some syntactic sugar
-shown in Figure \ref{fig:surface:sugar}. A
-non-dependent function type can be written as $[[A1 -> A2]]$. A
-dependent function type $[[Pi x : A1 . A2]]$ is abbreviated as
-$[[(x : A1) -> A2]]$ for easier reading. We also introduce a
-Haskell-like record syntax, which is desugared to datatypes with
-accompanying selector functions.
+For the sake of programming, \sufcc employs some syntactic sugar shown
+in Figure \ref{fig:surface:sugar}. A non-dependent function type can
+be written as $[[A1 -> A2]]$. A dependent function type
+$[[Pi x : A1 . A2]]$ is abbreviated as $[[(x : A1) -> A2]]$ for easier
+reading. A standard $\mathbf{letrec}$ construct is used to build
+recursive functions. We also introduce a Haskell-like record syntax,
+which are desugared to datatypes with accompanying selector functions.
 
 
 \subsection{Typing Rules}
@@ -131,20 +131,19 @@ environment. Combined with the original environment, it then continues
 to type check the expression and return the result type. Rule
 \ruleref{TRpgm\_Data} is used to type check datatype declarations. It
 first ensures the well-formedness of the type of the type constructor
-application (of kind $\star$). Then it ensures that the types of
-data constructors are valid.  Note that since our system adopts $\star
-: \star$, this means we can express kind polymophism for datatypes.
+(of sort $\star$). Then it ensures that the types of data constructors
+are valid.  Note that since our system adopts the $\star : \star$
+axiom, this means we can express kind polymorphism in datatypes.
 
 Rules \ruleref{TR\_Case} and \ruleref{TRpat\_Alt} handle the type
 checking of case expressions. The conclusion of \ruleref{TS\_Case}
-binds the right types to the scrutinee $[[E1]]$ and alternatives
-$\overline{p \Rightarrow E_2}$. The first premise of
-\ruleref{Tpat\_Alt} binds the actual type constructor arguments to
-$[[<<u>>]]$. The second premise checks whether the types of the
-right-hand sides of each alternative, instantiated to the actual type
-constructor arguments $[[<<u>>]]$, are equal. Finally the third
-premise checks the well-formedness of the types of data constructor
-arguments.
+binds the scrutinee $[[E1]]$ and alternatives
+$\overline{p \Rightarrow E_2}$ to the right types. The first premise
+of \ruleref{TS\_Case} binds the actual type constructor arguments to
+$[[<<U>>]]$. The second premise checks whether the types of the
+alternatives, instantiated to the actual type constructor arguments
+$[[<<U>>]]$ (via \ruleref{TRpat\_Alt}), are equal. Finally the third
+premise checks the well-formedness of the result type.
 
 %As can be seen, currently \sufcc does not support refinement on the
 %final result of each data constructor, as in GADTs. However, our
@@ -195,7 +194,7 @@ rules.
 Among others, Rules \ruleref{TRdecl\_Data}, \ruleref{TRpat\_Alt} and
 \ruleref{TR\_Case} are of the essence to the translation. Rule
 \ruleref{TR\_Case} translates case expressions into applications by
-first translating the scrutinee expression, casting it down to the
+first translating the scrutinee $E_1$ to $e_1$, casting it down to the
 right type. It is then applied to the result type of the body
 expression and a list of translated \name expressions of its
 alternatives. Rule \ruleref{TRpat\_Alt} tells how to translate each
@@ -216,7 +215,7 @@ expression, as specified by Rule \ruleref{TRpgm\_Pgm}. Furthermore,
 each type constructor is translated to a recursive type, of which the
 body is a type-level lambda abstraction. What is interesting is that
 each recursive occurrence of the datatype in the data constructor
-parameters is replaced with the recursive variable $[[X]]$. Note that
+parameters is replaced with the variable $[[X]]$. Note that
 for the moment, the result type variable $[[bb]]$ is restricted to
 have kind $\star$. This could pose difficulties when translating
 GADTs, which is an interesting topic for future work. Each data constructor is
@@ -225,12 +224,12 @@ the lambda body to get the right type.
 
 The rest of the translation rules hold few surprises.
 
-\subsection{Type-safefy of Translation}
+\subsection{Type Safefy of the Translation}
 
 Now that we have elaborated the translation, we can state the
-type-safety theorem of the translation.
+type safety theorem of the translation.
 
-\begin{thm}[Type-safety of Expression Translation]
+\begin{thm}[Type Safety of Expression Translation]
 Given a surface language expression $[[E]]$ and context $[[Gs]]$, 
 if $[[Gs |- E:A ~> e]]$, $[[Gs |- A:star ~> t]]$ and $[[|- Gs ~> G]]$, then
 $[[G |- e:t]]$.
