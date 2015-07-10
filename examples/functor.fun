@@ -1,6 +1,6 @@
 ---- Begin Comment ----
 
-The functor record, also define `Manybe` datatype and its functor instance
+A functor record, also define `Maybe` datatype and its functor instance
 
 <expr>            pretty print
 :t <expr>         show the type

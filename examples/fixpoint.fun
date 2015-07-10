@@ -1,6 +1,6 @@
 ---- Begin Comment ----
 
-Fixpoints of functors, also defines a gerneci fold function `cata`
+Fixpoints of functors, also define a generic fold function `cata`
 
 <expr>            pretty print
 :t <expr>         show the type
