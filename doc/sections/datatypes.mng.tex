@@ -4,7 +4,7 @@
 \begin{figure*}
 \small
 \centering
-\renewcommand{\ottinterrule}{\\[1.0mm]}
+\renewcommand{\ottinterrule}{\\}
 \renewcommand{\ottdrule}[4][]{{\inferrule{#2 }{#3}\,\ottdrulename{#4}}}
 \renewenvironment{ottdefnblock}[3][]{\raggedright \framebox{\mbox{#2}} \quad #3 \\[0pt]}{}
 \renewcommand{\ottusedrule}[1]{$#1\quad$}
@@ -12,8 +12,8 @@
 \ottdefnpgmtrans{}\ottinterrule
 \ottdefndecltrans{}
 \[\hlmath{\ottdecltrans}\]\ottinterrule % defined in otthelper.mng.tex
-\ottdefnpattrans{}\\
-\setlength{\lineskip}{3pt}
+\ottdefnpattrans{}\ottinterrule
+\setlength{\lineskip}{1pt}
 \ottdefnexprtrans{}
 \caption{Type-directed translation rules of \sufcc}
 \label{fig:source:translate}
