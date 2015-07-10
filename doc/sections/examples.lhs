@@ -123,7 +123,7 @@ function arrow).  Systems like Coq and Agda would reject such programs
 since it is well-known that such datatypes can lead to logical
 inconsistencies. Moreover, such logical inconsistencies can be
 exploited to write non-terminating computations, and make
-type-checking undecidable. However \sufcc is able to express HOAS in a
+type checking undecidable. However \sufcc is able to express HOAS in a
 straightforward way, while preserving decidable type checking.
 
 Using |Exp| we can write an evaluator for the lambda calculus. As
@@ -243,7 +243,7 @@ datatype is non-strictly positive:
 
 Similarly to the HOAS example, this would violate the strictly
 positive restrictions of Coq. Nevertheless, in \sufcc such definition
-is also allowed without hindering decidability of type-checking.
+is also allowed without hindering decidability of type checking.
 
 
 
