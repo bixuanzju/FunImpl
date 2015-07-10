@@ -36,14 +36,14 @@ the conversion rule.
 \end{comment}
 
 In future work, we hope to make  writing type-level computation easier by
-adding language constructs to the surface language. Currently intensive type-
-level computation can be written in \name,  but is inconvenient to use.
+adding language constructs to the surface language. Currently intensive type-level
+computation can be written in \name,  but is inconvenient to use.
 Because in \name  type-level computation is driven by casts, and the number of
-casts needs to be specified by user beforehand. Nevertheless, we do not
-consider this a critical weakness of our system,  since our design goal is
+casts needs to be specified beforehand. Nevertheless, we do not
+consider this a critical weakness of our system, since our design is
 similar to System $F_C$ which sacrifices the convenience of type-level
-computation and recovers it by language constructs,  such as closed type
-families in Haskell. Thus, we plan to add new surface language constructs in
+computation and recovers the computation by language constructs, such as closed type
+families in Haskell. We plan to add new surface language constructs in
 the same spirit as type families in Haskell and automatically generate casts
 through the translation.
 % Currently, for simple non-recursive functions, it is easy to deduce
@@ -52,8 +52,8 @@ through the translation.
 
 Another important form of type-level computation supported by Haskell is
 GADTs. As we mentioned in the related work, currently the surface language
-lacks support for GADTs.  Although the core language has  necessary language
-features for the encoding~\cite{gadtsml}. And we have succeeded in encoding
+lacks support for GADTs, although the core language has  necessary language
+features for the encoding~\cite{gadtsml}. We have succeeded in encoding
 some examples of GADTs in \name, such as finite sets (see $\mathit{Fin}$ in
 the appendix). The current translation  rules for datatypes can be extended to
 account for GADTs by generalizing the return type to be polymorphic  instead
@@ -62,8 +62,8 @@ of $\star$.
 But we are still cautious about including GADTs  in the surface
 language at the moment. The issues are manifested in two strands: 1)
 Injectivity of type constructors; 2) Equality proofs. Currently \name only
-supports syntactic equality which may cause issues for pattern matching some special
+supports syntactic equality which is not enough to pattern match some special
 GADTs.  \linus{How special: non-injective, dependent? Examples?} We hope to
 resolve the issues by generalizing explicit casts with non-syntactic equality. 
-Though adding non-syntactic type equality to our system would require some extra effort, it
+Though adding non-syntactic type equality to our system would require extra effort, it
 remains as compelling future work.
