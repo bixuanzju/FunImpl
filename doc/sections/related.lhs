@@ -41,7 +41,7 @@ $\Pi\Sigma$ & N/A & Unknown\tnote{2} & Yes & 18 & 1 & No & $\beta$-equality \\ \
 % ~\cite{dep:pisigma}
 \end{tabularx}
 \begin{tablenotes}
-\item[1] Only expression constructs are counted. Literals such as integers are ignored.
+\item[1] Literals such as integers are ignored.
 \item[2] No metatheory is given.
 \end{tablenotes}
 \end{threeparttable}
