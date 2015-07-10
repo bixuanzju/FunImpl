@@ -25,21 +25,21 @@ fiddle with `Fun`. This is an overview of how to interact.
 
 ## Fun Cheatsheet
 
-A program begins with a (possibly empty) list of datatypes or records,
-each speared by ";", and an expression:
+A program consists of a (possibly empty) list of datatypes or records,
+each separated by ";", and an expression:
 
 ```
 program := datatype1 ; ... ; datatypen ; expr
 ```
 
-+ Predefined types and terms and operation: `nat` for integers, `1,2,...` and plus operation `+`
++ Predefined types, terms and operation: `nat` for integers, `1,2,...` and plus operation `+`
 + Kind expression: `*`, `* -> *`
 + Lambda expression: `\x : nat . x + 1`
 + Function type: `nat -> nat`
 + Dependent product type: `(x : nat) -> (y : nat) -> f x -> f y`
 + Recursive type: `mu x : * . nat -> x`
-+ Castup: `fold 1 [(\x : * . x) nat] 3`
-+ Castdown: `unfold 1 e`
++ Cast up: `fold 1 [(\x : * . x) nat] 3`
++ Cast down: `unfold 1 e`
 + Datatype: `data List (a : *) = Nil | Cons (x : a) (xs : List a);`
 + Record: `rcrd Person = P {age : nat, address : nat};`
 + Case expression: `case e of Nil => 0 | Cons (x : nat) (xs : List a) => x`
