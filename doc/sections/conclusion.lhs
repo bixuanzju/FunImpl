@@ -7,49 +7,36 @@
 
 \section{Conclusions and Future Work}
 
-This work proposes a minimal dependently typed language that allows the same
-syntax for terms and types, supports type-level computation, and preserves
-decidable type checking under the presence of general recursion. It does so by
-1) introducing explicit type casts that decouple the decidability of type
-checking from strong normalization; 2) providing a single recursion operator
-for recursion on terms as well as recursive types; 3) formalizing the core
-language, and proving its type-safety and decidability. By demonstrating a
-surface language on top of the core which supports advanced  constructions, we
-consider our work as a well-suited core  for Haskell-like languages.
-
-\begin{comment}
-In \name type-level computation amounts to usual term-level
-computation, but in a controlled way. This is in the same spirit as
-Haskell, where System $F_C$ uses syntactic type-level equality and
-explicit equality coercions to control type-level computation. For
-example, a type-level identity function in System $F_C$ is defined
-using closed type families:
-
-< type family Id (a :: *):: * where
-<    Id a = a
-
-By using explicit coercions, function like |\ x : Id Int . x tri co|
-can be typed as |Id Int -> Int|. In a similar way, \name uses
-explicit casts to type function |\x : Id Int . castdown x|. This is
-in contrast to Coq and Agda, which require no coecions or casts but
-the conversion rule.
-\end{comment}
+This work proposes \name: a minimal dependently typed core language
+that allows the same syntax for terms and types, supports type-level
+computation, and preserves decidable type checking under the presence
+of general recursion. The key idea is to control type-level
+computation using explicit casts.  Because each cast can only account
+for one-step of type-level computation, type-checking becomes
+decidable without requiring strong normalization of the calculus. At
+the same time explicit casts together with recursion provides a
+generalization of iso-recursive types.  By demonstrating a surface
+language on top of the core, which supports advanced language constructs, we
+have shown the potential of \name to serve as a core for Haskell-like
+languages.
 
 In future work, we hope to make  writing type-level computation easier by
 adding language constructs to the surface language. Currently intensive type-level
-computation can be written in \name,  but is inconvenient to use.
-Because in \name  type-level computation is driven by casts, and the number of
+computation can be written in \name. However is inconvenient to use,
+because in \name  type-level computation is driven by casts, and the number of
 casts needs to be specified beforehand. Nevertheless, we do not
 consider this a critical weakness of our system, since our design is
 similar to System $F_C$ which sacrifices the convenience of type-level
-computation and recovers the computation by language constructs, such as closed type
+computation and recovers the computation by surface-level language constructs, such as closed type
 families in Haskell. We plan to add new surface language constructs in
 the same spirit as type families in Haskell and automatically generate casts
-through the translation.
+through the translation. We also hope to investigate how to add inductive families 
+and GADTs to the surface language. 
 % Currently, for simple non-recursive functions, it is easy to deduce
 % how many casts needs to be introduced, but for recursive ones, it
 % becomes inconvenient.
 
+\begin{comment}
 Another important form of type-level computation supported by Haskell is
 GADTs. As we mentioned in the related work, currently the surface language
 lacks support for GADTs, although the core language has  necessary language
@@ -67,3 +54,4 @@ GADTs.  \linus{How special: non-injective, dependent? Examples?} We hope to
 resolve the issues by generalizing explicit casts with non-syntactic equality. 
 Though adding non-syntactic type equality to our system would require extra effort, it
 remains as compelling future work.
+\end{comment}
