@@ -8,20 +8,20 @@
 \label{sec:related}
 
 There is a lot work on bringing full-spectrum dependent types to the
-practical programming world. Compared to existing work, the main
-different of our work is that we propose the use of explicit casts to
-control type-level computation. Moreover we also unify recursion and
-recursive types in a single language construct. 
-
-To aid in comparing our work with other work on core dependently typed
-languages we refer to Figure~\ref{fig:related:comp} for comparison
-throughtout this section.  The table compares a number of core
+practical programming world. 
+%Compared to existing work, the main
+%different of our work is that we propose the use of one-step explicit casts to
+%control type-level computation. Moreover we also unify recursion and
+%recursive types in a single language construct. 
+To aid in comparing our work with other work on core dependently typed,
+Figure~\ref{fig:related:comp} summarizes the key differences and similarities  
+between various core languages discussed in this section.  The table compares a number of core
 languages with respect to whether they support decidable
 type-checking, general recursion and logical consistency. Moreover it
 details what type of equality is supported and how complex the core
 language is in terms of number of syntactic sorts and language
 constructs. The main conclusion is that \name has similar properties
-as System $F_C$, but is significantly simpler.  Thus we believe that
+to System $F_C$, but is significantly simpler.  Thus we believe that
 \name is a well-suited alternative as a core for a Haskell-like
 language.
 
@@ -121,8 +121,8 @@ language that supports writing general-purpose programs with effects
 while maintaining a consistent core language. Like Twelf and Delphin,
 it also has several sub-languages -- for terms, proofs and so on
 (more than 20 language constructs). In $F^{\star}$, the use of recursion
-is restricted in specifications and proofs while allowing arbitrary
-recursion in the program. 
+is restricted in specifications and proofs, but arbitrary
+recursion is allowed in programs. 
 %Another difference from \name is that types
 %in $F^{\star}$ can only contain values but no non-value expressions,
 %leading to its less expressiveness than \name.
@@ -139,12 +139,11 @@ applicability of our ideas to other systems.
 An early attempt of using a single syntax for an intermediate language
 for functional programming was Henk~\cite{pts:henk}. The Henk proposal
 was to use the \emph{lambda cube} as a typed intermediate language,
-unifying all three levels. There is also no syntactic distinction
-between expressions and types in the Cayenne language. However the authors 
+unifying all three levels. However the authors 
 have not studied the addition of general recursion nor full dependent types.
 
 \textsf{Zombie}~\cite{zombie:popl14, zombie:thesis} is a dependently
-typed language based on using a single syntactic category. An interesting
+typed language using a single syntactic category. An interesting
 aspect of Zombie is that it is composed of two fragments: a logical
 fragment where every expression is known to terminate, and a
 programmatic fragment that allows general recursion, so that it
@@ -159,7 +158,7 @@ syntactic difference between terms and types (with 18 language
 constructs), while also supporting general recursion. Like \name,
 $\Pi\Sigma$ uses one recursion mechanism for both types and
 functions. The key idea relies on lifted types and boxes: definitions
-are not unfolded inside boxes. One of its major concerns is that its
+are not unfolded inside boxes. One of the major concerns is that its
 metatheory is not yet formally developed. It is not known, for example,
 whether $\Pi\Sigma$ supports decidable type-checking.
 
@@ -170,35 +169,40 @@ whether $\Pi\Sigma$ supports decidable type-checking.
 There has also been a lot work on adding dependent types to existing
 programming languages. The current core language for Haskell, System
 $F_{C}$~\cite{Eisenberg:2014}, already supports GADTs, datatype
-promotion, type families\bruno{lots of references missing here: GADTs, datatype promotion...}, 
-and soon even kind
+promotion, type families\bruno{lots of references missing here: GADTs,
+datatype promotion...}, and soon even kind
 equality~\cite{fc:kind}. Nowadays System $F_{C}$ has grown to be a
 relatively large and complex core language with over 30 language
 constructs. Indeed, one of our primary motivations is to develop a
 simpler alternative to System $F_C$. Throughout the paper, we have
 shown many features that are easy to implement in \name. That being
-said, there are still many important aspects of Haskell that 
-we have not modelled in \name. One feature that requires further study is GADTs. 
-While we believe it \name has most of what is needed to support GADTs 
-it is well-known that it is hard to support GADTs in full-generality, without 
-some fundamental extensions. In particular, many GADT definitions require 
-the injectivity of type constructors, as well as equality constraints~\cite{}. 
+said, there are still many important aspects of Haskell that we have
+not modelled in \name. One feature that requires further study is
+GADTs. Many GADT definitions require injectivity of type
+constructors, as well as equality constraints~\cite{Cheney-Hinze:2003}.  Because
+datatypes are not built-in to \name, injectivity of type constructors
+will require a different approach from System $F_C$.
 
 In \name type-level computation is controled by explicit casts. 
 This is in the same spirit as
 Haskell, where System $F_C$ uses syntactic type-level equality and
 explicit equality coercions to control type-level computation. For
-example, a type-level identity function in System $F_C$ is defined
-using closed type families:
+example, a type-level identity function in Haskell is defined
+using closed type families as:
 
 < type family Id (a :: *):: * where
 <    Id a = a
+<
+< f :: Id Int -> Int
+< f x = x
 
-By using explicit coercions, function like |\ x : Id Int . x tri co|
-can be typed as |Id Int -> Int|. In a similar way, \name uses
+By using explicit coercions in System $F_C$, the function |f| is encoded as
+ |\ x : Id Int . x tri co|. In a similar way, \name uses
 explicit casts to type function |\x : Id Int . castdown x|. This is
-in contrast to Coq and Agda, which require no coecions or casts but
-the conversion rule.
+in contrast to Coq and Agda, which require no coercions or casts due to
+the conversion rule. In the future we hope to investigate surface language 
+mechanisms to express type-level computation conveniently, similarly to 
+what type families accomplish in Haskell.
 
 % In \name, we believe we have found a sweet spot, where
 % there are fewer language constructs and quite a number of modern
@@ -312,6 +316,7 @@ the conversion rule.
 % is not yet formally developed.\bruno{Maybe have a paragraph on
 %   recursive types?}
 
+\begin{comment}
 \paragraph{Type in Type}
 We are not the the first to embrace $\star : \star$ in the system. It
 has been long known that systems with $\star : \star$ is inconsistent
@@ -330,6 +335,7 @@ language.  However, as we explained in Section~\ref{sec:ecore}, this
 is not the case for \name. Type checking in \name is decidable -- all
 type-level computation is driven by finite cast operations, thus no
 potentially infinite reductions can happen in reality.
+\end{comment}
 
 \paragraph{Encoding Datatypes}
 There is much work on encoding datatypes into various high-level
@@ -340,13 +346,16 @@ encoding~\cite{encoding:scott}. However Scott encoding is not typable
 in System F as it needs recursive types. \name has all it requires to
 represent polymorphic and recursive datatypes.
 
-Another line of related work is the \emph{inductive defined types} in
+Another line of related work are the \emph{inductively defined types} in
 the Calculus of Inductive Constructions (CIC)~\cite{cic}, which is the
-underlying formal language of Coq. In CIC, inductive defined types can
+underlying formal language of Coq. In CIC, inductively defined types can
 be represented by closed types in \coc, so are the primitive recursive
 functionals over elements of the type. McBride et
 al.~\cite{elim:pi:pattern} show that inductive families of datatypes
 with dependent pattern matching can be translated into terms in Luo's
-UTT~\cite{Luo:UTT}, extended with axiom K~\cite{axiomK}. The novelty
-in his work is the introduction of \emph{splitting tree}, with which
-explicit evidence for impossible case branches is recorded.
+UTT~\cite{Luo:UTT}, extended with axiom K~\cite{axiomK}. 
+This line of work may help in adding some form of inductive 
+families (or GADTs) to a surface language on top of \name.
+%The novelty
+%in his work is the introduction of \emph{splitting tree}, with which
+%explicit evidence for impossible case branches is recorded.
