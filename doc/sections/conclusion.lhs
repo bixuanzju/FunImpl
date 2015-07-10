@@ -25,7 +25,7 @@ adding language constructs to the surface language. Currently intensive type-lev
 computation can be written in \name. However is inconvenient to use,
 because in \name  type-level computation is driven by casts, and the number of
 casts needs to be specified beforehand. Nevertheless, we do not
-consider this a critical weakness of our system, since our design is
+consider this a critical weakness of our system. The design of \name is
 similar to System $F_C$ which sacrifices the convenience of type-level
 computation and recovers the computation by surface-level language constructs, such as closed type
 families in Haskell. We plan to add new surface language constructs in
