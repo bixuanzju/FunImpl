@@ -112,7 +112,7 @@ $F^{\star}$~\cite{Swamy2011} is a recently proposed dependently typed
 language that supports writing general-purpose programs with effects
 while maintaining a consistent core language. Like Twelf and Delphin,
 it also has several sub-languages -- for terms, proofs and so on
-(around 37 language constructs). In $F^{\star}$, the use of recursion
+(more than 20 language constructs). In $F^{\star}$, the use of recursion
 is restricted in specifications and proofs while allowing arbitrary
 recursion in the program. Another difference from \name is that types
 in $F^{\star}$ can only contain values but no non-value expressions,
