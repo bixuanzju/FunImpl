@@ -55,7 +55,7 @@ fixAsDatatype =
 
 kindPoly :: Expr
 kindPoly =
-  let Right (Progm [e]) = parseExpr "data Mu (k : *) (f : (k -> *) -> k -> *) (a : k) = Roll (g : (f (Mu k f) a)); data Listf (f : * -> *) (a : *) = Nil | Cons (x : a) (xs : (f a)); let List : * -> * = \\a : * . Mu * Listf a in List"
+  let Right (Progm [e]) = parseExpr "data Mu (k : *) (f : (k -> *) -> k -> *) (a : k) = Roll (g : (f (Mu k f) a)); data Listf (f : * -> *) (a : *) = Nil | Cons (x : a) (xs : (f a)); let List : * -> * = \\a : * . Mu * Listf a in let nil : List nat = Roll * Listf nat (Nil (Mu * Listf) nat) in nil"
   in e
 
 nestedDT :: Expr
