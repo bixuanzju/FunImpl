@@ -14,9 +14,9 @@ of general recursion. The key idea is to control type-level
 computation using explicit casts.  Because each cast can only account
 for one-step of type-level computation, type-checking becomes
 decidable without requiring strong normalization of the calculus. At
-the same time explicit casts together with recursion provides a
+the same time explicit casts together with recursion provide a
 generalization of iso-recursive types.  By demonstrating a surface
-language on top of the core, which supports advanced language constructs, we
+language, supporting advanced language constructs, on top of \name we
 have shown the potential of \name to serve as a core for Haskell-like
 languages.
 
