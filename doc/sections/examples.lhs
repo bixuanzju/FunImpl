@@ -12,7 +12,7 @@ expressiveness of \name by encoding functional programs that require
 some of the latest features of Haskell, or are
 non-trivial to encode in dependently typed language like Coq or
 Agda. All examples shown in this section are runnable in our prototype
-interpreter~\jeremy{maybe add a footnote how to find interpreter?}. The formalization of the surface language is presented in
+interpreter. The formalization of the surface language is presented in
 Section~\ref{sec:surface}.
 
 \begin{comment}
@@ -124,7 +124,7 @@ since it is well-known that such datatypes can lead to logical
 inconsistencies. Moreover, such logical inconsistencies can be
 exploited to write non-terminating computations, and make
 type-checking undecidable. However \sufcc is able to express HOAS in a
-straightforward way, while preserving decidable type-checking.
+straightforward way, while preserving decidable type checking.
 
 Using |Exp| we can write an evaluator for the lambda calculus. As
 noted by Fegaras and Sheard~\cite{Fegaras1996}, the evaluation function needs an extra
@@ -132,8 +132,9 @@ function |(reify)| to invert the result of evaluation. The code for
 the evaluator is shown next (we omit most of the unsurprising cases):
 
 < data Value = VI (n : nat) | VF (f : Value -> Value);
-< rcrd Eval = Ev  {  eval' : Exp -> Value
-<                 ,  reify' : Value -> Exp };
+< rcrd Eval = Ev  {  eval'   : Exp    -> Value
+<                 ,  reify'  : Value  -> Exp
+<                 };
 < letrec ev : Eval =
 <   Ev  (\ e : Exp . case e of
 <       | ...
@@ -231,15 +232,14 @@ Unfortunately, in systems like Coq, definitions like |Fix| must be
 rejected. The problem is related to strictly positive
 types~\cite{spt}. That is, Coq cannot determine whether |Fix f| (for
 any abstract functor $f$) is strictly positive or not. For example, we
-can write a non-strictly positive functor in Haskell:\bruno{write the example 
-in our language instead!}
+can write a non-strictly positive functor in \sufcc:
 
-< data Bad a = Bad ((Bad a -> Int) -> Int)
+< data Bad (a : *) = B (f : (Bad a -> nat) -> nat);
 
 Inspecting the definition of |Fix Bad| reveals that the resulting
 datatype is non-strictly positive:
 
-< data NSP = NSP ((NSP -> Int) -> Int)
+< data NSP = N (f : (NSP -> nat) -> nat);
 
 Similarly to the HOAS example, this would violate the strictly
 positive restrictions of Coq. Nevertheless, in \sufcc such definition
