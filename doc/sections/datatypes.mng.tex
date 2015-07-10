@@ -4,7 +4,7 @@
 \begin{figure*}
 \small
 \centering
-\renewcommand{\ottinterrule}{\\}
+\renewcommand{\ottinterrule}{\\[1.0mm]}
 \renewcommand{\ottdrule}[4][]{{\inferrule{#2 }{#3}\,\ottdrulename{#4}}}
 \renewenvironment{ottdefnblock}[3][]{\raggedright \framebox{\mbox{#2}} \quad #3 \\[0pt]}{}
 \renewcommand{\ottusedrule}[1]{$#1\quad$}
@@ -13,7 +13,7 @@
 \ottdefndecltrans{}
 \[\hlmath{\ottdecltrans}\]\ottinterrule % defined in otthelper.mng.tex
 \ottdefnpattrans{}\ottinterrule
-\setlength{\lineskip}{1pt}
+\setlength{\lineskip}{8pt}
 \ottdefnexprtrans{}
 \caption{Type-directed translation rules of \sufcc}
 \label{fig:source:translate}
@@ -65,7 +65,6 @@ built with data constructors.  The patterns of a case expression are
 flat (i.e., no nested patterns), and bind variables.
 
 {
-\renewcommand{\arraystretch}{0.9}
 \begin{figure}
 \resizebox{\columnwidth}{!}{\gram{\ottpgm\ottinterrule
 \ottdecl\ottinterrule

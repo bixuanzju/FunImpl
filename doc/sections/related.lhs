@@ -27,7 +27,7 @@ language.
 
 \begin{figure*}
 \begin{threeparttable}
-\renewcommand{\arraystretch}{0.4}
+% \renewcommand{\arraystretch}{0.5}
 \small
 \centering
 \begin{tabularx}{\textwidth}{XXXXXXlX}
