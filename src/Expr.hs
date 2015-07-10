@@ -97,7 +97,7 @@ alphaEq _ _ = False
 --     repl (Kind s) = Kind s
 --     repl (Var n) = fromMaybe (Var n) (lookup n env)
 
--- TODO: Generalize
+-- | desugaring
 desugar :: Expr -> Expr
 desugar (Var n) = Var n
 desugar (App e1 e2) = App (desugar e1) (desugar e2)

@@ -67,39 +67,6 @@ tcheck env (U n e) =                       -- (T_CASTDOWN)
      tcheck env t2
      return t2
 
--- Type checking surface language
-
--- TODO: Lack 1) exhaustive test 2) overlap test
--- tcheck env (Case e alts) = do
---   dv <- tcheck env e
---   actualTypes <- fmap reverse (getActualTypes dv)
-
---   -- check patterns
---   altTypeList <- mapM (tcp dv actualTypes) alts
---   unless (all (== head altTypeList) (tail altTypeList)) $ throwError "Bad pattern expressions"
-
---   let (Pi "" _ t) = head altTypeList
---   return t
-
---   where
---     tcp :: Type -> [Type] -> Alt -> TC Type
---     tcp dv atys (Alt (PConstr constr params) body) = do
---       let k = constrName constr
---       kt <- tcheck env (Var k)
-
---       -- check patterns, quite hacky
---       let tcApp = foldl App (Var "dummy$") (atys ++ map (Var . fst) params)
---       typ <- tcheck (("dummy$", kt) : params ++ env) tcApp
---       unless (alphaEq typ dv) $ throwError "Bad patterns"
-
---       bodyType <- tcheck (params ++ env) body
---       return (arr dv bodyType)
-
--- tcheck env (Data databinds e) = do
---   env' <- tcdatatypes env databinds
---   let nenv = env' ++ env
---   tcheck nenv e
-
 tcheck _ Nat = return (Kind Star)
 tcheck _ (Lit _) = return Nat
 tcheck env (Add e1 e2) = do
@@ -111,24 +78,6 @@ tcheck env (Add e1 e2) = do
 tcheck _ Error = return Error
 
 tcheck _ e = throwError $ "TypeCheck: Impossible happened, trying to type check:\n" ++ show e
-
-tcdatatypes :: Env -> DataBind -> TC Env
-tcdatatypes env (DB tc tca constrs) = do
-
-  -- check type constructor
-  let tct = mkProdType (Kind Star) tca
-  tcs <- tcheck env tct
-  unless (tcs == Kind Star) $ throwError "Bad type constructor arguments"
-
-  -- check data constructors
-  let du = foldl App (Var tc) (map (Var . fst) tca)
-  let tduList = map (mkProdType du . constrParams) constrs
-  dcts <- mapM (tcheck (reverse tca ++ ((tc, tct) : env))) tduList -- Note: reverse type parameters list (tca)
-  unless (all (== Kind Star) dcts) $ throwError "Bad data constructor arguments"
-
-  -- return environment containing type constructor and data constructors
-  let dctList = map (\tdu -> foldr (\(u, k) t -> Pi u k t) tdu tca) tduList
-  return ((tc, tct) : zip (map constrName constrs) dctList)
 
 getActualTypes :: Type -> TC [Type]
 getActualTypes (App a b) = getActualTypes a >>= \ts -> return (b : ts)

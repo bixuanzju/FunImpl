@@ -123,14 +123,21 @@ trans _ Error = return (Error, Error)
 
 trans _ e = throwError $ "Trans: Impossible happened, trying to translate: " ++ show e
 
+-- | type check datatype
+tcdatatypes :: Env -> DataBind -> TC Env
+tcdatatypes env (DB tc tca constrs) = do
 
--- test = let Right (Progm [e]) = parseExpr "data Bool = True | False; data Nat = Zero | Suc Nat; \\ y : (\\ x : Bool . case x of True => Nat | False => Bool) True . unfold y"
---        in e
+  -- check type constructor
+  let tct = mkProdType (Kind Star) tca
+  tcs <- tcheck env tct
+  unless (tcs == Kind Star) $ throwError "Bad type constructor arguments"
 
--- test2 = let Right (Progm [e]) = parseExpr "data Bool = True | False; data Nat = Zero | Suc Nat; data List (a : *) = Nil | Cons a (List a); \\ x : List Nat . case x of Nil => 0 | Cons (x : Nat) (xs : List Nat) => 1"
---        in e
+  -- check data constructors
+  let du = foldl App (Var tc) (map (Var . fst) tca)
+  let tduList = map (mkProdType du . constrParams) constrs
+  dcts <- mapM (tcheck (reverse tca ++ ((tc, tct) : env))) tduList -- Note: reverse type parameters list (tca)
+  unless (all (== Kind Star) dcts) $ throwError "Bad data constructor arguments"
 
--- tt :: Expr -> Expr
--- tt e = case trans [] e of
---   Left err -> error err
---   Right (_, e') -> e'
+  -- return environment containing type constructor and data constructors
+  let dctList = map (\tdu -> foldr (\(u, k) t -> Pi u k t) tdu tca) tduList
+  return ((tc, tct) : zip (map constrName constrs) dctList)
