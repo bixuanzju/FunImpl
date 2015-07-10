@@ -6,8 +6,8 @@ close to the calculus of constructions, except for two key differences:
 1) the absence of the $\Box$ constant (due to use of the
 ``type-in-type'' axiom); 2) the existence of two \cast operators. Like
 the calculus of constructions, \ecore has decidable
-type-checking. However, unlike \cc the proof of decidability of
-type-checking does not require the strong normalization of the
+type checking. However, unlike \cc the proof of decidability of
+type checking does not require the strong normalization of the
 calculus.  In rest of this section, we demonstrate the syntax,
 operational semantics, typing rules and metatheory of \ecore.
 Full proofs of metatheory can be found in the appendix.
@@ -203,7 +203,7 @@ syntactically equal (up to alpha renaming).
 
 \subsection{Metatheory}\label{sec:ecore:meta}
 We now discuss the metatheory of \ecore. We focus on two properties:
-the decidability of type checking and the type-safety of the
+the decidability of type checking and the type safety of the
 language. First, we show that type checking \ecore is decidable
 without requiring strong normalization. Second, the language is type
 safe, proven by standard subject reduction and progress lemmas.
@@ -270,8 +270,8 @@ requires the language to be strongly normalizing
 the beta equivalence of terms, which is decidable only if every term
 has a normal form.
 
-\paragraph{Type-safety}
-The proof of the type-safety of \ecore is fairly standard by subject
+\paragraph{Type Safety}
+The proof of the type safety of \ecore is fairly standard by subject
 reduction and progress theorems. The subject reduction proof relies on
 the substitution lemma. We give the proof sketch of related lemmas and
 theorems as follows:
