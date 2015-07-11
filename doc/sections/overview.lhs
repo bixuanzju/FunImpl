@@ -8,7 +8,7 @@ This section informally introduces the main features of \name. In
 particular, this section shows how the explicit casts in \name can be
 used instead of the typical conversion rule present in calculi such as
 the calculus of constructions. The formal details of \name are
-presented in Section~\ref{sec:ecore}.
+presented in Section~\ref{sec:ecore} and~\ref{sec:rec}.
 
 \subsection{The Calculus of Constructions and the Conversion Rule}
 \label{sec:coc}
