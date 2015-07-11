@@ -51,7 +51,7 @@ $\Pi\Sigma$ & --- & Unknown\tnote{***} & Yes & 18 & 1 & No & $\beta$-equality \\
 \end{tabularx}
 \begin{tablenotes}
 \item[*] Literals such as integers are ignored.
-\item[**] Conservative number due to under-specific constructs.
+\item[**] Conservative number due to under-specified constructs.
 \item[***] No metatheory is given.
 \end{tablenotes}
 \end{threeparttable}
@@ -75,7 +75,7 @@ implementation, but the desirable property of decidable type checking is lost.
 
 Dependently typed languages such as Coq~\cite{coqsite} and
 Adga~\cite{agda}, on the other hand, are conservative as to what kind
-of computation is allowed at the type level. Coq, as a proof system,
+of computation is allowed. Coq, as a proof system,
 requires all programs to terminate by means of a termination checker,
 ensuring that recursive calls are only allowed on \emph{syntactic
   subterms} of the primary argument. This way, decidable type checking
