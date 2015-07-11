@@ -34,14 +34,14 @@ language.
 \begin{tabularx}{\textwidth}{XXXXXXlX}
 \toprule
 &&&& \multicolumn{2}{c}{Complexity} & \\ \cmidrule{5-6}
-Core \mbox{Language} & Surface \mbox{Language} & \mbox{Decidable Type} Checking & General \mbox{Recursion} & \# of Language Constructs\tnote{1} & \# of Syntactic Sorts & Logical Consistency & Type-equality \\ \midrule
+Core \mbox{Language} & Surface \mbox{Language} & \mbox{Decidable Type} Checking & General \mbox{Recursion} & \# of Language Constructs\tnote{*} & \# of Syntactic Sorts & Logical Consistency & Type-equality \\ \midrule
 \name & \sufcc & Yes & Yes & 8 & 1 & No & $\alpha$-equality \\
-System $F_C$ & Haskell & Yes & Yes & 35 & 3 & No & $\alpha$-equality \\
-\cc & N/A & Yes & No & 7 & 1 & Yes & $\beta$-equality \\
+System $F_C$ & Haskell & Yes & Yes & 32\tnote{**} & 3 & No & $\alpha$-equality \\
+\cc & --- & Yes & No & 6 & 1 & Yes & $\beta$-equality \\
 $\lambda^\theta$ & \textsf{Zombie} & Yes & Yes & 24 & 1 & Yes, in \textsf{L} Fragment & $\beta$-equality \\
 Core Cayenne & Cayenne & No & Yes & 11 & 1 & No & $\beta$-equality \\
-$F^\star$ & N/A & Yes & Yes & 28 & 3 & Yes, in \textit{P}-Fragment & $\beta$-equality \\
-$\Pi\Sigma$ & N/A & Unknown\tnote{2} & Yes & 18 & 1 & No & $\beta$-equality \\ \bottomrule
+$F^\star$ & --- & Yes & Yes & 23 & 3 & Yes, in \textit{P}-fragment & $\beta$-equality \\
+$\Pi\Sigma$ & --- & Unknown\tnote{***} & Yes & 18 & 1 & No & $\beta$-equality \\ \bottomrule
 % ~\cite{fc}
 % ~\cite{handbook}
 % ~\cite{zombie:popl14}
@@ -50,8 +50,9 @@ $\Pi\Sigma$ & N/A & Unknown\tnote{2} & Yes & 18 & 1 & No & $\beta$-equality \\ \
 % ~\cite{dep:pisigma}
 \end{tabularx}
 \begin{tablenotes}
-\item[1] Literals such as integers are ignored.
-\item[2] No metatheory is given.
+\item[*] Literals such as integers are ignored.
+\item[**] Conservative number due to under-specific constructs.
+\item[***] No metatheory is given.
 \end{tablenotes}
 \end{threeparttable}
 \caption{Comparison of Core Languages}
@@ -149,7 +150,7 @@ aspect of Zombie is that it is composed of two fragments: a logical
 fragment where every expression is known to terminate, and a
 programmatic fragment that allows general recursion, so that it
 supports both partial and total programming. Even though Zombie has
-one syntactic category, it is still fairly complicated (with around 25
+one syntactic category, it is still fairly complicated (with around 24
 language constructs) as it tries to be both consistent as a logic and
 pragmatic as a programming language. In contrast \name takes another
 point of the design space, giving up logical consistency for
