@@ -179,12 +179,12 @@ On the other hand the rule \ruleref{T\_Ax} brings additional
 expressiveness and benefits:
 for example \emph{kind polymorphism} is supported in \ecore.
 A term that takes a kind parameter like $[[\
-    x:square.x->x]]$ is not a legal type in \cc. Since $[[square]]$ is
-the highest sort that does not have a type, the term cannot type check.
+    x:square.x->x]]$ cannot be typed in \cc, since $[[square]]$ is
+the highest sort that does not have a type.
 In contrast, \ecore does not have such limitation. Because of
-the $[[star]]:[[star]]$ axiom, $[[Pi x:star.star]]$ is 
-a legal type of the term $[[\x:star.x->x]]$. The term can take 
-a parameter such as $[[star -> star]]$
+the $[[star]]:[[star]]$ axiom, the term $[[\x:star.x->x]]$ has a legal 
+type $[[Pi x:star.star]]$ in \ecore. It can be applied to 
+a kind such as $[[star -> star]]$
 to obtain $[[(star->star) -> (star -> star)]]$.
 
 \paragraph{Syntactic Equality}
@@ -205,8 +205,8 @@ syntactically equal (up to alpha renaming).
 We now discuss the metatheory of \ecore. We focus on two properties:
 the decidability of type checking and the type safety of the
 language. First, we show that type checking \ecore is decidable
-without requiring strong normalization. Second, the language is type
-safe, proven by standard subject reduction and progress lemmas.
+without requiring strong normalization. Second, the language is type-safe, 
+proven by standard subject reduction and progress theorems.
 
 \paragraph{Decidability of Type Checking}
 For the decidability, we need to show there exists a type checking
@@ -273,7 +273,7 @@ has a normal form.
 \paragraph{Type Safety}
 The proof of the type safety of \ecore is fairly standard by subject
 reduction and progress theorems. The subject reduction proof relies on
-the substitution lemma. We give the proof sketch of related lemmas and
+the substitution lemma. We give the proof sketch of the related lemma and
 theorems as follows:
 
 \begin{lem}[Substitution]\label{lem:ecore:subst}

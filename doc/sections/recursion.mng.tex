@@ -23,10 +23,11 @@ recursion. Nevertheless general recursion allows a large number
 of programs that can be expressed in programming languages such 
 as Haskell to be expressed in \name as well.
 
-For syntax, we add the polymorphic recursive expression $[[mu x:t.e]]$
+For the syntax, we add the polymorphic recursive expression $[[mu x:t.e]]$
 to represent general recursion in both terms and types.  The recursive
-operator is \emph{polymorphic} in the sense that the binder $x$ can
-have a kind like $[[star -> star]]$ to take parameters.
+operator is \emph{polymorphic} in the sense that the type of the binder $x$, 
+which is $[[t]]$,  is not restricted to $[[star]]$ but can be a kind 
+such as $[[star -> star]]$ to take type parameters.
 For the operational semantics, we add
 the rule \ruleref{S\_Mu} to define the unrolling of recursion
 as a one-step reduction. For typing, we
