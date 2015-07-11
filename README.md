@@ -11,7 +11,7 @@ fiddle with `Fun`. This is an overview of how to interact.
 
 1. Make sure you have installed the dependencies:
 
-    + Install GHC (version 7.10 or above)
+    + Install GHC (version 7.8 or above)
     + Alex and Happy (install by `cabal install alex happy`)
 
 2. Build and install
