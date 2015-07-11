@@ -101,10 +101,10 @@ We have the following typing results
   &[[fold [mu x:t.T] e2]] &: [[mu x:t.T]]
 \end{array}\]
 which are derived from the standard rules for recursive types~\cite{tapl}
-\[ \inferrule{[[G |- e2 : T[x |-> mu x:t.T] ]] \\ [[G |- (mu x:t.T) : star]] }
-   {[[G |- fold [mu x:t.T] e2 : (mu x:t.T) ]]} \]
 \[ \inferrule{[[G |- e1 :(mu x:t.T)]] \\ [[G |- T[x |-> mu x:t.T] : star]]}
    {[[G |- unfold e1 : (T[x |-> mu x:t.T]) ]]} \]
+\[ \inferrule{[[G |- e2 : T[x |-> mu x:t.T] ]] \\ [[G |- (mu x:t.T) : star]] }
+   {[[G |- fold [mu x:t.T] e2 : (mu x:t.T) ]]} \]
 Thus, we have the following relation between types of $[[e1]]$ and $[[e2]]$
 witnessed by $[[fold]]$ and $[[unfold]]$:
 \begin{align*}
@@ -114,8 +114,7 @@ witnessed by $[[fold]]$ and $[[unfold]]$:
 
 However, in \name we do not need to introduce $[[fold]]$ and
 $[[unfold]]$ operators, because with the rule \ruleref{S\_Mu},
-$[[castup]]$ and $[[castdown]]$ \emph{generalize} $[[fold]]$ and
-$[[unfold]]$ and have the same functionality.
+$[[castup]]$ and $[[castdown]]$ \emph{generalize} $[[fold]]$ and $[[unfold]]$.
 Consider the same expressions $[[e1]]$ and $[[e2]]$ above. The type of
 $[[e2]]$ is the unrolling of $[[e1]]$'s type, which follows the
 one-step reduction relation by rule \ruleref{S\_Mu}:
@@ -129,7 +128,7 @@ can obtain the following typing results:
 Thus, $[[castup]]$ and $[[castdown]]$ witness the isomorphism between
 the original recursive type and its unrolling, behaving in the
 same way
-as $[[fold]]$ and $[[unfold]]$ operations in iso-recursive types:
+as $[[fold]]$ and $[[unfold]]$ in iso-recursive types:
 \begin{align*}
   [[mu x:t.T]] \xrightleftharpoons[{[[castup]]~[ [[mu x:t.T]]
   ]}]{[[castdown]]} [[T[x |-> mu x:t.T] ]]
@@ -156,8 +155,8 @@ rules are decidable in \name. Note that given a recursive term
 $[[mu x:t.e]]$, by rule \ruleref{S\_Mu}, there always exists a unique
 term $[[e']]=[[e[x|->mu x:t.e] ]]$ such that $[[mu x:t.e -->
     e']]$. Thus, the decidability of one-step reduction still holds,
-i.e., Lemma \ref{lem:ecore:unique} holds in \name. And the decidability
-of type checking, namely Theorem \ref{lem:ecore:decide} holds in \name:
+i.e., Lemma \ref{lem:ecore:unique} holds in \name. We can conclude the decidability
+of type checking for \name:
 
 \begin{thm}[Decidability of Type Checking \name]\label{lem:rec:decide}
 	There is an algorithm which given $[[G]], [[e]]$ computes the
@@ -166,9 +165,10 @@ of type checking, namely Theorem \ref{lem:ecore:decide} holds in \name:
 \end{thm}
 
 Moreover, it is straightforward to show the type safety of \name by
-considering rules \ruleref{T\_Mu} and \ruleref{T\_Mu} during the
-induction of proof. Thus, Theorem \ref{lem:ecore:reduct} and
-\ref{lem:ecore:prog} also hold in \name:
+considering rules \ruleref{S\_Mu} and \ruleref{T\_Mu} during the
+induction step of proofs for Theorem \ref{lem:ecore:reduct} and
+\ref{lem:ecore:prog}. The type safety of \name is given by
+the following theorems:
 
 \begin{thm}[Subject Reduction of \name]\label{lem:rec:reduct}
 If $[[G |- e:T]]$ and $[[e]] [[->>]] e'$ then $[[G |- e':T]]$.
