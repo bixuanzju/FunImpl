@@ -88,7 +88,7 @@ However, note that the following beta reduction holds:
 \[ [[(\x:star.x)int --> int]] \]
 Thus, $[[castdown]]$ can be used for the explicit (type-level) beta reduction:
 \[ [[(castdown e)]] : [[int]]\]
-Then the application $g\,([[castdown e]])$ type-checks.
+Then the application $g\,([[castdown e]])$ type checks.
 
 \paragraph{Beta Expansion} The dual operation of $[[castdown]]$ is
 $[[castup]]$, which allows a type conversion provided that the
@@ -111,7 +111,7 @@ beta expansions of $3$.
 The \cast rules allow only \emph{one-step} reduction or expansion.
 If two type-level terms require more than one step of reductions or
 expansions for normalization, then multiple casts must be used.
-Consider a variation of the example from Section~\ref{subsec:cast}. This time,
+Consider a variant of the example from Section~\ref{subsec:cast}. This time,
 assume a term $[[e]]$ with type
 \[ [[(\x : star . \y:star. x) int bool]] \]
 which is a type-level constant function. Now the following
@@ -122,7 +122,7 @@ type $[[(\y : star. int) bool]]$, which is not syntactically equal to
 $[[int]]$. Thus, another $[[castdown]]$ is needed:
 \[g\,[[(castdown (castdown e))]]\]
 to further reduce $[[(\y : star. int) bool]]$ to $[[int]]$, and allow
-the program to type-check.
+the program to type check.
 
 % These fine-tuned \cast rules gain us more control over type-level
 % computation. The full technical details about \cast rules are
