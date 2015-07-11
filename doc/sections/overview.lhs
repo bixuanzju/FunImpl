@@ -58,7 +58,7 @@ undecidable. For example, suppose $d$ is a ``dependent type'' with type
 $[[int -> star]]$. Furthermore, assume a term $z$ that has type
 $d\,\mathsf{loop}$, where $\mathsf{loop}$ stands for any diverging
 computation of type $[[int]]$. If we type check the following
-application: \[ [[(\x: d three.x)z]]\]
+application \[ [[(\x: d three.x)z]]\]
 under the normal typing rules of \coc, the type checker would get
 stuck as it tries to do beta equality on two terms: $d\,3$ and
 $d\,\mathsf{loop}$, where the latter is non-terminating.
@@ -82,7 +82,8 @@ and a term $[[e]]$ such that
 \[ [[e]] : [[(\x:star.x)int]] \]
 In contrast to \coc,
 we cannot directly apply $g$ to $[[e]]$ in \name 
-since their types are not \emph{syntactically equal}.
+since the type of $e$ ($[[(\x:star.x)int]]$) is not 
+\emph{syntactically equal} to |Int|.
 However, note that the following beta reduction holds:
 \[ [[(\x:star.x)int --> int]] \]
 Thus, $[[castdown]]$ can be used for the explicit (type-level) beta reduction:
