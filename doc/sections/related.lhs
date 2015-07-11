@@ -14,7 +14,7 @@ practical programming world.
 %different of our work is that we propose the use of one-step explicit casts to
 %control type-level computation. Moreover we also unify recursion and
 %recursive types in a single language construct. 
-To aid in comparing our work with other work on dependently typed core language,
+To aid in comparing our work with other work on dependently typed core languages,
 Figure~\ref{fig:related:comp} summarizes the key differences and similarities  
 between various core languages discussed in this section.  The table compares a number of core
 languages with respect to whether they support decidable
