@@ -294,7 +294,7 @@ nature of |Nat|: the first argument of type $b$ corresponds to the type of the c
 and |X -> b| corresponds to the type of the constructor |S|. The
 intuition is that any recursive use of the datatype in the data
 constructors is replaced with a variable ($X$ in this case) bound by
-$\mu$, Moreover, the resulting type variable ($b$ in this case) is
+$\mu$. Moreover, the resulting type variable ($b$ in this case) is
 universally quantified so that elements of the datatype with different
 result types can be used in the same program.
 
