@@ -102,6 +102,9 @@ function:
 
 The |length| function is recursive. \sufcc supports a standard
 |letrec| construct that facilitates defining recursive functions.
+The return type of |length| is |nat|\footnote{The built-in type |nat| 
+starts with a lower-case letter, which differs from the datatype |Nat|.},
+the built-in non-negative integer type.
 Note that due to explicit typing, the program requires quite a few
 type annotations and type parameters. However, apart from the extra typing,
 the program is similar to the code that would be written in a language
