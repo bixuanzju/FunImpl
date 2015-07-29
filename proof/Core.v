@@ -128,3 +128,64 @@ Inductive has_type : context -> tm -> tm -> Prop :=
     Gamma |- mu x t e \in t
 
 where "Gamma '|-' t '\in' T" := (has_type Gamma t T).
+
+Tactic Notation "has_type_cases" tactic(first) ident(c) :=
+  first;
+  [ Case_aux c "T_Ax" | Case_aux c "T_Var"
+  | Case_aux c "T_App" | Case_aux c "T_Lam"
+  | Case_aux c "T_Pi" | Case_aux c "T_CastUp"
+  | Case_aux c "T_CastDown" | Case_aux c "T_Mu"].
+
+Hint Constructors has_type.
+
+Example typing_eg :
+  extend empty y star |- app (abs x star (var x)) (var y) \in star.
+Proof. apply (T_App _ x star star _ _); eauto. Qed.
+
+(* Properties *)
+
+Lemma canonical_form_lam : forall e y t1 t2,
+  empty |- e \in (pi y t1 t2) ->
+  value e ->
+  exists x u, e = abs x t1 u.
+Proof with eauto. intros. inversion H0; subst; try inversion H; subst...
+  Case "CastUp" . inversion H; subst. inversion H7...
+Qed.
+
+Lemma canonical_form_castd : forall t e,
+   empty |- castd e \in t ->
+   value e ->
+   exists t' e', e = castu t' e'.
+Proof with eauto. intros. inversion H0; subst...
+  Case "Star". inversion H; subst. inversion H2; subst. inversion H5.
+  Case "Abs". inversion H; subst. inversion H2; subst. inversion H5.
+  Case "Pi" . inversion H; subst. inversion H2; subst. inversion H5.
+Qed.
+
+(* Progress *)
+
+Theorem progress : forall e t, empty |- e \in t -> value e \/ exists e', e => e'.
+Proof with eauto.
+  intros e t H.
+  remember (@empty tm) as Gamma.
+  has_type_cases (induction H) Case; subst Gamma...
+  Case "T_Var". inversion H.
+  Case "T_App".
+    right. destruct IHhas_type1...
+    SCase "e1 is a value".
+      assert (exists x u, e1 = abs x t2 u).
+      eapply canonical_form_lam...
+      destruct H2 as [y0 [y1 Heq]]. subst.
+      exists ([y0:=e2]y1)...
+    SCase "e1 steps".
+      inversion H1; subst...
+  Case "T_CastDown".
+    right. destruct IHhas_type1...
+    SCase "e is a value".
+      assert (exists t' e', e = castu t' e').
+      eapply canonical_form_castd...
+      destruct H3 as [t' [e' Heq]]. subst.
+      exists e'...
+    SCase "e steps".
+      inversion H2; subst...
+Qed.
