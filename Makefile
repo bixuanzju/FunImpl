@@ -20,6 +20,10 @@ parser : $(srcdir)/$(parsefile)
 doc:
 	make -C doc
 
+.PHONY : proof
+proof:
+	make -C proof
+
 .PHONY : clean
 clean :
 	rm -f $(srcdir)/Parser.hs
