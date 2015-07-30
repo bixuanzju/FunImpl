@@ -52,9 +52,9 @@ substVar s s' = subst s (Var s')
 freeVars :: Expr -> [Sym]
 freeVars (Var s) = [s]
 freeVars (App f a) = freeVars f `union` freeVars a
-freeVars (Lam i t e) = freeVars t `union` (freeVars e \\ [i])
-freeVars (Pi i k t) = freeVars k `union` (freeVars t \\ [i])
-freeVars (Mu i t1 t2) = freeVars t1 `union` (freeVars t2 \\ [i])
+freeVars (Lam i t e) = freeVars t `union` (freeVars e \\ [i]) `union` (freeVars t)
+freeVars (Pi i k t) = freeVars k `union` (freeVars t \\ [i]) `union` (freeVars k)
+freeVars (Mu i t1 t2) = freeVars t1 `union` (freeVars t2 \\ [i]) `union` (freeVars t1)
 freeVars (F _ t e) = freeVars t `union` freeVars e
 freeVars (U _ e) = freeVars e
 freeVars (Kind _) = []

@@ -1,4 +1,4 @@
-Require Import SfLib.
+Require Export SfLib.
 
 (* Terms *)
 
@@ -14,8 +14,8 @@ Inductive tm : Type :=
 
 Tactic Notation "t_cases" tactic(first) ident(c) :=
   first;
-  [ Case_aux c "Variable" | Case_aux c "TypeofTypes" 
-    | Case_aux c "Application" | Case_aux c "Abstraction" 
+  [ Case_aux c "Variable" | Case_aux c "TypeofTypes"
+    | Case_aux c "Application" | Case_aux c "Abstraction"
     | Case_aux c "Dependent Product" | Case_aux c "CastUp"
     | Case_aux c "Cast Down" | Case_aux c "Polymorphic Recursion"].
 
@@ -50,13 +50,13 @@ Fixpoint subst (x:id) (s:tm) (t:tm) : tm :=
   | app t1 t2 =>
       app ([x:=s]t1) ([x:=s]t2)
   | abs x' T t1 =>
-      abs x' T (if eq_id_dec x x' then t1 else ([x:=s]t1))
+      abs x' ([x:=s]T) (if eq_id_dec x x' then t1 else ([x:=s]t1))
   | pi x' T t1 =>
-      pi x' T (if eq_id_dec x x' then t1 else ([x:=s]t1))
+      pi x' ([x:=s]T) (if eq_id_dec x x' then t1 else ([x:=s]t1))
   | castu t e => castu ([x:=s]t) ([x:=s]e)
   | castd e => castd ([x:=s]e)
   | mu x' T t1 =>
-      mu x' T (if eq_id_dec x x' then t1 else ([x:=s]t1))
+      mu x' ([x:=s]T) (if eq_id_dec x x' then t1 else ([x:=s]t1))
   end
 
 where "'[' x ':=' s ']' t" := (subst x s t).
@@ -77,8 +77,8 @@ where "t1 '=>' t2" := (step t1 t2).
 
 Tactic Notation "step_cases" tactic(first) ident(c) :=
   first;
-  [ Case_aux c "S_Beta" | Case_aux c "S_CastDownUp" 
-  | Case_aux c "ST_App" | Case_aux c "S_CastDown" 
+  [ Case_aux c "S_Beta" | Case_aux c "S_CastDownUp"
+  | Case_aux c "ST_App" | Case_aux c "S_CastDown"
   | Case_aux c "ST_Mu"].
 
 Hint Constructors step.
@@ -162,9 +162,171 @@ Proof with eauto. intros. inversion H0; subst...
   Case "Pi" . inversion H; subst. inversion H2; subst. inversion H5.
 Qed.
 
+(* Free variables *)
+
+Inductive appears_free_in : id -> tm -> Prop :=
+| afi_var : forall x, appears_free_in x (var x)
+| afi_app1 : forall x e1 e2,
+    appears_free_in x e1 -> appears_free_in x (app e1 e2)
+| afi_app2 : forall x e1 e2,
+    appears_free_in x e2 -> appears_free_in x (app e1 e2)
+| afi_abs1 : forall x y t e,
+    appears_free_in x t ->
+    appears_free_in x (abs y t e)
+| afi_abs2 : forall x y t e,
+    y <> x ->
+    appears_free_in x e ->
+    appears_free_in x (abs y t e)
+| afi_pi1 : forall x y t1 t2,
+    appears_free_in x t1 ->
+    appears_free_in x (pi y t1 t2)
+| afi_pi2 : forall x y t1 t2,
+    y <> x ->
+    appears_free_in x t2 ->
+    appears_free_in x (pi y t1 t2)
+| afi_castu1 : forall x t e,
+    appears_free_in x t ->
+    appears_free_in x (castu t e)
+| afi_castu2 : forall x t e,
+    appears_free_in x e ->
+    appears_free_in x (castu t e)
+| afi_castd : forall x e,
+    appears_free_in x e ->
+    appears_free_in x (castd e)
+| afi_mu1 : forall x y t e,
+    appears_free_in x t ->
+    appears_free_in x (mu y t e)
+| afi_mu2 : forall x y t e,
+    y <> x ->
+    appears_free_in x e ->
+    appears_free_in x (mu y t e).
+
+
+Hint Constructors appears_free_in.
+
+Definition closed (t : tm) :=
+  forall x, ~ appears_free_in x t.
+
+Lemma subst_not_free : forall x m n,
+    ~ appears_free_in x m -> [x:=n]m = m.
+Proof.
+  intros. (* generalize dependent n. *)
+  t_cases (induction m) Case; intros; auto; simpl.
+  Case "Variable".
+    destruct (eq_id_dec x0 i); subst. apply ex_falso_quodlibet. auto. auto.
+  Case "Application".
+    assert ([x0 := n]m1 = m1). auto.
+    assert ([x0 := n]m2 = m2). auto.
+    rewrite H0.
+    rewrite H1.
+    auto.
+  Case "Abstraction".
+    assert ([x0 := n]m1 = m1); auto; clear IHm1.
+    destruct (eq_id_dec x0 i). subst x0.
+    SCase "x == i".
+      rewrite H0.
+      auto.
+    SCase "x <> i".
+      assert ([x0 := n]m2 = m2). auto; clear IHm2.
+      rewrite H0.
+      rewrite H1.
+      auto.
+  Case "Dependent Product".
+    assert ([x0 := n]m1 = m1); auto; clear IHm1.
+    destruct (eq_id_dec x0 i). subst x0.
+    SCase "x == i".
+      rewrite H0.
+      auto.
+    SCase "x <> i".
+      assert ([x0 := n]m2 = m2). auto; clear IHm2.
+      rewrite H0.
+      rewrite H1.
+      auto.
+  Case "CastUp".
+    simpl.
+    assert ([x0 := n]m1 = m1).
+    apply IHm1. auto.
+    assert ([x0 := n]m2 = m2).
+    apply IHm2. auto.
+    rewrite H0.
+    rewrite H1.
+    auto.
+  Case "Cast Down".
+    simpl.
+    assert ([x0 := n]m = m).
+    apply IHm. auto.
+    rewrite H0. auto.
+  Case "Polymorphic Recursion".
+    assert ([x0 := n]m1 = m1); auto; clear IHm1.
+    destruct (eq_id_dec x0 i). subst x0.
+    SCase "x == i".
+      rewrite H0.
+      auto.
+    SCase "x <> i".
+      assert ([x0 := n]m2 = m2). auto; clear IHm2.
+      rewrite H0.
+      rewrite H1.
+      auto.
+Qed.
+
+(* Lemma subst_double : forall x y m n l, *)
+(*     x <> y -> ~ appears_free_in x l -> *)
+(*     [y:=l]([x:=n]m) = [x:=([y:=l]n)]([y:=l]m). *)
+(* Proof.  Admitted. *)
+(*   (* intros. *) *)
+(*   (* t_cases (induction m) Case; auto. *) *)
+(*   (* Case "Variable". *) *)
+(*   (*   simpl. destruct (eq_id_dec x i); subst. rewrite neq_id. simpl. rewrite eq_id. auto. *) *)
+(*   (*   auto. destruct (eq_id_dec y i); subst. simpl. rewrite eq_id. rewrite subst_not_free; auto. simpl. rewrite neq_id. rewrite neq_id. auto. auto. auto. *) *)
+(*   (* Case "Application". *) *)
+(*   (*   simpl. rewrite IHm1. rewrite IHm2. auto. *) *)
+(*   (* Case "Abstraction". *) *)
+(*   (*   simpl. destruct (eq_id_dec y i); subst. destruct (eq_id_dec x i); subst. apply ex_falso_quodlibet. apply H. auto. rewrite IHm1.  *) *)
+
+
+(* Note that contexts are ordered lists and legal*)
+Lemma well_typed_has_no_free_var : forall Gamma x t,
+    Gamma |- (var x) \in t -> ~ appears_free_in x t.
+Proof. Admitted.
+
+
+(* Lemma subst_preserve_type : forall Gamma1 Gamma2 x e1 t1 e2 t2 , *)
+(*     append (extend Gamma1 x t2) Gamma2 |- e1 \in t1 -> *)
+(*     Gamma1 |- e2 \in t2 -> append Gamma1 (subst_context x e2 Gamma2) |- [x:=e2]e1 \in [x:=e2]t1. *)
+(* Proof. Admitted. *)
+
+
+
+(* Lemma free_in_context : forall x e t Gamma, *)
+(*     appears_free_in x e -> *)
+(*     Gamma |- e \in t -> *)
+(*     exists t', Gamma x = Some t'. *)
+(* Proof. *)
+(*   intros. generalize dependent Gamma. *)
+(*   generalize dependent t. *)
+(*   afi_cases (induction H) Case; intros; try solve [inversion H0; eauto]. *)
+(*   Case "afi_abs". *)
+(*     inversion H1; subst. *)
+(*     apply IHappears_free_in in H7. *)
+(*     rewrite extend_neq in H7; assumption. *)
+(*   Case "afi_pi". *)
+(*     inversion H1; subst. *)
+(*     apply IHappears_free_in in H8. *)
+(*     rewrite extend_neq in H8; assumption. *)
+(*   Case "afi_castu1". *)
+(*     inversion H0; subst. *)
+(*     apply IHappears_free_in in H5; assumption. *)
+(*   Case "afi_mu". *)
+(*     inversion H1; subst. *)
+(*     apply IHappears_free_in in H7. *)
+(*     rewrite extend_neq in H7; assumption. *)
+(* Qed. *)
+
+
 (* Progress *)
 
-Theorem progress : forall e t, empty |- e \in t -> value e \/ exists e', e => e'.
+Theorem progress : forall e t,
+    empty |- e \in t -> value e \/ exists e', e => e'.
 Proof with eauto.
   intros e t H.
   remember (@empty tm) as Gamma.
