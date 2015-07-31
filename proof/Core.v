@@ -61,6 +61,21 @@ Fixpoint subst (x:id) (s:tm) (t:tm) : tm :=
 
 where "'[' x ':=' s ']' t" := (subst x s t).
 
+(* Contexts *)
+
+Definition context := partial_map tm.
+
+Definition subst_cxtx x s (Gamma : context) :=
+  fun x' => match Gamma x' with
+            | None => None
+            | Some t => Some ([x:=s]t)
+            end.
+
+Definition append_cxtx (Gamma1 Gamma2 : context) :=
+  fun x => match Gamma2 x with
+           | None => Gamma1 x
+           | Some t => Some t
+           end.
 
 (* Operational Semantics *)
 
@@ -88,18 +103,17 @@ Notation "t1 '=>*' t2" := (multistep t1 t2) (at level 40).
 
 (* Typing *)
 
-(* Contexts *)
-
-Definition context := partial_map tm.
-
-(* Typing Relation *)
-
 Reserved Notation "Gamma '|-' t '\in' T" (at level 40).
 
 Inductive has_type : context -> tm -> tm -> Prop :=
 | T_Ax : forall Gamma, Gamma |- star \in star
 | T_Var : forall Gamma x t,
-    Gamma x = Some t -> Gamma |- (var x) \in t
+    Gamma |- t \in star ->
+    extend Gamma x t |- (var x) \in t
+| T_Weak : forall Gamma x y t1 t2,
+    Gamma |- (var x) \in t1 ->
+    Gamma |- t2 \in star ->
+    extend Gamma y t2 |- (var x) \in t1
 | T_App : forall Gamma x t1 t2 e1 e2,
     Gamma |- e1 \in pi x t2 t1 ->
     Gamma |- e2 \in t2 ->
@@ -131,7 +145,7 @@ where "Gamma '|-' t '\in' T" := (has_type Gamma t T).
 
 Tactic Notation "has_type_cases" tactic(first) ident(c) :=
   first;
-  [ Case_aux c "T_Ax" | Case_aux c "T_Var"
+  [ Case_aux c "T_Ax" | Case_aux c "T_Var" | Case_aux c "T_Weak"
   | Case_aux c "T_App" | Case_aux c "T_Lam"
   | Case_aux c "T_Pi" | Case_aux c "T_CastUp"
   | Case_aux c "T_CastDown" | Case_aux c "T_Mu"].
@@ -289,11 +303,10 @@ Lemma well_typed_has_no_free_var : forall Gamma x t,
     Gamma |- (var x) \in t -> ~ appears_free_in x t.
 Proof. Admitted.
 
-
-(* Lemma subst_preserve_type : forall Gamma1 Gamma2 x e1 t1 e2 t2 , *)
-(*     append (extend Gamma1 x t2) Gamma2 |- e1 \in t1 -> *)
-(*     Gamma1 |- e2 \in t2 -> append Gamma1 (subst_context x e2 Gamma2) |- [x:=e2]e1 \in [x:=e2]t1. *)
-(* Proof. Admitted. *)
+Lemma subst_preserve_type : forall Gamma1 Gamma2 x e1 t1 e2 t2 ,
+    append_cxtx (extend Gamma1 x t2) Gamma2 |- e1 \in t1 ->
+    Gamma1 |- e2 \in t2 -> append_cxtx Gamma1 (subst_cxtx x e2 Gamma2) |- [x:=e2]e1 \in [x:=e2]t1.
+Proof. Admitted.
 
 
 
@@ -330,8 +343,15 @@ Theorem progress : forall e t,
 Proof with eauto.
   intros e t H.
   remember (@empty tm) as Gamma.
-  has_type_cases (induction H) Case; subst Gamma...
-  Case "T_Var". inversion H.
+  has_type_cases (induction H) Case; subst...
+  Case "T_Var".
+    assert ((extend Gamma x0 t) x0 = empty x0).
+    rewrite HeqGamma...
+    rewrite extend_eq in H0. unfold empty in H0. inversion H0.
+  Case "T_Weak".
+    assert ((extend Gamma y0 t2) y0 = empty y0).
+    rewrite HeqGamma...
+    rewrite extend_eq in H1. unfold empty in H1. inversion H1.
   Case "T_App".
     right. destruct IHhas_type1...
     SCase "e1 is a value".
