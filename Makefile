@@ -28,6 +28,7 @@ proof:
 clean :
 	rm -f $(srcdir)/Parser.hs
 	make -C doc clean
+	make -C proof clean
 
 .PHONY : distclean
 distclean : clean

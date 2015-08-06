@@ -44,10 +44,10 @@ doc/main.pdf
 /doc/sections/recursion.tex
 /doc/sections/otthelper.tex
 /doc/sections/expcore.ott.tex
-/stack.yaml
 /doc/sections/conclusion.tex
 /doc/sections/related.tex
 
-*.glob
-*.vo
-*.v.d
+/proof/*.glob
+/proof/*.vo
+/proof/*.aux
+/proof/.coq-native/

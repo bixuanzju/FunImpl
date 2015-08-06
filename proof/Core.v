@@ -16,7 +16,7 @@ Tactic Notation "t_cases" tactic(first) ident(c) :=
   first;
   [ Case_aux c "Variable" | Case_aux c "TypeofTypes"
     | Case_aux c "Application" | Case_aux c "Abstraction"
-    | Case_aux c "Dependent Product" | Case_aux c "CastUp"
+    | Case_aux c "Dependent Product" | Case_aux c "Cast Up"
     | Case_aux c "Cast Down" | Case_aux c "Polymorphic Recursion"].
 
 Definition x := (Id 0).
@@ -63,19 +63,14 @@ where "'[' x ':=' s ']' t" := (subst x s t).
 
 (* Contexts *)
 
-Definition context := partial_map tm.
+Definition context := list (id * tm).
 
 Definition subst_cxtx x s (Gamma : context) :=
-  fun x' => match Gamma x' with
-            | None => None
-            | Some t => Some ([x:=s]t)
-            end.
+  map (fun p => match p with
+                | (m, n) => (m, subst x s n)
+                end) Gamma.
 
-Definition append_cxtx (Gamma1 Gamma2 : context) :=
-  fun x => match Gamma2 x with
-           | None => Gamma1 x
-           | Some t => Some t
-           end.
+Definition append_cxtx (Gamma1 Gamma2 : context) := Gamma2 ++ Gamma1.
 
 (* Operational Semantics *)
 
@@ -103,28 +98,34 @@ Notation "t1 '=>*' t2" := (multistep t1 t2) (at level 40).
 
 (* Typing *)
 
+Definition ext (Gamma : context) (x:id) (T : tm) :=
+  (x, T) :: Gamma.
+
+Definition emp := nil : context.
+
 Reserved Notation "Gamma '|-' t '\in' T" (at level 40).
 
 Inductive has_type : context -> tm -> tm -> Prop :=
 | T_Ax : forall Gamma, Gamma |- star \in star
 | T_Var : forall Gamma x t,
     Gamma |- t \in star ->
-    extend Gamma x t |- (var x) \in t
+    ext Gamma x t |- (var x) \in t
 | T_Weak : forall Gamma x y t1 t2,
+    y <> x ->
     Gamma |- (var x) \in t1 ->
     Gamma |- t2 \in star ->
-    extend Gamma y t2 |- (var x) \in t1
+    ext Gamma y t2 |- (var x) \in t1
 | T_App : forall Gamma x t1 t2 e1 e2,
     Gamma |- e1 \in pi x t2 t1 ->
     Gamma |- e2 \in t2 ->
     Gamma |- app e1 e2 \in [x:=e2]t1
 | T_Lam : forall Gamma x t1 t2 e,
-    extend Gamma x t1 |- e \in t2 ->
+    ext Gamma x t1 |- e \in t2 ->
     Gamma |- pi x t1 t2 \in star ->
     Gamma |- abs x t1 e \in pi x t1 t2
 | T_Pi : forall Gamma x t1 t2,
     Gamma |- t1 \in star ->
-    extend Gamma x t1 |- t2 \in star ->
+    ext Gamma x t1 |- t2 \in star ->
     Gamma |- pi x t1 t2 \in star
 | T_CastUp : forall Gamma t1 t2 e,
     Gamma |- e \in t2 ->
@@ -137,7 +138,7 @@ Inductive has_type : context -> tm -> tm -> Prop :=
     t1 => t2 ->
     Gamma |- castd e \in t2
 | T_Mu : forall Gamma x t e,
-    extend Gamma x t |- e \in t ->
+    ext Gamma x t |- e \in t ->
     Gamma |- t \in star ->
     Gamma |- mu x t e \in t
 
@@ -153,13 +154,13 @@ Tactic Notation "has_type_cases" tactic(first) ident(c) :=
 Hint Constructors has_type.
 
 Example typing_eg :
-  extend empty y star |- app (abs x star (var x)) (var y) \in star.
+  ext emp y star |- app (abs x star (var x)) (var y) \in star.
 Proof. apply (T_App _ x star star _ _); eauto. Qed.
 
 (* Properties *)
 
 Lemma canonical_form_lam : forall e y t1 t2,
-  empty |- e \in (pi y t1 t2) ->
+  emp |- e \in (pi y t1 t2) ->
   value e ->
   exists x u, e = abs x t1 u.
 Proof with eauto. intros. inversion H0; subst; try inversion H; subst...
@@ -167,7 +168,7 @@ Proof with eauto. intros. inversion H0; subst; try inversion H; subst...
 Qed.
 
 Lemma canonical_form_castd : forall t e,
-   empty |- castd e \in t ->
+   emp |- castd e \in t ->
    value e ->
    exists t' e', e = castu t' e'.
 Proof with eauto. intros. inversion H0; subst...
@@ -256,7 +257,7 @@ Proof.
       rewrite H0.
       rewrite H1.
       auto.
-  Case "CastUp".
+  Case "Cast Up".
     simpl.
     assert ([x0 := n]m1 = m1).
     apply IHm1. auto.
@@ -304,54 +305,39 @@ Lemma well_typed_has_no_free_var : forall Gamma x t,
 Proof. Admitted.
 
 Lemma subst_preserve_type : forall Gamma1 Gamma2 x e1 t1 e2 t2 ,
-    append_cxtx (extend Gamma1 x t2) Gamma2 |- e1 \in t1 ->
+    append_cxtx (ext Gamma1 x t2) Gamma2 |- e1 \in t1 ->
     Gamma1 |- e2 \in t2 -> append_cxtx Gamma1 (subst_cxtx x e2 Gamma2) |- [x:=e2]e1 \in [x:=e2]t1.
-Proof. Admitted.
-
-
-
-(* Lemma free_in_context : forall x e t Gamma, *)
-(*     appears_free_in x e -> *)
-(*     Gamma |- e \in t -> *)
-(*     exists t', Gamma x = Some t'. *)
-(* Proof. *)
-(*   intros. generalize dependent Gamma. *)
-(*   generalize dependent t. *)
-(*   afi_cases (induction H) Case; intros; try solve [inversion H0; eauto]. *)
-(*   Case "afi_abs". *)
-(*     inversion H1; subst. *)
-(*     apply IHappears_free_in in H7. *)
-(*     rewrite extend_neq in H7; assumption. *)
-(*   Case "afi_pi". *)
-(*     inversion H1; subst. *)
-(*     apply IHappears_free_in in H8. *)
-(*     rewrite extend_neq in H8; assumption. *)
-(*   Case "afi_castu1". *)
-(*     inversion H0; subst. *)
-(*     apply IHappears_free_in in H5; assumption. *)
-(*   Case "afi_mu". *)
-(*     inversion H1; subst. *)
-(*     apply IHappears_free_in in H7. *)
-(*     rewrite extend_neq in H7; assumption. *)
-(* Qed. *)
-
+Proof.
+  intros.
+  generalize dependent e2.
+  t_cases (induction e1) Case.
+  Case "Variable".
+    intros e2 H2.
+    destruct Gamma2.
+    SCase "Gamma2 == <>".
+      simpl in H.
+      inversion H; subst.
+      SSCase "T_Var".
+        simpl.
+        rewrite eq_id.
+        apply well_typed_has_no_free_var in H.
+        eapply subst_not_free in H.
+        rewrite H.
+        assumption.
+      SSCase "T_Weak".
+        simpl.
+        rewrite neq_id.
+Abort.
+      
 
 (* Progress *)
 
 Theorem progress : forall e t,
-    empty |- e \in t -> value e \/ exists e', e => e'.
+    emp |- e \in t -> value e \/ exists e', e => e'.
 Proof with eauto.
   intros e t H.
-  remember (@empty tm) as Gamma.
-  has_type_cases (induction H) Case; subst...
-  Case "T_Var".
-    assert ((extend Gamma x0 t) x0 = empty x0).
-    rewrite HeqGamma...
-    rewrite extend_eq in H0. unfold empty in H0. inversion H0.
-  Case "T_Weak".
-    assert ((extend Gamma y0 t2) y0 = empty y0).
-    rewrite HeqGamma...
-    rewrite extend_eq in H1. unfold empty in H1. inversion H1.
+  remember emp as Gamma.
+  has_type_cases (induction H) Case; subst; eauto; try (unfold ext in HeqGamma; unfold emp in HeqGamma; inversion HeqGamma).
   Case "T_App".
     right. destruct IHhas_type1...
     SCase "e1 is a value".
