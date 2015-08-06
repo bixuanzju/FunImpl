@@ -328,7 +328,7 @@ Proof.
         simpl.
         rewrite neq_id.
 Abort.
-      
+
 
 (* Progress *)
 
@@ -357,3 +357,153 @@ Proof with eauto.
     SCase "e steps".
       inversion H2; subst...
 Qed.
+
+(* Decidability of Typechecking *)
+
+Lemma step_decidability :
+  forall e, {exists e', e => e'} + {~ exists e', e => e'}.
+Proof.
+  intros.
+  t_cases (induction e) Case.
+  Case "Variable".
+    right. intros contra. inversion contra. inversion H.
+  Case "TypeofTypes".
+    right. intros contra. inversion contra. inversion H.
+  Case "Application".
+    inversion IHe1.
+    left.
+    inversion H.
+    exists (app x0 e2).
+    auto.
+    destruct e1.
+    try right.
+    intros [e' H1].
+    inversion H1; subst.
+    inversion H4.
+    right.
+    intros [e' H1].
+    inversion H1; subst.
+    inversion H4.
+    right.
+    intros [e' H1].
+    inversion H1; subst.
+    apply H.
+    exists e1'.
+    auto.
+    left.
+    exists ([i:=e2]e1_2).
+    auto.
+    right.
+    intros [e' H1].
+    inversion H1; subst.
+    inversion H4.
+    right.
+    intros [e' H1].
+    inversion H1; subst.
+    inversion H4.
+    right.
+    intros [e' H1].
+    inversion H1; subst.
+    apply H.
+    exists e1'.
+    auto.
+    right.
+    intros [e' H1].
+    inversion H1; subst.
+    apply H.
+    exists e1'.
+    auto.
+  Case "Abstraction".
+    right.
+    intros [e' contra].
+    inversion contra.
+  Case "Dependent Product".
+    right.
+    intros [e' contra].
+    inversion contra.
+  Case "Cast Up".
+    right.
+    intros [e' contra].
+    inversion contra.
+  Case "Cast Down".
+    inversion IHe.
+    SCase "e => e'".
+    left.
+    inversion H.
+    exists (castd x0).
+    auto.
+    destruct e.
+    right.
+    intros [e' contra].
+    inversion contra; subst.
+    inversion H1.
+    right.
+    intros [e' contra].
+    inversion contra; subst.
+    inversion H1.
+    right.
+    intros [e' contra].
+    inversion contra; subst.
+    apply H.
+    exists e'0.
+    auto.
+    right.
+    intros [e' contra].
+    inversion contra; subst.
+    inversion H1.
+    right.
+    intros [e' contra].
+    inversion contra; subst.
+    inversion H1.
+    left.
+    exists e2.
+    auto.
+    right.
+    intros [e' contra].
+    inversion contra; subst.
+    apply H.
+    exists e'0.
+    auto.
+    right.
+    intros [e' contra].
+    inversion contra; subst.
+    apply H.
+    exists e'0.
+    auto.
+  Case "Polymorphic Recursion".
+    left.
+    exists ([i:=mu i e1 e2] e2).
+    auto.
+Qed.
+
+Lemma type_star :
+  forall Gamma x t e t',
+    ext Gamma x t |- e \in t' -> Gamma |- t \in star.
+Proof. Admitted.
+
+Theorem tc_decidability :
+  forall Gamma e, {exists t, Gamma |- e \in t} + {~ exists t, Gamma |- e \in t}.
+Proof.
+  intros.
+  t_cases (induction e) Case.
+  destruct Gamma.
+  SCase "Gamma is empty".
+    right.
+    intros H.
+    inversion H.
+    inversion H0.
+  SCase "Gamma has one element".
+    assert (p :: Gamma = ext Gamma (fst p) (snd p)).
+    unfold ext.
+    rewrite <- (surjective_pairing p).
+    reflexivity.
+    remember (fst p) as x.
+    remember (snd p) as t.
+    destruct (eq_id_dec x i).
+    SSCase "x == i".
+      left.
+      exists t.
+      rewrite H.
+      subst i.
+      apply T_Var.
+Abort.
