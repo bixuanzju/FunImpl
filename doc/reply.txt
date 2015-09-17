@@ -1,0 +1,64 @@
+* Many of the points from this reviewer seem to be grounded on the assumption that we claim that our core language is a good core language for dependently typed programming. For example:
+
+”In particular, the comparisons suggest that the goal of the proposed language is dependently-typed programming, as in Cayenne, Idris, Coq or Agda”
+
+“* The core language lacks expressiveness for dependently-typed programming
+and is not as expressive as FC.”
+
+In the introduction we quite clearly say:
+
+“A **non-goal** of the current work (although a worthy avenue for future work) is to use λμ⋆ as a core language for modern dependently typed languages like Agda or Idris”
+
+We certainly didn’t mean to suggest that our calculus is expressive and/or convenient enough to do Agda/Idris/Coq-style dependently typed programming in the current form. We will rephrase the sentences that lead to the confusion if the reviewer is kind enough to tell us which sentences lead to the confusion.
+
+We acknowledge limitations in terms of expressing type-level computation (“”); having a weak form of type-equality (“”); or supporting GADTs or inductive families (“”). One thing that we indeed did not talk about is erasability: we will mention this.
+
+- “One way to describe this work is that makes type checking Cardelli's type:type
+language decidable [1]  by marking the uses of conversion in terms. In that case, type checking becomes syntax directed so the proof of decidable type checking is almost trivial. This technique has been used, for example, in Guru [5], many Trellys variants [2], [3], [4]”
+
+vs guru:
+
+Fur has a cast construct using equality. However, this require more language 
+constructs that deal with equality, for example, we need things like sim, reflexivity, transitivity …
+
+Can Guru ensure that equality proofs are not bogus?
+
+vs Trellys
+
+Conversion rule uses equality proofs… like guru, but very complicated. not single steps! 
+
+Avoiding bogus equality proofs:
+equality proofs have to be syntactic values to ensure that they are logically consistent!
+
+vs Trellys [3]
+
+- “The use of general recursion to implement recursive types is already shown in
+Cardelli's paper”
+
+Cardelli shows how to model *equi*-recursive types. He uses no casts, and thus type-level 
+computation is completely unrestricted. Therefore there is no decidable type-checking in Cardelli’s 
+system.  (similar to Cayenne ??) 
+
+*The whole point* of our system is to provide a mechanism to control type-level computation and 
+consequently get decidable type-checking in the presence of recursion at the type-level. 
+So there is clearly a *big* difference to what Cardelli proposes. 
+
+join n m <- lower and upper bounds for the number of steps to decide equality
+
+* “Furthermore, the paper does not discuss the trade-offs involved when allowing
+nontermination in dependently-typed languages.”
+
+This is not correct. The issue of logical consistency is mentioned in the introduction for example:
+
+“… an additional concern, which does not exist in traditional functional languages like Haskell, is how to ensure logical consistency: that is ensuring the soundness of proofs written as programs. Both λμ⋆ and System FC are logically inconsistent… In λμ⋆ , logical consistency is **traded** by the simplicity of the system.”
+
+* “but this surface language lacks type-level computation, meaning that it
+cannot take advantage of the main benefits of the core language.”
+
+In fact the surface language takes very good advantage of the benefits of the core language. The encoding of datatypes and case analysis, for example, uses casts and type-level computation steps in a fundamental way: we need to use casts to simulate fold/unfold, and we also need small type-level computational steps to encode parametrised datatypes.
+
+* Of course, in the presence of nontermination, this rule is
+undecidable, but it can be made decidable by adding a maximum number of steps
+that A and B should take to find the common term C.
+
+Would not work:
