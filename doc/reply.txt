@@ -26,24 +26,13 @@ We will rephrase the sentences that lead to the confusion if the
 reviewer is kind enough to tell us which are the culprit sentences.
 
 The reviewer also has a large paragraph complaining about missing 
-features from FC and useful for DTP:
-
-“* The core language lacks expressiveness for dependently-typed
-programming and is not as expressive as FC.”
+features from FC and features useful for DTP:
 
 It is true that certain features of FC cannot be expressed, 
-*but this is acknowledged in the paper*. For example, in related 
-work we say:
-
-"... there are still many important aspects of Haskell that we have
-not modeled in λµ? . *One feature that requires further study is
-GADTs*.  Many GADT definitions require injectivity of type
-constructors, as well as equality constraints.  Because datatypes are
-not built-in to λµ? , injectivity of type constructors will require a
-different approach from System FC."
-
-We will emphasize the limitations against FC better earlier in the 
-paper, including discussions on erasability (which we have indeed 
+*but this is acknowledged in the paper*. See related work paragraph 
+on System FC, where we talk about GADTs and equality for example.
+We will emphasize the limitations against FC better, 
+and include discussions on erasability (which we have indeed 
 not mentioned).  
 
 - "The ideas in this paper are not new."
@@ -57,7 +46,7 @@ and decidable type-checking?"
 
 The suggestion from the reviewer that our work lacks novelty implies that 
 it was already know (either directly or indirectly) that this question 
-already had a positive answer. We disagree:
+had a positive answer. We disagree:
 
 - None of the suggested references [1,2,3,4,5] gives a direct 
 answer to this question. [1] does not support decidable type-checking; 
@@ -68,17 +57,17 @@ calculus.
 [1,2,3,4,5]. 
 
 The reviewer suggests that the idea of casts has already been proposed. 
-While it is true that other systems have casts as an alternative to the 
+While it is true that other systems have some form of casts as an alternative to the 
 conversion rule, including System FC which was our initial inspiration; 
-the existing casts are fundamentally different. 
+the *existing casts approaches are fundamentally different*. 
 
-All cast approaches in [2,3,4,5] rely on an equality proof. Our one-step 
-casts do not rely on equality proofs. This makes a big difference because: 
+All cast approaches in [2,3,4,5] rely equality proofs. *In contrast, our one-step 
+casts do not rely on equality proofs*. This makes a big difference because: 
 
  1) To build equality proofs we need various other language constructs, which 
 adds to the complexity of the language.
 
- 2) More importantly, we need to ensure that the euqality proofs are valid. 
+ 2) Moreover, we need to ensure that the equality proofs are valid. 
 If we are not careful, in a language with non-termination, we could easily 
 build equality proofs such as:
 
@@ -86,42 +75,26 @@ _|_ : Int = Char
 
 Some of the languages do provide solutions to this problem. For example, 
 in Zombie, the existence of a logical fragment can guarantee that the proofs 
-are valid. Other approaches [3,4], include restricting valid equality proofs to be 
-syntactic values only. 
+are valid. Other approaches include restricting valid equality proofs to be 
+syntactic values only [??], or having different languages for proofs and terms [??]. 
 
-Because our casts have no equality proofs, neither of these problems apply and 
-thus the system can be much simpler. 
+However, because our casts have no equality proofs, neither of these
+problems apply and thus the system can be much simpler!
 
+- "the paper does not discuss the trade-offs involved when allowing
+nontermination in dependently-typed languages"
 
+*This is not true*: we do mention that the price to pay for simplicity
++ non-termination is the loss of logical consistency in the introduction 
+(see the paragraph before list of contributions).
 
-
-vs guru:
-
-Guru has a cast construct using equality. However, this require more
-language constructs that deal with equality, for example, we need
-things like sim, reflexivity, transitivity …
-
-Can Guru ensure that equality proofs are not bogus?
-
-vs Trellys
-
-Conversion rule uses equality proofs… like guru, but very
-complicated. not single steps!
-
-Avoiding bogus equality proofs: equality proofs have to be syntactic
-values to ensure that they are logically consistent!
-
-vs Trellys [3]
-
-join n m <- lower and upper bounds for the number of steps to decide equality
 
 - “The use of general recursion to implement recursive types is
 already shown in Cardelli's paper”
 
 Cardelli shows how to model *equi*-recursive types. He uses no casts,
 and thus type-level computation is completely unrestricted. Therefore
-there is no decidable type-checking in Cardelli’s system.  (similar to
-Cayenne ??)
+there is no decidable type-checking in Cardelli’s system.
 
 *The whole point* of our system is to provide a mechanism to control
 type-level computation using inspiration from *iso*-recursive types. 
@@ -132,15 +105,6 @@ the presence of recursion at the type-level.  So there is clearly a
 * “Furthermore, the paper does not discuss the trade-offs involved when allowing
 nontermination in dependently-typed languages.”
 
-This is not correct. The issue of logical consistency is mentioned in
-the introduction for example:
-
-“… an additional concern, which does not exist in traditional
-functional languages like Haskell, is how to ensure logical
-consistency: that is ensuring the soundness of proofs written as
-programs. Both λμ⋆ and System FC are logically inconsistent… In λμ⋆ ,
-logical consistency is **traded** by the simplicity of the system.”
-
 * “but this surface language lacks type-level computation, meaning that it
 cannot take advantage of the main benefits of the core language.”
 
@@ -149,9 +113,3 @@ of the core language. The encoding of datatypes and case analysis, for
 example, uses casts and type-level computation steps in a fundamental
 way: we need to use casts to simulate fold/unfold, and we also need
 small type-level computational steps to encode parametrised datatypes.
-
-* Of course, in the presence of nontermination, this rule is
-undecidable, but it can be made decidable by adding a maximum number of steps
-that A and B should take to find the common term C.
-
-Would not work:
