@@ -46,12 +46,54 @@ We will emphasize the limitations against FC better earlier in the
 paper, including discussions on erasability (which we have indeed 
 not mentioned).  
 
-- “One way to describe this work is that makes type checking
-Cardelli's type:type language decidable [1] by marking the uses of
-conversion in terms. In that case, type checking becomes syntax
-directed so the proof of decidable type checking is almost
-trivial. This technique has been used, for example, in Guru [5], many
-Trellys variants [2], [3], [4]”
+- "The ideas in this paper are not new."
+
+Our work essentially gives a positive answer to the question: 
+
+"Can we have a calculus comparable in simplicity to PTS that can be 
+used to model key features of modern functional languages (like Haskell
+and ML), including general recursion, while preserving type-soundness 
+and decidable type-checking?"
+
+The suggestion from the reviewer that our work lacks novelty implies that 
+it was already know (either directly or indirectly) that this question 
+already had a positive answer. We disagree:
+
+- None of the suggested references [1,2,3,4,5] gives a direct 
+answer to this question. [1] does not support decidable type-checking; 
+whereas [2,3,4,5] are significantly more complex than a PTS-based 
+calculus. 
+
+- We also disagree the ideas proposed by us are obvious from references 
+[1,2,3,4,5]. 
+
+The reviewer suggests that the idea of casts has already been proposed. 
+While it is true that other systems have casts as an alternative to the 
+conversion rule, including System FC which was our initial inspiration; 
+the existing casts are fundamentally different. 
+
+All cast approaches in [2,3,4,5] rely on an equality proof. Our one-step 
+casts do not rely on equality proofs. This makes a big difference because: 
+
+ 1) To build equality proofs we need various other language constructs, which 
+adds to the complexity of the language.
+
+ 2) More importantly, we need to ensure that the euqality proofs are valid. 
+If we are not careful, in a language with non-termination, we could easily 
+build equality proofs such as:
+
+_|_ : Int = Char
+
+Some of the languages do provide solutions to this problem. For example, 
+in Zombie, the existence of a logical fragment can guarantee that the proofs 
+are valid. Other approaches [3,4], include restricting valid equality proofs to be 
+syntactic values only. 
+
+Because our casts have no equality proofs, neither of these problems apply and 
+thus the system can be much simpler. 
+
+
+
 
 vs guru:
 
@@ -82,7 +124,8 @@ there is no decidable type-checking in Cardelli’s system.  (similar to
 Cayenne ??)
 
 *The whole point* of our system is to provide a mechanism to control
-type-level computation and consequently get decidable type-checking in
+type-level computation using inspiration from *iso*-recursive types. 
+This is how we get decidable type-checking in
 the presence of recursion at the type-level.  So there is clearly a
 *big* difference to what Cardelli proposes.
 
