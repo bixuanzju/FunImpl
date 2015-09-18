@@ -1,61 +1,111 @@
-* Many of the points from this reviewer seem to be grounded on the assumption that we claim that our core language is a good core language for dependently typed programming. For example:
+#Reviewer B 
 
-”In particular, the comparisons suggest that the goal of the proposed language is dependently-typed programming, as in Cayenne, Idris, Coq or Agda”
+- A large part of the criticism in this review is grounded on
+the assumption that we claim our core language to be good 
+for dependently typed programming (DTP); when in fact we do not
+support feature A, B or C, which is crutial for DTP. 
 
-“* The core language lacks expressiveness for dependently-typed programming
-and is not as expressive as FC.”
+*This assumption is false*: we do not claim that our core language
+is good for DTP. Moreover we also state some (though perhaps not
+all) of the reasons why the language is limited for the kind of 
+DTP available in Agda/Idris/Coq....
 
-In the introduction we quite clearly say:
+For example, the reviewer states:
 
-“A **non-goal** of the current work (although a worthy avenue for future work) is to use λμ⋆ as a core language for modern dependently typed languages like Agda or Idris”
+”In particular, the comparisons suggest that the goal of the proposed
+language is dependently-typed programming, as in Cayenne, Idris, Coq
+or Agda”
 
-We certainly didn’t mean to suggest that our calculus is expressive and/or convenient enough to do Agda/Idris/Coq-style dependently typed programming in the current form. We will rephrase the sentences that lead to the confusion if the reviewer is kind enough to tell us which sentences lead to the confusion.
+whereas in the introduction, we clearly say that:
 
-We acknowledge limitations in terms of expressing type-level computation (“”); having a weak form of type-equality (“”); or supporting GADTs or inductive families (“”). One thing that we indeed did not talk about is erasability: we will mention this.
+“A **non-goal** of the current work (although a worthy avenue for
+future work) is to use λμ⋆ as a core language for modern dependently
+typed languages like Agda or Idris”
 
-- “One way to describe this work is that makes type checking Cardelli's type:type
-language decidable [1]  by marking the uses of conversion in terms. In that case, type checking becomes syntax directed so the proof of decidable type checking is almost trivial. This technique has been used, for example, in Guru [5], many Trellys variants [2], [3], [4]”
+We will rephrase the sentences that lead to the confusion if the
+reviewer is kind enough to tell us which are the culprit sentences.
+
+The reviewer also has a large paragraph complaining about missing 
+features from FC and useful for DTP:
+
+“* The core language lacks expressiveness for dependently-typed
+programming and is not as expressive as FC.”
+
+It is true that certain features of FC cannot be expressed, 
+*but this is acknowledged in the paper*. For example, in related 
+work we say:
+
+"... there are still many important aspects of Haskell that we have
+not modeled in λµ? . *One feature that requires further study is
+GADTs*.  Many GADT definitions require injectivity of type
+constructors, as well as equality constraints.  Because datatypes are
+not built-in to λµ? , injectivity of type constructors will require a
+different approach from System FC."
+
+We will emphasize the limitations against FC better earlier in the 
+paper, including discussions on erasability (which we have indeed 
+not mentioned).  
+
+- “One way to describe this work is that makes type checking
+Cardelli's type:type language decidable [1] by marking the uses of
+conversion in terms. In that case, type checking becomes syntax
+directed so the proof of decidable type checking is almost
+trivial. This technique has been used, for example, in Guru [5], many
+Trellys variants [2], [3], [4]”
 
 vs guru:
 
-Fur has a cast construct using equality. However, this require more language 
-constructs that deal with equality, for example, we need things like sim, reflexivity, transitivity …
+Guru has a cast construct using equality. However, this require more
+language constructs that deal with equality, for example, we need
+things like sim, reflexivity, transitivity …
 
 Can Guru ensure that equality proofs are not bogus?
 
 vs Trellys
 
-Conversion rule uses equality proofs… like guru, but very complicated. not single steps! 
+Conversion rule uses equality proofs… like guru, but very
+complicated. not single steps!
 
-Avoiding bogus equality proofs:
-equality proofs have to be syntactic values to ensure that they are logically consistent!
+Avoiding bogus equality proofs: equality proofs have to be syntactic
+values to ensure that they are logically consistent!
 
 vs Trellys [3]
 
-- “The use of general recursion to implement recursive types is already shown in
-Cardelli's paper”
-
-Cardelli shows how to model *equi*-recursive types. He uses no casts, and thus type-level 
-computation is completely unrestricted. Therefore there is no decidable type-checking in Cardelli’s 
-system.  (similar to Cayenne ??) 
-
-*The whole point* of our system is to provide a mechanism to control type-level computation and 
-consequently get decidable type-checking in the presence of recursion at the type-level. 
-So there is clearly a *big* difference to what Cardelli proposes. 
-
 join n m <- lower and upper bounds for the number of steps to decide equality
+
+- “The use of general recursion to implement recursive types is
+already shown in Cardelli's paper”
+
+Cardelli shows how to model *equi*-recursive types. He uses no casts,
+and thus type-level computation is completely unrestricted. Therefore
+there is no decidable type-checking in Cardelli’s system.  (similar to
+Cayenne ??)
+
+*The whole point* of our system is to provide a mechanism to control
+type-level computation and consequently get decidable type-checking in
+the presence of recursion at the type-level.  So there is clearly a
+*big* difference to what Cardelli proposes.
 
 * “Furthermore, the paper does not discuss the trade-offs involved when allowing
 nontermination in dependently-typed languages.”
 
-This is not correct. The issue of logical consistency is mentioned in the introduction for example:
+This is not correct. The issue of logical consistency is mentioned in
+the introduction for example:
 
-“… an additional concern, which does not exist in traditional functional languages like Haskell, is how to ensure logical consistency: that is ensuring the soundness of proofs written as programs. Both λμ⋆ and System FC are logically inconsistent… In λμ⋆ , logical consistency is **traded** by the simplicity of the system.”
+“… an additional concern, which does not exist in traditional
+functional languages like Haskell, is how to ensure logical
+consistency: that is ensuring the soundness of proofs written as
+programs. Both λμ⋆ and System FC are logically inconsistent… In λμ⋆ ,
+logical consistency is **traded** by the simplicity of the system.”
 
 * “but this surface language lacks type-level computation, meaning that it
 cannot take advantage of the main benefits of the core language.”
 
-In fact the surface language takes very good advantage of the benefits of the core language. The encoding of datatypes and case analysis, for example, uses casts and type-level computation steps in a fundamental way: we need to use casts to simulate fold/unfold, and we also need small type-level computational steps to encode parametrised datatypes.
+In fact the surface language takes very good advantage of the benefits
+of the core language. The encoding of datatypes and case analysis, for
+example, uses casts and type-level computation steps in a fundamental
+way: we need to use casts to simulate fold/unfold, and we also need
+small type-level computational steps to encode parametrised datatypes.
 
 * Of course, in the presence of nontermination, this rule is
 undecidable, but it can be made decidable by adding a maximum number of steps
