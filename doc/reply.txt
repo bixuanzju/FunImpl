@@ -61,7 +61,7 @@ While it is true that other systems have some form of casts as an alternative to
 conversion rule, including System FC which was our initial inspiration; 
 the *existing casts approaches are fundamentally different*. 
 
-All cast approaches in [2,3,4,5] rely equality proofs. *In contrast, our one-step 
+All cast approaches in [2,3,4,5] and System FC rely on equality proofs. *In contrast, our one-step
 casts do not rely on equality proofs*. This makes a big difference because: 
 
  1) To build equality proofs we need various other language constructs, which 
@@ -69,14 +69,16 @@ adds to the complexity of the language.
 
  2) Moreover, we need to ensure that the equality proofs are valid. 
 If we are not careful, in a language with non-termination, we could easily 
-build equality proofs such as:
+build bogus equality proofs such as:
 
 _|_ : Int = Char
 
-Some of the languages do provide solutions to this problem. For example, 
-in Zombie, the existence of a logical fragment can guarantee that the proofs 
-are valid. Other approaches include restricting valid equality proofs to be 
-syntactic values only [??], or having different languages for proofs and terms [??]. 
+Some of the languages do provide solutions to this problem. For
+example, in System FC, type equality coercions connects two *value*
+types, and in Zombie, the existence of a logical fragment can
+guarantee that the proofs are valid. Other approaches include
+restricting valid equality proofs to be syntactic values only [2,4],
+or having different languages for proofs and terms [3,5].
 
 However, because our casts have no equality proofs, neither of these
 problems apply and thus the system can be much simpler!
