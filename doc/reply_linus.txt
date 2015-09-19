@@ -4,9 +4,10 @@ emphasize it again.
 
 There are two main benefits of using PTS-style syntax for the core:
 
-1. Opening up the rich world of Dependently Typed Programming (Coq,
+1) Opening up the rich world of Dependently Typed Programming (Coq,
 Agda, Idris) via systems like calculus of constructions;
-2. Significant simplification of core language by eliminating
+
+2) Significant simplification of core language by eliminating
 redundancy between various syntactic levels.
 
 The goal of this paper is to achieve 2, but NOT 1. We focus more on
@@ -99,7 +100,7 @@ This is not true: we do mention that the price to pay for simplicity +
 non-termination is the loss of logical consistency at the end of
 introduction.
 
-### "but this surface language lacks type-level computation, meaning
+#### "but this surface language lacks type-level computation, meaning
 that it cannot take advantage of the main benefits of the core
 language."
 
