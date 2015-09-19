@@ -1,3 +1,21 @@
+Goal of paper:
+
+Reviewers B&D seem to be confused about the goal of the paper.
+
+There are at least two benefits of using PTS-style syntax and
+unification of all syntactic levels  for a language:
+
+1) It can open up the rich world of Dependently Typed Programming (as in
+Coq/Agda/Idris...); via systems like the calculus of constructions;
+
+2) It can *significantly simplify core languages*, by eliminating
+redundancy between the various syntactic levels.
+
+The goal of this paper is to achieve 2, not 1! In particular we are
+aimed at more traditional functional languages like ML or Haskell
+extended with some interesting type-level features, but perhaps
+not the full power of dependent types. That's the point of the paper!
+
 #Reviewer B 
 
 - A large part of the criticism in this review is grounded on
@@ -22,9 +40,6 @@ whereas in the introduction, we clearly say that:
 future work) is to use λμ⋆ as a core language for modern dependently
 typed languages like Agda or Idris”
 
-We will rephrase the sentences that lead to the confusion if the
-reviewer is kind enough to tell us which are the culprit sentences.
-
 The reviewer also has a large paragraph complaining about missing 
 features from FC and features useful for DTP:
 
@@ -44,10 +59,6 @@ used to model key features of modern functional languages (like Haskell
 and ML), including general recursion, while preserving type-soundness 
 and decidable type-checking?"
 
-The suggestion from the reviewer that our work lacks novelty implies that 
-it was already know (either directly or indirectly) that this question 
-had a positive answer. We disagree:
-
 - None of the suggested references [1,2,3,4,5] gives a direct 
 answer to this question. [1] does not support decidable type-checking; 
 whereas [2,3,4,5] are significantly more complex than a PTS-based 
@@ -61,8 +72,9 @@ While it is true that other systems have some form of casts as an alternative to
 conversion rule, including System FC which was our initial inspiration; 
 the *existing casts approaches are fundamentally different*. 
 
-All cast approaches in [2,3,4,5] and System FC rely on equality proofs. *In contrast, our one-step
-casts do not rely on equality proofs*. This makes a big difference because: 
+All cast approaches in [2,3,4,5] and System FC rely on equality
+proofs. *In contrast, our one-step casts do not rely on equality
+proofs*. This makes a big difference because:
 
  1) To build equality proofs we need various other language constructs, which 
 adds to the complexity of the language.
@@ -83,14 +95,6 @@ or having different languages for proofs and terms [3,5].
 However, because our casts have no equality proofs, neither of these
 problems apply and thus the system can be much simpler!
 
-- "the paper does not discuss the trade-offs involved when allowing
-nontermination in dependently-typed languages"
-
-*This is not true*: we do mention that the price to pay for simplicity
-+ non-termination is the loss of logical consistency in the introduction 
-(see the paragraph before list of contributions).
-
-
 - “The use of general recursion to implement recursive types is
 already shown in Cardelli's paper”
 
@@ -104,8 +108,12 @@ This is how we get decidable type-checking in
 the presence of recursion at the type-level.  So there is clearly a
 *big* difference to what Cardelli proposes.
 
-* “Furthermore, the paper does not discuss the trade-offs involved when allowing
-nontermination in dependently-typed languages.”
+- "the paper does not discuss the trade-offs involved when allowing
+nontermination in dependently-typed languages"
+
+*This is not true*: we do mention that the price to pay for simplicity
++ non-termination is the loss of logical consistency in the introduction 
+(see the paragraph before list of contributions).
 
 * “but this surface language lacks type-level computation, meaning that it
 cannot take advantage of the main benefits of the core language.”
@@ -125,8 +133,8 @@ section."
 
 [Response] Because two fragments of Zombie or F* are tightly coupled,
 it is rather hard to make the comparison only with the programmatic
-fragment alone. In Zombie, the conversion rule (TConv) for
-programmatic part depends on the equality proof, which is only
+fragment alone. For example, in Zombie, the conversion rule (TConv) for
+programmatic part depends on equality proofs, which is only
 available in the logical part.
 
 # Reviewer D
