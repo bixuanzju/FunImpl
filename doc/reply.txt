@@ -19,10 +19,10 @@ types.
 #143A
 
 ###Logical and programmatic fragments in languages like Zombie or F*
-are tightly coupled. Thus it's hard to compare only with the
-programmatic fragment. For example, in Zombie, the conversion rule for
-the programmatic part depends on equality proofs, which are only
-available in the logical part.
+are *tightly coupled*! Thus it's hard to compare only with the
+programmatic fragment. For example, in Zombie, the conversion rule
+(TConv) for the programmatic part depends on equality proofs, which
+are only available in the logical part.
 
 
 #143B
@@ -56,18 +56,19 @@ casts and/or fold/unfold). The whole point of using iso-recursive
 types is to obtain decidable type-checking, which Cardelli doesn't
 have.
 
-#We also disagree that the idea of one-step casts is obvious from
+#We also disagree that the idea of one-step casts is similar to
 references [1,2,3,4,5].  It's true that other systems have some form
 of casts as an alternative to the conversion rule. However, *all cast
-approaches in [2,3,4,5] and System FC use equality proofs, while our
-one-step casts do not*. This is *fundamentally* different because:
+approaches in [2,3,4,5] and System FC require equality proofs, while our
+one-step casts do not*. *Our one-step casts lead to a much simpler language
+design* because:
 
 1)Building equality proofs requires various other language
 constructs, *adding to the complexity of the language*.
 
 2)We need to ensure that the equality proofs are valid. Otherwise, we
-could easily build bogus equality proofs with non-termination, and
-break type-safety:
+could easily build bogus equality proofs with non-termination, which
+could endanger type-safety:
 
 _|_ : Int = Char
 
@@ -80,12 +81,9 @@ design/metatheory!*
 
 
 ###Much of the criticism in this review assumes that we claim our core
-language to be good for DTP:
+language to be good for DTP, as in Cayenne, Idris, Coq or Agda.
 
-”the comparisons suggest that the goal of the proposed language is
-DTP, as in Cayenne, Idris, Coq or Agda”
-
-*This assumption is false*. The introduction, clearly states:
+*This assumption is false*. The introduction clearly states:
 
 “A **non-goal** of the current work (although a worthy avenue for
 future work) is to use λμ⋆ as a core language for modern DTP languages
@@ -118,15 +116,23 @@ casts and type-level computation steps in a fundamental way: we need
 to use casts to simulate fold/unfold, and we also need small
 type-level computational steps to encode parametrised datatypes.
 
+#143C
+
+###"can anything be said about the connections between this
+calculus and step-indexed logical relations?"
+
+We are not sufficiently familiar with step-indexed logical relations
+to give a good answer at this time, but thanks for pointing out the
+(possible) connection! We'll surely investigate.
 
 #143D
 
 ###Please note that casts are mostly meant as a feature of the *core*
 language, and aren't meant to be used in the source.  The
-contribution/goal of Section 3 is to illustrate how many features of source
-languages are encoded via *type-level computation and casts*.
+contribution/goal of Section 3 is to illustrate how many features of
+source languages are encoded via *type-level computation and casts*.
 See also the reply to the last point for reviewer B.
 
 Intensive type-level computation would indeed be inconvenient at
 the moment (say by allowing casts on the source), but please look at
-our discussion in last paragraph of Section 8 for what can be done.
+our discussion in the last paragraph of Section 8 for what can be done.
