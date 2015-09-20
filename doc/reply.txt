@@ -57,7 +57,7 @@ types is to obtain decidable type-checking, which Cardelli doesn't
 have.
 
 #We also disagree that the idea of one-step casts is similar to
-references [1,2,3,4,5].  It's true that other systems have some form
+references [2,3,4,5].  It's true that other systems have some form
 of casts as an alternative to the conversion rule. However, *all cast
 approaches in [2,3,4,5] and System FC require equality proofs, while our
 one-step casts do not*. *Our one-step casts lead to a much simpler language
