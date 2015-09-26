@@ -20,13 +20,9 @@ subst v x = sub
         sub (U n e) = U n (sub e)
         sub (Kind k) = Kind k
         -- surface language
-        sub Error = Error
         sub Nat = Nat
         sub (Lit n) = Lit n
         sub (Add e1 e2) = Add (sub e1) (sub e2)
-        sub (Case e alts) = Case (sub e) (map subAlt alts)
-        sub (Data db e) = Data db (sub e)
-        sub (Rec db e) = Rec db (sub e)
         abstr con i t e
           | v == i = con i (sub t) e -- type is also expression, need substitution
           | i `elem` fvx =
@@ -52,16 +48,14 @@ substVar s s' = subst s (Var s')
 freeVars :: Expr -> [Sym]
 freeVars (Var s) = [s]
 freeVars (App f a) = freeVars f `union` freeVars a
-freeVars (Lam i t e) = freeVars t `union` (freeVars e \\ [i])
-freeVars (Pi i k t) = freeVars k `union` (freeVars t \\ [i])
-freeVars (Mu i t1 t2) = freeVars t1 `union` (freeVars t2 \\ [i])
+freeVars (Lam i t e) = freeVars t `union` (freeVars e \\ [i]) `union` (freeVars t)
+freeVars (Pi i k t) = freeVars k `union` (freeVars t \\ [i]) `union` (freeVars k)
+freeVars (Mu i t1 t2) = freeVars t1 `union` (freeVars t2 \\ [i]) `union` (freeVars t1)
 freeVars (F _ t e) = freeVars t `union` freeVars e
 freeVars (U _ e) = freeVars e
 freeVars (Kind _) = []
 -- suface langage
-freeVars (Case e _) = freeVars e
 freeVars Nat = []
-freeVars Error = []
 freeVars (Lit _) = []
 freeVars (Add e1 e2) = freeVars e1 `union` freeVars e2
 
@@ -80,8 +74,6 @@ alphaEq (Kind k) (Kind k') = k == k'
 alphaEq Nat Nat = True
 alphaEq (Lit n) (Lit m) = n == m
 alphaEq (Add e1 e2) (Add e1' e2') = alphaEq e1 e1' && alphaEq e2 e2'
-alphaEq Error _ = True
-alphaEq _ Error = True
 alphaEq _ _ = False
 
 -- repFreeVar :: BEnv -> Expr -> Expr
@@ -107,34 +99,6 @@ desugar (Mu n t1 t2) = Mu n (desugar t1) (desugar t2)
 desugar (F n t e) = F n (desugar t) (desugar e)
 desugar (U n t) = U n (desugar t)
 desugar e@(Kind _) = e
-desugar (Let n _ e1 e2) = subst n (desugar e1) (desugar e2)
-desugar (Letrec n t e1 e2) =
-  desugar (Let n t (Mu n t (desugar e1)) (desugar e2))
-desugar (Rec (RB n params field) e) =
-  let selNames = map fst . selector $ field
-      taus = map snd . selector $ field
-      ru = foldl App (Var n) (map (Var . fst) params)
-      selTypes = map (\t -> foldr (\(u, k) tau -> Pi u k tau) (Pi "" ru t) params) taus
-      xs = genVarsAndTypes 'x' taus
-      selExprs = zip selNames
-                   (zip selTypes
-                      (map
-                         (\i ->
-                            genLambdas params
-                              (Lam "L" ru
-                                 (Case (Var "L")
-                                    [ Alt (PConstr (Constructor (recordName field) []) xs)
-                                        (Var (map fst xs !! i))
-                                    ])))
-                         [0 :: Int .. length taus - 1]))
-      lastExpr = Data (DB n params [Constructor (recordName field) (selector field)])
-                   (desugar (foldr (\(name, (kt, ke)) body -> Let name kt ke body) e selExprs))
-  in lastExpr
-desugar (Data bind e) = Data bind (desugar e)
-desugar (Case e alts) = Case (desugar e) (map deAlt alts)
-  where
-    deAlt :: Alt -> Alt
-    deAlt (Alt p body) = Alt p (desugar body)
 desugar e = e
 
 
@@ -153,7 +117,6 @@ reduct (Add (Lit n) (Lit m)) = Right (Lit (n + m))
 reduct (Add (Lit n) m) = reduct m >>= \m' -> Right $ Add (Lit n) m'
 reduct (Add n m) = reduct n >>= \n' -> Right (Add n' m)
 reduct Nat = return Nat
-reduct Error = throwError "Runtime error!"
 reduct e = Left $ "Not reducible: " ++ show e
 
 

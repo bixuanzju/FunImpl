@@ -73,22 +73,16 @@ expr : '\\' id ':' expr '.' expr                { Lam $2 $4 $6 }
      | mu id ':' expr '.' expr                  { Mu $2 $4 $6}
      | fold digits '[' expr ']' expr            { F $2 $4 $6 }
      | unfold digits expr %prec UNFOLD          { U $2 $3}
-     | data databind ';' expr                   { Data $2 $4 }
-     | rec recbind ';' expr                     { Rec $2 $4 }
-     | case expr of alts                        { Case $2 $4}
      -- surface language
      | expr '+' expr                            { Add $1 $3 }
      | '(' id ':' expr ')' '->' expr            { Pi $2 $4 $7 }
      | expr '->' expr                           { Pi "" $1 $3 }
-     | let id ':' expr '=' expr in expr         { Let $2 $4 $6 $8 }
-     | letrec id ':' expr '=' expr in expr      { Letrec $2 $4 $6 $8 }
      | aexp                                     { $1 }
 
 aexp : aexp term                                { App $1 $2 }
      | term                                     { $1 }
 
 term : nat                                      { Nat }
-     | err                                    { Error }
      | id                                       { Var $1 }
      | digits                                   { Lit $1 }
      | '*'                                      { Kind Star }

@@ -4,7 +4,7 @@ import System.Console.Haskeline
 
 import Expr
 import TypeCheck
-import Translation
+--import Translation
 import Syntax
 import Parser
 -- import Predef
@@ -37,7 +37,7 @@ main = runInputT defaultSettings (loop [] [])
         ":add" -> delegate progm "Command parse error - :add name type" $
           \name xs -> do
             outputStrLn "Added!"
-            loop benv (extend name (head xs) env)
+            loop benv (extend (name, Logic) (head xs) env)
         ":let" -> delegate progm "Command parse error - :let name expr" $
           \name xs -> do
             outputStrLn "Added new term!"
@@ -45,7 +45,7 @@ main = runInputT defaultSettings (loop [] [])
         ":e" -> processCMD progm $
           \xs -> do
             if length xs == 1
-              then case trans env (desugar . head $ xs) >>= \(_, transE) -> eval (desugar transE) of
+              then case eval (head xs) of
                 Left err -> outputStrLn err
                 Right e' -> outputStrLn ("\n--- Evaluation result ---\n\n" ++ show e' ++ "\n")
               else outputStrLn "Command parser error - need one expression!"
@@ -59,7 +59,7 @@ main = runInputT defaultSettings (loop [] [])
         ":t" -> processCMD progm $
           \xs -> do
             if length xs == 1
-              then case trans env (desugar . head $ xs) >>= \(_, transE) -> tcheck env (desugar transE) of
+              then case tpcheck env (Expr' Logic Pos (head xs)) of
                 Left err  -> outputStrLn err
                 Right typ -> outputStrLn ("\n--- Typing result ---\n\n" ++ show typ ++ "\n")
               else outputStrLn "Command parser error - need one expression!"
@@ -72,15 +72,6 @@ main = runInputT defaultSettings (loop [] [])
         --         Right typ -> outputStrLn . show $ equate benv typ (xs !! 1)
         --       else outputStrLn "Command parser error - need two expressions!"
         --     loop benv env
-        ":trans" ->
-          processCMD progm $
-            \xs -> do
-              if length xs == 1
-                then case trans env . desugar . head $ xs of
-                  Left err          -> outputStrLn err
-                  Right (_, transE) -> outputStrLn ("\n--- Translation result ---\n\n" ++ show transE ++ "\n")
-                else outputStrLn "Command parser error - need one expression!"
-              loop benv env
         _ -> processCMD e $
           \xs -> do
             outputStrLn ("\n--- Pretty printing ---\n\n" ++ concatMap show xs ++ "\n")

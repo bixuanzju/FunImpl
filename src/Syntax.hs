@@ -17,13 +17,6 @@ data Expr = Var Sym
           | F Int Type Expr
           | U Int Expr
           | Kind Kinds
-          -- Surface language
-          | Data DataBind Expr
-          | Rec RecBind Expr  --TODO: could be merged to datatype?
-          | Case Expr [Alt]
-          | Let Sym Type Expr Expr
-          | Letrec Sym Type Expr Expr
-          | Error
           -- Primitive nat
           | Nat
           | Lit Int
@@ -67,8 +60,8 @@ instance Show Program where
   show (Progm exprs) = concatMap show exprs
 
 instance Pretty Kinds where
-  pretty Star = char '⋆'
-  pretty Box = char '□'
+  pretty Star = char '★'
+  pretty Box = char '▢'
 
 instance Pretty Expr where
   pretty (Var x) = text x
@@ -82,15 +75,9 @@ instance Pretty Expr where
   pretty (F n t e) = text "fold" <+> pretty n <> brackets (pretty t) <+> parens (pretty e)
   pretty (U n e) = text "unfold" <+> pretty n <> parens (pretty e)
   pretty (Kind k) = pretty k
-  pretty (Data datatypes e) = text "data" <+> pretty datatypes <$> pretty e
-  pretty (Case e alts) = hang 2 (text "case" <+> pretty e <+> text "of" <$> text " " <+> intersperseBar (map pretty alts))
-  pretty (Let n t e1 e2) = text "let" <+> pretty n <+> colon <+> pretty t <+> equals <+> pretty e1 <$> text "in" <$> pretty e2
-  pretty (Letrec n t e1 e2) = text "letrec" <+> pretty n <+> colon <+> pretty t <+> equals <+> pretty e1 <$> text "in" <$> pretty e2
-  pretty (Rec recbind e) = text "record" <+> pretty recbind <$> pretty e
   pretty Nat = text "nat"
   pretty (Add e1 e2) = parens (pretty e1 <+> text "+" <+> pretty e2)
   pretty (Lit n) = text (show n)
-  pretty (Error) = text "error"
 
 instance Pretty RecBind where
   pretty (RB n tpairs fields) = text n <+>
