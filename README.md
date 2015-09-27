@@ -17,7 +17,7 @@ fiddle with `Fun`. This is an overview of how to interact.
 2. Build and install
 
     We recommend installing in a sandbox by `cabal sandbox init`
-    
+
     ```bash
     cabal update
     make
