@@ -1,203 +1,158 @@
-module TypeCheck where
+{-# LANGUAGE OverloadedStrings #-}
 
-import Control.Monad (unless)
-import Control.Monad.Except (throwError)
-import Control.Applicative ((<|>))
--- import Parser
--- import Debug.Trace
+module TypeCheck (eval, typecheck) where
 
-import Syntax
-import Expr
-import Utils
+import           Control.Applicative
+import           Control.Monad.Except
+import           Control.Monad.Trans.Maybe
+import qualified Data.Text as T
+import           Unbound.Generics.LocallyNameless
 
-type EnvIndex = (Sym, ClassTag)
+import           PrettyPrint
+import           Syntax
 
-type Env = [(EnvIndex, Type)]
+type Context = ExceptT T.Text
 
-extend :: EnvIndex -> Type -> Env -> Env
-extend s t r = (s,t):r
+type M = Context LFreshM
 
-type ErrorMsg = String
+type Env = Tele
 
-type TC a = Either ErrorMsg a
+done :: MonadPlus m => m a
+done = mzero
 
--- Classifier
-data ClassTag = Prog
-              | Logic
-              deriving (Eq, Show)
+-- | Small step, call-by-value operational semantics
+step :: Expr -> M Expr
+step (Var{}) = done
+step (Kind{}) = done
+step (Lam{}) = done
+step (Pi{}) = done
+step (F{}) = done
+step (Lit{}) = done
+step (Nat) = done
+step (App (Lam bnd) t2) =
+  lunbind bnd $ \(delta, b) -> multiSubst delta t2 b
+step (App t1 t2) =
+  App <$> step t1 <*> pure t2
+  <|> App <$> pure t1 <*> mapM step t2
+step (U (F _ e)) = return e
+step (U e) = U <$> step e
+step e@(Mu bnd) =
+  lunbind bnd $ \((n, _), b) -> return $ subst n b e
+step (PrimOp op (Lit n) (Lit m)) = do
+  let x = evalOp op
+  return (Lit (n `x` m))
+step (PrimOp op e1 e2) =
+  PrimOp <$> pure op <*> step e1 <*> pure e2
+  <|> PrimOp <$> pure op <*> pure e1 <*> step e2
 
--- Positivity
-data PosTag = Pos
-            | Neg
-            deriving (Eq, Show)
+evalOp :: Operation -> (Int -> Int -> Int)
+evalOp Add = (+)
+evalOp Sub = (-)
+evalOp Mult = (*)
 
-flipp :: PosTag -> PosTag
-flipp Pos = Neg
-flipp Neg = Pos
+-- | transitive closure of `step`
+tc :: (Monad m, Functor m) => (a -> Context m a) -> (a -> m a)
+tc f a = do
+  ma' <- runExceptT (f a)
+  case ma' of
+    Left err -> return a
+    Right a' -> tc f a'
 
--- New Expr
-data Expr' = Expr' ClassTag PosTag Expr deriving Eq
+eval :: Expr -> Expr
+eval x = runLFreshM (tc step x)
 
-findVar :: Env -> EnvIndex -> TC Type
-findVar r s =
-  case lookup s r of
-   Just t -> return t
-   Nothing -> throwError $ "Cannot find variable " ++ show s
+-- type checker
+
+infer :: Env -> Expr -> M Expr
+infer g (Var x) = lookUp x g
+infer _ (Kind Star) = return (Kind Box)
+infer g (Lam bnd) =
+  lunbind bnd $ \(delta, m) -> do
+    b <- infer (g `appTele` delta) m
+    return . Pi $ bind delta b -- TODO: check validity of pi type
+infer g (App m ns) = do
+  bnd <- unPi =<< infer g m
+  lunbind bnd $ \(delta, b) -> do
+    checkList g ns delta
+    multiSubst delta ns b
+infer g e@(Pi bnd) =
+  lunbind bnd $ \(delta, b) -> do
+    t <- infer (g `appTele` delta) b
+    unless (aeq b estar || aeq b ebox) $
+      throwError $ T.concat ["In ", showExpr e, ", ", showExpr b, " should have sort ⋆ or □"]
+    return t
+infer g a@(Mu bnd) =
+  lunbind bnd $ \((x, Embed t), e) -> do
+    check (g `appTele` (mkTele [(name2String x, t)])) e t
+    unless (aeq t estar || aeq t ebox) $
+      throwError $ T.concat ["In ", showExpr a, ", ", showExpr t, " should have sort ⋆ or □"]
+    return t
+infer g (F t1 e) = do
+  t2 <- step t1
+  t2' <- infer g e
+  checkEq t2 t2'
+  check g t1 estar
+  return t1
+infer g (U e) = do
+  t1 <- infer g e
+  t2 <- step t1
+  check g t2 estar
+  return t2
+infer _ Nat = return estar
+infer _ (Lit{}) = return Nat
+infer _ (PrimOp{}) = return Nat
+
+infer _ e = throwError $ T.concat ["Type checking ", showExpr e, " falied"]
+
+typecheck :: Expr -> Either T.Text Expr
+typecheck = runLFreshM . runExceptT . (infer Empty)
 
 
-tpcheck :: Env -> Expr' -> TC Type
-tpcheck env = go
+-- helper functions
+
+checkList :: Env -> [Expr] -> Tele -> M ()
+checkList _ [] Empty = return ()
+checkList g (e:es) (Cons rb) = do
+  let ((x, Embed a), t') = unrebind rb
+  check g e a
+  checkList (subst x e g) (subst x e es) (subst x e t') -- FIXME: overkill?
+checkList _ _ _ = throwError $ "Unequal number of parameters and arguments"
+
+check :: Env -> Expr -> Expr -> M ()
+check g m a = do
+  b <- infer g m
+  checkEq b a
+
+unPi :: Expr -> M (Bind Tele Expr)
+unPi (Pi bnd) = return bnd
+unPi e = throwError $ T.concat ["Expected pi type, got ", showExpr e, " instead"]
+
+-- | alpha equality
+checkEq :: Expr -> Expr -> M ()
+checkEq e1 e2 =
+  if aeq e1 e2
+    then return ()
+    else throwError $ T.concat ["Couldn't match: ", showExpr e1, " with ", showExpr e2]
+
+multiSubst :: Tele -> [Expr] -> Expr -> M Expr
+multiSubst Empty [] e = return e
+multiSubst (Cons rb) (e1:es) e = multiSubst t' es e'
   where
-    go (Expr' ctag ptag e) =
-      let
-        sameTags e = Expr' ctag ptag e
-        cta Prog _ _ = True
-        cta Logic x e = ctal e 
-          where
-            ctal (Kind _) = True
-            ctal (Var y) = (y /= x)
-            ctal (Pi _ _ _) = True
-            ctal (App f a) = (ctal f) && (ctal a)
-            ctal (Lam y _ e) = if y == x then True else ctal e
-            ctal (F _ _ e) = ctal e
-            ctal (U _ e) = ctal e
-            ctal (Mu y _ e) = if y == x then True else ctal e
-      in
-      case e of
-        -- T_AX
-        (Kind Star) -> return (Kind Box)
-        -- T_VARL & T_VARP
-        (Var s) ->
-          case (ctag, ptag) of
-            (Logic, Neg) -> findVar env (s, Logic)
-            _ -> (findVar env (s, Prog)) <|> (findVar env (s, Logic))
-        -- T_APP
-        (App f a) ->
-          do tf <- tpcheck env (sameTags f)
-             case tf of
-               (Pi x t2 t1) ->
-                 do ta <- tpcheck env (sameTags a)
-                    unless (alphaEq ta t2) $ throwError "Incorrect argument type"
-                    return $ subst x a t1 
-               _ -> throwError "Non-function in application"
-        -- T_LAM
-        (Lam x t1 e) ->
-          do let env' = extend (x, Logic) t1 env
-             t2 <- tpcheck env' (sameTags e)
-             let lt = Pi x t1 t2
-             tpcheck env (sameTags lt)
-             return lt
-        -- T_PI
-        (Pi x t1 t2) ->
-          do s <- tpcheck env (Expr' ctag (flipp ptag) t1)
-             let env' = extend (x, Logic) t1 env
-             t <- tpcheck env' (sameTags t2)
-             return t
-        -- T_MU
-        (Mu x t e) ->
-          do let env' = extend (x, Prog) t env
-             t' <- tpcheck env' (sameTags e)
-             tpcheck env (sameTags t')
-             unless (cta ctag x e) $ throwError "CTA wrong"
-             return t'
-        -- T_CASTUP
-        (F n t1 e) ->
-          do t2 <- tpcheck env (sameTags e)
-             kt1 <- tpcheck env (sameTags t1)
-             unless (alphaEq kt1 (Kind Star)) $ throwError "Kind of t1 is not star in castup"
-             t2' <- reductN n t1
-             unless (alphaEq t2 t2') $ throwError "Cannot derive t2 from t1 in castup"
-             return t1
-        -- T_CASTDOWN
-        (U n e) ->
-          do t1 <- tpcheck env (sameTags e)
-             t2 <- reductN n t1
-             kt2 <- tpcheck env (sameTags t2)
-             unless (alphaEq kt2 (Kind Star)) $ throwError "Kind of t2 is not star in castdown"
-             return t2
-        -- Others
-        Nat -> return (Kind Star)
+    ((x, _), t') = unrebind rb
+    e' = subst x e1 e
+multiSubst _ _ _ = throwError "Unequal number of parameters and arguments"
 
-        (Lit _) -> return Nat
-        --
-        (Add e1 e2) ->
-          do t1 <- tpcheck env (sameTags e1)
-             t2 <- tpcheck env (sameTags e2)
-             unless (t1 == Nat && t2 == Nat) $ throwError "Addition is only allowed for numbers!"
-             return Nat
-        
-        e -> throwError $ "TypeCheck: Impossible happened, trying to type check:\n" ++ show e
+appTele :: Tele -> Tele -> Tele
+appTele Empty t2 = t2
+appTele (Cons rb) t2 = Cons (rebind p (appTele t1' t2))
+  where
+    (p, t1') = unrebind rb
 
 
--- | Type checker for the core language
-{-
-tcheck :: Env -> Expr -> TC Type
-tcheck _ (Kind Star) = return $ Kind Star -- (T_AX)
-tcheck env (Var s) = findVar env s       -- (T_VAR and T_WEAK)
-tcheck env (App f a) =                   -- (T_APP)
-  do tf <- tcheck env f
-     case tf of
-       Pi x at rt ->
-         do ta <- tcheck env a
-            unless (alphaEq ta at) $     -- up to alpha equivalence
-              throwError "Bad function argument type"
-            return $ subst x a rt
-       _ -> throwError "Non-function in application"
-tcheck env (Lam s t e) =                 -- (T_LAM)
-  do let env' = extend s t env
-     te <- tcheck env' e
-     let lt = Pi s t te  -- Note: cannot have datatype
-     tcheck env lt
-     return lt
-tcheck env (Pi x a b) =                  -- (T_PI)
-  do s <- tcheck env a -- evaluate after type check
-     let env' = extend x a env
-     t <- tcheck env' b
-     unless (alphaEq t (Kind Star) && alphaEq s (Kind Star)) $ throwError "Bad abstraction"
-     return t
-tcheck env (Mu i t e) =                  -- (T_MU)
-  do let env' = extend i t env
-     t' <- tcheck env' e
-     tcheck env t'
-     unless (alphaEq t t') $ throwError "Bad recursive type"
-     return t
-tcheck env (F n t1 e) =                    -- (T_CASTUP)
-  do t2 <- tcheck env e
-     tcheck env t1
-     t2' <- reductN n t1
-     unless (alphaEq t2 t2') $ throwError "Bad fold expression"
-     return t1
-tcheck env (U n e) =                       -- (T_CASTDOWN)
-  do t1 <- tcheck env e
-     t2 <- reductN n t1
-     tcheck env t2
-     return t2
-
-tcheck _ Nat = return (Kind Star)
-tcheck _ (Lit _) = return Nat
-tcheck env (Add e1 e2) = do
-  t1 <- tcheck env e1
-  t2 <- tcheck env e2
-  unless (t1 == Nat && t2 == Nat) $ throwError "Addition is only allowed for numbers!"
-  return Nat
-
-tcheck _ Error = return Error
-
-tcheck _ e = throwError $ "TypeCheck: Impossible happened, trying to type check:\n" ++ show e
-
--}
-
-getActualTypes :: Type -> TC [Type]
-getActualTypes (App a b) = getActualTypes a >>= \ts -> return (b : ts)
-getActualTypes (Var _) = return []
-getActualTypes _ = throwError "Bad scrutinee type"
-
--- allowedKinds :: [(Type, Type)]
--- allowedKinds =
---   [(Kind Star,Kind Star)
---   ,(Kind Star,Kind Box)
---   ,(Kind Box,Kind Star)
---   ,(Kind Box,Kind Box)]
-
-arr :: Type -> Type -> Type
-arr = Pi ""
+lookUp :: TmName -> Tele -> M Expr
+lookUp n Empty = throwError $ T.concat ["Not in scope: " , T.pack . show $ n]
+lookUp v (Cons rb)
+  | v == x = return a
+  | otherwise = lookUp v t'
+  where
+    ((x, Embed a), t') = unrebind rb

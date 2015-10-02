@@ -1,98 +1,63 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Main where
 
-import System.Console.Haskeline
+import qualified Data.Text as T
+import           System.Console.Haskeline
 
-import Expr
-import TypeCheck
---import Translation
-import Syntax
-import Parser
--- import Predef
+import           TypeCheck
+import           Parser
+import           PrettyPrint
 
--- Note: 1. datatypes first, then record
---       2. first `desugar` to get rid of record, second desugar to get rid of let expression
 main :: IO ()
-main = runInputT defaultSettings (loop [] [])
+main = runInputT defaultSettings loop
   where
-    loop :: BEnv -> Env -> InputT IO ()
-    loop benv env =
-      do
-        minput <- getInputLine "pts> "
-        case minput of
-          Nothing   -> return ()
-          Just ""   -> loop benv env
-          Just ":q" -> return ()
-          Just cmds -> dispatch benv env cmds
-    dispatch :: BEnv -> Env -> String -> InputT IO ()
-    dispatch benv env cmds =
+    loop :: InputT IO ()
+    loop = do
+      minput <- getInputLine "pts> "
+      case minput of
+        Nothing   -> return ()
+        Just ""   -> loop
+        Just ":q" -> return ()
+        Just cmds -> dispatch cmds
+    dispatch :: String -> InputT IO ()
+    dispatch cmds =
       let e@(cmd:progm) = words cmds
       in case cmd of
-        ":clr" -> do
-          outputStrLn "Environment cleaned up!"
-          loop [] [] -- initalBEnv initalEnv
-        ":env" -> do
-          outputStrLn $ "Typing environment: " ++ show env
-          outputStrLn $ "Binding environment: " ++ show (map fst benv)
-          loop benv env
-        ":add" -> delegate progm "Command parse error - :add name type" $
-          \name xs -> do
-            outputStrLn "Added!"
-            loop benv (extend (name, Logic) (head xs) env)
-        ":let" -> delegate progm "Command parse error - :let name expr" $
-          \name xs -> do
-            outputStrLn "Added new term!"
-            loop ((name, head xs) : benv) env
+        -- ":clr" -> do
+        --   outputStrLn "Environment cleaned up!"
+        --   loop [] [] -- initalBEnv initalEnv
+        -- ":env" -> do
+        --   outputStrLn $ "Typing environment: " ++ show env
+        --   outputStrLn $ "Binding environment: " ++ show (map fst benv)
+        --   loop benv env
+        -- ":add" -> delegate progm "Command parse error - :add name type" $
+        --   \name xs -> do
+        --     outputStrLn "Added!"
+        --     loop benv (extend (name, Logic) (head xs) env)
+        -- ":let" -> delegate progm "Command parse error - :let name expr" $
+        --   \name xs -> do
+        --     outputStrLn "Added new term!"
+        --     loop ((name, head xs) : benv) env
         ":e" -> processCMD progm $
           \xs -> do
-            if length xs == 1
-              then case eval (head xs) of
-                Left err -> outputStrLn err
-                Right e' -> outputStrLn ("\n--- Evaluation result ---\n\n" ++ show e' ++ "\n")
-              else outputStrLn "Command parser error - need one expression!"
-            loop benv env
-        -- ":eq" -> processCMD progm $
-        --   \xs -> do
-        --     if length xs == 2
-        --       then outputStrLn . show $ equate benv (head xs) (xs !! 1)
-        --       else outputStrLn "Command parser error - need two expressions!"
-        --     loop benv env
+            let xs' = eval xs
+            outputStrLn ("\n--- Evaluation result ---\n\n" ++ (T.unpack . showExpr $ xs') ++ "\n")
+            loop
         ":t" -> processCMD progm $
           \xs -> do
-            if length xs == 1
-              then case tpcheck env (Expr' Logic Pos (head xs)) of
-                Left err  -> outputStrLn err
-                Right typ -> outputStrLn ("\n--- Typing result ---\n\n" ++ show typ ++ "\n")
-              else outputStrLn "Command parser error - need one expression!"
-            loop benv env
-        -- ":teq" -> processCMD progm $
-        --   \xs -> do
-        --     if length xs == 2
-        --       then case tcheck env . repFreeVar benv . head $ xs of
-        --         Left err  -> outputStrLn err
-        --         Right typ -> outputStrLn . show $ equate benv typ (xs !! 1)
-        --       else outputStrLn "Command parser error - need two expressions!"
-        --     loop benv env
+            case typecheck xs of
+              Left err  -> outputStrLn . T.unpack $ err
+              Right typ -> outputStrLn ("\n--- Typing result ---\n\n" ++ (T.unpack . showExpr $ typ) ++ "\n")
+            loop
         _ -> processCMD e $
           \xs -> do
-            outputStrLn ("\n--- Pretty printing ---\n\n" ++ concatMap show xs ++ "\n")
-            loop benv env
+            outputStrLn ("\n--- Pretty printing ---\n\n" ++ (T.unpack . showExpr $ xs) ++ "\n")
+            loop
       where
         processCMD expr func =
-          case parseExpr . unwords $ expr of
+          case parser . unwords $ expr of
             Left err -> do
-              outputStrLn err
-              loop benv env
-            Right (Progm xs) -> func xs
-
-        delegate progm errMsg func =
-          if length progm >= 2
-            then let (name:typ) = progm
-                 in processCMD typ $
-                   \xs -> if length xs == 1
-                            then func name xs
-                            else do
-                              outputStrLn "Command parser error - need one expression!"
-                              loop benv env
-            else do
-              outputStrLn errMsg
-              loop benv env
+              outputStrLn . show $ err
+              loop
+            Right xs -> func xs

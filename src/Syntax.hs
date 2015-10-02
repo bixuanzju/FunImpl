@@ -1,119 +1,105 @@
+{-# LANGUAGE DeriveGeneric, DeriveDataTypeable, FlexibleInstances, FlexibleContexts, MultiParamTypeClasses, ScopedTypeVariables, OverloadedStrings  #-}
+
 module Syntax where
 
-import Data.List (intersperse)
-import Prelude hiding ((<$>))
-import Text.PrettyPrint.ANSI.Leijen
+import Data.Typeable (Typeable)
+import GHC.Generics (Generic)
+import Unbound.Generics.LocallyNameless
 
+type TmName = Name Expr
 
-data Program = Progm [Expr]
+data Tele = Empty
+          | Cons (Rebind (TmName, Embed Expr) Tele)
+  deriving (Show, Generic, Typeable)
 
-type Sym = String
-
-data Expr = Var Sym
-          | App Expr Expr
-          | Lam Sym Type Expr
-          | Pi Sym Type Type
-          | Mu Sym Type Type
-          | F Int Type Expr
-          | U Int Expr
+-- | Datatype of the core, with optimization of aggregate bindings
+data Expr = Var TmName
+          | App Expr [Expr]
+          | Lam (Bind Tele Expr)
+          | Pi (Bind Tele Expr)
+          | Mu (Bind (TmName, Embed Expr) Expr)
+          | F Expr Expr
+          | U Expr
           | Kind Kinds
-          -- Primitive nat
           | Nat
           | Lit Int
-          | Add Expr Expr
-          deriving Eq
+          | PrimOp Operation Expr Expr
+  deriving (Show, Generic, Typeable)
 
-data DataBind = DB Sym [(Sym, Type)] [Constructor]
-  deriving Eq
+data Operation = Mult
+               | Sub
+               | Add
+  deriving (Show, Generic, Typeable)
 
-data Constructor = Constructor { constrName :: Sym, constrParams :: [(Sym, Type)] }
-  deriving Eq
+addExpr :: Expr -> Expr -> Expr
+addExpr = PrimOp Add
 
-data RecBind = RB Sym [(Sym, Type)] RecField
-  deriving Eq
+subExpr :: Expr -> Expr -> Expr
+subExpr = PrimOp Sub
 
-data RecField = RecField { recordName :: Sym, selector :: [(Sym, Type)] }
-  deriving Eq
+multExpr :: Expr -> Expr -> Expr
+multExpr = PrimOp Mult
 
-data Alt = Alt Pattern Expr deriving Eq
+data Kinds = Star
+           | Box
+  deriving (Show, Generic, Typeable)
 
-data Pattern = PConstr Constructor [(Sym, Type)] deriving Eq
+instance Alpha Expr
+instance Alpha Operation
+instance Alpha Kinds
+instance Alpha Tele
 
-isVal :: Expr -> Bool
-isVal (Lam{}) = True
-isVal (Pi{}) = True
-isVal (F{}) = True
-isVal (Lit _) = True
-isVal Nat = True
-isVal _ = False
+instance Subst Expr Operation
+instance Subst Expr Kinds
+instance Subst Expr Tele
 
-type Type = Expr
-
-data Kinds = Star | Box deriving (Eq, Read)
-
--- Pretty printer
-
-instance Show Expr where
-  show e = show (pretty e)
-
-instance Show Program where
-  show (Progm exprs) = concatMap show exprs
-
-instance Pretty Kinds where
-  pretty Star = char '★'
-  pretty Box = char '▢'
-
-instance Pretty Expr where
-  pretty (Var x) = text x
-  pretty (App e1 e2) = parens $ pretty e1 <+> pretty e2
-  pretty (Lam n t e) = parens $ text "λ" <> parens (pretty n <+> colon <+> pretty t) <> dot <+> pretty e
-  pretty (Pi n t e) =
-    if n == ""
-    then parens $ pretty t <+> char '→' <+> pretty e
-    else parens $ char 'Π' <> parens (pretty n <+> colon <+> pretty t) <> dot <+> pretty e
-  pretty (Mu n t e) = parens $ char 'μ' <+> pretty n <+> colon <+> pretty t <> dot <+> pretty e
-  pretty (F n t e) = text "fold" <+> pretty n <> brackets (pretty t) <+> parens (pretty e)
-  pretty (U n e) = text "unfold" <+> pretty n <> parens (pretty e)
-  pretty (Kind k) = pretty k
-  pretty Nat = text "nat"
-  pretty (Add e1 e2) = parens (pretty e1 <+> text "+" <+> pretty e2)
-  pretty (Lit n) = text (show n)
-
-instance Pretty RecBind where
-  pretty (RB n tpairs fields) = text n <+>
-                                hsep
-                                  (map (\(tv, tk) -> parens (pretty tv <+> colon <+> pretty tk))
-                                     tpairs) <+>
-                                equals <+>
-                                pretty fields
+instance Subst Expr Expr where
+  isvar (Var v) = Just (SubstName v)
+  isvar _ = Nothing
 
 
-instance Pretty RecField where
-  pretty (RecField n binds) = text n <+>
-                              lbrace <+>
-                              hcat
-                                (intersperse (comma <> space)
-                                   (map (\(l, t) -> text l <+> colon <+> pretty t) binds)) <+>
-                              rbrace <>
-                              semi
+-- Examples
 
-instance Pretty Alt where
-  pretty (Alt p e) = pretty p <+> char '⇒' <+> pretty e
+-- \ x : ⋆ . \ y : x . y
+polyid :: Expr
+polyid = elam [("x", estar), ("y", evar "x")] (evar "y")
 
-instance Pretty Pattern where
-  pretty (PConstr ctr []) = text (constrName ctr)
-  pretty (PConstr ctr ps) =
-    text (constrName ctr) <+>
-    hsep (map (\(n, t) -> parens (pretty n <+> colon <+> pretty t)) ps)
 
-instance Pretty DataBind where
-  pretty (DB n tpairs cons) =
-    text n <+>
-    hsep (map (\(tv, tk) -> parens (pretty tv <+> colon <+> pretty tk)) tpairs) <+>
-    align (equals <+> intersperseBar (map pretty cons) <$$> semi)
+-- pi x : ⋆ . x -> x
+polyidty :: Expr
+polyidty = epi [("x", estar)] (earr (evar "x") (evar "x"))
 
-instance Pretty Constructor where
-  pretty (Constructor n ts) = hsep $ text n : map (\(tv, tk) -> parens (pretty tv <+> colon <+> pretty tk)) ts
+-- castup [(\ x : * . x) int] 3
+castupint :: Expr
+castupint = F (eapp (elam [("x", estar)] (evar "x")) [Nat]) (Lit 3)
 
-intersperseBar :: [Doc] -> Doc
-intersperseBar = foldl1 (\acc x -> acc <$$> char '|' <+> x)
+
+-- smart constructors
+
+evar :: String -> Expr
+evar = Var . string2Name
+
+elam :: [(String, Expr)] -> Expr -> Expr
+elam t b = Lam (bind (mkTele t) b)
+
+emu :: (String, Expr) -> Expr -> Expr
+emu (n, t) b = Mu (bind (string2Name n, embed t) b)
+
+epi :: [(String, Expr)] -> Expr -> Expr
+epi t b = Pi (bind (mkTele t) b)
+
+earr :: Expr -> Expr -> Expr
+earr t1 t2 = epi [("_", t1)] t2
+
+estar :: Expr
+estar = Kind Star
+
+ebox :: Expr
+ebox = Kind Box
+
+eapp :: Expr -> [Expr] -> Expr
+eapp a b = App a b
+
+mkTele :: [(String, Expr)] -> Tele
+mkTele []          = Empty
+mkTele ((x,e) : t) = Cons (rebind (string2Name x, Embed e) (mkTele t))
