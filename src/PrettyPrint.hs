@@ -22,7 +22,7 @@ instance Pretty Expr where
   ppr (Kind Box) = return $ PP.char '▢'
   ppr (Pi bnd) = lunbind bnd $ \(delta, b) -> do
     let Cons bb = delta
-    let ((x, Embed t), bb') = unrebind bb
+    let ((x, _, Embed t), bb') = unrebind bb
     b' <- ppr b
     if (show x == "_" && isEmpty bb')
       then do
@@ -61,7 +61,7 @@ instance Pretty Tele where
     return ((PP.parens $ (text . show $ x) <+> colon <+> t') <> bnd')
 
     where
-      ((x, Embed t), b') = unrebind bnd
+      ((x, _, Embed t), b') = unrebind bnd
 
 showExpr :: Expr -> T.Text
 showExpr = T.pack . show . runLFreshM . ppr

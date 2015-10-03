@@ -8,8 +8,18 @@ import Unbound.Generics.LocallyNameless
 
 type TmName = Name Expr
 
+-- | Classifier
+data ClassTag = Prog
+              | Logic
+  deriving (Eq, Show, Generic, Typeable)
+
+-- | Positivity
+data PosTag = Pos
+            | Neg
+  deriving (Eq, Show)
+
 data Tele = Empty
-          | Cons (Rebind (TmName, Embed Expr) Tele)
+          | Cons (Rebind (TmName, Embed ClassTag, Embed Expr) Tele)
   deriving (Show, Generic, Typeable)
 
 -- | Datatype of the core, with optimization of aggregate bindings
@@ -44,6 +54,7 @@ data Kinds = Star
            | Box
   deriving (Show, Generic, Typeable)
 
+instance Alpha ClassTag
 instance Alpha Expr
 instance Alpha Operation
 instance Alpha Kinds
@@ -52,6 +63,7 @@ instance Alpha Tele
 instance Subst Expr Operation
 instance Subst Expr Kinds
 instance Subst Expr Tele
+instance Subst Expr ClassTag
 
 instance Subst Expr Expr where
   isvar (Var v) = Just (SubstName v)
@@ -102,4 +114,4 @@ eapp a b = App a b
 
 mkTele :: [(String, Expr)] -> Tele
 mkTele []          = Empty
-mkTele ((x,e) : t) = Cons (rebind (string2Name x, Embed e) (mkTele t))
+mkTele ((x,e) : t) = Cons (rebind (string2Name x, Embed Logic, Embed e) (mkTele t))

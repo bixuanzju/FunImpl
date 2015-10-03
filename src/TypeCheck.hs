@@ -63,65 +63,95 @@ eval x = runLFreshM (tc step x)
 
 -- type checker
 
-infer :: Env -> Expr -> M Expr
-infer g (Var x) = lookUp x g
-infer _ (Kind Star) = return (Kind Box)
-infer g (Lam bnd) =
-  lunbind bnd $ \(delta, m) -> do
-    b <- infer (g `appTele` delta) m
-    return . Pi $ bind delta b -- TODO: check validity of pi type
-infer g (App m ns) = do
-  bnd <- unPi =<< infer g m
-  lunbind bnd $ \(delta, b) -> do
-    checkList g ns delta
-    multiSubst delta ns b
-infer g e@(Pi bnd) =
-  lunbind bnd $ \(delta, b) -> do
-    t <- infer (g `appTele` delta) b
-    unless (aeq b estar || aeq b ebox) $
-      throwError $ T.concat ["In ", showExpr e, ", ", showExpr b, " should have sort ⋆ or □"]
-    return t
-infer g a@(Mu bnd) =
-  lunbind bnd $ \((x, Embed t), e) -> do
-    check (g `appTele` (mkTele [(name2String x, t)])) e t
-    unless (aeq t estar || aeq t ebox) $
-      throwError $ T.concat ["In ", showExpr a, ", ", showExpr t, " should have sort ⋆ or □"]
-    return t
-infer g (F t1 e) = do
-  t2 <- step t1
-  t2' <- infer g e
-  checkEq t2 t2'
-  check g t1 estar
-  return t1
-infer g (U e) = do
-  t1 <- infer g e
-  t2 <- step t1
-  check g t2 estar
-  return t2
-infer _ Nat = return estar
-infer _ (Lit{}) = return Nat
-infer _ (PrimOp{}) = return Nat
-
-infer _ e = throwError $ T.concat ["Type checking ", showExpr e, " falied"]
+-- TODO: move those tags to state monad
 
 typecheck :: Expr -> Either T.Text Expr
-typecheck = runLFreshM . runExceptT . (infer Empty)
+typecheck = runLFreshM . runExceptT . (infer Logic Empty Pos)
+
+infer :: ClassTag -> Env -> PosTag -> Expr -> M Expr
+infer tag g p (Var x) = do
+  (theta, t) <- (lookUp x g)
+  when ((tag, theta, p) == (Logic, Prog, Neg)) $
+    throwError $ T.concat
+                   [ "Recursive variable "
+                   , T.pack . show $ x
+                   , " should not appear in the negative position"
+                   ]
+  return t
+infer _ _ _ (Kind Star) = return (Kind Box)
+infer tag g p (Lam bnd) =
+  lunbind bnd $ \(delta, m) -> do
+    b <- infer tag (g `appTele` delta) p m
+    return . Pi $ bind delta b -- TODO: check validity of pi type
+infer tag g p (App m ns) = do
+  bnd <- unPi =<< infer tag g p m
+  lunbind bnd $ \(delta, b) -> do
+    checkList tag g p ns delta
+    multiSubst delta ns b
+infer tag g p e@(Pi bnd) =
+  lunbind bnd $ \(delta, b) -> do
+    checkDelta tag g p delta
+    t <- infer tag (g `appTele` delta) p b
+    unless (aeq t estar || aeq t ebox) $
+      throwError $ T.concat [showExpr b, " should have sort ⋆ or □"]
+    return t
+infer tag g p a@(Mu bnd) =
+  lunbind bnd $ \((x, Embed t), e) -> do
+    check tag (g `appTele` (Cons (rebind (x, Embed Prog, Embed t) Empty))) p e t
+    checkSort tag g p t
+    ctaTest tag e x
+    return t
+infer tag g p (F t1 e) = do
+  t2 <- step t1
+  t2' <- infer tag g p e
+  checkEq t2 t2'
+  check tag g p t1 estar
+  return t1
+infer tag g p (U e) = do
+  t1 <- infer tag g p e
+  t2 <- step t1
+  check tag g p t2 estar
+  return t2
+infer _ _ _ Nat = return estar
+infer _ _ _ (Lit{}) = return Nat
+infer _ _ _ (PrimOp{}) = return Nat
+infer _ _ _ e = throwError $ T.concat ["Type checking ", showExpr e, " falied"]
 
 
 -- helper functions
 
-checkList :: Env -> [Expr] -> Tele -> M ()
-checkList _ [] Empty = return ()
-checkList g (e:es) (Cons rb) = do
-  let ((x, Embed a), t') = unrebind rb
-  check g e a
-  checkList (subst x e g) (subst x e es) (subst x e t') -- FIXME: overkill?
-checkList _ _ _ = throwError $ "Unequal number of parameters and arguments"
-
-check :: Env -> Expr -> Expr -> M ()
-check g m a = do
-  b <- infer g m
+check :: ClassTag -> Env -> PosTag -> Expr -> Expr -> M ()
+check tag g p m a = do
+  b <- infer tag g p m
   checkEq b a
+
+checkList :: ClassTag -> Env -> PosTag -> [Expr] -> Tele -> M ()
+checkList _ _ _ [] Empty = return ()
+checkList tag g p (e:es) (Cons rb) = do
+  let ((x, _, Embed a), t') = unrebind rb
+  check tag g p e a
+  checkList tag (subst x e g) p (subst x e es) (subst x e t') -- FIXME: overkill?
+checkList _ _ _ _ _ = throwError $ "Unequal number of parameters and arguments"
+
+checkDelta :: ClassTag -> Env -> PosTag -> Tele -> M ()
+checkDelta _ _ _ Empty = return ()
+checkDelta tag g p (Cons bnd) = do
+  checkSort tag g (flipp p) t
+  checkDelta tag (g `appTele` mkTele [(name2String x, t)]) p t'
+
+  where
+    ((x, _, Embed t), t') = unrebind bnd
+
+flipp :: PosTag -> PosTag
+flipp Pos = Neg
+flipp Neg = Pos
+
+checkSort :: ClassTag -> Env -> PosTag -> Expr -> M ()
+checkSort tag g p e = do
+  t <- infer tag g p e
+  unless (aeq t estar || aeq t ebox) $
+    throwError $ T.concat [showExpr e, " should have sort ⋆ or □"]
+  return ()
 
 unPi :: Expr -> M (Bind Tele Expr)
 unPi (Pi bnd) = return bnd
@@ -138,7 +168,7 @@ multiSubst :: Tele -> [Expr] -> Expr -> M Expr
 multiSubst Empty [] e = return e
 multiSubst (Cons rb) (e1:es) e = multiSubst t' es e'
   where
-    ((x, _), t') = unrebind rb
+    ((x, _, _), t') = unrebind rb
     e' = subst x e1 e
 multiSubst _ _ _ = throwError "Unequal number of parameters and arguments"
 
@@ -149,10 +179,30 @@ appTele (Cons rb) t2 = Cons (rebind p (appTele t1' t2))
     (p, t1') = unrebind rb
 
 
-lookUp :: TmName -> Tele -> M Expr
+lookUp :: TmName -> Tele -> M (ClassTag, Expr)
 lookUp n Empty = throwError $ T.concat ["Not in scope: " , T.pack . show $ n]
 lookUp v (Cons rb)
-  | v == x = return a
+  | v == x = return (tag, a)
   | otherwise = lookUp v t'
   where
-    ((x, Embed a), t') = unrebind rb
+    ((x, Embed tag, Embed a), t') = unrebind rb
+
+ctaTest :: ClassTag -> Expr -> TmName -> M ()
+ctaTest Prog _ _ = return ()
+ctaTest Logic e x = cta e
+  where
+    cta :: Expr -> M ()
+    cta (Kind{}) = return ()
+    cta (Var n) =
+      if n == x
+        then throwError $ T.concat ["Contractiveness test failed: ", T.pack . show $ n]
+        else return ()
+    cta (Pi{}) = return ()
+    cta (App e1 e2) = mapM_ cta (e1 : e2)
+    cta (Lam bnd) = lunbind bnd $ \(_, e) -> cta e
+    cta (F _ e) = cta e
+    cta (U e) = cta e
+    cta (Mu bnd) = lunbind bnd $ \(_, e) -> cta e
+    cta Nat = return ()
+    cta (Lit{}) = return ()
+    cta (PrimOp _ e1 e2) = cta e1 >> cta e2

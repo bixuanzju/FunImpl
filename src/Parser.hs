@@ -11,7 +11,7 @@ import           Syntax
 parser :: String -> Either ParseError Expr
 parser = parse parseTerm ""
 
-parseTerm = parselam <|> parsepi <|> parsemu <|> parseF <|> parseU <|> formula
+parseTerm = parselam <|> parsepi1 <|> parsepi2 <|> parsemu <|> parseF <|> parseU <|> formula
 
 parseTele = do
   reservedOp "("
@@ -28,12 +28,24 @@ parselam = do
   e <- parseTerm
   return (elam tele e)
 
-parsepi = do
+parsepi1 = do
   reservedOp "pi"
   tele <- many1 parseTele
   reservedOp "."
   e <- parseTerm
   return (epi tele e)
+
+parsepi2 = do
+  pair <- parseTele
+  reservedOp "->"
+  e <- parseTerm
+  return (epi [pair] e)
+
+parsearr = do
+  e1 <- parseAtom
+  reservedOp "->"
+  e2 <- parseAtom
+  return (earr e1 e2)
 
 parsemu = do
   reservedOp "mu"
