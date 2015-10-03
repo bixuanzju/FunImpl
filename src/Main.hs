@@ -5,9 +5,10 @@ module Main where
 import qualified Data.Text as T
 import           System.Console.Haskeline
 
-import           TypeCheck
 import           Parser
 import           PrettyPrint
+import           Syntax (ClassTag(..))
+import           TypeCheck
 
 main :: IO ()
 main = runInputT defaultSettings loop
@@ -44,12 +45,21 @@ main = runInputT defaultSettings loop
             let xs' = eval xs
             outputStrLn ("\n--- Evaluation result ---\n\n" ++ (T.unpack . showExpr $ xs') ++ "\n")
             loop
-        ":t" -> processCMD progm $
+
+        -- TODO: refactor :tp and :tl
+        ":tp" -> processCMD progm $
           \xs -> do
-            case typecheck xs of
+            case typecheck Prog xs of
               Left err  -> outputStrLn . T.unpack $ err
               Right typ -> outputStrLn ("\n--- Typing result ---\n\n" ++ (T.unpack . showExpr $ typ) ++ "\n")
             loop
+        ":tl" -> processCMD progm $
+          \xs -> do
+            case typecheck Logic xs of
+              Left err  -> outputStrLn . T.unpack $ err
+              Right typ -> outputStrLn ("\n--- Typing result ---\n\n" ++ (T.unpack . showExpr $ typ) ++ "\n")
+            loop
+
         _ -> processCMD e $
           \xs -> do
             outputStrLn ("\n--- Pretty printing ---\n\n" ++ (T.unpack . showExpr $ xs) ++ "\n")

@@ -61,12 +61,11 @@ tc f a = do
 eval :: Expr -> Expr
 eval x = runLFreshM (tc step x)
 
--- type checker
-
 -- TODO: move those tags to state monad
 
-typecheck :: Expr -> Either T.Text Expr
-typecheck = runLFreshM . runExceptT . (infer Logic Empty Pos)
+-- | type checker with positivity and contractiveness test
+typecheck :: ClassTag -> Expr -> Either T.Text Expr
+typecheck tag = runLFreshM . runExceptT . (infer tag Empty Pos)
 
 infer :: ClassTag -> Env -> PosTag -> Expr -> M Expr
 infer tag g p (Var x) = do
