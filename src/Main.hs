@@ -51,16 +51,16 @@ main = runInputT defaultSettings loop
           \xs -> do
             case typecheck Prog xs of
               Left err  -> outputStrLn . T.unpack $ err
-              Right typ -> outputStrLn ("\n--- Typing result ---\n\n" ++ (T.unpack . showExpr $ typ) ++ "\n")
+              Right typ -> outputStrLn ("\n--- Typing result (Program) ---\n\n" ++ (T.unpack . showExpr $ typ) ++ "\n")
             loop
         ":tl" -> processCMD progm $
           \xs -> do
             case typecheck Logic xs of
               Left err  -> outputStrLn . T.unpack $ err
-              Right typ -> outputStrLn ("\n--- Typing result ---\n\n" ++ (T.unpack . showExpr $ typ) ++ "\n")
+              Right typ -> outputStrLn ("\n--- Typing result (Logic) ---\n\n" ++ (T.unpack . showExpr $ typ) ++ "\n")
             loop
 
-        _ -> processCMD e $
+        _ -> processCMD progm $
           \xs -> do
             outputStrLn ("\n--- Pretty printing ---\n\n" ++ (T.unpack . showExpr $ xs) ++ "\n")
             loop

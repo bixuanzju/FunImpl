@@ -7,8 +7,8 @@ import           Control.Monad.Except
 import           Control.Monad.Reader
 import           Control.Monad.Trans.Maybe
 import qualified Data.Text as T
-import           Lens.Micro.TH
 import           Lens.Micro
+import           Lens.Micro.TH
 import           Unbound.Generics.LocallyNameless
 
 import           PrettyPrint
@@ -190,6 +190,7 @@ lookUp v (Cons rb)
   where
     ((x, Embed tag, Embed a), t') = unrebind rb
 
+-- | Contractiveness test
 ctaTest :: Expr -> TmName -> C ()
 ctaTest e x = do
   t <- (^. tag ) <$> ask
