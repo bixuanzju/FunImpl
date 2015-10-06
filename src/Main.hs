@@ -70,7 +70,7 @@ main = runInputT defaultSettings loop
               Right cu -> outputStrLn ("\n--- Translate to Java ---\n\n" ++ (prettyPrint cu) ++ "\n")
             loop
 
-        _ -> processCMD progm $
+        _ -> processCMD e $
           \xs -> do
             outputStrLn ("\n--- Pretty printing ---\n\n" ++ (T.unpack . showExpr $ xs) ++ "\n")
             loop
