@@ -5,10 +5,13 @@ module Main where
 import qualified Data.Text as T
 import           System.Console.Haskeline
 
+import           BaseTransJava
+import           Language.Java.Pretty
 import           Parser
 import           PrettyPrint
 import           Syntax (ClassTag(..))
 import           TypeCheck
+
 
 main :: IO ()
 main = runInputT defaultSettings loop
@@ -58,6 +61,13 @@ main = runInputT defaultSettings loop
             case typecheck Logic xs of
               Left err  -> outputStrLn . T.unpack $ err
               Right typ -> outputStrLn ("\n--- Typing result (Logic) ---\n\n" ++ (T.unpack . showExpr $ typ) ++ "\n")
+            loop
+
+        ":trans" -> processCMD progm $
+          \xs -> do
+            case compile xs of
+              Left err -> outputStrLn . T.unpack $ err
+              Right cu -> outputStrLn ("\n--- Translate to Java ---\n\n" ++ (prettyPrint cu) ++ "\n")
             loop
 
         _ -> processCMD progm $

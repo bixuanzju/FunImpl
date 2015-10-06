@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings, TemplateHaskell #-}
 
-module TypeCheck (eval, typecheck) where
+module TypeCheck where
 
 import           Control.Applicative
 import           Control.Monad.Except

@@ -17,7 +17,7 @@ cabal-version:       >=1.10
 
 executable lambdapi
   main-is:             Main.hs
-  other-modules:       Parser PrettyPrint Syntax TypeCheck
+  other-modules:       Parser PrettyPrint Syntax TypeCheck BaseTransJava
   -- other-extensions:
   build-depends:       ansi-wl-pprint == 0.6.*
                      , array == 0.5.*
@@ -28,6 +28,7 @@ executable lambdapi
                      , text == 1.2.*
                      , microlens-th == 0.2.1.*
                      , microlens == 0.2.0.*
+                     , language-java == 0.2.*
                      , transformers
                      , unbound-generics
   hs-source-dirs:      src
