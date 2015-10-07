@@ -72,12 +72,7 @@ formula = buildExpressionParser [[mulOp], [addOp, subOp]] juxta <?> "formula"
     mulOp = Infix (reservedOp "*" >> return multExpr) AssocLeft
 
 
-juxta = do
-  e1 <- parseAtom
-  es <- many parseAtom
-  if null es
-    then return e1
-    else return $ eapp e1 es
+juxta = (foldl1 App) `fmap` (many1 parseAtom)
 
 parseAtom =
   natTy

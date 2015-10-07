@@ -32,11 +32,15 @@ step (Pi{}) = done
 step (F{}) = done
 step (Lit{}) = done
 step (Nat) = done
-step (App (Lam bnd) t2) = -- FIXME: it is not one-step?
-  lunbind bnd $ \(delta, b) -> multiSubst delta t2 b
+step (App (Lam bnd) t2) =
+  lunbind bnd $ \(delta, b) -> do
+    (b', e') <- multiSubst delta t2 b
+    case b' of
+      Empty -> return e'
+      _     -> return (Lam (bind b' e'))
 step (App t1 t2) =
   App <$> step t1 <*> pure t2
-  <|> App <$> pure t1 <*> mapM step t2
+  <|> App <$> pure t1 <*> step t2
 step (U (F _ e)) = return e
 step (U e) = U <$> step e
 step e@(Mu bnd) =
@@ -86,11 +90,14 @@ infer (Lam bnd) =
   lunbind bnd $ \(delta, m) -> do
     b <- withReaderT (over env (`appTele` delta)) (infer m)
     return . Pi $ bind delta b -- TODO: check validity of pi type
-infer (App m ns) = do
+infer (App m n) = do
   bnd <- unPi =<< infer m
   lunbind bnd $ \(delta, b) -> do
-    checkList ns delta
-    multiSubst delta ns b
+    checkArg n delta
+    (delta', b') <- multiSubst delta n b
+    case delta' of
+      Empty -> return b'
+      _     -> return (Pi (bind delta' b'))
 infer e@(Pi bnd) =
   lunbind bnd $ \(delta, b) -> do
     checkDelta delta
@@ -128,13 +135,11 @@ check m a = do
   b <- infer m
   checkEq b a
 
-checkList :: [Expr] -> Tele -> C ()
-checkList [] Empty = return ()
-checkList (e:es) (Cons rb) = do
+checkArg :: Expr -> Tele -> C ()
+checkArg _ Empty = return ()
+checkArg e (Cons rb) = do
   let ((x, _, Embed a), t') = unrebind rb
   check e a
-  checkList (subst x e es) (subst x e t') -- FIXME: overkill?
-checkList _ _ = throwError $ "Unequal number of parameters and arguments"
 
 checkDelta :: Tele -> C ()
 checkDelta Empty = return ()
@@ -167,13 +172,13 @@ checkEq e1 e2 =
     then return ()
     else throwError $ T.concat ["Couldn't match: ", showExpr e1, " with ", showExpr e2]
 
-multiSubst :: Tele -> [Expr] -> Expr -> C Expr
-multiSubst Empty [] e = return e
-multiSubst (Cons rb) (e1:es) e = multiSubst t' es e'
+multiSubst :: Tele -> Expr -> Expr -> C (Tele, Expr)
+multiSubst Empty _ e = return (Empty, e)
+multiSubst (Cons rb) t e = return (b', e')
   where
-    ((x, _, _), t') = unrebind rb
-    e' = subst x e1 e
-multiSubst _ _ _ = throwError "Unequal number of parameters and arguments"
+    ((x, _, _), b) = unrebind rb
+    e' = subst x t e
+    b' = subst x t b
 
 appTele :: Tele -> Tele -> Tele
 appTele Empty t2 = t2
@@ -205,7 +210,7 @@ ctaTest e x = do
       | n == x = throwError $ T.concat ["Contractiveness test failed: ", T.pack . show $ n]
       | otherwise = return ()
     cta (Pi{}) = return ()
-    cta (App e1 e2) = mapM_ cta (e1 : e2)
+    cta (App e1 e2) = mapM_ cta (e1 : [e2])
     cta (Lam bnd) = lunbind bnd $ cta . snd
     cta (F _ e) = cta e
     cta (U e) = cta e

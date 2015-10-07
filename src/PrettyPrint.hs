@@ -13,7 +13,7 @@ class Pretty p where
 
 instance Pretty Expr where
   ppr (Var x) = return . text . show $ x
-  ppr (App e es) = PP.parens <$> ((<+>) <$> ppr e <*> (PP.hsep <$> mapM ppr es))
+  ppr (App e es) = PP.parens <$> ((<+>) <$> ppr e <*> (ppr es))
   ppr (Lam bnd) = lunbind bnd $ \(delta, b) -> do
     delta' <- ppr delta
     b' <- ppr b

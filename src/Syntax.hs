@@ -24,7 +24,7 @@ data Tele = Empty
 
 -- | Datatype of the core, with optimization of aggregate bindings
 data Expr = Var TmName
-          | App Expr [Expr]
+          | App Expr Expr
           | Lam (Bind Tele Expr)
           | Pi (Bind Tele Expr)
           | Mu (Bind (TmName, Embed Expr) Expr)
@@ -83,7 +83,7 @@ polyidty = epi [("x", estar)] (earr (evar "x") (evar "x"))
 
 -- castup [(\ x : * . x) int] 3
 castupint :: Expr
-castupint = F (eapp (elam [("x", estar)] (evar "x")) [Nat]) (Lit 3)
+castupint = F (eapp (elam [("x", estar)] (evar "x")) Nat) (Lit 3)
 
 
 -- smart constructors
@@ -109,7 +109,7 @@ estar = Kind Star
 ebox :: Expr
 ebox = Kind Box
 
-eapp :: Expr -> [Expr] -> Expr
+eapp :: Expr -> Expr -> Expr
 eapp a b = App a b
 
 mkTele :: [(String, Expr)] -> Tele
