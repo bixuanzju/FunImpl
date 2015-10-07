@@ -60,41 +60,42 @@ translateScopeM :: Bind Tele Expr -> Translate ([J.BlockStmt], TransJavaExp, Bin
 translateScopeM bnd =
   lunbind bnd $ \(delta@(Cons b), m) -> do
     (bodyBS, bodyV, bodyT) <- withReaderT (over env (`appTele` delta)) (trans m)
-    closureBS <- translateScopeTyp delta (bodyBS, bodyV, bodyT)
-    let x1 = (unrebind b) ^. _1 . _1
-    x11 <- lfresh x1
-    let fstmt = [localVar closureType (varDecl (show x11) (funInstCreate (show x1)))]
-    return (closureBS ++ fstmt, var (show x11), bnd)
+
+    (closureBS, x11) <- translateScopeTyp delta (bodyBS, bodyV, bodyT)
+
+    return (closureBS, x11, bnd)
 
 
-translateScopeTyp :: Tele -> TransType -> Translate ([J.BlockStmt])
-translateScopeTyp (Cons bnd) body = do
-  let (ostmts, oexpr, t1) = (body ^. _1, body ^. _2, body ^. _3)
-
-  x11 <- lfresh x1
-
-  let jt1 = javaType t1
-  let flag = jt1 == objClassTy
-  let accessField = fieldAccess (left $ var (show x11)) closureInput
-  let xf = localFinalVar jt1
-             (varDecl (localvarstr ++ show x1)
-                (if flag
-                   then accessField
-                   else cast jt1 accessField))
-
-  body' <- case b of
-             Empty -> return ostmts
-             Cons b' ->
-               translateScopeTyp b body
-
-  return
-    ([ localClassDecl (closureTransName ++ show x1) closureClass
-         (closureBodyGen [memberDecl $ fieldDecl (classTy closureClass) (varDecl (show x11) J.This)]
-            ([xf] ++ body' ++ [bsAssign (name [closureOutput]) (unwrap oexpr)]))
-     ])
-
+translateScopeTyp :: Tele -> TransType -> Translate ([J.BlockStmt], TransJavaExp)
+translateScopeTyp b (ostmts, oexpr, t1) = translateScopeTyp' b
   where
-    ((x1, _, Embed t1), b) = unrebind bnd
+    translateScopeTyp' (Cons bnd) = do
+      let ((x1, _, Embed t1), b) = unrebind bnd
+
+      let jt1 = javaType t1
+      let cvar = "c" ++ show x1  -- FIXME: add prefix
+      let accessField = fieldAccess (left $ var cvar) closureInput
+      let xf = localFinalVar jt1
+                 (varDecl (show x1)
+                    (if jt1 == objClassTy
+                       then accessField
+                       else cast jt1 accessField))
+
+      (body', xe) <- case b of
+                       Empty -> return (ostmts, oexpr)
+                       Cons b' ->
+                         translateScopeTyp' b
+
+      let fstmt = localVar closureType (varDecl cvar (funInstCreate (show x1)))
+
+      return
+        ([ localClassDecl (closureTransName ++ show x1) closureClass
+             (closureBodyGen [memberDecl $ fieldDecl (classTy closureClass) (varDecl cvar J.This)]
+                ([xf] ++ body' ++ [bsAssign (name [closureOutput]) (unwrap xe)]))
+         , fstmt
+         ], var cvar)
+
+
 
 javaType typ =
   case typ of
