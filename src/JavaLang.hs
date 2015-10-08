@@ -1,4 +1,3 @@
-
 module JavaLang where
 
 import Language.Java.Syntax

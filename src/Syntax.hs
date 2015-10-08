@@ -101,7 +101,7 @@ epi :: [(String, Expr)] -> Expr -> Expr
 epi t b = Pi (bind (mkTele t) b)
 
 earr :: Expr -> Expr -> Expr
-earr t1 t2 = epi [("_", t1)] t2
+earr t1 = epi [("_", t1)]
 
 estar :: Expr
 estar = Kind Star
@@ -110,7 +110,7 @@ ebox :: Expr
 ebox = Kind Box
 
 eapp :: Expr -> Expr -> Expr
-eapp a b = App a b
+eapp = App
 
 mkTele :: [(String, Expr)] -> Tele
 mkTele []          = Empty

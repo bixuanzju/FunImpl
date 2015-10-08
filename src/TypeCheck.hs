@@ -52,13 +52,13 @@ step (PrimOp op e1 e2) =
   PrimOp <$> pure op <*> step e1 <*> pure e2
   <|> PrimOp <$> pure op <*> pure e1 <*> step e2
 
-evalOp :: Operation -> (Int -> Int -> Int)
+evalOp :: Operation -> Int -> Int -> Int
 evalOp Add = (+)
 evalOp Sub = (-)
 evalOp Mult = (*)
 
 -- | transitive closure of `step`
-tc :: (a -> C a) -> (a -> LFreshM a)
+tc :: (a -> C a) -> a -> LFreshM a
 tc f a = do
   ma' <- runExceptT $ runReaderT (f a) dummyCtx
   case ma' of
@@ -77,7 +77,7 @@ typecheck tag e = runLFreshM . runExceptT $ runReaderT (infer e) (Ctx Empty tag 
 infer :: Expr -> C Expr
 infer (Var x) = do
   ctx <- ask
-  (theta, t) <- (lookUp x (ctx ^. env))
+  (theta, t) <- lookUp x (ctx ^. env)
   when ((ctx ^. tag, theta, ctx ^. pos) == (Logic, Prog, Neg)) $
     throwError $ T.concat
                    [ "Recursive variable "
@@ -89,7 +89,9 @@ infer (Kind Star) = return (Kind Box)
 infer (Lam bnd) =
   lunbind bnd $ \(delta, m) -> do
     b <- withReaderT (over env (`appTele` delta)) (infer m)
-    return . Pi $ bind delta b -- TODO: check validity of pi type
+    let retype = Pi $ bind delta b
+    checkSort retype
+    return retype
 infer (App m n) = do
   bnd <- unPi =<< infer m
   lunbind bnd $ \(delta, b) -> do
@@ -107,7 +109,7 @@ infer e@(Pi bnd) =
     return t
 infer a@(Mu bnd) =
   lunbind bnd $ \((x, Embed t), e) -> do
-    withReaderT (over env (`appTele` (Cons (rebind (x, Embed Prog, Embed t) Empty)))) (check e t)
+    withReaderT (over env (`appTele` Cons (rebind (x, Embed Prog, Embed t) Empty))) (check e t)
     checkSort t
     ctaTest e x
     return t
@@ -168,9 +170,8 @@ unPi e = throwError $ T.concat ["Expected pi type, got ", showExpr e, " instead"
 -- | alpha equality
 checkEq :: Expr -> Expr -> C ()
 checkEq e1 e2 =
-  if aeq e1 e2
-    then return ()
-    else throwError $ T.concat ["Couldn't match: ", showExpr e1, " with ", showExpr e2]
+  unless (aeq e1 e2) $ throwError $
+    T.concat ["Couldn't match: ", showExpr e1, " with ", showExpr e2]
 
 multiSubst :: Tele -> Expr -> Expr -> C (Tele, Expr)
 multiSubst Empty _ e = return (Empty, e)
