@@ -71,6 +71,20 @@ trans e =
     _ -> throwError "Not implemented yet"
 
 
+{-
+
+(\(x1:t1)..) e
+
+==>
+
+class Fx1 extends Closure {
+<..>
+}
+Closure cx1 = new Fx1();
+
+
+
+-}
 transApply :: Expr -> Expr -> Translate TransType
 transApply e1 e2 = do
   (s1, j1, Pi bnd) <- trans e1
@@ -87,7 +101,7 @@ transApply e1 e2 = do
     let fs = assignField (fieldAccExp fexp closureInput) (unwrap j2)
     let fapply = bStmt . applyMethodCall $ fexp
     let fout = fieldAccess fexp closureOutput
-    fret <- show <$> lfresh x1
+    let fret = show x1
     let fres = [initClass (javaType retTy) fret fout]
 
     return (s1 ++ s2 ++ (fs : fapply : fres), var fret, retTy)
@@ -111,14 +125,14 @@ translateScopeM bnd =
 
 class Fx1 extends Closure {
 
-  Closure cx1 = this;
+  Closure x1$ = this;
 
   public void apply() {
     |t1| x1 = cx1.arg;
     <...>
   }
 }
-Closure cx1 = new Fx1();
+Closure x1$ = new Fx1();
 
 -}
 translateScopeTy :: Tele -> TransType -> Translate ([J.BlockStmt], TransJavaExp)
@@ -127,7 +141,7 @@ translateScopeTy b (ostmts, oexpr, t1) = translateScopeTyp' b
     translateScopeTyp' (Cons bnd) = do
       let ((x1, _, Embed t1), b) = unrebind bnd
 
-      let cvar = "c" ++ show x1  -- FIXME: add prefix
+      let cvar = show x1 ++ "$"  -- FIXME: add prefix
       let accessField = fieldAccess (left $ var cvar) closureInput
       let xf = initClass (javaType t1) (show x1) accessField
 
