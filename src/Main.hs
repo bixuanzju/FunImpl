@@ -65,9 +65,12 @@ main = runInputT defaultSettings loop
 
         ":trans" -> processCMD progm $
           \xs -> do
-            case compile xs of
+            case typecheck Prog xs of
               Left err -> outputStrLn . T.unpack $ err
-              Right cu -> outputStrLn ("\n--- Translate to Java ---\n\n" ++ (prettyPrint cu) ++ "\n")
+              Right typ ->
+                case compile xs of
+                  Left err -> outputStrLn . T.unpack $ err
+                  Right cu -> outputStrLn ("\n--- Translate to Java ---\n\n" ++ (prettyPrint cu) ++ "\n")
             loop
 
         _ -> processCMD e $
