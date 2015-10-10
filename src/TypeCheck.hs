@@ -113,7 +113,7 @@ infer (F t1 e) = do
   return t1
 infer (U e) = do
   t1 <- infer e
-  t2 <- oneStep e
+  t2 <- oneStep t1
   check t2 estar
   return t2
 infer Nat = return estar

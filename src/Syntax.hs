@@ -22,7 +22,7 @@ data Tele = Empty
           | Cons (Rebind (TmName, Embed ClassTag, Embed Expr) Tele)
   deriving (Show, Generic, Typeable)
 
--- | Datatype of the core, with optimization of aggregate bindings
+-- | Syntax of the core, with optimization of aggregate bindings
 data Expr = Var TmName
           | App Expr Expr
           | Lam (Bind Tele Expr)

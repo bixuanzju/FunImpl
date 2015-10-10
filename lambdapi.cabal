@@ -17,7 +17,14 @@ cabal-version:       >=1.10
 
 executable lambdapi
   main-is:             Main.hs
-  other-modules:       Parser PrettyPrint Syntax TypeCheck BaseTransJava Environment
+  other-modules:       Parser
+                       PrettyPrint
+                       Syntax
+                       TypeCheck
+                       BaseTransJava
+                       Environment
+                       JavaLang
+                       StringPrefix
   -- other-extensions:
   build-depends:       ansi-wl-pprint == 0.6.*
                      , array == 0.5.*
