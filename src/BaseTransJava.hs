@@ -1,14 +1,15 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module BaseTransJava where
+module BaseTransJava (compile) where
 
 import           Control.Monad.Except
 import           Control.Monad.Reader
 import qualified Data.Text as T
 import qualified Language.Java.Syntax as J
-import           Unbound.Generics.LocallyNameless
 import           Lens.Micro
+import           Unbound.Generics.LocallyNameless
 
+import           Environment
 import           JavaLang
 import           StringPrefix
 import           Syntax
@@ -18,13 +19,13 @@ type TransJavaExp = Either J.Name J.Literal
 
 type TransType = ([J.BlockStmt], TransJavaExp, Expr)
 
-type Translate = C
+type Translate = TcMonad
 
 
-compile :: Expr -> Either T.Text J.CompilationUnit
-compile e = runLFreshM . runExceptT $ runReaderT (createWrap e) dummyCtx
+compile :: Expr -> (Either T.Text J.CompilationUnit)
+compile = runTcMonad dummyCtx . createWrap
 
-createWrap :: Expr -> C J.CompilationUnit
+createWrap :: Expr -> Translate J.CompilationUnit
 createWrap e = do
   (bs, e, t) <- trans e
   let returnStmt = [bStmt $ J.Return $ Just (unwrap e)]
@@ -47,8 +48,7 @@ trans :: Expr -> Translate TransType
 trans e =
   case e of
     Var n -> do
-      ctx <- ask
-      t <- snd <$> lookUp n (ctx ^. env)
+      t <- fst <$> lookupTy n
       return ([], var (show n), t)
     Lam bnd -> do
       (s, je, t) <- translateScopeM bnd
@@ -65,7 +65,7 @@ trans e =
               Add  -> (J.BinOp j1' J.Add j2', Nat)
               Mult -> (J.BinOp j1' J.Mult j2', Nat)
               Sub  -> (J.BinOp j1' J.Sub j2', Nat)
-      newName <- lfresh (string2Name "prim" :: TmName)
+      newName <- fresh (string2Name "prim" :: TmName)
       let assignExpr = localFinalVar (javaType t) (varDecl (show newName) je)
       return (s1 ++ s2 ++ [assignExpr], var (show newName), t)
     _ -> throwError "Not implemented yet"
@@ -82,40 +82,43 @@ class Fx1 extends Closure {
 }
 Closure cx1 = new Fx1();
 
+cx1.arg = j2;
+cx1.apply();
+|retTy| x1 = |retTy| cx1.res;
 
 
 -}
 transApply :: Expr -> Expr -> Translate TransType
 transApply e1 e2 = do
   (s1, j1, Pi bnd) <- trans e1
-  lunbind bnd $ \(d@(Cons de), b) -> do
-    let ((x1, _, Embed t1), de') = unrebind de
-    (s2, j2, _) <- trans e2
-    (d', b') <- multiSubst d e2 b
-    let retTy =
+  (d@(Cons de), b) <- unbind bnd
+  let ((x1, _, Embed t1), de') = unrebind de
+  (s2, j2, _) <- trans e2
+  let (d', b') = multiSubst d e2 b
+  let retTy =
           case d' of
             Empty -> b'
             _     -> Pi (bind d' b)
 
-    let fexp = unwrap j1
-    let fs = assignField (fieldAccExp fexp closureInput) (unwrap j2)
-    let fapply = bStmt . applyMethodCall $ fexp
-    let fout = fieldAccess fexp closureOutput
-    let fret = show x1
-    let fres = [initClass (javaType retTy) fret fout]
+  let fexp = unwrap j1
+  let fs = assignField (fieldAccExp fexp closureInput) (unwrap j2)
+  let fapply = bStmt . applyMethodCall $ fexp
+  let fout = fieldAccess fexp closureOutput
+  let fret = "r" ++ show x1
+  let fres = [initClass (javaType retTy) fret fout]
 
-    return (s1 ++ s2 ++ (fs : fapply : fres), var fret, retTy)
+  return (s1 ++ s2 ++ (fs : fapply : fres), var fret, retTy)
 
 
 
 translateScopeM :: Bind Tele Expr -> Translate ([J.BlockStmt], TransJavaExp, Bind Tele Expr)
-translateScopeM bnd =
-  lunbind bnd $ \(delta@(Cons b), m) -> do
-    (bodyBS, bodyV, bodyT) <- withReaderT (over env (`appTele` delta)) (trans m)
+translateScopeM bnd = do
+  (delta, m) <- unbind bnd
+  (bodyBS, bodyV, bodyT) <- extendCtx delta (trans m)
 
-    (closureBS, x11) <- translateScopeTy delta (bodyBS, bodyV, bodyT)
+  (closureBS, x11) <- translateScopeTy delta (bodyBS, bodyV, bodyT)
 
-    return (closureBS, x11, bind delta bodyT)
+  return (closureBS, x11, bind delta bodyT)
 
 {-
 
@@ -125,14 +128,14 @@ translateScopeM bnd =
 
 class Fx1 extends Closure {
 
-  Closure x1$ = this;
+  Closure cx1 = this;
 
   public void apply() {
     |t1| x1 = cx1.arg;
     <...>
   }
 }
-Closure x1$ = new Fx1();
+Closure cx1 = new Fx1();
 
 -}
 translateScopeTy :: Tele -> TransType -> Translate ([J.BlockStmt], TransJavaExp)
@@ -141,8 +144,8 @@ translateScopeTy b (ostmts, oexpr, t1) = translateScopeTyp' b
     translateScopeTyp' (Cons bnd) = do
       let ((x1, _, Embed t1), b) = unrebind bnd
 
-      let cvar = show x1 ++ "$"  -- FIXME: add prefix
-      let accessField = fieldAccess (left $ var cvar) closureInput
+      let cx1 = "c" ++ show x1  -- FIXME: add prefix
+      let accessField = fieldAccess (left $ var cx1) closureInput
       let xf = initClass (javaType t1) (show x1) accessField
 
       (body', xe) <- case b of
@@ -150,14 +153,14 @@ translateScopeTy b (ostmts, oexpr, t1) = translateScopeTyp' b
                        Cons b' ->
                          translateScopeTyp' b
 
-      let fstmt = localVar closureType (varDecl cvar (funInstCreate (show x1)))
+      let fstmt = localVar closureType (varDecl cx1 (funInstCreate (show x1)))
 
       return
         ([ localClassDecl (closureTransName ++ show x1) closureClass
-             (closureBodyGen [memberDecl $ fieldDecl (classTy closureClass) (varDecl cvar J.This)]
+             (closureBodyGen [memberDecl $ fieldDecl (classTy closureClass) (varDecl cx1 J.This)]
                 ([xf] ++ body' ++ [bsAssign (name [closureOutput]) (unwrap xe)]))
          , fstmt
-         ], var cvar)
+         ], var cx1)
 
 
 

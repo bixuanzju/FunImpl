@@ -1,4 +1,4 @@
-module Parser where
+module Parser (parser) where
 
 import           Control.Applicative
 import           Text.Parsec hiding (Empty, (<|>), many)
