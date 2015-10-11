@@ -51,7 +51,7 @@ trans e =
       t <- fst <$> lookupTy n
       return ([], var (show n), t)
     Lam bnd -> do
-      (s, je, t) <- translateScopeM bnd
+      (s, je, t) <- translateScopeM bnd Nothing
       return (s, je, Pi t)
     App e1 e2 -> transApply e1 e2
     Lit lit -> return ([], Right . J.Int . fromIntegral $ lit, Nat)
@@ -68,6 +68,17 @@ trans e =
       newName <- fresh (string2Name "prim" :: TmName)
       let assignExpr = localFinalVar (javaType t) (varDecl (show newName) je)
       return (s1 ++ s2 ++ [assignExpr], var (show newName), t)
+
+    -- TODO: generalize?
+    Mu bnd -> do
+      ((x, Embed t), e) <- unbind bnd
+      case e of
+        Lam bnd -> do
+          (s, je, _) <- extendCtx (Cons (rebind (x, Embed Prog, Embed t) Empty))
+                          (translateScopeM bnd (Just x))
+          return (s, je, t)
+
+        _ -> throwError "Expected a lambda abstraction after mu"
     _ -> throwError "Not implemented yet"
 
 
@@ -92,7 +103,7 @@ transApply :: Expr -> Expr -> Translate TransType
 transApply e1 e2 = do
   (s1, j1, Pi bnd) <- trans e1
   (d@(Cons de), b) <- unbind bnd
-  let ((x1, _, Embed t1), de') = unrebind de
+  let ((x1, _, _), de') = unrebind de
   (s2, j2, _) <- trans e2
   let (d', b') = multiSubst d e2 b
   let retTy =
@@ -111,14 +122,14 @@ transApply e1 e2 = do
 
 
 
-translateScopeM :: Bind Tele Expr -> Translate ([J.BlockStmt], TransJavaExp, Bind Tele Expr)
-translateScopeM bnd = do
+translateScopeM :: Bind Tele Expr -> Maybe TmName -> Translate ([J.BlockStmt], TransJavaExp, Bind Tele Expr)
+translateScopeM bnd n = do
   (delta, m) <- unbind bnd
   (bodyBS, bodyV, bodyT) <- extendCtx delta (trans m)
 
-  (closureBS, x11) <- translateScopeTy delta (bodyBS, bodyV, bodyT)
+  (closureBS, cx1) <- translateScopeTy delta (bodyBS, bodyV, bodyT) n
 
-  return (closureBS, x11, bind delta bodyT)
+  return (closureBS, cx1, bind delta bodyT)
 
 {-
 
@@ -126,7 +137,7 @@ translateScopeM bnd = do
 
 ==>
 
-class Fx1 extends Closure {
+class Fcx1 extends Closure {
 
   Closure cx1 = this;
 
@@ -135,16 +146,17 @@ class Fx1 extends Closure {
     <...>
   }
 }
-Closure cx1 = new Fx1();
+Closure cx1 = new Fcx1();
 
 -}
-translateScopeTy :: Tele -> TransType -> Translate ([J.BlockStmt], TransJavaExp)
-translateScopeTy b (ostmts, oexpr, t1) = translateScopeTyp' b
+translateScopeTy :: Tele -> TransType -> Maybe TmName -> Translate ([J.BlockStmt], TransJavaExp)
+translateScopeTy b (ostmts, oexpr, t1) n = translateScopeTyp' b
   where
     translateScopeTyp' (Cons bnd) = do
       let ((x1, _, Embed t1), b) = unrebind bnd
 
-      let cx1 = "c" ++ show x1  -- FIXME: add prefix
+      let cx1 = maybe ("c" ++ show x1) (show . id) n -- FIXME: use prefix
+
       let accessField = fieldAccess (left $ var cx1) closureInput
       let xf = initClass (javaType t1) (show x1) accessField
 
@@ -153,10 +165,10 @@ translateScopeTy b (ostmts, oexpr, t1) = translateScopeTyp' b
                        Cons b' ->
                          translateScopeTyp' b
 
-      let fstmt = localVar closureType (varDecl cx1 (funInstCreate (show x1)))
+      let fstmt = localVar closureType (varDecl cx1 (funInstCreate cx1))
 
       return
-        ([ localClassDecl (closureTransName ++ show x1) closureClass
+        ([ localClassDecl (closureTransName ++ cx1) closureClass
              (closureBodyGen [memberDecl $ fieldDecl (classTy closureClass) (varDecl cx1 J.This)]
                 ([xf] ++ body' ++ [bsAssign (name [closureOutput]) (unwrap xe)]))
          , fstmt
