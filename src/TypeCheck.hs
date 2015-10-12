@@ -82,7 +82,7 @@ infer (Lam bnd) = do
   (delta, m) <- unbind bnd
   b <- extendCtx delta (infer m)
   let retype = Pi $ bind delta b
-  checkSort retype
+  -- checkSort retype -- TODO: why?
   return retype
 infer (App m n) = do
   bnd <- unPi =<< infer m
