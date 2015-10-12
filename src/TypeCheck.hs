@@ -38,7 +38,7 @@ step (U (F _ e)) = return e
 step (U e) = U <$> step e
 step e@(Mu bnd) = do
   ((n, _), b) <- unbind bnd
-  return $ subst n b e
+  return $ subst n e b
 step (PrimOp op (Lit n) (Lit m)) = do
   let x = evalOp op
   return (Lit (n `x` m))
