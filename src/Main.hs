@@ -79,7 +79,7 @@ main = runInputT defaultSettings loop
             loop
       where
         processCMD expr func =
-          case parser . unwords $ expr of
+          case parseExpr . unwords $ expr of
             Left err -> do
               outputStrLn . show $ err
               loop

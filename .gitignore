@@ -51,3 +51,5 @@ doc/main.pdf
 /newcore/sections/appendix.tex
 /newcore/sections/expcore.ott.tex
 /newcore/sections/otthelper.tex
+/src/Parser.hs
+/src/Tokens.hs
