@@ -50,11 +50,15 @@ trans e =
     Var n -> do
       t <- fst <$> lookupTy n
       return ([], var (show n), t)
+
     Lam bnd -> do
       (s, je, t) <- translateScopeM bnd Nothing
       return (s, je, Pi t)
+
     App e1 e2 -> transApply e1 e2
+
     Lit lit -> return ([], Right . J.Int . fromIntegral $ lit, Nat)
+
     PrimOp op e1 e2 -> do
       (s1, j1, _) <- trans e1
       (s2, j2, _) <- trans e2
@@ -74,11 +78,32 @@ trans e =
       ((x, Embed t), e) <- unbind bnd
       case e of
         Lam bnd -> do
-          (s, je, _) <- extendCtx (Cons (rebind (x, Embed Prog, Embed t) Empty))
-                          (translateScopeM bnd (Just x))
+          (s, je, _) <- extendCtx (mkTele [(name2String x, t)]) (translateScopeM bnd (Just x))
           return (s, je, t)
 
         _ -> throwError "Expected a lambda abstraction after mu"
+
+    F t e -> do
+      (s, v, _) <- trans e
+      return (s, v, t)
+
+    U e -> do
+      (s, v, t1) <- trans e
+      t2 <- oneStep t1
+      return (s, v, t2)
+
+    Nat -> do
+      (js, v) <- createTypeHouse "nat"
+      return (js, v, Kind Star)
+
+    Kind Star -> do
+      (js, v) <- createTypeHouse "star"
+      return (js, v, Kind Box)
+
+    Pi _ -> do
+      (js, v) <- createTypeHouse "pi"
+      return (js, v, Kind Star)
+
     _ -> throwError "Not implemented yet"
 
 
@@ -95,7 +120,7 @@ Closure cx1 = new Fx1();
 
 cx1.arg = j2;
 cx1.apply();
-|retTy| x1 = |retTy| cx1.res;
+|retTy| rx1 = |retTy| cx1.res;
 
 
 -}
@@ -142,7 +167,7 @@ class Fcx1 extends Closure {
   Closure cx1 = this;
 
   public void apply() {
-    |t1| x1 = cx1.arg;
+    final |t1| x1 = cx1.arg;
     <...>
   }
 }
@@ -189,3 +214,12 @@ initClass ty tempName expr =
        (if ty == objClassTy
           then expr
           else cast ty expr))
+
+
+createTypeHouse :: (Fresh m) => String -> m ([J.BlockStmt], TransJavaExp)
+createTypeHouse str = do
+  typeVar <- show <$> fresh (s2n str)
+  let fstmt = [ localVar typeOfType (varDecl typeVar typeHouseCreate)
+              , assignField (fieldAccExp (left . var $ typeVar) typeField) (J.Lit (J.String str))
+              ]
+  return (fstmt, var typeVar)
