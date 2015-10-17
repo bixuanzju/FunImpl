@@ -15,9 +15,9 @@ tokens :-
   in                            { \s -> TokenIn }
   castup                        { \s -> TokenF }
   castdown                      { \s -> TokenU }
-  pi                      { \s -> TokenPi }
-  mu                      { \s -> TokenMu }
-  nat                      { \s -> TokenNat }
+  \/\\                          { \s -> TokenPi }
+  mu                            { \s -> TokenMu }
+  nat                           { \s -> TokenNat }
   $digit+                       { \s -> TokenInt (read s) }
   \=                            { \s -> TokenEq }
   \:                            { \s -> TokenColon }

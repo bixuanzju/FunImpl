@@ -40,6 +40,10 @@ instance Pretty Expr where
     t' <- ppr t
     return (text "cast↑" <> PP.brackets t' <+> e')
   ppr (U e) = (text "cast↓" <+>) <$> ppr e
+  ppr (Let bnd) = lunbind bnd $ \((x, Embed e1), e2) -> do
+    e1' <- ppr e1
+    e2' <- ppr e2
+    return (text "let" <+> (text . show $ x) <+> PP.equals <+> e1' <+> text "in" <+> e2')
   ppr Nat = return $ text "nat"
   ppr (Lit n) = return . text . show $ n
   ppr (PrimOp op e1 e2) = do
