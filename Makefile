@@ -1,20 +1,17 @@
 srcdir=src
 parsefile=Parser.y
+lexfile=Tokens.x
 
 .PHONY: all
 all: parser
-	cabal install  --enable-tests
+	stack build
 
 .PHONY : repl
 repl : parser
-	cabal run
-
-.PHONY : test
-test : parser
-	cabal test
+	stack exec lambdapi
 
 parser : $(srcdir)/$(parsefile)
-	cd $(srcdir) && happy $(parsefile)
+	cd $(srcdir) && alex $(lexfile) && happy $(parsefile)
 
 .PHONY : doc
 doc:
@@ -27,5 +24,5 @@ clean :
 
 .PHONY : distclean
 distclean : clean
-	cabal clean
+	stack clean
 	make -C doc distclean
