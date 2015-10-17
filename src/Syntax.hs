@@ -114,8 +114,8 @@ ebox = Kind Box
 eapp :: Expr -> Expr -> Expr
 eapp = App
 
-elet :: (String, Expr) -> Expr -> Expr
-elet (n, e1) e2 = Let (bind (s2n n, embed e1) e2)
+elet :: String -> Expr -> Expr -> Expr
+elet n e1 e2 = Let (bind (s2n n, embed e1) e2)
 
 mkTele :: [(String, Expr)] -> Tele
 mkTele []          = Empty

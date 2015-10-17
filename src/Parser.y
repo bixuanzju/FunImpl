@@ -58,7 +58,7 @@ expr : '\\' teles '.' expr                      { elam $2 $4 }
      | expr '+' expr                            { PrimOp Add $1 $3 }
      | tele '->' expr                           { epi [$1] $3 }
      | expr '->' expr                           { earr $1 $3 }
-     | let id '=' expr in expr                  { elet ($2, $4) $6 }
+     | let id '=' expr in expr                  { elet $2 $4 $6 }
      | aexp                                     { $1 }
 
 aexp : aexp term                                { App $1 $2 }

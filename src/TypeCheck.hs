@@ -34,6 +34,10 @@ step (App (Lam bnd) t2) = do
 step (App t1 t2) =
   App <$> step t1 <*> pure t2
   <|> App <$> pure t1 <*> step t2
+step (Let bnd) = do
+  ((n, Embed e), b) <- unbind bnd
+  let n' = name2String n
+  elet n' <$> step e <*> pure b <|> pure (subst n e b)
 step (U (F _ e)) = return e
 step (U e) = U <$> step e
 step e@(Mu bnd) = do
