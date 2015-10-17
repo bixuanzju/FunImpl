@@ -109,6 +109,11 @@ infer a@(Mu bnd) = do
   checkSort t
   ctaTest e x
   return t
+infer (Let bnd) = do
+  ((x, Embed e), b) <- unbind bnd
+  t <- infer e
+  t' <- infer (subst x e b)
+  return (subst x e t') -- FIXME: overkill?
 infer (F t1 e) = do
   t2 <- oneStep t1
   t2' <- infer e
