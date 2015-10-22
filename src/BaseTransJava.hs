@@ -83,6 +83,19 @@ trans e =
 
         _ -> throwError "Expected a lambda abstraction after mu"
 
+    Let bnd -> do
+      ((x, Embed e), b) <- unbind bnd
+      let x' = name2String x
+      (s1, j1, t1) <- trans e
+      -- types do need to generate code
+      if (aeq t1 estar || aeq t1 ebox)
+        then trans (subst x e b)
+        else do
+          let jt1 = javaType t1
+          let xDecl = localVar jt1 (varDecl x' $ unwrap j1)
+          (s2, j2, t2) <- extendCtx (mkTele [(x', t1)]) (trans b)
+          return (s1 ++ [xDecl] ++ s2, j2, t2)
+
     F t e -> do
       (s, v, _) <- trans e
       return (s, v, t)
