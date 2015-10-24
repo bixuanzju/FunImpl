@@ -147,7 +147,7 @@ transApply e1 e2 = do
   let retTy =
           case d' of
             Empty -> b'
-            _     -> Pi (bind d' b)
+            _     -> Pi (bind d' b')
 
   let fexp = unwrap j1
   let fs = assignField (fieldAccExp fexp closureInput) (unwrap j2)
