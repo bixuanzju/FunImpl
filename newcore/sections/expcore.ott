@@ -16,13 +16,13 @@ grammar
 e, t {{ tex \tau }}, T {{ tex \sigma }}, ro {{ tex \rho }} :: 'e_' ::=       {{ com Expressions    }}
   | x                         ::  :: Var        {{ com Variable }}
   | star                      ::  :: Star       {{ com Type of Types }}
-  | square                    ::  :: Square       {{ com Type of Star }}
   | e1 e2                     ::  :: App        {{ com Application }}
   | \ x : t . e               ::  :: Lam        {{ com Abstraction }}
   | Pi x : t  . T             ::  :: Pi         {{ com Dependent Product }}
   | castup [ t ] e            ::  :: CastUp     {{ com Cast Up }}
   | castdown e                ::  :: CastDown   {{ com Cast Down }}
   | mu x : t . e              ::  :: Mu         {{ com Polymorphic Recursion }}
+  | open x in e               ::  :: Open       {{ com Local open }}
   | e1 [ x |-> e2 ]           :: M:: Sub        {{ com Substitution }}
   | ( e )                     :: M:: Parens     {{ com Parenthesized expression }}
   | let x : t = e2 in e1      :: M:: LetBinding {{ com Let binding }}
@@ -64,13 +64,25 @@ s, ss {{ tex t }} :: 's_' ::= {{ com Sorts }}
   | star                ::  :: Star                  {{ com Star }}
   | square              ::  :: Square                {{ com Square }}
 
-th {{ tex \theta }} :: 'th_' ::=  {{ com Classifier  }}
-  | L              ::  :: Prgm  {{ com Logic }}
-  | P              ::  :: Logic {{ com Program  }}
+%% Program
+pgm                  :: 'pgm_' ::= {{ com Program }}
+  | << decl >> ; e   :: :: Decl {{ com }}
 
-sig {{ tex \Sigma }} :: 'sig_' ::=  {{ com Positivity  }}
-  | +              ::  :: pos  {{ com Positive }}
-  | -              ::  :: neg {{ com Negative  }}
+%% Module and signature
+decl                                        :: 'decl_' ::=     {{ com Declarations }}
+  | M  ::   :: Modules             {{ com Modules }}
+  | S  ::   :: Signatures          {{ com Signatures }}
+
+M                                        :: 'M_' ::=     {{ com Modules }}
+  | X  ::   :: Identifier             {{ com Module Identifier }}
+  | struct X = { << x = e >> } :: :: Struct {{ com Structure }}
+  | M :> S :: :: Ascription {{ com Signature Ascription }}
+
+S                                        :: 'S_' ::=     {{ com Signatures }}
+  | X  ::   :: Identifier             {{ com Signature Identifier }}
+  | sig X = { << x : e >> } :: :: Sig {{ com Signature Specification }}
+
+
 
 %% Contexts
 G {{ tex \Gamma }} :: 'G_' ::= {{ com Contexts }}
@@ -106,8 +118,9 @@ terminals :: 'terminals_' ::=
   | star     ::  :: star      {{ tex \star }}
   | square   ::  :: square    {{ tex \Box }}
   | empty    ::  :: empty     {{ tex \varnothing }}
-  | L        ::  :: logic     {{ tex \mathsf{L} }}
-  | P        ::  :: program     {{ tex \mathsf{P} }}
+  | open     ::  :: open      {{ tex \kw{open} }}
+  | sig      ::  :: sig       {{ tex \kw{sig} }}
+  | struct   ::  :: struct    {{ tex \kw{struct} }}
   | ->       ::  :: to        {{ tex \rightarrow }}
   | -->      ::  :: steps     {{ tex \longrightarrow }}
   | -->>     ::  :: nsteps    {{ tex \longrightarrow_n }}
